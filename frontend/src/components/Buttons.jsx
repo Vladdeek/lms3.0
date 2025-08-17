@@ -1,54 +1,29 @@
-export const RoundButton = ({
-	size,
-	color,
-	outline = false,
-	children,
-	text,
+export const RadioButton = ({
+	name,
+	value,
+	checked,
+	onChange,
+	icon: Icon,
+	title,
 }) => {
 	return (
-		<button
-			className='rounded-full uppercase unbounded text-base font-medium'
-			style={{
-				width: size,
-				height: size,
-				backgroundColor: !outline && color,
-				border: `1px solid ${color}`,
-				color: !outline ? text : color,
-			}}
+		<label
+			className={`flex items-center gap-2 px-4 py-2 rounded-xl border cursor-pointer transition-all ${
+				checked
+					? 'bg-[var(--white)] border-[var(--hero-epta)] text-[var(--hero-epta)]'
+					: 'bg-transparent border-[var(--middle)] text-[var(--middle)] hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)]'
+			}`}
 		>
-			{children}
-		</button>
-	)
-}
-export const Button = ({ children, width = 'fit' }) => {
-	return (
-		<>
-			<button
-				className={`bg-[var(--text)] hover:brightness-80 active:scale-97 transition-all inline-flex gap-4 text-[20px] text-[var(--black)] unbounded font-normal p-4 px-10 text-lg justify-between items-center rounded-lg z-10 `}
-				style={{ width: width }}
-			>
-				{children}
-			</button>
-		</>
-	)
-}
-export const GrayButton = ({ namebtn }) => {
-	return (
-		<>
-			<button
-				className={`bg-[var(--gray)] unbounded hover:brightness-90 transition-all inline-flex gap-4 text-[var(--text)] font-medium p-4 px-10 text-lg justify-between items-center rounded-md `}
-			>
-				{namebtn}
-			</button>
-		</>
-	)
-}
-export const BlackButton = ({ title }) => {
-	return (
-		<>
-			<button className='bg-[var(--text)] text-[var(--black)] px-6 py-4 rounded-lg w-fit flex justify-center items-center text-[20px] unbounded font-normal hover:bg-[var(--primary)] hover:text-[var(--black)] transition-all'>
-				{title}
-			</button>
-		</>
+			<input
+				type='radio'
+				name={name}
+				value={value}
+				checked={checked}
+				onChange={onChange}
+				className='hidden'
+			/>
+			{Icon && <Icon className='w-5 h-5' />}
+			<span className='text-sm font-medium'>{title}</span>
+		</label>
 	)
 }

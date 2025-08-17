@@ -4,6 +4,12 @@
 	--black: #111111;
 	--hero-epta: #f43b75;
 	--middle: #989898;
+	--light-middle: #ededed;
+
+	--yellow-status-text: #946f33;
+	--yellow-status-bg: #fff5da;
+	--green-status-text: #339436;
+	--green-status-bg: #daffe6;
 }
 
 :root[data-theme='dark'] {

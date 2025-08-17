@@ -9,14 +9,9 @@ import {
 import { Suspense } from 'react'
 import './index.css'
 import './themes.css'
-import Authorization from './pages/Authorization'
 import DashboardLayout from './pages/layout/DashboardLayout'
 import MainPage from './pages/MainPage'
 import CustomCursor from './components/Cursor'
-
-import CalendarPage from './pages/Calendar'
-
-import FacultyCourses, { AllCourses } from './pages/AllCourses'
 
 function MainApp() {
 	const navigate = useNavigate()
@@ -29,13 +24,9 @@ function MainApp() {
 			}
 		>
 			<Routes>
-				<Route path='/auth' element={<Authorization />} />
+				<Route path='/auth' element={''} />
 				<Route path='/' element={<DashboardLayout />}>
 					<Route path='/main' element={<MainPage />} />
-					<Route path='/calendar' element={<CalendarPage />} />
-
-					<Route path='/all' element={<FacultyCourses />} />
-					<Route path='/all/:id' element={<AllCourses />} />
 				</Route>
 			</Routes>
 		</Suspense>

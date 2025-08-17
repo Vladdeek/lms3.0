@@ -1,15 +1,17 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
+import Footer from '../../components/Footer'
 
 export default function DashboardLayout() {
 	return (
 		<>
-			<div className='mx-40'>
+			<div className='mx-10'>
 				<Header />
-				<div className='h-40'></div>
+				<div className='h-25'></div>
 				<div>
 					<Outlet />
 				</div>
+				<Footer />
 			</div>
 		</>
 	)

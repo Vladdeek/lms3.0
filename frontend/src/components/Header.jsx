@@ -195,7 +195,7 @@ const Header = () => {
 	const [openIndex, setOpenIndex] = useState(null)
 	return (
 		<>
-			<div className='flex justify-between items-center fixed w-full px-10 bg-[var(--white)] shadow-lg py-[15px] z-100 left-0'>
+			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
 				<div className='flex items-center gap-5'>
 					{HeaderDropdownInfo.map((item, index) => (
 						<HeaderDropdown
@@ -223,19 +223,18 @@ const Header = () => {
 							/>
 						))}
 						{UserInfo.map((user, index) => (
-							<div className='flex gap-4 shadow-[1px_2px_8px_rgba(0,0,0,0.125)] rounded-lg py-[14px] px-3'>
-								<div className='flex flex-col items-end'>
-									<p className='text-base font-medium text-[var(--black)] whitespace-nowrap'>
-										{`${user.FullName.split(' ')[0]}
+							<div className='flex items-center gap-4 shadow-[1px_2px_8px_rgba(0,0,0,0.125)] rounded-lg py-[15px] pl-3 pr-[15px]'>
+								<p className='text-base font-medium text-[var(--black)] whitespace-nowrap text-end leading-5'>
+									{`${user.FullName.split(' ')[0]}
 										  ${user.FullName.split(' ')[1]}
 										  ${user.FullName.split(' ')[2][0]}.`}
-									</p>
-									<p className='text-base font-medium text-[var(--middle)]'>
+									<span className='font-normal text-[var(--middle)]'>
+										<br />
 										{user.role}
-									</p>
-								</div>
+									</span>
+								</p>
 								<img
-									className='h-12 rounded-full aspect-square'
+									className='h-10 rounded-full aspect-square'
 									src={user.img_path}
 									alt=''
 								/>
