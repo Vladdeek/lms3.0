@@ -1,0 +1,82 @@
+@import 'tailwindcss';
+@import './themes.css';
+
+@font-face {
+	font-family: 'GothamPro';
+	src: url('../public/assets/fonts/GothamPro/gothampro.ttf') format('truetype');
+	font-weight: 400;
+}
+@font-face {
+	font-family: 'GothamPro';
+	src: url('../public/assets/fonts/GothamPro/gothampro_medium.ttf')
+		format('truetype');
+	font-weight: 500;
+}
+@font-face {
+	font-family: 'GothamPro';
+	src: url('../public/assets/fonts/GothamPro/gothampro_bold.ttf')
+		format('truetype');
+	font-weight: 700;
+}
+@font-face {
+	font-family: 'GothamPro';
+	src: url('../public/assets/fonts/GothamPro/gothampro_black.ttf')
+		format('truetype');
+	font-weight: 900;
+}
+@font-face {
+	font-family: 'GothamPro';
+	src: url('../public/assets/fonts/GothamPro/gothampro_light.ttf')
+		format('truetype');
+	font-weight: 200;
+}
+
+body {
+	background-color: var(--bg);
+	font-family: 'GothamPro', sans-serif;
+	cursor: none;
+}
+button {
+	cursor: none;
+}
+
+#custom-cursor {
+	position: fixed;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	pointer-events: none;
+	mix-blend-mode: difference;
+	background: white;
+	z-index: 9999;
+	transform: translate(-50%, -50%) scale(1);
+	transition: transform 0.15s ease;
+	opacity: 1;
+}
+
+#custom-cursor.cursor-hover {
+	transform: translate(-50%, -50%) scale(2);
+}
+
+#custom-cursor.cursor-clicked {
+	transform: translate(-50%, -50%) scale(5);
+	opacity: 0;
+	transition: transform 0.3s ease, opacity 0.2s ease;
+}
+#custom-cursor.cursor-post-clicked {
+	transform: translate(-50%, -50%) scale(0);
+	opacity: 0;
+}
+
+.glass {
+	background: var(--glass-bg);
+	box-shadow: inset 4px 4px 24px var(--glass-inner-lt),
+		inset -4px -4px 24px var(--glass-inner-rb), -2px -2px 2px var(--glass-lt),
+		1px 1px 2px var(--glass-rb);
+	backdrop-filter: blur(8px);
+	filter: "url('/glass.svg#lg-dist')";
+}
+
+.unbounded {
+	font-family: 'Unbounded', sans-serif;
+}
