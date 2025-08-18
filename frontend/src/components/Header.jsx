@@ -7,6 +7,7 @@ import {
 	Bell,
 	MessageSquare,
 	MessagesSquare,
+	AlignJustify,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
@@ -28,7 +29,7 @@ const HeaderBtn = ({ onClick, action, icon: Icon, Notifications = null }) => {
 			className={`relative rounded-lg p-[14px] ${
 				action === 'toggleTheme' &&
 				'hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
-			}  text-[var(--black)] shadow-[1px_2px_8px_rgba(0,0,0,0.125)] transition-all flex items-center justify-center `}
+			}  text-[var(--black)] shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer`}
 		>
 			{action === 'toggleTheme' ? (
 				!isLight ? (
@@ -41,7 +42,7 @@ const HeaderBtn = ({ onClick, action, icon: Icon, Notifications = null }) => {
 					<Icon size={20} />
 					{Notifications !== null ? (
 						<p
-							className={`h-4 w-4 pt-[2px] flex justify-center items-center rounded-full absolute -top-1 -right-1 bg-[var(--hero-epta)] text-[var(--white)] ${
+							className={`h-4 w-4 p-[1px] flex justify-center items-center rounded-full absolute -top-1 -right-1 bg-[var(--hero-epta)] text-[var(--white)] ${
 								Notifications > 9 ? 'text-[8px]' : 'text-xs'
 							}`}
 						>
@@ -56,113 +57,55 @@ const HeaderBtn = ({ onClick, action, icon: Icon, Notifications = null }) => {
 	)
 }
 
-const HeaderDropdown = ({
-	title,
-	option = false,
-	isOpen,
-	onToggle,
-	icon: Icon,
-	menu = false,
-}) => {
+const HeaderLink = ({ title, icon: Icon, to }) => {
 	return (
-		<div className='relative select-none '>
-			<div
-				onClick={onToggle}
-				data-clickable
-				className={`inline-flex justify-center items-center gap-2 ${
-					!menu
-						? 'bg-[var(--white)] shadow-[1px_2px_8px_rgba(0,0,0,0.125)]'
+		<NavLink
+			to={to}
+			className={({ isActive }) =>
+				`inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 cursor-pointer shadow-[var(--shadow)] transition-all select-none ${
+					!isActive
+						? 'bg-[var(--white)]'
 						: 'bg-[var(--hero-epta)] text-[var(--white)]'
-				}  rounded-lg px-4 py-3`}
-			>
-				{!menu ? (
+				}`
+			}
+		>
+			{({ isActive }) => (
+				<>
 					<Icon size={24} />
-				) : (
-					<div className='relative h-6 w-[18px] flex flex-col justify-center items-center '>
-						<div
-							className={`h-[2px] w-full bg-[var(--white)] absolute rounded-full transition-all ${
-								isOpen ? 'rotate-45' : 'top-[6px]'
-							}`}
-						></div>
-						<div
-							className={`h-[2px]  bg-[var(--white)] absolute rounded-full transition-all ${
-								isOpen ? 'w-0 opacity-0' : 'w-full opacity-100'
-							}`}
-						></div>
-						<div
-							className={`h-[2px] w-full bg-[var(--white)] absolute rounded-full transition-all ${
-								isOpen ? '-rotate-45' : 'bottom-[6px]'
-							}`}
-						></div>
-					</div>
-				)}
-
-				<p
-					className={`font-medium transition-all text-base ${
-						!option
-							? 'hover:text-[var(--primary)] text-[var(--text)] '
-							: isOpen
-							? 'text-[var(--primary)]'
-							: 'hover:text-[var(--primary)] text-[var(--text)]'
-					}`}
-				>
-					{title}
-				</p>
-			</div>
-			{option && isOpen && (
-				<div className='bg-[var(--white)] shadow-[1px_2px_8px_rgba(0,0,0,0.125)] min-w-full absolute left-0 rounded-lg flex flex-col gap-2 py-2 px-4 mt-1 text-[#101010] z-50 '>
-					{option.map((item, index) => (
-						<NavLink
-							to={item.to}
-							onClick={() => {
-								setIsOpen(prev => !prev)
-							}}
-							date-clickable
-							key={index}
-							className='flex gap-3 items-center group cursor-none'
-						>
-							<p className='select-none text-base whitespace-nowrap'>
-								{item.title}
-							</p>
-						</NavLink>
-					))}
-				</div>
+					<p
+						className={`font-medium transition-all text-base ${
+							isActive
+								? 'text-[var(--primary)]'
+								: 'hover:text-[var(--primary)] text-[var(--text)]'
+						}`}
+					>
+						{title}
+					</p>
+				</>
 			)}
-		</div>
+		</NavLink>
 	)
 }
 
 const Header = () => {
-	const HeaderDropdownInfo = [
+	const HeaderLinkInfo = [
 		{
 			title: 'Каталог',
-			icon: '',
-			option: [
-				{ title: 'Раздел 1', to: '' },
-				{ title: 'Раздел 2', to: '' },
-				{ title: 'Раздел 3', to: '' },
-				{ title: 'Раздел 4', to: '' },
-			],
-			menu: true,
+			icon: AlignJustify,
+			to: '/catalog',
 		},
 		{
 			title: 'Студенты и группы',
 			icon: UsersRound,
-			option: [
-				{ title: 'Раздел 1', to: '' },
-				{ title: 'Раздел 2', to: '' },
-				{ title: 'Раздел 3', to: '' },
-			],
+			to: '/students',
 		},
 		{
 			title: 'Проверка заданий',
 			icon: CopyCheck,
-			option: [
-				{ title: 'Раздел 1', to: '' },
-				{ title: 'Раздел 2', to: '' },
-			],
+			to: '/tasks',
 		},
 	]
+
 	const HeaderBtnInfo = [
 		{
 			icon: MessagesSquare,
@@ -197,17 +140,12 @@ const Header = () => {
 		<>
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
 				<div className='flex items-center gap-5'>
-					{HeaderDropdownInfo.map((item, index) => (
-						<HeaderDropdown
+					{HeaderLinkInfo.map((item, index) => (
+						<HeaderLink
 							key={index}
 							title={item.title}
-							option={item.option}
 							icon={item.icon}
-							menu={item.menu}
-							isOpen={openIndex === index}
-							onToggle={() =>
-								setOpenIndex(prev => (prev === index ? null : index))
-							}
+							to={item.to}
 						/>
 					))}
 				</div>
@@ -223,7 +161,7 @@ const Header = () => {
 							/>
 						))}
 						{UserInfo.map((user, index) => (
-							<div className='flex items-center gap-4 shadow-[1px_2px_8px_rgba(0,0,0,0.125)] rounded-lg py-[15px] pl-3 pr-[15px]'>
+							<div className='flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px]'>
 								<p className='text-base font-medium text-[var(--black)] whitespace-nowrap text-end leading-5'>
 									{`${user.FullName.split(' ')[0]}
 										  ${user.FullName.split(' ')[1]}

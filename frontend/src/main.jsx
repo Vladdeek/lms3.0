@@ -10,8 +10,11 @@ import { Suspense } from 'react'
 import './index.css'
 import './themes.css'
 import DashboardLayout from './pages/layout/DashboardLayout'
-import MainPage from './pages/MainPage'
 import CustomCursor from './components/Cursor'
+import Students from './pages/Students'
+import Tasks from './pages/Tasks'
+import Catalog from './pages/Сatalog'
+import Constructor from './pages/Constructor'
 
 function MainApp() {
 	const navigate = useNavigate()
@@ -26,7 +29,10 @@ function MainApp() {
 			<Routes>
 				<Route path='/auth' element={''} />
 				<Route path='/' element={<DashboardLayout />}>
-					<Route path='/main' element={<MainPage />} />
+					<Route path='/catalog' element={<Catalog />} />
+					<Route path='/students' element={<Students />} />
+					<Route path='/tasks' element={<Tasks />} />
+					<Route path='/constructor' element={<Constructor />} />
 				</Route>
 			</Routes>
 		</Suspense>
@@ -35,7 +41,6 @@ function MainApp() {
 
 createRoot(document.getElementById('root')).render(
 	<Router>
-		<CustomCursor />
 		<MainApp />
 	</Router>
 )

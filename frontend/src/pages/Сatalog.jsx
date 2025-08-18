@@ -1,17 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RadioButton } from '../components/Buttons'
 import { Blocks, LayoutGrid, Radio, X } from 'lucide-react'
 import { CourseCard } from '../components/Cards'
-import { InputDefault } from '../components/Inputs'
+import { FileInput, InputDefault, TextArea } from '../components/Inputs'
 
 const CreateBtn = ({ onClick, title }) => {
 	return (
 		<button
 			onClick={onClick}
-			className='flex flex-col w-2/3 items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl'
+			className='flex flex-col w-2/3 items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer'
 		>
 			<Blocks size={112} strokeWidth={0.5} />
-			<span className='text-base font-medium px-4 py-3 border-1 border-[var(--middle)] rounded-lg mt-4 shadow-[0_2px_8px_rgba(0,0,0,0.125)] bg-transparent text-[var(--middle)] hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all'>
+			<span className='text-base font-medium px-4 py-3 rounded-lg mt-4 transition-all'>
 				Создать курс
 			</span>
 		</button>
@@ -21,40 +21,61 @@ const CreateBtn = ({ onClick, title }) => {
 const CreateModal = ({ isOpen, onClose }) => {
 	if (!isOpen) return null
 
+	const [isNameValid, setIsNameValid] = useState(false)
+	const [isFileValid, setIsFileValid] = useState(false)
+
+	const isFormValid = isNameValid && isFileValid
+
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
-			<div className='bg-[var(--white)] relative p-6 rounded-lg shadow-lg z-1001'>
+			<div className='bg-[var(--white)] relative p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001'>
 				<X
 					onClick={onClose}
 					className='absolute top-1 right-1 text-[var(--middle)]'
 				/>
-				<h2 className='text-2xl font-medium text-[var(--black)] mb-4'>
+				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
 					Создание курса
 				</h2>
-				<form action=''>
+				<form
+					action=''
+					className='w-[482px] inline-flex flex-col items-center gap-5'
+				>
 					<InputDefault
 						type={'text'}
 						placeholder={''}
 						title={'Введите название курса'}
 						required={true}
 						InputStatus={false}
+						onStatusChange={setIsNameValid}
 					/>
-					<InputDefault
+					<TextArea
 						type={'text'}
 						placeholder={''}
 						title={'Введите описание'}
 						InputStatus={false}
 					/>
+					<FileInput
+						title='Загрузите превью'
+						required={true}
+						onStatusChange={setIsFileValid}
+					/>
+					<input
+						className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+							isFormValid
+								? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+								: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+						}`}
+						type='submit'
+						value='Создать курс'
+						disabled={!isFormValid}
+					/>
 				</form>
-				<button className='mt-4 px-4 py-2 bg-[var(--hero-epta)] text-white rounded-lg'>
-					Создать курс
-				</button>
 			</div>
 		</div>
 	)
 }
 
-const MainPage = () => {
+const Catalog = () => {
 	const options = [
 		{ value: 0, title: 'Добавленные курсы', icon: LayoutGrid },
 		{ value: 1, title: 'Вебинар', icon: Radio },
@@ -66,7 +87,7 @@ const MainPage = () => {
 			education: 'Бакалавриат',
 			course: 'Курс 1',
 			status: 'Опубликован',
-			img: 'https://picsum.photos/200/300',
+			img: 'https://i.pinimg.com/736x/74/65/59/746559a982407b366a16d7278cc88519.jpg',
 			deadline: '2023-12-31',
 		},
 		{
@@ -74,7 +95,7 @@ const MainPage = () => {
 			education: 'Магистратура',
 			course: 'Курс 2',
 			status: 'В разработке',
-			img: 'https://picsum.photos/200/300',
+			img: 'https://i.pinimg.com/736x/50/e0/91/50e0915b5b2879196b1db57a1e3acc00.jpg',
 		},
 	]
 
@@ -126,4 +147,4 @@ const MainPage = () => {
 	)
 }
 
-export default MainPage
+export default Catalog

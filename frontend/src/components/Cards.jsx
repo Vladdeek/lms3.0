@@ -11,9 +11,13 @@ export const CourseCard = ({
 }) => {
 	return (
 		<>
-			<div className='h-129 p-[10px] w-full rounded-lg flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.125)] bg-[var(--white)]'>
+			<div className='h-129 p-[10px] w-full rounded-xl flex flex-col justify-between shadow-[var(--shadow)] bg-[var(--white)] hover:scale-101 transition-all'>
 				<div className='inline-flex flex-col'>
-					<img className='h-[239px] w-full rounded-md' src={img_path} alt='' />
+					<img
+						className='h-[239px] w-full rounded-md object-cover'
+						src={img_path}
+						alt=''
+					/>
 					<div className='flex gap-1 mt-4'>
 						<p className='font-medium text-[var(--black)] text-base p-[10px] bg-[var(--light-middle)] rounded-lg'>
 							{education}

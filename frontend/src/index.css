@@ -3,41 +3,42 @@
 
 @font-face {
 	font-family: 'GothamPro';
-	src: url('../public/assets/fonts/GothamPro/gothampro.ttf') format('truetype');
-	font-weight: 400;
-}
-@font-face {
-	font-family: 'GothamPro';
-	src: url('../public/assets/fonts/GothamPro/gothampro_medium.ttf')
-		format('truetype');
-	font-weight: 500;
-}
-@font-face {
-	font-family: 'GothamPro';
-	src: url('../public/assets/fonts/GothamPro/gothampro_bold.ttf')
-		format('truetype');
-	font-weight: 700;
-}
-@font-face {
-	font-family: 'GothamPro';
-	src: url('../public/assets/fonts/GothamPro/gothampro_black.ttf')
-		format('truetype');
-	font-weight: 900;
-}
-@font-face {
-	font-family: 'GothamPro';
-	src: url('../public/assets/fonts/GothamPro/gothampro_light.ttf')
-		format('truetype');
+	src: url('/assets/fonts/GothamPro/gothampro.ttf') format('truetype');
 	font-weight: 200;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'GothamPro';
+	src: url('/assets/fonts/GothamPro/gothampro.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'GothamPro';
+	src: url('/assets/fonts/GothamPro/gothampro_medium.ttf') format('truetype');
+	font-weight: 500;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'GothamPro';
+	src: url('/assets/fonts/GothamPro/gothampro_bold.ttf') format('truetype');
+	font-weight: 700;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'GothamPro';
+	src: url('/assets/fonts/GothamPro/gothampro_black.ttf') format('truetype');
+	font-weight: 900;
+	font-style: normal;
 }
 
 body {
 	background-color: var(--bg);
 	font-family: 'GothamPro', sans-serif;
-	cursor: none;
-}
-button {
-	cursor: none;
 }
 
 #custom-cursor {
