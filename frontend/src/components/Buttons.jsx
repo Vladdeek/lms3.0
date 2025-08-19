@@ -1,5 +1,5 @@
 import { EllipsisVertical, EllipsisVerticalIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export const RadioButton = ({
 	name,
@@ -109,22 +109,38 @@ export const Button = ({
 
 export const EllipsisButton = ({ options, onOptionClick }) => {
 	const [isOpen, setIsOpen] = useState(false)
+	const [isVisible, setIsVisible] = useState(false)
+	const buttonRef = useRef(null)
+	const menuRef = useRef(null)
 
 	const toggleMenu = () => {
-		setIsOpen(!isOpen)
-	}
-
-	const handleOptionClick = option => {
-		setIsOpen(false)
-		if (onOptionClick) {
-			onOptionClick(option)
+		if (!isOpen) {
+			setIsOpen(true)
+			setTimeout(() => setIsVisible(true), 10)
+		} else {
+			closeMenu()
 		}
 	}
 
+	const closeMenu = () => {
+		setIsVisible(false)
+		setTimeout(() => setIsOpen(false), 200)
+	}
+
+	const handleOptionClick = option => {
+		closeMenu()
+		onOptionClick?.(option)
+	}
+
+	// Обработчик клика вне области
 	useEffect(() => {
 		const handleClickOutside = event => {
-			if (isOpen && !event.target.closest('.relative')) {
-				setIsOpen(false)
+			if (
+				isOpen &&
+				!buttonRef.current?.contains(event.target) &&
+				!menuRef.current?.contains(event.target)
+			) {
+				closeMenu()
 			}
 		}
 
@@ -132,18 +148,58 @@ export const EllipsisButton = ({ options, onOptionClick }) => {
 		return () => document.removeEventListener('mousedown', handleClickOutside)
 	}, [isOpen])
 
+	// Позиционирование меню
+	useEffect(() => {
+		if (isOpen && buttonRef.current && menuRef.current) {
+			const buttonRect = buttonRef.current.getBoundingClientRect()
+			// Позиционируем меню относительно кнопки, но в пределах viewport
+			menuRef.current.style.top = `${buttonRect.bottom + window.scrollY}px`
+			menuRef.current.style.left = `${
+				buttonRect.right + window.scrollX - menuRef.current.offsetWidth
+			}px`
+		}
+	}, [isOpen])
+
+	// Обработчик скрола - закрываем меню при скроле
+	useEffect(() => {
+		if (!isOpen) return
+		let scrollTimeout
+		const handleScroll = () => {
+			clearTimeout(scrollTimeout)
+			scrollTimeout = setTimeout(() => {
+				closeMenu()
+			}, 50)
+		}
+
+		window.addEventListener('scroll', handleScroll, true)
+		window.addEventListener('resize', handleScroll, true)
+
+		return () => {
+			clearTimeout(scrollTimeout)
+			window.removeEventListener('scroll', handleScroll, true)
+			window.removeEventListener('resize', handleScroll, true)
+		}
+	}, [isOpen])
+
 	return (
-		<div className='relative isolate'>
+		<div className='relative' ref={buttonRef}>
 			<button
 				onClick={toggleMenu}
-				className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer p-[6px] bg-[var(--white)] shadow-[var(--shadow)]`}
+				className='rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer p-[6px] bg-[var(--white)] shadow-[var(--shadow)]'
 				aria-label='Дополнительные опции'
 			>
 				<EllipsisVertical size={20} />
 			</button>
 
 			{isOpen && (
-				<div className='absolute top-full right-0 mt-2 w-fit bg-[var(--white)] rounded-lg z-101 shadow-[var(--shadow)]'>
+				<div
+					ref={menuRef}
+					className='fixed bg-[var(--white)] rounded-lg z-[9999] shadow-[var(--shadow)] min-w-[150px] transition-opacity duration-200'
+					style={{
+						opacity: isVisible ? 1 : 0,
+						pointerEvents: isVisible ? 'auto' : 'none',
+					}}
+				>
 					{options.map((item, index) => (
 						<button
 							key={index}
