@@ -41,6 +41,10 @@ body {
 	font-family: 'GothamPro', sans-serif;
 }
 
+.code-font {
+	font-family: 'JetBrains Mono', monospace;
+}
+
 #custom-cursor {
 	position: fixed;
 	width: 24px;

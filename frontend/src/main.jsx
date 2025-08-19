@@ -14,7 +14,7 @@ import CustomCursor from './components/Cursor'
 import Students from './pages/Students'
 import Tasks from './pages/Tasks'
 import Catalog from './pages/Сatalog'
-import Constructor from './pages/Constructor'
+import ConstructorPage from './pages/ConstructorPage'
 
 function MainApp() {
 	const navigate = useNavigate()
@@ -32,7 +32,7 @@ function MainApp() {
 					<Route path='/catalog' element={<Catalog />} />
 					<Route path='/students' element={<Students />} />
 					<Route path='/tasks' element={<Tasks />} />
-					<Route path='/constructor' element={<Constructor />} />
+					<Route path='/constructor' element={<ConstructorPage />} />
 				</Route>
 			</Routes>
 		</Suspense>

@@ -1,4 +1,10 @@
-import { CircleCheck, FileText, ImagePlus } from 'lucide-react'
+import {
+	CircleCheck,
+	FileText,
+	ImagePlus,
+	ScanSearch,
+	Search,
+} from 'lucide-react'
 import { useState } from 'react'
 
 export const InputDefault = ({
@@ -231,6 +237,15 @@ export const FileInput = ({ title, required, onStatusChange }) => {
 					onChange={handleFileChange}
 				/>
 			</label>
+		</div>
+	)
+}
+
+export const SearchInput = () => {
+	return (
+		<div className='w-[383px] inline-flex group rounded-lg p-[6px] bg-[var(--white)] shadow-[var(--shadow)] gap-3 outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition'>
+			<ScanSearch className='h-full w-auto aspect-square' strokeWidth={1.5} />
+			<input type={'text'} placeholder={'Поиск'} />
 		</div>
 	)
 }

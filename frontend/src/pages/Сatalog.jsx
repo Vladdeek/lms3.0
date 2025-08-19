@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
-import { RadioButton } from '../components/Buttons'
-import { Blocks, LayoutGrid, Radio, X } from 'lucide-react'
+import { Button, RadioButton } from '../components/Buttons'
+import { Blocks, FunnelPlus, LayoutGrid, Radio, X } from 'lucide-react'
 import { CourseCard } from '../components/Cards'
-import { FileInput, InputDefault, TextArea } from '../components/Inputs'
+import {
+	FileInput,
+	InputDefault,
+	SearchInput,
+	TextArea,
+} from '../components/Inputs'
 
 const CreateBtn = ({ onClick, title }) => {
 	return (
@@ -110,19 +115,26 @@ const Catalog = () => {
 				onClose={() => setCreateModalOpen(false)}
 			/>
 			<div className='h-screen flex flex-col gap-4 py-[50px]'>
-				<div className='flex gap-4 h-12'>
-					{options.map(option => (
-						<RadioButton
-							key={option.value}
-							name='example'
-							value={option.value}
-							title={option.title}
-							icon={option.icon}
-							checked={selected === option.value}
-							onChange={() => setSelected(option.value)}
-						/>
-					))}
+				<div className='flex justify-between'>
+					<div className='flex gap-4 h-12'>
+						{options.map(option => (
+							<RadioButton
+								key={option.value}
+								name='example'
+								value={option.value}
+								title={option.title}
+								icon={option.icon}
+								checked={selected === option.value}
+								onChange={() => setSelected(option.value)}
+							/>
+						))}
+					</div>
+					<div className='flex gap-4 h-12'>
+						<SearchInput />
+						<Button icon={FunnelPlus} />
+					</div>
 				</div>
+
 				<div className='grid grid-cols-4 gap-4'>
 					{courses.map((course, index) => (
 						<CourseCard
