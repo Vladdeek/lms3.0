@@ -62,7 +62,7 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 		<NavLink
 			to={to}
 			className={({ isActive }) =>
-				`inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 cursor-pointer shadow-[var(--shadow)] transition-all select-none ${
+				`inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 cursor-pointer shadow-[var(--shadow)] text-[var(--black)] transition-all select-none ${
 					!isActive
 						? 'bg-[var(--white)]'
 						: 'bg-[var(--hero-epta)] text-[var(--white)]'
@@ -74,9 +74,7 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 					<Icon size={24} />
 					<p
 						className={`font-medium transition-all text-base ${
-							isActive
-								? 'text-[var(--primary)]'
-								: 'hover:text-[var(--primary)] text-[var(--text)]'
+							isActive ? 'text-[var(--primary)]' : 'hover:text-[var(--primary)]'
 						}`}
 					>
 						{title}

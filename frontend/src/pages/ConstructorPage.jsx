@@ -24,6 +24,14 @@ import {
 import { AltRadioButton, Button, EllipsisButton } from '../components/Buttons'
 import { useState } from 'react'
 import { SearchInput } from '../components/Inputs'
+import {
+	CodeFileInput,
+	ConstructorFileInput,
+	ConstructorPhotoInput,
+	ConstructorTextArea,
+	ConstructorTitleInput,
+	ConstructorVideoInput,
+} from '../components/ConstructorInputs'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -60,16 +68,41 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 				<EllipsisButton
 					options={options}
 					onOptionClick={option => console.log(option.action)}
+					bg={true}
 				/>
 			</div>
 		</div>
 	)
 }
-const ModuleContent = ({ type, index, title }) => {
+
+const ModuleContent = ({ type, index, title, bg, onClick }) => {
+	const options = [
+		{
+			title: 'Переместить вверх',
+			icon: <ChevronsUp size={20} />,
+			action: 'up',
+		},
+		{
+			title: 'Переместить вниз',
+			icon: <ChevronsDown size={20} />,
+			action: 'down',
+		},
+		{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
+		{ title: 'Удалить', icon: <Trash size={20} />, action: 'del' },
+	]
 	return (
-		<div className='flex justify-between items-center hover:bg-[var(--light-middle)] rounded-lg cursor-pointer transition-all px-3'>
+		<div
+			onClick={onClick}
+			className={`flex justify-between items-center ${
+				!bg && 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
+			} rounded-lg cursor-default  transition-all  `}
+		>
 			<div className='flex gap-3 text-[var(--middle)] items-center'>
-				<div className='flex items-center gap-4 text-[var(--black)] px-3 py-2'>
+				<div
+					className={`flex items-center gap-4 text-[var(--black)] px-3 py-2 rounded-lg ${
+						bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
+					}`}
+				>
 					{type === 'Лекция' ? (
 						<BookMarked size={20} />
 					) : (
@@ -80,14 +113,21 @@ const ModuleContent = ({ type, index, title }) => {
 					</p>
 				</div>
 				<p className='font-bold text-base'>/</p>
-				<p className='font-normal text-base w-3/5'>{title}</p>
+				<p className={`font-normal  ${bg ? 'text-base' : 'text-sm w-2/5'}`}>
+					{title}
+				</p>
 			</div>
-			<EllipsisVertical size={20} className='p-[6px] h-[32px] w-[32px]' />
+			{!bg && (
+				<EllipsisButton
+					options={options}
+					onOptionClick={option => console.log(option.action)}
+				/>
+			)}
 		</div>
 	)
 }
 
-const ModuleBlock = ({ ModuleInfo }) => {
+const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
 	const toggleModule = index => {
@@ -119,7 +159,8 @@ const ModuleBlock = ({ ModuleInfo }) => {
 												key={lessonIndex}
 												title={lesson.title}
 												type={lesson.type}
-												index={index + 1}
+												onClick={() => onContentSelect(lesson)}
+												isSelected={selectedContent?.id === lesson.id}
 											/>
 										)
 									})}
@@ -138,48 +179,91 @@ const ModuleBlock = ({ ModuleInfo }) => {
 		</>
 	)
 }
+
+const ContentView = ({ content }) => {
+	if (!content) {
+		return (
+			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
+				<p className='text-[var(--middle)] text-lg'>
+					Выберите занятие для просмотра
+				</p>
+			</div>
+		)
+	}
+
+	return (
+		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
+			<ModuleContent type={content.type} title={content.title} bg={true} />
+			<ConstructorTitleInput />
+			<ConstructorTextArea />
+		</div>
+	)
+}
+
 const Constructor = () => {
 	const ModuleInfo = [
 		{
+			id: 0,
 			title: 'Вступление',
 			content: [
 				{
+					id: 0,
 					type: 'Лекция',
 					title: 'Hello, World! Или как подружиться с кодом',
+					content: 'Содержимое лекции о основах программирования...',
 				},
 				{
+					id: 1,
 					type: 'Практика',
 					title: 'Hello, World! Или как подружиться с кодом',
+					content: 'Задания для практического занятия...',
 				},
 			],
 		},
 		{
-			title: 'Вступление',
+			id: 1,
+			title: 'Основы программирования',
 			content: [
 				{
+					id: 2,
 					type: 'Лекция',
-					title: 'Hello, World! Или как подружиться с кодом',
+					title: 'Переменные и типы данных',
+					content: 'Содержимое лекции о переменных...',
 				},
 				{
+					id: 3,
 					type: 'Практика',
-					title: 'Hello, World! Или как подружиться с кодом',
+					title: 'Работа с переменными',
+					content: 'Задания для практического занятия...',
 				},
 			],
 		},
 		{
-			title: 'Вступление',
+			id: 2,
+			title: 'Условия и циклы',
 			content: [
 				{
+					id: 4,
 					type: 'Лекция',
-					title: 'Hello, World! Или как подружиться с кодом',
+					title: 'Условные конструкции if/else',
+					content: 'Содержимое лекции об условиях...',
 				},
 				{
+					id: 5,
 					type: 'Практика',
-					title: 'Hello, World! Или как подружиться с кодом',
+					title: 'Решение задач с условиями',
+					content: 'Задания для практического занятия...',
 				},
 			],
 		},
 	]
+
+	const [selectedContent, setSelectedContent] = useState(null)
+
+	const handleContentSelect = content => {
+		setSelectedContent(content)
+	}
+
 	return (
 		<>
 			<div className='grid grid-cols-[1fr_3fr] gap-5 h-fit min-h-[607px]'>
@@ -187,7 +271,9 @@ const Constructor = () => {
 					<div className='flex flex-col gap-3'>
 						<div className='flex flex-col gap-3 px-2'>
 							<div className='flex justify-between w-full'>
-								<p className='font-medium text-[20px]'>Содержимое</p>
+								<p className='font-medium text-[20px] text-[var(--black)]'>
+									Содержимое
+								</p>
 								<Button icon={ArrowRightFromLine} style='white' size={32} />
 							</div>
 							<div className='flex gap-[10px]'>
@@ -203,7 +289,11 @@ const Constructor = () => {
 						</div>
 
 						<div className='h-104 flex flex-col gap-3 overflow-scroll w-full py-2 px-2'>
-							<ModuleBlock ModuleInfo={ModuleInfo} />
+							<ModuleBlock
+								ModuleInfo={ModuleInfo}
+								onContentSelect={handleContentSelect}
+								selectedContent={selectedContent}
+							/>
 							<div className='h-fit mt-2'>
 								<Button
 									icon={Package}
@@ -224,7 +314,8 @@ const Constructor = () => {
 						/>
 					</div>
 				</div>
-				<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl'></div>
+
+				<ContentView content={selectedContent} />
 			</div>
 		</>
 	)
@@ -241,13 +332,7 @@ const ConstructorPage = () => {
 	return (
 		<>
 			<div className='flex flex-col gap-5'>
-				<div className='flex justify-center'>
-					<div className='flex bg-[var(--white)] rounded-lg shadow-[var(--shadow)] px-4 py-3 mt-10'>
-						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
-						<p className='font-medium text-2xl text-[var(--black)]'>{title}</p>
-					</div>
-				</div>
-				<div className='flex justify-between items-center'>
+				<div className='flex justify-between items-center mt-10'>
 					<div className='flex gap-5 items-center '>
 						{options.map(option => (
 							<AltRadioButton
@@ -260,6 +345,10 @@ const ConstructorPage = () => {
 								onChange={() => setSelected(option.value)}
 							/>
 						))}
+					</div>
+					<div className='flex bg-[var(--white)] rounded-lg shadow-[var(--shadow)] px-4 py-3 gap-3'>
+						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
+						<p className='font-medium text-2xl text-[var(--black)]'>{title}</p>
 					</div>
 					<div className='flex gap-5 items-center'>
 						<Button icon={CalendarClock} style='white' />

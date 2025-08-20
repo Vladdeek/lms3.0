@@ -76,7 +76,9 @@ const Footer = () => {
 	return (
 		<footer className='grid grid-cols-[1fr_5fr] gap-5 my-7'>
 			<div className='flex flex-col gap-5'>
-				<p className='uppercase text-4xl font-bold'>МелГУ СУО</p>
+				<p className='uppercase text-4xl font-bold text-[var(--black)]'>
+					МелГУ СУО
+				</p>
 				<div className='flex justify-between'>
 					<div className='bg-gray-300 h-12 aspect-square rounded-lg'></div>
 					<div className='bg-gray-300 h-12 aspect-square rounded-lg'></div>

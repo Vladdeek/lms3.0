@@ -70,6 +70,7 @@ export const Button = ({
 	IconColor,
 	textSize = 20,
 	className = '',
+	htmlFor,
 }) => {
 	return (
 		<button
@@ -107,7 +108,7 @@ export const Button = ({
 	)
 }
 
-export const EllipsisButton = ({ options, onOptionClick }) => {
+export const EllipsisButton = ({ options, onOptionClick, bg }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isVisible, setIsVisible] = useState(false)
 	const buttonRef = useRef(null)
@@ -185,7 +186,9 @@ export const EllipsisButton = ({ options, onOptionClick }) => {
 		<div className='relative' ref={buttonRef}>
 			<button
 				onClick={toggleMenu}
-				className='rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer p-[6px] bg-[var(--white)] shadow-[var(--shadow)]'
+				className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer text-[var(--black)] p-[6px] ${
+					bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
+				} `}
 				aria-label='Дополнительные опции'
 			>
 				<EllipsisVertical size={20} />
