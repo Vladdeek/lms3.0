@@ -196,6 +196,10 @@ const ContentView = ({ content }) => {
 			<ModuleContent type={content.type} title={content.title} bg={true} />
 			<ConstructorTitleInput />
 			<ConstructorTextArea />
+			<ConstructorPhotoInput />
+			<ConstructorVideoInput />
+			<ConstructorFileInput />
+			<CodeFileInput />
 		</div>
 	)
 }

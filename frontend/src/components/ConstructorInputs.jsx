@@ -41,7 +41,7 @@ export const ConstructorTitleInput = ({}) => {
 			type={'text'}
 			value={inputValue}
 			onChange={handleInputChange}
-			className={`outline-0 transition mt-3 text-[20px] font-bold shadow-[var(--shadow)] px-4 py-3 rounded-lg ${
+			className={`outline-0 transition mt-3 text-[20px] font-bold px-4 py-3 rounded-lg ${
 				inputStatus ? 'text-[--black]' : 'text-[--middle]'
 			}`}
 			placeholder={'Заголовок занятия'}
@@ -157,7 +157,7 @@ export const ConstructorTextArea = ({ validate }) => {
 				onKeyUp={handleSelectionChange}
 				className={`${
 					inputStatus ? 'text-[--black]' : 'text-[--middle]'
-				} shadow-[var(--shadow)] px-4 py-3 rounded-lg outline-0 transition h-fit mt-3 resize-none overflow-hidden`}
+				}  px-4 py-3 rounded-lg outline-0 transition h-fit mt-3 resize-none overflow-hidden`}
 				placeholder={'Содержимое'}
 				rows={1}
 				style={{ minHeight: '44px' }}
