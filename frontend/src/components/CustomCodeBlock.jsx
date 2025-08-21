@@ -1,9 +1,14 @@
 import { CodeBlock } from 'react-code-blocks'
 import { github } from 'react-code-blocks'
 import { useState } from 'react'
-import { Copy, Check, Code } from 'lucide-react'
+import { Copy, Check, Code, Trash } from 'lucide-react'
 
-const CustomCodeBlock = ({ codeInfo }) => {
+const CustomCodeBlock = ({
+	codeInfo,
+	width = 'w-2/3',
+	editMode = false,
+	onClick,
+}) => {
 	const [copied, setCopied] = useState(false)
 
 	const handleCopy = async () => {
@@ -37,7 +42,9 @@ const CustomCodeBlock = ({ codeInfo }) => {
 
 	return (
 		<div className='flex justify-center'>
-			<div className='relative bg-[var(--white)] rounded-xl shadow-[var(--shadow)] overflow-hidden my-4 w-2/3'>
+			<div
+				className={`relative bg-[var(--white)] rounded-xl shadow-[var(--shadow)] overflow-hidden my-4 ${width}`}
+			>
 				<div className='flex justify-between items-center bg-[var(--white)] pr-2 pl-3 py-2 border-b border-[var(--light-middle)]'>
 					<div className='flex items-center gap-3'>
 						<div className='flex gap-2'>
@@ -49,16 +56,27 @@ const CustomCodeBlock = ({ codeInfo }) => {
 							{codeInfo.language}
 						</span>
 					</div>
-
-					<button
-						onClick={handleCopy}
-						className='flex items-center gap-2 px-3 py-1.5 bg-[var(--light-middle)] text-[var(--middle)] font-medium rounded-md text-sm transition-all hover:brightness-90 active:scale-97 shadow-[var(--shadow)] cursor-pointer'
-					>
-						<>
-							<Copy className='w-4 h-4' />
-							<span>Копировать</span>
-						</>
-					</button>
+					{!editMode ? (
+						<button
+							onClick={handleCopy}
+							className='flex items-center gap-2 px-3 py-1.5 bg-[var(--light-middle)] text-[var(--middle)] font-medium rounded-md text-sm transition-all hover:brightness-90 active:scale-97 shadow-[var(--shadow)] cursor-pointer'
+						>
+							<>
+								<Copy className='w-4 h-4' />
+								<span>Копировать</span>
+							</>
+						</button>
+					) : (
+						<button
+							onClick={onClick}
+							className='flex items-center gap-2 px-3 py-1.5 bg-[var(--red-status-bg)] text-[var(--red-status-text)] font-medium rounded-md text-sm transition-all hover:text-[var(--white)] hover:bg-red-500 active:scale-97 cursor-pointer'
+						>
+							<>
+								<Trash className='w-4 h-4' />
+								<span>Удалить</span>
+							</>
+						</button>
+					)}
 				</div>
 
 				<div className='p-0 code-font'>

@@ -10,14 +10,20 @@ import {
 	ChevronUp,
 	CircleCheckBig,
 	CloudUpload,
+	Code,
 	Copy,
 	EllipsisVertical,
 	FilePlus2,
+	Files,
+	Film,
 	Gem,
+	Image,
 	ListRestart,
 	NotebookPen,
 	Package,
 	Settings,
+	Table,
+	Text,
 	Trash,
 	UsersRound,
 } from 'lucide-react'
@@ -31,6 +37,7 @@ import {
 	ConstructorTextArea,
 	ConstructorTitleInput,
 	ConstructorVideoInput,
+	TableConstructor,
 } from '../components/ConstructorInputs'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
@@ -200,6 +207,50 @@ const ContentView = ({ content }) => {
 			<ConstructorVideoInput />
 			<ConstructorFileInput />
 			<CodeFileInput />
+			<TableConstructor />
+			<ConstructorMenu />
+		</div>
+	)
+}
+
+const ConstructorMenu = () => {
+	const buttons = [
+		{
+			title: 'Текст',
+			icon: <Text size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Код',
+			icon: <Code size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Фото',
+			icon: <Image size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Видео',
+			icon: <Film size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Файлы',
+			icon: <Files size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Таблица',
+			icon: <Table size={32} color='var(--middle)' />,
+		},
+	]
+	return (
+		<div className='grid grid-cols-4 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
+			{buttons.map((item, index) => (
+				<button
+					key={index}
+					className='flex flex-col aspect-square items-center justify-center gap-2 bg-[var(--light-middle)] rounded-lg h-25 hover:scale-102 hover:shadow-md transition-all'
+				>
+					{item.icon}
+					<p className='text-base text-[var(--middle)]'>{item.title}</p>
+				</button>
+			))}
 		</div>
 	)
 }

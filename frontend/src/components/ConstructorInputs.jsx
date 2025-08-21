@@ -16,13 +16,16 @@ import {
 	ImageIcon,
 	ImagePlus,
 	Play,
+	Plus,
 	ScanSearch,
 	Search,
+	Trash,
 	Upload,
 	X,
 } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Button } from './Buttons'
+import CustomCodeBlock from './CustomCodeBlock'
 
 export const ConstructorTitleInput = ({}) => {
 	const [inputValue, setInputValue] = useState('')
@@ -860,42 +863,43 @@ export const CodeFileInput = ({
 	const [inputStatus, setInputStatus] = useState(false)
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const maxSize = 10 * 1024 * 1024 // 10 MB (уменьшил для кода)
+	const [codeInfo, setCodeInfo] = useState(null)
+	const maxSize = 10 * 1024 * 1024 // 10 MB
 
 	const getLanguageFromExtension = filename => {
 		const extension = filename.split('.').pop().toLowerCase()
 
 		const languageMap = {
-			js: 'JavaScript',
-			jsx: 'React JSX',
-			ts: 'TypeScript',
-			tsx: 'React TSX',
-			py: 'Python',
-			java: 'Java',
-			cpp: 'C++',
-			c: 'C',
-			cs: 'C#',
-			php: 'PHP',
-			rb: 'Ruby',
-			go: 'Go',
-			rs: 'Rust',
-			html: 'HTML',
-			css: 'CSS',
-			scss: 'SCSS',
-			sass: 'SASS',
-			less: 'Less',
-			json: 'JSON',
-			xml: 'XML',
-			sql: 'SQL',
-			md: 'Markdown',
-			yml: 'YAML',
-			yaml: 'YAML',
-			sh: 'Shell',
-			bat: 'Batch',
-			ps1: 'PowerShell',
+			js: 'javascript',
+			jsx: 'jsx',
+			ts: 'typescript',
+			tsx: 'tsx',
+			py: 'python',
+			java: 'java',
+			cpp: 'cpp',
+			c: 'c',
+			cs: 'csharp',
+			php: 'php',
+			rb: 'ruby',
+			go: 'go',
+			rs: 'rust',
+			html: 'html',
+			css: 'css',
+			scss: 'scss',
+			sass: 'sass',
+			less: 'less',
+			json: 'json',
+			xml: 'xml',
+			sql: 'sql',
+			md: 'markdown',
+			yml: 'yaml',
+			yaml: 'yaml',
+			sh: 'shell',
+			bat: 'batch',
+			ps1: 'powershell',
 		}
 
-		return languageMap[extension] || extension.toUpperCase()
+		return languageMap[extension] || extension
 	}
 
 	const handleFileChange = e => {
@@ -905,19 +909,33 @@ export const CodeFileInput = ({
 
 	const validateFile = newFile => {
 		if (!newFile) return
-
 		const isValidSize = newFile.size <= maxSize
-
 		if (!isValidSize) {
 			alert(`Файл ${newFile.name} превышает максимальный размер 10MB`)
 			return
 		}
 
+		readFile(newFile)
 		setFile(newFile)
+
 		const newStatus = true
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
 		onFileChange?.(newFile)
+	}
+
+	const readFile = newFile => {
+		const reader = new FileReader()
+		reader.onload = e => {
+			const text = e.target.result
+			setCodeInfo([
+				{
+					code: text,
+					language: getLanguageFromExtension(newFile.name),
+				},
+			])
+		}
+		reader.readAsText(newFile)
 	}
 
 	const handleDragOver = e => {
@@ -940,58 +958,24 @@ export const CodeFileInput = ({
 
 	const removeFile = () => {
 		setFile(null)
+		setCodeInfo(null)
 		const newStatus = false
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
 		onFileChange?.(null)
 	}
 
-	const formatFileSize = bytes => {
-		if (bytes === 0) return '0 Bytes'
-		const k = 1024
-		const sizes = ['Bytes', 'KB', 'MB', 'GB']
-		const i = Math.floor(Math.log(bytes) / Math.log(k))
-		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-	}
-
 	return (
-		<div className='flex flex-col justify-center w-full gap-3 bg-[var(--white)] shadow-[var(--shadow)] p-3 rounded-xl'>
-			{/* Отображение загруженного файла */}
-			<div className='flex justify-between'>
-				<div className='flex gap-3 text-[var(--middle)]'>
-					<Code />
-					<p className='font-medium text-base '>Код</p>
-				</div>
-				{file && (
-					<X
-						size={20}
-						onClick={() => removeFile(file.name)}
-						className='bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-					/>
-				)}
-			</div>
-
-			{file && (
-				<div className='w-full flex flex-col gap-3'>
-					<div className='flex items-center justify-between p-3 rounded-lg w-full'>
-						<div className='flex items-center gap-2'>
-							<FileCode size={24} color='var(--black)' strokeWidth={1.75} />
-							<div>
-								<p className='text-sm font-medium truncate w-full'>
-									{file.name}
-								</p>
-								<p className='text-xs text-[var(--middle)]'>
-									{getLanguageFromExtension(file.name)} •{' '}
-									{formatFileSize(file.size)}
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Отображение зоны загрузки, если файл не загружен */}
-			{!file && (
+		<>
+			{codeInfo ? (
+				<CustomCodeBlock
+					editMode={true}
+					width='w-full'
+					codeInfo={codeInfo[0]}
+					onClick={removeFile}
+				/>
+			) : (
+				// Зона загрузки
 				<div
 					className={`p-2 ${
 						isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
@@ -1019,28 +1003,24 @@ export const CodeFileInput = ({
 								}`}
 							/>
 
-							<div className='flex flex-wrap gap-[5px] w-full justify-center'>
-								<p
-									className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
-										isDragActive
-											? 'bg-[var(--hero-epta)] text-[var(--white)]'
-											: 'bg-[var(--light-middle)] text-[var(--black)]'
-									} `}
-								>
-									до 10 МБ, только файлы кода
-								</p>
-							</div>
+							<p
+								className={`rounded-lg text-sm font-normal py-1 px-3 whitespace-nowrap transition-all ${
+									isDragActive
+										? 'bg-[var(--hero-epta)] text-[var(--white)]'
+										: 'bg-[var(--light-middle)] text-[var(--black)]'
+								} `}
+							>
+								до 10 МБ, только файлы кода
+							</p>
 
-							<div className='h-fit'>
-								<button
-									className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-									onClick={() => document.getElementById(inputId).click()}
-									type='button'
-								>
-									<Upload strokeWidth={3} />
-									Загрузить файл
-								</button>
-							</div>
+							<button
+								className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+								onClick={() => document.getElementById(inputId).click()}
+								type='button'
+							>
+								<Upload strokeWidth={3} />
+								Загрузить код
+							</button>
 						</div>
 
 						<input
@@ -1052,6 +1032,38 @@ export const CodeFileInput = ({
 					</label>
 				</div>
 			)}
-		</div>
+		</>
+	)
+}
+
+export const TableConstructor = () => {
+	return (
+		<>
+			<div className='flex flex-col bg-[var(--white)] shadow-[var(--shadow)] rounded-lg p-4 w-full'>
+				<p className='text-[var(--middle)] font-medium'>Таблица</p>
+				<div className='w-full flex justify-between'>
+					<div className='grid grid-cols-4 grid-rows-4 w-full mb-2 mr-2'>
+						{Array.from({ length: 4 * 4 }).map((_, i) => (
+							<input
+								key={i}
+								type='text'
+								className={`outline-0 border border-[var(--light-middle)] ${
+									i % 2 === 0 ? 'bg-[var(--white)]' : 'bg-[var(--light-gray)]'
+								} p-2`}
+							/>
+						))}
+					</div>
+					<div className='w-10 h-full rounded-lg flex items-center justify-center bg-[var(--light-middle)] hover:brightness-95 active:brightness-90 transition-all'>
+						<Plus color='var(--middle)' />
+					</div>
+				</div>
+				<div className='w-full flex justify-between'>
+					<div className='w-full h-10 rounded-lg flex items-center justify-center bg-[var(--light-middle)] hover:brightness-95 active:brightness-90 transition-all'>
+						<Plus color='var(--middle)' />
+					</div>
+					<div className='w-10 h-10'></div>
+				</div>
+			</div>
+		</>
 	)
 }
