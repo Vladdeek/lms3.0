@@ -194,6 +194,10 @@ const ContentView = ({ content }) => {
 		setBlocks(prev => [...prev, type])
 	}
 
+	const removeBlock = index => {
+		setBlocks(prev => prev.filter((_, i) => i !== index))
+	}
+
 	if (!content) {
 		return (
 			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
@@ -207,23 +211,24 @@ const ContentView = ({ content }) => {
 	return (
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
 			{/* Заголовок — всегда первый */}
-			<ConstructorTitleInput />
+			<ConstructorTitleInput DelComponent={() => {}} />
 
 			{/* Рендерим блоки по типу */}
 			{blocks.map((block, i) => {
+				const del = () => removeBlock(i) // функция удаления для конкретного блока
 				switch (block) {
 					case 'text':
-						return <ConstructorTextArea key={i} />
+						return <ConstructorTextArea key={i} DelComponent={del} />
 					case 'code':
-						return <CodeFileInput key={i} />
+						return <CodeFileInput key={i} DelComponent={del} />
 					case 'photo':
-						return <ConstructorPhotoInput key={i} />
+						return <ConstructorPhotoInput key={i} DelComponent={del} />
 					case 'video':
-						return <ConstructorVideoInput key={i} />
+						return <ConstructorVideoInput key={i} DelComponent={del} />
 					case 'files':
-						return <ConstructorFileInput key={i} />
+						return <ConstructorFileInput key={i} DelComponent={del} />
 					case 'table':
-						return <TableConstructor key={i} />
+						return <TableConstructor key={i} DelComponent={del} />
 					default:
 						return null
 				}
