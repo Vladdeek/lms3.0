@@ -188,6 +188,12 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 }
 
 const ContentView = ({ content }) => {
+	const [blocks, setBlocks] = useState([])
+
+	const addBlock = type => {
+		setBlocks(prev => [...prev, type])
+	}
+
 	if (!content) {
 		return (
 			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
@@ -200,51 +206,75 @@ const ContentView = ({ content }) => {
 
 	return (
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
-			<ModuleContent type={content.type} title={content.title} bg={true} />
+			{/* Заголовок — всегда первый */}
 			<ConstructorTitleInput />
-			<ConstructorTextArea />
-			<ConstructorPhotoInput />
-			<ConstructorVideoInput />
-			<ConstructorFileInput />
-			<CodeFileInput />
-			<TableConstructor />
-			<ConstructorMenu />
+
+			{/* Рендерим блоки по типу */}
+			{blocks.map((block, i) => {
+				switch (block) {
+					case 'text':
+						return <ConstructorTextArea key={i} />
+					case 'code':
+						return <CodeFileInput key={i} />
+					case 'photo':
+						return <ConstructorPhotoInput key={i} />
+					case 'video':
+						return <ConstructorVideoInput key={i} />
+					case 'files':
+						return <ConstructorFileInput key={i} />
+					case 'table':
+						return <TableConstructor key={i} />
+					default:
+						return null
+				}
+			})}
+
+			{/* Меню для добавления новых блоков */}
+			<ConstructorMenu onAdd={addBlock} />
 		</div>
 	)
 }
 
-const ConstructorMenu = () => {
+const ConstructorMenu = ({ onAdd }) => {
 	const buttons = [
 		{
 			title: 'Текст',
+			type: 'text',
 			icon: <Text size={32} color='var(--middle)' />,
 		},
 		{
 			title: 'Код',
+			type: 'code',
 			icon: <Code size={32} color='var(--middle)' />,
 		},
 		{
 			title: 'Фото',
+			type: 'photo',
 			icon: <Image size={32} color='var(--middle)' />,
 		},
 		{
 			title: 'Видео',
+			type: 'video',
 			icon: <Film size={32} color='var(--middle)' />,
 		},
 		{
 			title: 'Файлы',
+			type: 'files',
 			icon: <Files size={32} color='var(--middle)' />,
 		},
 		{
 			title: 'Таблица',
+			type: 'table',
 			icon: <Table size={32} color='var(--middle)' />,
 		},
 	]
+
 	return (
 		<div className='grid grid-cols-4 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
 			{buttons.map((item, index) => (
 				<button
 					key={index}
+					onClick={() => onAdd(item.type)}
 					className='flex flex-col aspect-square items-center justify-center gap-2 bg-[var(--light-middle)] rounded-lg h-25 hover:scale-102 hover:shadow-md transition-all'
 				>
 					{item.icon}

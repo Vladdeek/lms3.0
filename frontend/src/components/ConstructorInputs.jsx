@@ -15,6 +15,7 @@ import {
 	Film,
 	ImageIcon,
 	ImagePlus,
+	Minus,
 	Play,
 	Plus,
 	ScanSearch,
@@ -52,7 +53,7 @@ export const ConstructorTitleInput = ({}) => {
 	)
 }
 
-export const ConstructorTextArea = ({ validate }) => {
+export const ConstructorTextArea = ({ validate, DelComponent }) => {
 	const [inputStatus, setInputStatus] = useState(false)
 	const [inputValue, setInputValue] = useState('')
 	const [selectionState, setSelectionState] = useState({
@@ -129,47 +130,60 @@ export const ConstructorTextArea = ({ validate }) => {
 	}, [inputValue])
 
 	return (
-		<div className='w-full inline-flex flex-col group'>
-			{/* Панель инструментов форматирования */}
-			<div className='flex flex-wrap gap-1 mb-2'>
-				{formatButtons.map((button, index) => (
-					<button
-						key={index}
-						type='button'
-						onClick={() => handleFormatButtonClick(button)}
-						disabled={!selectionState.hasSelection}
-						className={`px-3 py-1 rounded text-sm transition-colors min-w-[36px] flex items-center justify-center ${
-							selectionState.hasSelection
-								? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)] shadow-[var(--shadow)]'
-								: 'bg-[var(--light-gray)] text-[var(--middle)] cursor-not-allowed'
-						}`}
-						title={button.title}
-					>
-						<span className='font-bold'>{button.icon || button.label}</span>
-					</button>
-				))}
-			</div>
+		<div className='flex gap-2'>
+			<button
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				onClick={DelComponent}
+			>
+				<X />
+			</button>
+			<div className='w-full inline-flex flex-col group'>
+				{/* Панель инструментов форматирования */}
+				<div className='flex flex-wrap gap-1 mb-2'>
+					{formatButtons.map((button, index) => (
+						<button
+							key={index}
+							type='button'
+							onClick={() => handleFormatButtonClick(button)}
+							disabled={!selectionState.hasSelection}
+							className={`px-3 py-1 rounded text-sm transition-colors min-w-[36px] flex items-center justify-center ${
+								selectionState.hasSelection
+									? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)] shadow-[var(--shadow)]'
+									: 'bg-[var(--light-gray)] text-[var(--middle)] cursor-not-allowed'
+							}`}
+							title={button.title}
+						>
+							<span className='font-bold'>{button.icon || button.label}</span>
+						</button>
+					))}
+				</div>
 
-			<textarea
-				ref={textareaRef}
-				type={'text'}
-				value={inputValue}
-				onChange={handleInputChange}
-				onSelect={handleSelectionChange}
-				onMouseUp={handleSelectionChange}
-				onKeyUp={handleSelectionChange}
-				className={`${
-					inputStatus ? 'text-[--black]' : 'text-[--middle]'
-				}  px-4 py-3 rounded-lg outline-0 transition h-fit mt-3 resize-none overflow-hidden`}
-				placeholder={'Содержимое'}
-				rows={1}
-				style={{ minHeight: '44px' }}
-			/>
+				<textarea
+					ref={textareaRef}
+					type={'text'}
+					value={inputValue}
+					onChange={handleInputChange}
+					onSelect={handleSelectionChange}
+					onMouseUp={handleSelectionChange}
+					onKeyUp={handleSelectionChange}
+					className={`${
+						inputStatus ? 'text-[--black]' : 'text-[--middle]'
+					}  px-4 py-3 rounded-lg outline-0 transition h-fit mt-3 resize-none overflow-hidden`}
+					placeholder={'Содержимое'}
+					rows={1}
+					style={{ minHeight: '44px' }}
+				/>
+			</div>
 		</div>
 	)
 }
 
-export const ConstructorPhotoInput = ({ title, required, onStatusChange }) => {
+export const ConstructorPhotoInput = ({
+	title,
+	required,
+	onStatusChange,
+	DelComponent,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [fileInfo, setFileInfo] = useState(null)
@@ -245,111 +259,124 @@ export const ConstructorPhotoInput = ({ title, required, onStatusChange }) => {
 	}
 
 	return (
-		<div className='grid grid-cols-2 w-full gap-3'>
-			{/* Отображаем превью загруженных изображений */}
-			{previews.map((previewData, index) => (
-				<div key={index} className='relative col-span-1 aspect-16/9'>
-					<img
-						src={previewData.preview}
-						alt={`preview-${index}`}
-						className='w-full h-full object-cover rounded-lg'
-					/>
+		<div className='flex gap-2'>
+			<button
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				onClick={DelComponent}
+			>
+				<X />
+			</button>
+			<div className='grid grid-cols-2 w-full gap-3'>
+				{/* Отображаем превью загруженных изображений */}
+				{previews.map((previewData, index) => (
+					<div key={index} className='relative col-span-1 aspect-16/9'>
+						<img
+							src={previewData.preview}
+							alt={`preview-${index}`}
+							className='w-full h-full object-cover rounded-lg'
+						/>
 
-					<X
-						size={20}
-						onClick={() => removePreview(index)}
-						className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-					/>
-				</div>
-			))}
+						<X
+							size={20}
+							onClick={() => removePreview(index)}
+							className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+						/>
+					</div>
+				))}
 
-			{/* Показываем поле загрузки, если не достигнут лимит */}
-			{previews.length < maxFiles && (
-				<div
-					className={`p-2 flex ${
-						previews.length === 0
-							? 'col-span-2 aspect-32/9'
-							: 'col-span-1 aspect-16/9'
-					}   ${
-						isDragActive
-							? 'border-[var(--hero-epta)]'
-							: 'border-[var(--middle)]'
-					} ${
-						isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-					} rounded-lg transition-all`}
-				>
-					<label
-						htmlFor='dropzone-file'
-						className={`rounded-lg p-[10px] gap-[10px] transition border-3 aspect-16/9 w-full h-full border-dashed ${
+				{/* Показываем поле загрузки, если не достигнут лимит */}
+				{previews.length < maxFiles && (
+					<div
+						className={`p-2 flex ${
+							previews.length === 0
+								? 'col-span-2 aspect-32/9'
+								: 'col-span-1 aspect-16/9'
+						}   ${
 							isDragActive
-								? 'bg-[var(--hero-pale)] border-[var(--hero-epta)]'
-								: 'bg-[var(--light-gray)] border-[var(--middle)]'
-						}`}
-						onDragOver={handleDragOver}
-						onDragLeave={handleDragLeave}
-						onDrop={handleDrop}
+								? 'border-[var(--hero-epta)]'
+								: 'border-[var(--middle)]'
+						} ${
+							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
+						} rounded-lg transition-all`}
 					>
-						<div className='flex flex-col items-center justify-center w-full h-full gap-5'>
-							<ImagePlus
-								size={80}
-								strokeWidth={1.5}
-								className={`transition-all ${
-									isDragActive
-										? 'text-[var(--hero-epta)]'
-										: 'text-[var(--middle)]'
-								}`}
-							/>
-							<div className='flex flex-wrap gap-[5px] w-50 justify-center'>
-								<p
-									className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
+						<label
+							htmlFor='dropzone-file'
+							className={`rounded-lg p-[10px] gap-[10px] transition border-3 aspect-16/9 w-full h-full border-dashed ${
+								isDragActive
+									? 'bg-[var(--hero-pale)] border-[var(--hero-epta)]'
+									: 'bg-[var(--light-gray)] border-[var(--middle)]'
+							}`}
+							onDragOver={handleDragOver}
+							onDragLeave={handleDragLeave}
+							onDrop={handleDrop}
+						>
+							<div className='flex flex-col items-center justify-center w-full h-full gap-5'>
+								<ImagePlus
+									size={80}
+									strokeWidth={1.5}
+									className={`transition-all ${
 										isDragActive
-											? 'bg-[var(--hero-epta)] text-[var(--white)]'
-											: 'bg-[var(--light-middle)] text-[var(--black)]'
-									} `}
-								>
-									до 20 мб
-								</p>
-								{['.png', '.jpg', '.webp', '.gif'].map(ext => (
+											? 'text-[var(--hero-epta)]'
+											: 'text-[var(--middle)]'
+									}`}
+								/>
+								<div className='flex flex-wrap gap-[5px] w-50 justify-center'>
 									<p
-										key={ext}
 										className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
 											isDragActive
 												? 'bg-[var(--hero-epta)] text-[var(--white)]'
 												: 'bg-[var(--light-middle)] text-[var(--black)]'
 										} `}
 									>
-										{ext}
+										до 20 мб
 									</p>
-								))}
+									{['.png', '.jpg', '.webp', '.gif'].map(ext => (
+										<p
+											key={ext}
+											className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
+												isDragActive
+													? 'bg-[var(--hero-epta)] text-[var(--white)]'
+													: 'bg-[var(--light-middle)] text-[var(--black)]'
+											} `}
+										>
+											{ext}
+										</p>
+									))}
+								</div>
+								<div className='h-fit'>
+									<button
+										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+										onClick={() => document.getElementById(inputId).click()}
+										type='button'
+									>
+										<Upload strokeWidth={3} />
+										Загрузить фото
+									</button>
+								</div>
 							</div>
-							<div className='h-fit'>
-								<button
-									className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-									onClick={() => document.getElementById(inputId).click()}
-									type='button'
-								>
-									<Upload strokeWidth={3} />
-									Загрузить фото
-								</button>
-							</div>
-						</div>
 
-						<input
-							id={inputId}
-							type='file'
-							multiple
-							accept='.png,.jpg,.jpeg,.webp,.gif'
-							className='hidden'
-							onChange={handleFileChange}
-						/>
-					</label>
-				</div>
-			)}
+							<input
+								id={inputId}
+								type='file'
+								multiple
+								accept='.png,.jpg,.jpeg,.webp,.gif'
+								className='hidden'
+								onChange={handleFileChange}
+							/>
+						</label>
+					</div>
+				)}
+			</div>
 		</div>
 	)
 }
 
-export const ConstructorVideoInput = ({ title, required, onStatusChange }) => {
+export const ConstructorVideoInput = ({
+	title,
+	required,
+	onStatusChange,
+	DelComponent,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [fileInfo, setFileInfo] = useState(null)
@@ -465,117 +492,130 @@ export const ConstructorVideoInput = ({ title, required, onStatusChange }) => {
 	}, [])
 
 	return (
-		<div className='flex justify-center w-full gap-3'>
-			{/* Отображаем превью загруженных видео */}
-			{previews.map((previewData, index) => (
-				<div key={index} className='relative w-1/2 aspect-16/9 group'>
-					<video
-						src={previewData.videoUrl}
-						className='w-full h-full object-cover rounded-lg'
-						controls // добавляем элементы управления видео
-						preload='metadata' // предзагрузка метаданных для быстрого отображения
-					>
-						Ваш браузер не поддерживает видео.
-					</video>
+		<div className='flex gap-2'>
+			<button
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				onClick={DelComponent}
+			>
+				<X />
+			</button>
+			<div className='flex justify-center w-full gap-3'>
+				{/* Отображаем превью загруженных видео */}
+				{previews.map((previewData, index) => (
+					<div key={index} className='relative w-1/2 aspect-16/9 group'>
+						<video
+							src={previewData.videoUrl}
+							className='w-full h-full object-cover rounded-lg'
+							controls // добавляем элементы управления видео
+							preload='metadata' // предзагрузка метаданных для быстрого отображения
+						>
+							Ваш браузер не поддерживает видео.
+						</video>
 
-					{/* Информация о видео */}
-					<div className='absolute top-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity'>
-						<div className='truncate'>{previewData.info.name}</div>
-						<div className='flex justify-between text-[10px] opacity-80'>
-							<span>{previewData.info.size} MB</span>
-							{previewData.info.duration > 0 && (
-								<span>{Math.round(previewData.info.duration)}s</span>
-							)}
+						{/* Информация о видео */}
+						<div className='absolute top-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity'>
+							<div className='truncate'>{previewData.info.name}</div>
+							<div className='flex justify-between text-[10px] opacity-80'>
+								<span>{previewData.info.size} MB</span>
+								{previewData.info.duration > 0 && (
+									<span>{Math.round(previewData.info.duration)}s</span>
+								)}
+							</div>
 						</div>
+
+						<X
+							size={20}
+							onClick={() => removePreview(index)}
+							className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+						/>
 					</div>
+				))}
 
-					<X
-						size={20}
-						onClick={() => removePreview(index)}
-						className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-					/>
-				</div>
-			))}
-
-			{/* Поле загрузки */}
-			{previews.length < maxFiles && (
-				<div
-					className={`p-2 w-full h-full flex aspect-32/9 ${
-						isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-					} rounded-lg transition-all`}
-				>
-					<label
-						htmlFor='dropzone-file'
-						className={`rounded-lg p-[10px] transition border-3 w-full border-dashed ${
-							isDragActive
-								? 'border-[var(--hero-epta)]'
-								: 'border-[var(--middle)]'
-						}`}
-						onDragOver={handleDragOver}
-						onDragLeave={handleDragLeave}
-						onDrop={handleDrop}
+				{/* Поле загрузки */}
+				{previews.length < maxFiles && (
+					<div
+						className={`p-2 w-full h-full flex aspect-32/9 ${
+							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
+						} rounded-lg transition-all`}
 					>
-						<div className='flex flex-col items-center justify-center w-full h-full gap-5'>
-							<Film
-								size={80}
-								strokeWidth={1.5}
-								className={`transition-all ${
-									isDragActive
-										? 'text-[var(--hero-epta)]'
-										: 'text-[var(--middle)]'
-								}`}
-							/>
-							<div className='flex flex-wrap gap-[5px] w-50 justify-center'>
-								<p
-									className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
+						<label
+							htmlFor='dropzone-file'
+							className={`rounded-lg p-[10px] transition border-3 w-full border-dashed ${
+								isDragActive
+									? 'border-[var(--hero-epta)]'
+									: 'border-[var(--middle)]'
+							}`}
+							onDragOver={handleDragOver}
+							onDragLeave={handleDragLeave}
+							onDrop={handleDrop}
+						>
+							<div className='flex flex-col items-center justify-center w-full h-full gap-5'>
+								<Film
+									size={80}
+									strokeWidth={1.5}
+									className={`transition-all ${
 										isDragActive
-											? 'bg-[var(--hero-epta)] text-[var(--white)]'
-											: 'bg-[var(--light-middle)] text-[var(--black)]'
-									} `}
-								>
-									до 100 мб
-								</p>
-								{['.mp4', '.webm', '.mov', '.avi'].map(ext => (
+											? 'text-[var(--hero-epta)]'
+											: 'text-[var(--middle)]'
+									}`}
+								/>
+								<div className='flex flex-wrap gap-[5px] w-50 justify-center'>
 									<p
-										key={ext}
 										className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
 											isDragActive
 												? 'bg-[var(--hero-epta)] text-[var(--white)]'
 												: 'bg-[var(--light-middle)] text-[var(--black)]'
 										} `}
 									>
-										{ext}
+										до 100 мб
 									</p>
-								))}
+									{['.mp4', '.webm', '.mov', '.avi'].map(ext => (
+										<p
+											key={ext}
+											className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
+												isDragActive
+													? 'bg-[var(--hero-epta)] text-[var(--white)]'
+													: 'bg-[var(--light-middle)] text-[var(--black)]'
+											} `}
+										>
+											{ext}
+										</p>
+									))}
+								</div>
+								<div className='h-fit'>
+									<button
+										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+										onClick={() => document.getElementById(inputId).click()}
+										type='button'
+									>
+										<Upload strokeWidth={3} />
+										Загрузить видео
+									</button>
+								</div>
 							</div>
-							<div className='h-fit'>
-								<button
-									className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-									onClick={() => document.getElementById(inputId).click()}
-									type='button'
-								>
-									<Upload strokeWidth={3} />
-									Загрузить видео
-								</button>
-							</div>
-						</div>
 
-						<input
-							id={inputId}
-							type='file'
-							multiple
-							accept='.mp4,.webm,.ogg,.mov,.avi,.wmv,.mkv,.3gp,.mpeg'
-							className='hidden'
-							onChange={handleFileChange}
-						/>
-					</label>
-				</div>
-			)}
+							<input
+								id={inputId}
+								type='file'
+								multiple
+								accept='.mp4,.webm,.ogg,.mov,.avi,.wmv,.mkv,.3gp,.mpeg'
+								className='hidden'
+								onChange={handleFileChange}
+							/>
+						</label>
+					</div>
+				)}
+			</div>
 		</div>
 	)
 }
 
-export const ConstructorFileInput = ({ title, required, onStatusChange }) => {
+export const ConstructorFileInput = ({
+	title,
+	required,
+	onStatusChange,
+	DelComponent,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [files, setFiles] = useState([])
@@ -743,112 +783,122 @@ export const ConstructorFileInput = ({ title, required, onStatusChange }) => {
 	}
 
 	return (
-		<div
-			className={`${
-				files.length > 0 && 'shadow-[var(--shadow)] p-4 rounded-xl'
-			} flex flex-col justify-center w-full gap-3`}
-		>
-			{/* Отображение загруженных файлов */}
-			{files.length > 0 && (
-				<div className='w-full flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
-					{files.map((file, index) => (
-						<div
-							key={index}
-							className={`flex items-center justify-between p-3 file ${
-								index % 2 === 0 ? 'bg-[var(--white)]' : 'bg-[var(--light-gray)]'
-							} w-full`}
+		<div className='flex gap-2'>
+			<button
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				onClick={DelComponent}
+			>
+				<X />
+			</button>
+			<div
+				className={`${
+					files.length > 0 && 'shadow-[var(--shadow)] p-4 rounded-xl'
+				} flex flex-col justify-center w-full gap-3`}
+			>
+				{/* Отображение загруженных файлов */}
+				{files.length > 0 && (
+					<div className='w-full flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
+						{files.map((file, index) => (
+							<div
+								key={index}
+								className={`flex items-center justify-between p-3 file ${
+									index % 2 === 0
+										? 'bg-[var(--white)]'
+										: 'bg-[var(--light-gray)]'
+								} w-full`}
+							>
+								<div className='flex items-center gap-2'>
+									{getFileIcon(file.name)}
+									<div>
+										<p className='text-sm font-medium truncate w-full'>
+											{file.name}
+										</p>
+										<p className='text-xs text-[var(--middle)]'>
+											{file.type} • {formatFileSize(file.size)}
+										</p>
+									</div>
+								</div>
+								<X
+									size={20}
+									onClick={() => removeFile(index)}
+									className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+								/>
+							</div>
+						))}
+					</div>
+				)}
+
+				{/* Отображение зоны загрузки, если не достигнут лимит файлов */}
+				{files.length < maxFiles && (
+					<div
+						className={`p-2 ${
+							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
+						} rounded-lg transition-all`}
+					>
+						<label
+							htmlFor='dropzone-file'
+							className={`cursor-pointer rounded-lg p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
+								isDragActive
+									? 'border-[var(--hero-epta)]'
+									: 'border-[var(--middle)]'
+							}`}
+							onDragOver={handleDragOver}
+							onDragLeave={handleDragLeave}
+							onDrop={handleDrop}
 						>
-							<div className='flex items-center gap-2'>
-								{getFileIcon(file.name)}
-								<div>
-									<p className='text-sm font-medium truncate w-full'>
-										{file.name}
-									</p>
-									<p className='text-xs text-[var(--middle)]'>
-										{file.type} • {formatFileSize(file.size)}
+							<div className='w-full flex flex-col justify-center items-center gap-3'>
+								<FilePlus2
+									size={80}
+									strokeWidth={1.5}
+									className={`transition-all ${
+										isDragActive
+											? 'text-[var(--hero-epta)]'
+											: 'text-[var(--middle)]'
+									}`}
+								/>
+
+								<div className='flex flex-wrap gap-[5px] w-full justify-center'>
+									<p
+										className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
+											isDragActive
+												? 'bg-[var(--hero-epta)] text-[var(--white)]'
+												: 'bg-[var(--light-middle)] text-[var(--black)]'
+										} `}
+									>
+										до 100 МБ, максимум {maxFiles} файлов
 									</p>
 								</div>
+
+								<div className='h-fit'>
+									<button
+										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+										onClick={() => document.getElementById(inputId).click()}
+										type='button'
+									>
+										<Upload strokeWidth={3} />
+										Загрузить файл{files.length > 0 ? ' ещё' : ''}
+									</button>
+								</div>
 							</div>
-							<X
-								size={20}
-								onClick={() => removeFile(index)}
-								className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+
+							<input
+								id={inputId}
+								type='file'
+								className='hidden'
+								onChange={handleFileChange}
+								multiple
 							/>
-						</div>
-					))}
-				</div>
-			)}
+						</label>
+					</div>
+				)}
 
-			{/* Отображение зоны загрузки, если не достигнут лимит файлов */}
-			{files.length < maxFiles && (
-				<div
-					className={`p-2 ${
-						isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-					} rounded-lg transition-all`}
-				>
-					<label
-						htmlFor='dropzone-file'
-						className={`cursor-pointer rounded-lg p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
-							isDragActive
-								? 'border-[var(--hero-epta)]'
-								: 'border-[var(--middle)]'
-						}`}
-						onDragOver={handleDragOver}
-						onDragLeave={handleDragLeave}
-						onDrop={handleDrop}
-					>
-						<div className='w-full flex flex-col justify-center items-center gap-3'>
-							<FilePlus2
-								size={80}
-								strokeWidth={1.5}
-								className={`transition-all ${
-									isDragActive
-										? 'text-[var(--hero-epta)]'
-										: 'text-[var(--middle)]'
-								}`}
-							/>
-
-							<div className='flex flex-wrap gap-[5px] w-full justify-center'>
-								<p
-									className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
-										isDragActive
-											? 'bg-[var(--hero-epta)] text-[var(--white)]'
-											: 'bg-[var(--light-middle)] text-[var(--black)]'
-									} `}
-								>
-									до 100 МБ, максимум {maxFiles} файлов
-								</p>
-							</div>
-
-							<div className='h-fit'>
-								<button
-									className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-									onClick={() => document.getElementById(inputId).click()}
-									type='button'
-								>
-									<Upload strokeWidth={3} />
-									Загрузить файл{files.length > 0 ? ' ещё' : ''}
-								</button>
-							</div>
-						</div>
-
-						<input
-							id={inputId}
-							type='file'
-							className='hidden'
-							onChange={handleFileChange}
-							multiple
-						/>
-					</label>
-				</div>
-			)}
-
-			{/* Информация о количестве загруженных файлов */}
-			{files.length > 0 && (
-				<p className='text-sm text-[var(--middle)]'>
-					Загружено {files.length} из {maxFiles} файлов
-				</p>
-			)}
+				{/* Информация о количестве загруженных файлов */}
+				{files.length > 0 && (
+					<p className='text-sm text-[var(--middle)]'>
+						Загружено {files.length} из {maxFiles} файлов
+					</p>
+				)}
+			</div>
 		</div>
 	)
 }
@@ -858,6 +908,7 @@ export const CodeFileInput = ({
 	required,
 	onStatusChange,
 	onFileChange,
+	DelComponent,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
@@ -967,101 +1018,169 @@ export const CodeFileInput = ({
 
 	return (
 		<>
-			{codeInfo ? (
-				<CustomCodeBlock
-					editMode={true}
-					width='w-full'
-					codeInfo={codeInfo[0]}
-					onClick={removeFile}
-				/>
-			) : (
-				// Зона загрузки
-				<div
-					className={`p-2 ${
-						isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-					} rounded-lg transition-all`}
+			<div className='flex gap-2'>
+				<button
+					className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+					onClick={DelComponent}
 				>
-					<label
-						htmlFor={inputId}
-						className={`cursor-pointer rounded-md p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
-							isDragActive
-								? 'border-[var(--hero-epta)]'
-								: 'border-[var(--middle)]'
-						}`}
-						onDragOver={handleDragOver}
-						onDragLeave={handleDragLeave}
-						onDrop={handleDrop}
+					<X />
+				</button>
+				{codeInfo ? (
+					<CustomCodeBlock
+						editMode={true}
+						width='w-full'
+						codeInfo={codeInfo[0]}
+						onClick={removeFile}
+					/>
+				) : (
+					// Зона загрузки
+					<div
+						className={`p-2 ${
+							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
+						} rounded-lg transition-all w-full`}
 					>
-						<div className='w-full flex flex-col justify-center items-center gap-3'>
-							<FileCode2
-								size={80}
-								strokeWidth={1.5}
-								className={`transition-all ${
-									isDragActive
-										? 'text-[var(--hero-epta)]'
-										: 'text-[var(--middle)]'
-								}`}
+						<label
+							htmlFor={inputId}
+							className={`cursor-pointer rounded-md p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
+								isDragActive
+									? 'border-[var(--hero-epta)]'
+									: 'border-[var(--middle)]'
+							}`}
+							onDragOver={handleDragOver}
+							onDragLeave={handleDragLeave}
+							onDrop={handleDrop}
+						>
+							<div className='w-full flex flex-col justify-center items-center gap-3'>
+								<FileCode2
+									size={80}
+									strokeWidth={1.5}
+									className={`transition-all ${
+										isDragActive
+											? 'text-[var(--hero-epta)]'
+											: 'text-[var(--middle)]'
+									}`}
+								/>
+
+								<p
+									className={`rounded-lg text-sm font-normal py-1 px-3 whitespace-nowrap transition-all ${
+										isDragActive
+											? 'bg-[var(--hero-epta)] text-[var(--white)]'
+											: 'bg-[var(--light-middle)] text-[var(--black)]'
+									} `}
+								>
+									до 10 МБ, только файлы кода
+								</p>
+
+								<button
+									className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+									onClick={() => document.getElementById(inputId).click()}
+									type='button'
+								>
+									<Upload strokeWidth={3} />
+									Загрузить код
+								</button>
+							</div>
+
+							<input
+								id={inputId}
+								type='file'
+								className='hidden'
+								onChange={handleFileChange}
 							/>
-
-							<p
-								className={`rounded-lg text-sm font-normal py-1 px-3 whitespace-nowrap transition-all ${
-									isDragActive
-										? 'bg-[var(--hero-epta)] text-[var(--white)]'
-										: 'bg-[var(--light-middle)] text-[var(--black)]'
-								} `}
-							>
-								до 10 МБ, только файлы кода
-							</p>
-
-							<button
-								className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-								onClick={() => document.getElementById(inputId).click()}
-								type='button'
-							>
-								<Upload strokeWidth={3} />
-								Загрузить код
-							</button>
-						</div>
-
-						<input
-							id={inputId}
-							type='file'
-							className='hidden'
-							onChange={handleFileChange}
-						/>
-					</label>
-				</div>
-			)}
+						</label>
+					</div>
+				)}
+			</div>
 		</>
 	)
 }
 
-export const TableConstructor = () => {
+export const TableConstructor = ({ DelComponent }) => {
+	const [rows, setRows] = useState(2)
+	const [cols, setCols] = useState(2)
+
+	const addRow = () => setRows(prev => prev + 1)
+	const removeRow = () =>
+		rows > 2 && setRows(prev => (prev > 1 ? prev - 1 : prev))
+
+	const addCol = () => setCols(prev => prev + 1)
+	const removeCol = () =>
+		cols > 2 && setCols(prev => (prev > 1 ? prev - 1 : prev))
+
 	return (
 		<>
-			<div className='flex flex-col bg-[var(--white)] shadow-[var(--shadow)] rounded-lg p-4 w-full'>
-				<p className='text-[var(--middle)] font-medium'>Таблица</p>
-				<div className='w-full flex justify-between'>
-					<div className='grid grid-cols-4 grid-rows-4 w-full mb-2 mr-2'>
-						{Array.from({ length: 4 * 4 }).map((_, i) => (
-							<input
-								key={i}
-								type='text'
-								className={`outline-0 border border-[var(--light-middle)] ${
-									i % 2 === 0 ? 'bg-[var(--white)]' : 'bg-[var(--light-gray)]'
-								} p-2`}
-							/>
-						))}
+			<div className='flex gap-2'>
+				<button
+					className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+					onClick={DelComponent}
+				>
+					<X />
+				</button>
+				<div className='flex flex-col bg-[var(--white)] shadow-[var(--shadow)] rounded-lg p-4 w-full'>
+					<p className='text-[var(--middle)] font-medium mb-2'>Таблица</p>
+
+					{/* Верхняя панель: таблица + кнопки для столбцов */}
+					<div className='w-full flex justify-between'>
+						<div
+							className={`grid w-full mb-1 mr-1 rounded-lg overflow-hidden border-1 border-[var(--light-middle)]`}
+							style={{
+								gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+								gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+							}}
+						>
+							{Array.from({ length: rows * cols }).map((_, i) => {
+								const colIndex = i % cols
+								const isDark = colIndex % 2 === 1
+
+								return (
+									<input
+										key={i}
+										type='text'
+										className={`outline-0 border border-[var(--light-middle)] p-2 transition-all ${
+											isDark ? ' bg-[var(--light-gray)]' : ' bg-[var(--white)]'
+										}`}
+									/>
+								)
+							})}
+						</div>
+
+						{/* Кнопки для управления столбцами */}
+						<div className='flex flex-col gap-1'>
+							<button
+								className='w-10 h-full rounded-lg flex items-center justify-center bg-[var(--light-middle)] hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+								onClick={addCol}
+							>
+								<Plus color='var(--middle)' />
+							</button>
+							<button
+								className='w-10 h-full rounded-lg flex items-center justify-center bg-[var(--light-middle)] hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+								onClick={removeCol}
+							>
+								<Minus color='var(--middle)' />
+							</button>
+						</div>
 					</div>
-					<div className='w-10 h-full rounded-lg flex items-center justify-center bg-[var(--light-middle)] hover:brightness-95 active:brightness-90 transition-all'>
-						<Plus color='var(--middle)' />
+
+					{/* Нижняя панель: кнопки для строк */}
+					<div className='flex'>
+						<div className='w-full flex gap-1'>
+							<button
+								className='w-full h-10 rounded-lg flex items-center gap-3 justify-center bg-[var(--light-middle)] text-[var(--middle)] hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+								onClick={addRow}
+							>
+								<Plus color='var(--middle)' />
+								Добавить строку
+							</button>
+							<button
+								className='w-full h-10 rounded-lg flex items-center gap-3 justify-center bg-[var(--light-middle)] text-[var(--middle)] hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+								onClick={removeRow}
+							>
+								<Minus color='var(--middle)' />
+								Удалить строку
+							</button>
+						</div>
+						<div className='h-10 w-10'></div>
 					</div>
-				</div>
-				<div className='w-full flex justify-between'>
-					<div className='w-full h-10 rounded-lg flex items-center justify-center bg-[var(--light-middle)] hover:brightness-95 active:brightness-90 transition-all'>
-						<Plus color='var(--middle)' />
-					</div>
-					<div className='w-10 h-10'></div>
 				</div>
 			</div>
 		</>
