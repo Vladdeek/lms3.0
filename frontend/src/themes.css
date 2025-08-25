@@ -18,6 +18,13 @@
 	--glow-hero-epta: #f43b7550;
 
 	--shadow: 1px 2px 8px rgba(0, 0, 0, 0.125);
+
+	--button1-bg: #f43b75;
+	--button2-bg: #111111;
+	--button3-bg: #0066ff;
+	--button4-bg: #ffc400;
+	--button5-bg: #1daf00;
+	--button6-bg: #ff0f0f;
 }
 
 :root[data-theme='dark'] {
@@ -37,4 +44,11 @@
 	--glow-hero-epta: #ff5c8d50;
 
 	--shadow: 1px 2px 8px rgba(0, 0, 0, 0.25);
+
+	--button1-bg: #f43b75;
+	--button2-bg: #111111;
+	--button3-bg: #0066ff;
+	--button4-bg: #ffc400;
+	--button5-bg: #1daf00;
+	--button6-bg: #ff0f0f;
 }

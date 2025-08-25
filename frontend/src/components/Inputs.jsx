@@ -5,7 +5,7 @@ import {
 	ScanSearch,
 	Search,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const InputDefault = ({
 	type,
@@ -14,14 +14,27 @@ export const InputDefault = ({
 	required,
 	validate,
 	onStatusChange,
+	value, // Добавляем проп value
+	onChange, // Добавляем проп onChange
 }) => {
 	const [inputStatus, setInputStatus] = useState(false)
-	const [inputValue, setInputValue] = useState('')
+	const [internalValue, setInternalValue] = useState(value || '')
+
+	// Синхронизируем внутреннее состояние с внешним value
+	useEffect(() => {
+		setInternalValue(value || '')
+	}, [value])
 
 	const handleInputChange = e => {
-		const value = e.target.value
-		setInputValue(value)
-		const status = validate ? validate(value) : value.trim() !== ''
+		const newValue = e.target.value
+		setInternalValue(newValue)
+
+		// Вызываем внешний обработчик, если он передан
+		if (onChange) {
+			onChange(e)
+		}
+
+		const status = validate ? validate(newValue) : newValue.trim() !== ''
 		setInputStatus(status)
 		if (onStatusChange) onStatusChange(status)
 	}
@@ -42,7 +55,7 @@ export const InputDefault = ({
 
 			<input
 				type={type}
-				value={inputValue}
+				value={internalValue}
 				onChange={handleInputChange}
 				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition mt-3'
 				placeholder={placeholder}

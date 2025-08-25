@@ -21,9 +21,11 @@ import {
 	Image,
 	Layers2,
 	ListRestart,
+	MousePointerClick,
 	NotebookPen,
 	Package,
 	Settings,
+	SquareFunction,
 	Table,
 	Text,
 	Trash,
@@ -32,17 +34,41 @@ import {
 import { AltRadioButton, Button, EllipsisButton } from '../components/Buttons'
 import { useState } from 'react'
 import { SearchInput } from '../components/Inputs'
-import {
-	AudioInput,
-	CalloutConstructor,
-	CodeFileInput,
-	ConstructorFileInput,
-	ConstructorPhotoInput,
-	ConstructorTextArea,
-	ConstructorTitleInput,
-	ConstructorVideoInput,
-	TableConstructor,
-} from '../components/ConstructorInputs'
+import { ConstructorEditor } from '../components/ConstructorComponents/TextEditor'
+import { CodeFileInput } from '../components/ConstructorComponents/CodeImport'
+import { ConstructorPhotoInput } from '../components/ConstructorComponents/PhotoImport'
+import { ConstructorVideoInput } from '../components/ConstructorComponents/VideoImport'
+import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
+import { TableConstructor } from '../components/ConstructorComponents/TableConstructor'
+import { AudioInput } from '../components/ConstructorComponents/AudioImport'
+import { CalloutConstructor } from '../components/ConstructorComponents/CalloutConstructor'
+import FormulaConstructor from '../components/ConstructorComponents/FormulaInput'
+import { ButtonConstructor } from '../components/ConstructorComponents/ButtonConstructor'
+
+const ConstructorTitleInput = ({}) => {
+	const [inputValue, setInputValue] = useState('')
+	const [inputStatus, setInputStatus] = useState(false)
+
+	const handleInputChange = e => {
+		const value = e.target.value
+		setInputValue(value)
+		const status = validate ? validate(value) : value.trim() !== ''
+		setInputStatus(status)
+		if (onStatusChange) onStatusChange(status)
+	}
+
+	return (
+		<input
+			type={'text'}
+			value={inputValue}
+			onChange={handleInputChange}
+			className={`outline-0 transition mt-3 text-[20px] font-bold px-4 py-3 rounded-lg ${
+				inputStatus ? 'text-[--black]' : 'text-[--middle]'
+			}`}
+			placeholder={'Заголовок занятия'}
+		/>
+	)
+}
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -214,7 +240,8 @@ const ContentView = ({ content }) => {
 
 	return (
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
-			{/* Заголовок — всегда первый */}
+			<ModuleContent bg={true} type={content.type} title={content.title} />
+
 			<ConstructorTitleInput DelComponent={() => {}} />
 
 			{/* Рендерим блоки по типу */}
@@ -222,7 +249,7 @@ const ContentView = ({ content }) => {
 				const del = () => removeBlock(i) // функция удаления для конкретного блока
 				switch (block) {
 					case 'text':
-						return <ConstructorTextArea key={i} DelComponent={del} />
+						return <ConstructorEditor key={i} DelComponent={del} />
 					case 'code':
 						return <CodeFileInput key={i} DelComponent={del} />
 					case 'photo':
@@ -237,6 +264,10 @@ const ContentView = ({ content }) => {
 						return <AudioInput key={i} DelComponent={del} />
 					case 'callout':
 						return <CalloutConstructor key={i} DelComponent={del} />
+					case 'formula':
+						return <FormulaConstructor key={i} DelComponent={del} />
+					case 'button':
+						return <ButtonConstructor key={i} DelComponent={del} />
 					default:
 						return null
 				}
@@ -290,10 +321,20 @@ const ConstructorMenu = ({ onAdd }) => {
 			type: 'callout',
 			icon: <Layers2 size={32} color='var(--middle)' />,
 		},
+		{
+			title: 'Формула',
+			type: 'formula',
+			icon: <SquareFunction size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Кнопка',
+			type: 'button',
+			icon: <MousePointerClick size={32} color='var(--middle)' />,
+		},
 	]
 
 	return (
-		<div className='grid grid-cols-4 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
+		<div className='grid grid-cols-5 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
 			{buttons.map((item, index) => (
 				<button
 					key={index}
@@ -396,7 +437,7 @@ const Constructor = () => {
 							</div>
 						</div>
 
-						<div className='h-104 flex flex-col gap-3 overflow-scroll w-full py-2 px-2'>
+						<div className='h-150 flex flex-col gap-3 overflow-scroll w-full py-2 px-2'>
 							<ModuleBlock
 								ModuleInfo={ModuleInfo}
 								onContentSelect={handleContentSelect}
