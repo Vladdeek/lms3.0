@@ -1,5 +1,6 @@
 import {
 	ArrowRightFromLine,
+	AudioLines,
 	Bookmark,
 	BookMarked,
 	BrickWall,
@@ -18,6 +19,7 @@ import {
 	Film,
 	Gem,
 	Image,
+	Layers2,
 	ListRestart,
 	NotebookPen,
 	Package,
@@ -31,6 +33,8 @@ import { AltRadioButton, Button, EllipsisButton } from '../components/Buttons'
 import { useState } from 'react'
 import { SearchInput } from '../components/Inputs'
 import {
+	AudioInput,
+	CalloutConstructor,
 	CodeFileInput,
 	ConstructorFileInput,
 	ConstructorPhotoInput,
@@ -229,6 +233,10 @@ const ContentView = ({ content }) => {
 						return <ConstructorFileInput key={i} DelComponent={del} />
 					case 'table':
 						return <TableConstructor key={i} DelComponent={del} />
+					case 'audio':
+						return <AudioInput key={i} DelComponent={del} />
+					case 'callout':
+						return <CalloutConstructor key={i} DelComponent={del} />
 					default:
 						return null
 				}
@@ -271,6 +279,16 @@ const ConstructorMenu = ({ onAdd }) => {
 			title: 'Таблица',
 			type: 'table',
 			icon: <Table size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Аудио',
+			type: 'audio',
+			icon: <AudioLines size={32} color='var(--middle)' />,
+		},
+		{
+			title: 'Выноска',
+			type: 'callout',
+			icon: <Layers2 size={32} color='var(--middle)' />,
 		},
 	]
 
