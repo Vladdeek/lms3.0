@@ -1,4 +1,5 @@
 import {
+	Check,
 	CircleCheck,
 	FileText,
 	ImagePlus,
@@ -263,5 +264,60 @@ export const SearchInput = ({ width, height = 'auto' }) => {
 			<ScanSearch className='h-full w-auto aspect-square' strokeWidth={1.5} />
 			<input className='outline-0' type={'text'} placeholder={'Поиск'} />
 		</div>
+	)
+}
+
+export const Checkbox = ({
+	checked: checkedProp = false, // управляемое состояние
+	onChange,
+	label = '',
+	id,
+	disabled = false,
+	className = '',
+}) => {
+	const [checked, setChecked] = useState(checkedProp)
+
+	const handleChange = e => {
+		const value = e.target.checked
+		setChecked(value)
+		onChange && onChange(value)
+	}
+
+	// Синхронизация внешнего checked
+	// (если компонент используют как управляемый)
+	if (checked !== checkedProp) {
+		setChecked(checkedProp)
+	}
+
+	return (
+		<label
+			className={`inline-flex items-center gap-2 cursor-pointer select-none ${
+				disabled ? 'opacity-50 cursor-not-allowed' : ''
+			} ${className}`}
+			htmlFor={id}
+		>
+			<span
+				className={`w-5 h-5 flex items-center justify-center rounded border transition
+                    ${
+											checked
+												? 'bg-[var(--hero-epta)] border-[var(--hero-epta)]'
+												: 'bg-white border-[var(--middle)]'
+										}
+                    ${disabled ? 'pointer-events-none' : ''}
+                `}
+			>
+				<input
+					id={id}
+					type='checkbox'
+					checked={checked}
+					disabled={disabled}
+					onChange={handleChange}
+					className='appearance-none w-5 h-5 absolute opacity-0'
+					tabIndex={0}
+				/>
+				{checked && <Check size={18} color='white' strokeWidth={3} />}
+			</span>
+			{label && <span className='text-[16px]'>{label}</span>}
+		</label>
 	)
 }

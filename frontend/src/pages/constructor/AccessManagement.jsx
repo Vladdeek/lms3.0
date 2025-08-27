@@ -17,7 +17,7 @@ const AccessBlock = ({
 
 	return (
 		<div
-			className='w-full bg-[var(--white)] h-150 rounded-xl shadow-[var(--shadow)] p-5 flex flex-col gap-5'
+			className='w-full bg-[var(--white)] h-200 rounded-xl shadow-[var(--shadow)] p-5 flex flex-col gap-5'
 			onDrop={e => {
 				e.preventDefault()
 				const groupNumber = e.dataTransfer.getData('groupNumber')

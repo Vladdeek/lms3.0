@@ -75,11 +75,12 @@ export const Button = ({
 	textSize = 20,
 	className = '',
 	htmlFor,
+	width,
 }) => {
 	return (
 		<button
 			onClick={onClick}
-			className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer ${className} ${
+			className={`rounded-lg h-full flex gap-4 items-center justify-center hover:scale-102 transition-all cursor-pointer ${className} ${
 				title ? !size && 'py-2 px-4' : !size && 'p-3'
 			}`}
 			style={{
@@ -97,7 +98,7 @@ export const Button = ({
 						: 'var(--black)',
 				border: style === 'outline' ? '1px solid var(--black)' : 'none',
 				boxShadow: style !== 'outline' ? 'var(--shadow)' : 'none',
-				width: size,
+				width: size || width,
 				height: size,
 				padding: size && 6,
 			}}
