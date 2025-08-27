@@ -14,11 +14,13 @@ import {
 	Files,
 	Film,
 	Image,
+	LaptopMinimalCheck,
 	Layers2,
 	ListRestart,
 	MousePointerClick,
 	NotebookPen,
 	Package,
+	Presentation,
 	SquareFunction,
 	Table,
 	Text,
@@ -26,7 +28,7 @@ import {
 } from 'lucide-react'
 import { Button, EllipsisButton } from '../../components/Buttons'
 import { useState } from 'react'
-import { SearchInput } from '../../components/Inputs'
+import { InputDefault, SearchInput } from '../../components/Inputs'
 import { ConstructorEditor } from '../../components/ConstructorComponents/TextEditor'
 import { CodeFileInput } from '../../components/ConstructorComponents/CodeImport'
 import { ConstructorPhotoInput } from '../../components/ConstructorComponents/PhotoImport'
@@ -37,6 +39,118 @@ import { AudioInput } from '../../components/ConstructorComponents/AudioImport'
 import { CalloutConstructor } from '../../components/ConstructorComponents/CalloutConstructor'
 import FormulaConstructor from '../../components/ConstructorComponents/FormulaInput'
 import { ButtonConstructor } from '../../components/ConstructorComponents/ButtonConstructor'
+
+const CreateLessonButton = () => {
+	const [isOpen, setIsOpen] = useState(true)
+	const [selected, setSelected] = useState(0)
+	const [step, setStep] = useState(0)
+	const [isNameValid, setIsNameValid] = useState(false)
+
+	const Save = () => {
+		setStep(0)
+		setIsOpen(false)
+		console.log('сохранено')
+	}
+
+	const lessonTypes = [
+		{
+			label: 'Лекция',
+			icon: <BookMarked size={24} />,
+			description:
+				'Теоретический материал с поддержкой текста, изображений, видео и аудио. Можно прикреплять дополнительные файлы для изучения.',
+		},
+		{
+			label: 'Практика',
+			icon: <NotebookPen size={24} />,
+			description:
+				'Задания для самостоятельного выполнения. Включает текстовые инструкции, примеры и возможность загрузки решений.',
+		},
+		{
+			label: 'Тест',
+			icon: <LaptopMinimalCheck size={24} />,
+			description:
+				'Проверка знаний с помощью различных типов вопросов: выбор, ввод ответа, соответствие и др.',
+		},
+		{
+			label: 'Презент.',
+			icon: <Presentation size={24} />,
+			description:
+				'Наглядная демонстрация материала в формате слайдов с возможностью добавления текста, изображений и мультимедиа.',
+		},
+	]
+
+	// Массив шагов как JSX-элементы
+	const steps = [
+		<>
+			<div className='flex gap-3'>
+				{lessonTypes.map((item, index) => (
+					<button
+						key={index}
+						type='button'
+						onClick={() => setSelected(index)}
+						className={`
+                                flex flex-col items-center justify-center gap-2 aspect-square rounded-lg transition-all
+                                ${
+																	selected === index
+																		? 'bg-[var(--hero-epta)] text-white'
+																		: 'bg-[var(--bg)] text-[var(--middle)]'
+																}
+                                hover:scale-105
+                                min-w-[100px]
+                            `}
+					>
+						<span className='mb-1'>{item.icon}</span>
+						<span className='font-medium'>{item.label}</span>
+					</button>
+				))}
+			</div>
+			{lessonTypes[selected] && (
+				<p className='text-[var(--middle)] text-center'>
+					{lessonTypes[selected].description}
+				</p>
+			)}
+			<div className='flex justify-end mt-2'>
+				<Button title='Далее' style='black' onClick={() => setStep(1)} />
+			</div>
+		</>,
+		<>
+			<InputDefault
+				title={'Название занятия'}
+				placeholder={'Введите название'}
+				required={true}
+				InputStatus={false}
+				onStatusChange={setIsNameValid}
+			/>
+			<div className='flex justify-between mt-2'>
+				<Button
+					title='Добавить занятие'
+					style='black'
+					onClick={Save}
+					width={'100%'}
+					disabled={isNameValid}
+				/>
+			</div>
+		</>,
+	]
+
+	return (
+		<div className='relative'>
+			<Button
+				icon={FilePlus2}
+				title={'Добавить занятие'}
+				textSize={16}
+				className=''
+				onClick={() => setIsOpen(prev => !prev)}
+				width={'100%'}
+			/>
+			{isOpen && (
+				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 top-14 flex flex-col gap-3 z-10 w-full'>
+					{steps[step]}
+				</div>
+			)}
+		</div>
+	)
+}
 
 const ConstructorTitleInput = ({}) => {
 	const [inputValue, setInputValue] = useState('')
@@ -83,7 +197,9 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 			<div className='flex gap-3 text-[var(--middle)] items-center'>
 				<div className='flex items-center gap-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-xl px-3 py-2 text-[var(--black)]'>
 					<Package size={20} />
-					<p className='font-medium text-base'>Модуль {index}</p>
+					<p className='font-medium text-base whitespace-nowrap'>
+						Модуль {index}
+					</p>
 				</div>
 				<p className='font-bold text-base'>/</p>
 				<p className='font-normal text-base'>{title}</p>
@@ -195,12 +311,7 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 										)
 									})}
 								</div>
-								<Button
-									icon={FilePlus2}
-									title={'Добавить занятие'}
-									textSize={16}
-									className='mx-3'
-								/>
+								<CreateLessonButton />
 							</>
 						)}
 					</div>

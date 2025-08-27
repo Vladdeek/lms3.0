@@ -76,9 +76,11 @@ export const Button = ({
 	className = '',
 	htmlFor,
 	width,
+	disabled = false,
 }) => {
 	return (
 		<button
+			disabled={disabled}
 			onClick={onClick}
 			className={`rounded-lg h-full flex gap-4 items-center justify-center hover:scale-102 transition-all cursor-pointer ${className} ${
 				title ? !size && 'py-2 px-4' : !size && 'p-3'
