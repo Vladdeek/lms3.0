@@ -1,0 +1,58 @@
+export const groups = [
+	{
+		number: '2211-0101.1',
+		lvl: 'Бакалавриат',
+		course: 1,
+		students: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+		Performance: '82%',
+	},
+	{
+		number: '2211-0101.2',
+		lvl: 'Бакалавриат',
+		course: 1,
+		students: [11, 12, 13, 14, 15],
+		Performance: '76%',
+	},
+	{
+		number: '2211-0201.1',
+		lvl: 'Бакалавриат',
+		course: 2,
+		students: [1, 2, 3, 4, 5, 6, 7, 8],
+		Performance: '88%',
+	},
+	{
+		number: '2211-0201.2',
+		lvl: 'Бакалавриат',
+		course: 2,
+		students: [9, 10, 11, 12, 13],
+		Performance: '79%',
+	},
+	{
+		number: '2211-0301.1',
+		lvl: 'Бакалавриат',
+		course: 3,
+		students: [14, 15, 1, 2, 3],
+		Performance: '84%',
+	},
+	{
+		number: '2211-0301.2',
+		lvl: 'Бакалавриат',
+		course: 3,
+		students: [4, 5, 6, 7],
+		Performance: '81%',
+	},
+	{
+		number: '2211-0401.1',
+		lvl: 'Бакалавриат',
+		course: 4,
+		students: [8, 9, 10, 11],
+		Performance: '87%',
+	},
+	{
+		number: '2211-0401.2',
+		lvl: 'Бакалавриат',
+		course: 4,
+		students: [12, 13, 14, 15],
+		Performance: '90%',
+	},
+]

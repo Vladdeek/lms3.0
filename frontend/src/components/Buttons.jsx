@@ -1,4 +1,8 @@
-import { EllipsisVertical, EllipsisVerticalIcon } from 'lucide-react'
+import {
+	EllipsisVertical,
+	EllipsisVerticalIcon,
+	FunnelPlus,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 export const RadioButton = ({
@@ -217,6 +221,33 @@ export const EllipsisButton = ({ options, onOptionClick, bg }) => {
 							</span>
 						</button>
 					))}
+				</div>
+			)}
+		</div>
+	)
+}
+
+export const FilterButton = () => {
+	const [isOpen, setIsOpen] = useState(false)
+	return (
+		<div className='relative'>
+			<button
+				onClick={() => setIsOpen(prev => !prev)}
+				className='rounded-lg h-full flex gap-4 aspect-square justify-center items-center hover:scale-102 transition-all cursor-pointer text-[var(--black)] p-[6px] bg-[var(--white)] shadow-[var(--shadow)]'
+			>
+				<FunnelPlus size={20} />
+			</button>
+			{isOpen && (
+				<div className='absolute bg-[var(--white)] shadow-[var(--shadow)] rounded-lg flex flex-col top-14 -right-3 overflow-hidden'>
+					<p className='px-3 py-2 hover:bg-[var(--light-middle)] text-[var(--black)] whitespace-nowrap cursor-pointer'>
+						вариант 1
+					</p>
+					<p className='px-3 py-2 hover:bg-[var(--light-middle)] text-[var(--black)] whitespace-nowrap cursor-pointer'>
+						вариант 2
+					</p>
+					<p className='px-3 py-2 hover:bg-[var(--light-middle)] text-[var(--black)] whitespace-nowrap cursor-pointer'>
+						вариант 3
+					</p>
 				</div>
 			)}
 		</div>

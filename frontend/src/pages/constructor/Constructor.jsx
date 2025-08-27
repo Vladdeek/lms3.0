@@ -1,10 +1,7 @@
 import {
 	ArrowRightFromLine,
 	AudioLines,
-	Bookmark,
 	BookMarked,
-	BrickWall,
-	CalendarClock,
 	ChevronDown,
 	ChevronsDown,
 	ChevronsUp,
@@ -13,37 +10,33 @@ import {
 	CloudUpload,
 	Code,
 	Copy,
-	EllipsisVertical,
 	FilePlus2,
 	Files,
 	Film,
-	Gem,
 	Image,
 	Layers2,
 	ListRestart,
 	MousePointerClick,
 	NotebookPen,
 	Package,
-	Settings,
 	SquareFunction,
 	Table,
 	Text,
 	Trash,
-	UsersRound,
 } from 'lucide-react'
-import { AltRadioButton, Button, EllipsisButton } from '../components/Buttons'
+import { Button, EllipsisButton } from '../../components/Buttons'
 import { useState } from 'react'
-import { SearchInput } from '../components/Inputs'
-import { ConstructorEditor } from '../components/ConstructorComponents/TextEditor'
-import { CodeFileInput } from '../components/ConstructorComponents/CodeImport'
-import { ConstructorPhotoInput } from '../components/ConstructorComponents/PhotoImport'
-import { ConstructorVideoInput } from '../components/ConstructorComponents/VideoImport'
-import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
-import { TableConstructor } from '../components/ConstructorComponents/TableConstructor'
-import { AudioInput } from '../components/ConstructorComponents/AudioImport'
-import { CalloutConstructor } from '../components/ConstructorComponents/CalloutConstructor'
-import FormulaConstructor from '../components/ConstructorComponents/FormulaInput'
-import { ButtonConstructor } from '../components/ConstructorComponents/ButtonConstructor'
+import { SearchInput } from '../../components/Inputs'
+import { ConstructorEditor } from '../../components/ConstructorComponents/TextEditor'
+import { CodeFileInput } from '../../components/ConstructorComponents/CodeImport'
+import { ConstructorPhotoInput } from '../../components/ConstructorComponents/PhotoImport'
+import { ConstructorVideoInput } from '../../components/ConstructorComponents/VideoImport'
+import { ConstructorFileInput } from '../../components/ConstructorComponents/FileImport'
+import { TableConstructor } from '../../components/ConstructorComponents/TableConstructor'
+import { AudioInput } from '../../components/ConstructorComponents/AudioImport'
+import { CalloutConstructor } from '../../components/ConstructorComponents/CalloutConstructor'
+import FormulaConstructor from '../../components/ConstructorComponents/FormulaInput'
+import { ButtonConstructor } from '../../components/ConstructorComponents/ButtonConstructor'
 
 const ConstructorTitleInput = ({}) => {
 	const [inputValue, setInputValue] = useState('')
@@ -470,45 +463,4 @@ const Constructor = () => {
 	)
 }
 
-const ConstructorPage = () => {
-	const title = 'Основы программирования'
-	const options = [
-		{ value: 0, title: 'Конструктор', icon: BrickWall },
-		{ value: 1, title: 'Управление доступом', icon: UsersRound },
-	]
-
-	const [selected, setSelected] = useState(0)
-	return (
-		<>
-			<div className='flex flex-col gap-5'>
-				<div className='flex justify-between items-center mt-10'>
-					<div className='flex gap-5 items-center '>
-						{options.map(option => (
-							<AltRadioButton
-								key={option.value}
-								name='example'
-								value={option.value}
-								title={option.title}
-								icon={option.icon}
-								checked={selected === option.value}
-								onChange={() => setSelected(option.value)}
-							/>
-						))}
-					</div>
-					<div className='flex bg-[var(--white)] rounded-lg shadow-[var(--shadow)] px-4 py-3 gap-3'>
-						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
-						<p className='font-medium text-2xl text-[var(--black)]'>{title}</p>
-					</div>
-					<div className='flex gap-5 items-center'>
-						<Button icon={CalendarClock} style='white' />
-						<Button icon={Settings} style='white' />
-						<Button title={'Сохранить'} style='outline' />
-						<Button title={'Опубликовать курс'} style='black' />
-					</div>
-				</div>
-				<Constructor />
-			</div>
-		</>
-	)
-}
-export default ConstructorPage
+export default Constructor

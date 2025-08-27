@@ -14,7 +14,7 @@ import CustomCursor from './components/Cursor'
 import Students from './pages/Students'
 import Tasks from './pages/Tasks'
 import Catalog from './pages/Сatalog'
-import ConstructorPage from './pages/ConstructorPage'
+import ConstructorPage from './pages/constructor/ConstructorPage'
 
 function MainApp() {
 	const navigate = useNavigate()

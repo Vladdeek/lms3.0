@@ -130,7 +130,7 @@ const Catalog = () => {
 						))}
 					</div>
 					<div className='flex gap-4 h-12'>
-						<SearchInput />
+						<SearchInput width={383} />
 						<Button icon={FunnelPlus} />
 					</div>
 				</div>
