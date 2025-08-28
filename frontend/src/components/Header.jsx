@@ -8,8 +8,9 @@ import {
 	MessageSquare,
 	MessagesSquare,
 	AlignJustify,
+	Home,
 } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 const HeaderBtn = ({ onClick, action, icon: Icon, Notifications = null }) => {
 	const [isLight, setIsLight] = useState(() => {
@@ -86,21 +87,49 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 }
 
 const Header = () => {
+	const [activeUser, setActiveUser] = useState(null)
+	const location = useLocation()
 	const HeaderLinkInfo = [
 		{
-			title: 'Каталог',
-			icon: AlignJustify,
-			to: '/catalog',
-		},
-		{
-			title: 'Студенты и группы',
-			icon: UsersRound,
-			to: '/students',
-		},
-		{
-			title: 'Проверка заданий',
-			icon: CopyCheck,
-			to: '/tasks',
+			teacher: [
+				{
+					title: 'Каталог',
+					icon: AlignJustify,
+					to: '/catalog',
+				},
+				{
+					title: 'Студенты и группы',
+					icon: UsersRound,
+					to: '/students',
+				},
+				{
+					title: 'Проверка заданий',
+					icon: CopyCheck,
+					to: '/tasks',
+				},
+			],
+			student: [
+				{
+					title: 'Главная',
+					icon: Home,
+					to: '/catalog',
+				},
+				{
+					title: 'Расписание',
+					icon: UsersRound,
+					to: '/students',
+				},
+				{
+					title: 'Каталог курсов',
+					icon: AlignJustify,
+					to: '/tasks',
+				},
+				{
+					title: 'Оценки',
+					icon: CopyCheck,
+					to: '/tasks',
+				},
+			],
 		},
 	]
 
@@ -126,19 +155,36 @@ const Header = () => {
 
 	const UserInfo = [
 		{
+			FullName: 'Иванов Иван Иванович',
+			role: 'student',
+			img_path:
+				'https://i.pinimg.com/736x/93/88/67/938867b05625e9057d9c9138f304f2b8.jpg',
+		},
+	]
+	const Users = [
+		{
+			FullName: 'Иванов Иван Иванович',
+			role: 'student',
+			img_path:
+				'https://i.pinimg.com/736x/93/88/67/938867b05625e9057d9c9138f304f2b8.jpg',
+		},
+		{
 			FullName: 'Покуса Тамила Владимировна',
-			role: 'Преподаватель',
+			role: 'teacher',
 			img_path:
 				'https://i.pinimg.com/736x/93/88/67/938867b05625e9057d9c9138f304f2b8.jpg',
 		},
 	]
 
 	const [openIndex, setOpenIndex] = useState(null)
+
+	const links = HeaderLinkInfo[0][UserInfo[0].role]
+
 	return (
 		<>
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
 				<div className='flex items-center gap-5'>
-					{HeaderLinkInfo.map((item, index) => (
+					{links.map((item, index) => (
 						<HeaderLink
 							key={index}
 							title={item.title}
@@ -158,24 +204,56 @@ const Header = () => {
 								Notifications={item.Notifications}
 							/>
 						))}
-						{UserInfo.map((user, index) => (
-							<div className='flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px]'>
-								<p className='text-base font-medium text-[var(--black)] whitespace-nowrap text-end leading-5'>
-									{`${user.FullName.split(' ')[0]}
-										  ${user.FullName.split(' ')[1]}
-										  ${user.FullName.split(' ')[2][0]}.`}
-									<span className='font-normal text-[var(--middle)]'>
-										<br />
-										{user.role}
-									</span>
-								</p>
-								<img
-									className='h-10 rounded-full aspect-square'
-									src={user.img_path}
-									alt=''
-								/>
-							</div>
-						))}
+						{UserInfo.map((user, index) => {
+							const isDashboard = location.pathname === '/dashboard'
+							const isStudent = user.role === 'student'
+							const Wrapper = isStudent ? NavLink : 'div'
+							const toProps = isStudent ? { to: '/dashboard' } : {}
+							const activeClass =
+								isStudent && isDashboard
+									? 'bg-[var(--hero-epta)] text-white'
+									: 'bg-[var(--white)]'
+
+							return (
+								<Wrapper
+									key={index}
+									{...toProps}
+									className={`
+                flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px] cursor-pointer transition-all
+                ${activeClass}
+            `}
+								>
+									<p
+										className={`text-base font-medium whitespace-nowrap text-end leading-5 ${
+											isStudent && isDashboard
+												? 'text-white'
+												: 'text-[var(--black)]'
+										}`}
+									>
+										{`${user.FullName.split(' ')[0]} ${
+											user.FullName.split(' ')[1]
+										} ${user.FullName.split(' ')[2][0]}.`}
+										<span
+											className={`font-normal ${
+												isStudent && isDashboard
+													? 'text-white/80'
+													: 'text-[var(--middle)]'
+											}`}
+										>
+											<br />
+											{user.role === 'student'
+												? 'Студент'
+												: user.role === 'teacher' && 'Преподаватель'}
+										</span>
+									</p>
+									<img
+										className='h-10 rounded-full aspect-square'
+										src={user.img_path}
+										alt=''
+									/>
+								</Wrapper>
+							)
+						})}
 					</div>
 				</div>
 			</div>

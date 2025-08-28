@@ -1,5 +1,6 @@
 import {
 	Check,
+	ChevronDown,
 	CircleCheck,
 	FileText,
 	ImagePlus,
@@ -319,5 +320,42 @@ export const Checkbox = ({
 			</span>
 			{label && <span className='text-[16px]'>{label}</span>}
 		</label>
+	)
+}
+
+export const OptionInput = ({ Options }) => {
+	const [Selected, setSelected] = useState(0)
+	const [isOpen, setIsOpen] = useState(false)
+	return (
+		<>
+			<div className='relative select-none'>
+				<div
+					onClick={() => setIsOpen(prev => !prev)}
+					className='bg-[var(--white)] flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium'
+				>
+					{Options[Selected]}
+					<ChevronDown
+						className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
+					/>
+				</div>
+				{isOpen && (
+					<div
+						className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
+				max-h-50 overflow-scroll w-full top-14 z-100'
+					>
+						{Options.map((item, index) => {
+							return (
+								<p
+									key={index}
+									className='px-3 py-2 transition-all hover:bg-[var(--light-middle)] cursor-pointer'
+								>
+									{item}
+								</p>
+							)
+						})}
+					</div>
+				)}
+			</div>
+		</>
 	)
 }
