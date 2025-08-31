@@ -10,7 +10,7 @@ import {
 import { ru } from 'date-fns/locale'
 import { useState } from 'react'
 import { CalendarRange, ChevronLeft, ChevronRight } from 'lucide-react'
-import { ArrowL, ArrowR } from '../../public/assets/icons/ArrowsSvg'
+
 import { Button } from './Buttons'
 
 const Event = ({ time, title, today = false, now = false }) => {
@@ -98,13 +98,13 @@ const Calendar = () => {
 		<div className='p-4'>
 			<div className='flex justify-between items-center mb-10'>
 				<div className='flex items-center gap-4 w-fit '>
-					<ArrowL onClick={prevWeek} />
+					<ChevronLeft onClick={prevWeek} />
 
 					<p className='text-[20px] font-medium text-[var(--text)]'>
 						{format(weekStart, 'd', { locale: ru })} -
 						{format(weekEnd, 'd MMMM', { locale: ru })}
 					</p>
-					<ArrowR onClick={nextWeek} />
+					<ChevronRight onClick={nextWeek} />
 				</div>
 				<Button>
 					<p>Добавить событие </p>

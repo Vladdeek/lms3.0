@@ -25,6 +25,16 @@
 	--button4-bg: #ffc400;
 	--button5-bg: #1daf00;
 	--button6-bg: #ff0f0f;
+
+	--mood-color1-bg: #c5f2c7;
+	--mood-color1-dark: #5c8d63;
+	--mood-color1-pale: #9ed9a5;
+	--mood-color2-bg: #f5f2c5;
+	--mood-color2-dark: #8d7f5c;
+	--mood-color2-pale: #e0dca2;
+	--mood-color3-bg: #f7c7c3;
+	--mood-color3-dark: #8d5c5c;
+	--mood-color3-pale: #e6a19b;
 }
 
 :root[data-theme='dark'] {
@@ -51,4 +61,14 @@
 	--button4-bg: #ffc400;
 	--button5-bg: #1daf00;
 	--button6-bg: #ff0f0f;
+
+	--mood-color1-bg: #7cd880;
+	--mood-color1-dark: #264c27;
+	--mood-color1-pale: #6bb96d;
+	--mood-color2-bg: #e3d96c;
+	--mood-color2-dark: #4c3f26;
+	--mood-color2-pale: #b9b06b;
+	--mood-color3-bg: #de564a;
+	--mood-color3-dark: #4c2626;
+	--mood-color3-pale: #bc3e33;
 }
