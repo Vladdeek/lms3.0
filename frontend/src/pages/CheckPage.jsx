@@ -49,7 +49,131 @@ const MaterialCard = ({ title }) => {
 }
 
 const StudentTable = () => {
-	return <></>
+	const type = [
+		'ПР1',
+		'T1',
+		'ПР2',
+		'T2',
+		'ПР3',
+		'T3',
+		'ПР4',
+		'T4',
+		'ПР5',
+		'T5',
+		'ПР6',
+		'T6',
+		'ПР7',
+		'T7',
+	]
+	const StudentScore = [
+		{
+			name: 'Рязанов Владислав Денисович',
+			score: [3, 4, '', 5, 4, 3, '', 5, 5, 4, 4, 3, '', ''],
+		},
+		{
+			name: 'Иванов Иван Иванович',
+			score: [3, 2, '', '', 4, 3, 5, 5, '', 4, 4, 3, '', ''],
+		},
+		{
+			name: 'Ковалев Евген Алексеевич',
+			score: [3, 4, '', '', 4, 2, '', 5, 3, 4, 4, 3, '', ''],
+		},
+		{
+			name: 'Козак Дмитрий Денисович',
+			score: [3, 4, '', 2, 4, 3, '', '', 2, 4, 4, '', '', ''],
+		},
+	]
+	return (
+		<>
+			<div className='flex items-center text-[var(--black)]  rounded-lg'>
+				<div className='w-1/4 flex items-center'>
+					<div className='w-1/5 flex items-center justify-center'>
+						<p className='bg-[var(--light-gray)] h-full w-full text-center py-2 rounded-lg'>
+							№
+						</p>
+					</div>
+					<div className='w-4/5 flex items-center justify-center'>
+						<p>ФИО</p>
+					</div>
+				</div>
+				<div className='w-3/4 flex items-center justify-between'>
+					{type.map((item, index) => {
+						return (
+							<div
+								className={`flex items-center justify-center w-15 h-full py-2 rounded-lg ${
+									index % 2 === 0
+										? 'bg-[var(--light-gray)]'
+										: 'bg-[var(--white)] '
+								}`}
+							>
+								<p className='text-center' key={index}>
+									{item}
+								</p>
+							</div>
+						)
+					})}
+					<p className='w-15 text-center bg-[var(--light-gray)] h-full py-2 rounded-lg'>
+						ср/б
+					</p>
+				</div>
+			</div>
+			<div className='flex flex-col gap-2 mt-3'>
+				{StudentScore.map((item, index) => {
+					return (
+						<StudentCard4Table
+							num={index + 1}
+							FullName={item.name}
+							option={item.score}
+							average={4}
+						/>
+					)
+				})}
+			</div>
+		</>
+	)
+}
+
+const StudentCard4Table = ({ num, FullName, option, average }) => {
+	return (
+		<>
+			<div className='flex items-center text-[var(--black)] shadow-[var(--shadow)] rounded-lg overflow-hidden'>
+				<div className='w-1/4 flex items-center'>
+					<div className='w-1/5 flex items-center justify-center'>
+						<p className='bg-[var(--light-gray)] h-full w-full text-center py-2'>
+							{num}
+						</p>
+					</div>
+					<div className='w-4/5 flex items-center justify-center'>
+						<p className='bg-[var(--white)] h-full w-full text-center py-2'>{`${
+							FullName.split(' ')[0]
+						} ${FullName.split(' ')[1]} ${FullName.split(' ')[2][0]}.`}</p>
+					</div>
+				</div>
+				<div className='w-3/4 flex items-center justify-between'>
+					{option.map((item, index) => {
+						return (
+							<div
+								className={`flex items-center justify-center w-15 h-full ${
+									item.length !== 0 ? 'py-2' : 'py-5'
+								} ${
+									index % 2 === 0
+										? 'bg-[var(--light-gray)]'
+										: 'bg-[var(--white)] '
+								}`}
+							>
+								<p className='text-center' key={index}>
+									{item}
+								</p>
+							</div>
+						)
+					})}
+					<p className='w-15 text-center bg-[var(--light-gray)] py-2' h-full>
+						{average}
+					</p>
+				</div>
+			</div>
+		</>
+	)
 }
 
 const CheckPage = () => {
@@ -142,7 +266,9 @@ const CheckPage = () => {
 						</p>
 					</div>
 				</div>
-				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)]'></div>
+				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] p-4'>
+					<StudentTable />
+				</div>
 			</div>
 		</>
 	)

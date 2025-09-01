@@ -18,6 +18,7 @@ import Catalog from './pages/Сatalog'
 import ConstructorPage from './pages/constructor/ConstructorPage'
 import Dashboard from './pages/Dashboard'
 import Schedule from './pages/Schedule'
+import ScorePage from './pages/ScorePage'
 
 function MainApp() {
 	const navigate = useNavigate()
@@ -39,6 +40,7 @@ function MainApp() {
 					<Route path='/constructor' element={<ConstructorPage />} />
 					<Route path='/dashboard' element={<Dashboard />} />
 					<Route path='/schedule' element={<Schedule />} />
+					<Route path='/score' element={<ScorePage />} />
 				</Route>
 			</Routes>
 		</Suspense>

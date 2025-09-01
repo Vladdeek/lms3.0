@@ -127,7 +127,7 @@ const Header = () => {
 				{
 					title: 'Оценки',
 					icon: CopyCheck,
-					to: '/tasks',
+					to: '/score',
 				},
 			],
 		},

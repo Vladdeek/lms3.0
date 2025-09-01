@@ -323,7 +323,7 @@ export const Checkbox = ({
 	)
 }
 
-export const OptionInput = ({ Options, color = 'white', placeholder }) => {
+export const OptionInput = ({ Options, color = 'white', placeholder = '' }) => {
 	const [Selected, setSelected] = useState(0)
 	const [isOpen, setIsOpen] = useState(false)
 	return (
@@ -335,9 +335,11 @@ export const OptionInput = ({ Options, color = 'white', placeholder }) => {
 						color === 'white'
 							? 'bg-[var(--white)] text-[var(--black)]'
 							: 'bg-[var(--black)] text-[var(--white)]'
-					} flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-fit`}
+					} flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-full`}
 				>
-					{Options[Selected] && (
+					{placeholder.length === 0 ? (
+						Options[Selected]
+					) : (
 						<p className='whitespace-nowrap'>{placeholder}</p>
 					)}
 					<ChevronDown
