@@ -74,8 +74,8 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 				<>
 					<Icon size={24} />
 					<p
-						className={`font-medium transition-all text-base ${
-							isActive ? 'text-[var(--primary)]' : 'hover:text-[var(--primary)]'
+						className={`font-medium text-base transition-all ${
+							isActive ? 'text-[var(--white)]' : 'hover:text-[var(--black)]'
 						}`}
 					>
 						{title}
@@ -117,7 +117,7 @@ const Header = () => {
 				{
 					title: 'Расписание',
 					icon: UsersRound,
-					to: '/students',
+					to: '/schedule',
 				},
 				{
 					title: 'Каталог курсов',

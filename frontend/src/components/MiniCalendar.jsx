@@ -34,7 +34,7 @@ const MiniCalendar = () => {
 
 	return (
 		<div className='bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 w-full flex flex-col items-center'>
-			<div className='flex justify-between items-center w-full mb-2'>
+			<div className='flex justify-between items-center w-full mb-2 text-[var(--black)]'>
 				<button
 					onClick={handlePrev}
 					className='px-2 py-1 rounded hover:bg-[var(--bg)]'

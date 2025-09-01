@@ -17,6 +17,7 @@ import CheckPage from './pages/CheckPage'
 import Catalog from './pages/Сatalog'
 import ConstructorPage from './pages/constructor/ConstructorPage'
 import Dashboard from './pages/Dashboard'
+import Schedule from './pages/Schedule'
 
 function MainApp() {
 	const navigate = useNavigate()
@@ -37,6 +38,7 @@ function MainApp() {
 					<Route path='/check' element={<CheckPage />} />
 					<Route path='/constructor' element={<ConstructorPage />} />
 					<Route path='/dashboard' element={<Dashboard />} />
+					<Route path='/schedule' element={<Schedule />} />
 				</Route>
 			</Routes>
 		</Suspense>

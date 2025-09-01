@@ -29,7 +29,7 @@ const MoodBlock = () => {
 									? 'rounded-full h-30 w-30'
 									: mood === 1
 									? 'rounded-full h-15 w-30'
-									: mood === 2 && 'rounded-full h-15 w-15'
+									: mood === 2 && 'rounded-full h-15 w-15 -rotate-90'
 							}`}
 							style={{ backgroundColor: darkColor }}
 						></div>
@@ -39,7 +39,7 @@ const MoodBlock = () => {
 									? 'rounded-full h-30 w-30'
 									: mood === 1
 									? 'rounded-full h-15 w-30'
-									: mood === 2 && 'rounded-full h-15 w-15'
+									: mood === 2 && 'rounded-full h-15 w-15 rotate-90'
 							}`}
 							style={{ backgroundColor: darkColor }}
 						></div>

@@ -323,7 +323,7 @@ export const Checkbox = ({
 	)
 }
 
-export const OptionInput = ({ Options }) => {
+export const OptionInput = ({ Options, color = 'white', placeholder }) => {
 	const [Selected, setSelected] = useState(0)
 	const [isOpen, setIsOpen] = useState(false)
 	return (
@@ -331,9 +331,15 @@ export const OptionInput = ({ Options }) => {
 			<div className='relative select-none'>
 				<div
 					onClick={() => setIsOpen(prev => !prev)}
-					className='bg-[var(--white)] flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium'
+					className={` ${
+						color === 'white'
+							? 'bg-[var(--white)] text-[var(--black)]'
+							: 'bg-[var(--black)] text-[var(--white)]'
+					} flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-fit`}
 				>
-					{Options[Selected]}
+					{Options[Selected] && (
+						<p className='whitespace-nowrap'>{placeholder}</p>
+					)}
 					<ChevronDown
 						className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
 					/>

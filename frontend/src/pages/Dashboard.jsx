@@ -11,7 +11,7 @@ const Comment = ({ img_path, FullName, lesson, comment }) => {
 			<div className='w-full h-35 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] p-4 flex gap-3 text-[var(--black)]'>
 				<img className=' rounded-lg h-10 w-10' src={img_path} alt='' />
 				<div className='flex flex-col'>
-					<div className='flex justify-between text-sm'>
+					<div className='flex justify-between text-sm '>
 						<p>
 							{`${FullName.split(' ')[0]} ${FullName.split(' ')[1][0]}. ${
 								FullName.split(' ')[2][0]
@@ -80,7 +80,7 @@ const LessonCard = ({ lesson, description, status, deadline }) => {
 }
 
 const Dashboard = () => {
-	const percentage = 66
+	const percentage = 75
 
 	return (
 		<>
@@ -93,7 +93,9 @@ const Dashboard = () => {
 								src={students[0].img}
 								alt=''
 							/>
-							<p className='font-medium'>{students[0].name}</p>
+							<p className='font-medium text-[var(--black)]'>
+								{students[0].name}
+							</p>
 						</div>
 						<div className='w-3/5'>
 							<MiniCalendar />
