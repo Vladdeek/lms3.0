@@ -2,7 +2,8 @@ import { act, useState } from 'react'
 import { OptionInput } from '../components/Inputs'
 import { groups } from '../data/groups'
 import { students } from '../data/students'
-import { ArrowBigDownDash, CalendarDays } from 'lucide-react'
+import { ArrowBigDownDash, CalendarDays, Filter } from 'lucide-react'
+import { FilterButton } from '../components/Buttons'
 
 const StudentCard = ({ img_path, FullName, score, onClick, active }) => {
 	const [Active, setActive] = useState(active)
@@ -123,7 +124,7 @@ const StudentTable = () => {
 						<StudentCard4Table
 							num={index + 1}
 							FullName={item.name}
-							option={item.score}
+							scores={item.score}
 							average={4}
 						/>
 					)
@@ -133,7 +134,14 @@ const StudentTable = () => {
 	)
 }
 
-const StudentCard4Table = ({ num, FullName, option, average }) => {
+const StudentCard4Table = ({ num, FullName, scores }) => {
+	const calculateAverage = scores => {
+		const validScores = scores.filter(score => score !== '' && !isNaN(score))
+		if (validScores.length === 0) return 0
+		const sum = validScores.reduce((total, score) => total + Number(score), 0)
+		return (sum / validScores.length).toFixed(0)
+	}
+	const average = calculateAverage(scores)
 	return (
 		<>
 			<div className='flex items-center text-[var(--black)] shadow-[var(--shadow)] rounded-lg overflow-hidden'>
@@ -150,9 +158,10 @@ const StudentCard4Table = ({ num, FullName, option, average }) => {
 					</div>
 				</div>
 				<div className='w-3/4 flex items-center justify-between'>
-					{option.map((item, index) => {
+					{scores.map((item, index) => {
 						return (
 							<div
+								key={index}
 								className={`flex items-center justify-center w-15 h-full ${
 									item.length !== 0 ? 'py-2' : 'py-5'
 								} ${
@@ -161,9 +170,7 @@ const StudentCard4Table = ({ num, FullName, option, average }) => {
 										: 'bg-[var(--white)] '
 								}`}
 							>
-								<p className='text-center' key={index}>
-									{item}
-								</p>
+								<p className='text-center'>{item}</p>
 							</div>
 						)
 					})}
@@ -266,8 +273,13 @@ const CheckPage = () => {
 						</p>
 					</div>
 				</div>
-				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] p-4'>
-					<StudentTable />
+				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4'>
+					<div className='w-[95%]'>
+						<StudentTable />
+					</div>
+					<div className='w-[5%] flex h-fit justify-center'>
+						<FilterButton option={['по фамилии', 'по среднему балу']} />
+					</div>
 				</div>
 			</div>
 		</>

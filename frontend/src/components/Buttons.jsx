@@ -230,7 +230,7 @@ export const EllipsisButton = ({ options, onOptionClick, bg }) => {
 	)
 }
 
-export const FilterButton = () => {
+export const FilterButton = ({ option }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	return (
 		<div className='relative'>
@@ -242,15 +242,16 @@ export const FilterButton = () => {
 			</button>
 			{isOpen && (
 				<div className='absolute bg-[var(--white)] shadow-[var(--shadow)] rounded-lg flex flex-col top-14 -right-3 overflow-hidden'>
-					<p className='px-3 py-2 hover:bg-[var(--light-middle)] text-[var(--black)] whitespace-nowrap cursor-pointer'>
-						вариант 1
-					</p>
-					<p className='px-3 py-2 hover:bg-[var(--light-middle)] text-[var(--black)] whitespace-nowrap cursor-pointer'>
-						вариант 2
-					</p>
-					<p className='px-3 py-2 hover:bg-[var(--light-middle)] text-[var(--black)] whitespace-nowrap cursor-pointer'>
-						вариант 3
-					</p>
+					{option.map((item, index) => {
+						return (
+							<p
+								key={index}
+								className='px-3 py-2 hover:bg-[var(--light-middle)] text-[var(--black)] whitespace-nowrap cursor-pointer transition-all'
+							>
+								{item}
+							</p>
+						)
+					})}
 				</div>
 			)}
 		</div>

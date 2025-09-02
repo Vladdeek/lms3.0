@@ -2,6 +2,7 @@ import {
 	ArrowRightFromLine,
 	AudioLines,
 	BookMarked,
+	CheckSquare,
 	ChevronDown,
 	ChevronsDown,
 	ChevronsUp,
@@ -10,21 +11,25 @@ import {
 	CloudUpload,
 	Code,
 	Copy,
+	CopyCheck,
 	FilePlus2,
 	Files,
 	Film,
 	Image,
 	LaptopMinimalCheck,
 	Layers2,
+	ListOrdered,
 	ListRestart,
 	MousePointerClick,
 	NotebookPen,
 	Package,
+	Plus,
 	Presentation,
 	SquareFunction,
 	Table,
 	Text,
 	Trash,
+	X,
 } from 'lucide-react'
 import { Button, EllipsisButton } from '../../components/Buttons'
 import { useState } from 'react'
@@ -39,9 +44,12 @@ import { AudioInput } from '../../components/ConstructorComponents/AudioImport'
 import { CalloutConstructor } from '../../components/ConstructorComponents/CalloutConstructor'
 import FormulaConstructor from '../../components/ConstructorComponents/FormulaInput'
 import { ButtonConstructor } from '../../components/ConstructorComponents/ButtonConstructor'
+import OneVariant from '../../components/ConstructorTest/OneVariant'
+import MoreVariant from '../../components/ConstructorTest/MoreVariants'
+import SortVariants from '../../components/ConstructorTest/SortVariants'
 
 const CreateLessonButton = () => {
-	const [isOpen, setIsOpen] = useState(true)
+	const [isOpen, setIsOpen] = useState(false)
 	const [selected, setSelected] = useState(0)
 	const [step, setStep] = useState(0)
 	const [isNameValid, setIsNameValid] = useState(false)
@@ -71,18 +79,12 @@ const CreateLessonButton = () => {
 			description:
 				'Проверка знаний с помощью различных типов вопросов: выбор, ввод ответа, соответствие и др.',
 		},
-		{
-			label: 'Презент.',
-			icon: <Presentation size={24} />,
-			description:
-				'Наглядная демонстрация материала в формате слайдов с возможностью добавления текста, изображений и мультимедиа.',
-		},
 	]
 
 	// Массив шагов как JSX-элементы
 	const steps = [
 		<>
-			<div className='flex gap-3'>
+			<div className='flex justify-center gap-5'>
 				{lessonTypes.map((item, index) => (
 					<button
 						key={index}
@@ -251,8 +253,10 @@ const ModuleContent = ({ type, index, title, bg, onClick }) => {
 				>
 					{type === 'Лекция' ? (
 						<BookMarked size={20} />
-					) : (
+					) : type === 'Практика' ? (
 						<NotebookPen size={20} />
+					) : (
+						type === 'Тест' && <LaptopMinimalCheck size={20} />
 					)}
 					<p className='font-medium text-base whitespace-nowrap'>
 						{type} {index}
@@ -321,6 +325,96 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 	)
 }
 
+const CreateLevelModal = ({ isOpen, onClose }) => {
+	if (!isOpen) return null
+
+	const [isNameValid, setIsNameValid] = useState(false)
+	const [isFileValid, setIsFileValid] = useState(false)
+	const [answerType, setAnswerType] = useState('single')
+
+	const isFormValid = isNameValid && isFileValid
+
+	// Массив с данными для кнопок
+	const answerTypes = [
+		{
+			id: 'single',
+			label: 'Один правильный ответ',
+			icon: CopyCheck,
+		},
+		{
+			id: 'multiple',
+			label: 'Несколько правильных ответов',
+			icon: CheckSquare, // Замените на вашу иконку
+		},
+		{
+			id: 'order',
+			label: 'Расположить в правильном порядке',
+			icon: ListOrdered, // Замените на вашу иконку
+		},
+	]
+
+	const handleAnswerTypeChange = type => {
+		setAnswerType(type)
+	}
+
+	return (
+		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
+			<div className='bg-[var(--white)] relative p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001 min-w-[400px]'>
+				<X
+					onClick={onClose}
+					className='absolute top-1 right-1 text-[var(--middle)] cursor-pointer'
+				/>
+				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
+					Создание курса
+				</h2>
+				<div className='mb-4'>
+					<h3 className='text-lg font-medium mb-3'>Тип ответов:</h3>
+
+					{answerTypes.map(type => {
+						const IconComponent = type.icon
+						const isSelected = answerType === type.id
+
+						return (
+							<div
+								key={type.id}
+								className={`rounded-lg shadow-[var(--shadow)] flex gap-3 px-4 py-2 select-none ${
+									isSelected
+										? 'bg-[var(--hero-epta)] text-[var(--white)]'
+										: 'text-[var(--black)] bg-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+								}   items-center p-2 transition-all cursor-pointer active:scale-95 font-medium mb-2 last:mb-0`}
+								onClick={() => handleAnswerTypeChange(type.id)}
+							>
+								<IconComponent className='flex-shrink-0' />
+								<p className='flex-1'>{type.label}</p>
+							</div>
+						)
+					})}
+				</div>
+			</div>
+		</div>
+	)
+}
+
+const ConstructorLevels = () => {
+	const [createModalOpen, setCreateModalOpen] = useState(false)
+	return (
+		<>
+			<CreateLevelModal
+				isOpen={createModalOpen}
+				onClose={() => setCreateModalOpen(false)}
+			/>
+			<div className='flex gap-3'>
+				<div
+					onClick={() => setCreateModalOpen(true)}
+					className='bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-md hover:bg-[var(--hero-epta)] hover:text-[var(--white)] flex justify-center items-center p-2 transition-all cursor-pointer active:scale-90'
+				>
+					<Plus />
+				</div>
+			</div>
+		</>
+	)
+}
+
 const ContentView = ({ content }) => {
 	const [blocks, setBlocks] = useState([])
 
@@ -346,39 +440,50 @@ const ContentView = ({ content }) => {
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
 			<ModuleContent bg={true} type={content.type} title={content.title} />
 
-			<ConstructorTitleInput DelComponent={() => {}} />
+			{content.type === 'Тест' ? (
+				<>
+					<ConstructorLevels />
+					<OneVariant />
+					<MoreVariant />
+					<SortVariants />
+				</>
+			) : (
+				<>
+					<ConstructorTitleInput DelComponent={() => {}} />
 
-			{/* Рендерим блоки по типу */}
-			{blocks.map((block, i) => {
-				const del = () => removeBlock(i) // функция удаления для конкретного блока
-				switch (block) {
-					case 'text':
-						return <ConstructorEditor key={i} DelComponent={del} />
-					case 'code':
-						return <CodeFileInput key={i} DelComponent={del} />
-					case 'photo':
-						return <ConstructorPhotoInput key={i} DelComponent={del} />
-					case 'video':
-						return <ConstructorVideoInput key={i} DelComponent={del} />
-					case 'files':
-						return <ConstructorFileInput key={i} DelComponent={del} />
-					case 'table':
-						return <TableConstructor key={i} DelComponent={del} />
-					case 'audio':
-						return <AudioInput key={i} DelComponent={del} />
-					case 'callout':
-						return <CalloutConstructor key={i} DelComponent={del} />
-					case 'formula':
-						return <FormulaConstructor key={i} DelComponent={del} />
-					case 'button':
-						return <ButtonConstructor key={i} DelComponent={del} />
-					default:
-						return null
-				}
-			})}
+					{/* Рендерим блоки по типу */}
+					{blocks.map((block, i) => {
+						const del = () => removeBlock(i) // функция удаления для конкретного блока
+						switch (block) {
+							case 'text':
+								return <ConstructorEditor key={i} DelComponent={del} />
+							case 'code':
+								return <CodeFileInput key={i} DelComponent={del} />
+							case 'photo':
+								return <ConstructorPhotoInput key={i} DelComponent={del} />
+							case 'video':
+								return <ConstructorVideoInput key={i} DelComponent={del} />
+							case 'files':
+								return <ConstructorFileInput key={i} DelComponent={del} />
+							case 'table':
+								return <TableConstructor key={i} DelComponent={del} />
+							case 'audio':
+								return <AudioInput key={i} DelComponent={del} />
+							case 'callout':
+								return <CalloutConstructor key={i} DelComponent={del} />
+							case 'formula':
+								return <FormulaConstructor key={i} DelComponent={del} />
+							case 'button':
+								return <ButtonConstructor key={i} DelComponent={del} />
+							default:
+								return null
+						}
+					})}
 
-			{/* Меню для добавления новых блоков */}
-			<ConstructorMenu onAdd={addBlock} />
+					{/* Меню для добавления новых блоков */}
+					<ConstructorMenu onAdd={addBlock} />
+				</>
+			)}
 		</div>
 	)
 }
@@ -468,6 +573,12 @@ const Constructor = () => {
 				{
 					id: 1,
 					type: 'Практика',
+					title: 'Hello, World! Или как подружиться с кодом',
+					content: 'Задания для практического занятия...',
+				},
+				{
+					id: 1,
+					type: 'Тест',
 					title: 'Hello, World! Или как подружиться с кодом',
 					content: 'Задания для практического занятия...',
 				},
