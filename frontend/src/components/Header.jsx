@@ -64,9 +64,7 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 			to={to}
 			className={({ isActive }) =>
 				`inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 cursor-pointer shadow-[var(--shadow)] text-[var(--black)] transition-all select-none ${
-					!isActive
-						? 'bg-[var(--white)]'
-						: 'bg-[var(--hero-epta)] text-[var(--white)]'
+					!isActive ? 'bg-[var(--white)]' : 'bg-[var(--hero-epta)] text-white'
 				}`
 			}
 		>
@@ -75,7 +73,7 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 					<Icon size={24} />
 					<p
 						className={`font-medium text-base transition-all ${
-							isActive ? 'text-[var(--white)]' : 'hover:text-[var(--black)]'
+							isActive ? 'text-white' : 'hover:text-[var(--black)]'
 						}`}
 					>
 						{title}
@@ -158,7 +156,7 @@ const Header = () => {
 			FullName: 'Иванов Иван Иванович',
 			role: 'student',
 			img_path:
-				'https://i.pinimg.com/736x/93/88/67/938867b05625e9057d9c9138f304f2b8.jpg',
+				'https://i.pinimg.com/1200x/ed/55/e0/ed55e005e9d504e6a273c19adeee2b49.jpg',
 		},
 	]
 	const Users = [

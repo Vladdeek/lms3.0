@@ -26,7 +26,10 @@ export const CourseCard = ({
 							{course}
 						</p>
 					</div>
-					<NavLink to={to} className={`font-bold text-[20px] mt-3`}>
+					<NavLink
+						to={to}
+						className={`font-bold text-[20px] mt-3 text-[var(--black)]`}
+					>
 						{title}
 					</NavLink>
 					<p

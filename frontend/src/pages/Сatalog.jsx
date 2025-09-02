@@ -13,7 +13,7 @@ const CreateBtn = ({ onClick, title }) => {
 	return (
 		<button
 			onClick={onClick}
-			className='flex flex-col w-2/3 items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer'
+			className='flex flex-col w-2/3 items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer h-129'
 		>
 			<Blocks size={112} strokeWidth={0.5} />
 			<span className='text-base font-medium px-4 py-3 rounded-lg mt-4 transition-all'>
@@ -23,13 +23,35 @@ const CreateBtn = ({ onClick, title }) => {
 	)
 }
 
-const CreateModal = ({ isOpen, onClose }) => {
+const CreateModal = ({ isOpen, onClose, onCreate }) => {
 	if (!isOpen) return null
 
 	const [isNameValid, setIsNameValid] = useState(false)
 	const [isFileValid, setIsFileValid] = useState(false)
+	const [title, setTitle] = useState('')
+	const [description, setDescription] = useState('')
+	const [img, setImg] = useState('')
 
 	const isFormValid = isNameValid && isFileValid
+
+	const handleSubmit = e => {
+		e.preventDefault()
+		if (!isFormValid) return
+
+		onCreate({
+			title: title,
+			education: 'Не определено',
+			course: 'Не определено',
+			status: 'В разработке',
+			img: '/img.jpg', // здесь путь к фото
+			deadline: undefined,
+			description,
+		})
+		onClose()
+		setTitle('')
+		setDescription('')
+		setImg('')
+	}
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
@@ -42,27 +64,36 @@ const CreateModal = ({ isOpen, onClose }) => {
 					Создание курса
 				</h2>
 				<form
-					action=''
+					onSubmit={handleSubmit}
 					className='w-[482px] inline-flex flex-col items-center gap-5'
 				>
 					<InputDefault
-						type={'text'}
-						placeholder={''}
-						title={'Введите название курса'}
+						type='text'
+						placeholder=''
+						title='Введите название курса'
 						required={true}
 						InputStatus={false}
 						onStatusChange={setIsNameValid}
+						value={title}
+						onChange={e => setTitle(e.target.value)}
 					/>
 					<TextArea
-						type={'text'}
-						placeholder={''}
-						title={'Введите описание'}
+						type='text'
+						placeholder=''
+						title='Введите описание'
 						InputStatus={false}
+						value={description}
+						onChange={e => setDescription(e.target.value)}
 					/>
 					<FileInput
 						title='Загрузите превью'
 						required={true}
 						onStatusChange={setIsFileValid}
+						onFileChange={file => {
+							// Пример: если FileInput возвращает url, иначе реализуйте загрузку
+							const url = URL.createObjectURL(file)
+							setImg(url)
+						}}
 					/>
 					<input
 						className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
@@ -86,33 +117,37 @@ const Catalog = () => {
 		{ value: 1, title: 'Вебинар', icon: Radio },
 	]
 
-	const courses = [
+	const [courses, setCourses] = useState([
 		{
-			title: 'Очень большой курс 1',
+			title: 'Объектно ориентированное программирование c++',
 			education: 'Бакалавриат',
 			course: 'Курс 1',
 			status: 'Опубликован',
-			img: 'https://i.pinimg.com/736x/74/65/59/746559a982407b366a16d7278cc88519.jpg',
-			deadline: '2023-12-31',
+			img: 'https://i.pinimg.com/736x/7e/d7/a5/7ed7a5d7de6a06d31106b37399da23a5.jpg',
+			deadline: '2025-12-31',
 		},
 		{
-			title: 'Очень большой курс 2',
-			education: 'Магистратура',
+			title: 'Математический анализ',
+			education: 'Бакалавриат',
 			course: 'Курс 2',
 			status: 'В разработке',
-			img: 'https://i.pinimg.com/736x/50/e0/91/50e0915b5b2879196b1db57a1e3acc00.jpg',
+			img: 'https://i.pinimg.com/736x/5f/83/77/5f83771d9306429e18cec682d4445414.jpg',
 		},
-	]
+	])
 
 	const [selected, setSelected] = useState(0)
-
 	const [createModalOpen, setCreateModalOpen] = useState(false)
+
+	const handleCreateCourse = newCourse => {
+		setCourses(prev => [...prev, newCourse])
+	}
 
 	return (
 		<>
 			<CreateModal
 				isOpen={createModalOpen}
 				onClose={() => setCreateModalOpen(false)}
+				onCreate={handleCreateCourse}
 			/>
 			<div className='h-screen flex flex-col gap-4 py-[50px]'>
 				<div className='flex justify-between'>
@@ -145,7 +180,7 @@ const Catalog = () => {
 							course={course.course}
 							status={course.status}
 							deadline={course.deadline}
-							to={`/course/${index}`}
+							to={`/constructor`}
 						/>
 					))}
 					<CreateBtn

@@ -48,16 +48,81 @@ import OneVariant from '../../components/ConstructorTest/OneVariant'
 import MoreVariant from '../../components/ConstructorTest/MoreVariants'
 import SortVariants from '../../components/ConstructorTest/SortVariants'
 
-const CreateLessonButton = () => {
+const CreateModuleButton = ({ onAdd }) => {
+	const [isOpen, setIsOpen] = useState(false)
+	const [title, setTitle] = useState('')
+	const [isNameValid, setIsNameValid] = useState(false)
+
+	const handleSave = () => {
+		if (!isNameValid) return
+		onAdd(title)
+		setTitle('')
+		setIsOpen(false)
+		setIsNameValid(false)
+	}
+
+	return (
+		<div className='relative w-full'>
+			<Button
+				icon={Package}
+				title={'Добавить модуль'}
+				textSize={16}
+				className='w-full'
+				onClick={() => setIsOpen(true)}
+			/>
+			{isOpen && (
+				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 top-14 left-0 flex flex-col gap-3 z-10 w-full'>
+					<InputDefault
+						title={'Название модуля'}
+						placeholder={'Введите название'}
+						required={true}
+						InputStatus={false}
+						value={title}
+						onChange={e => setTitle(e.target.value)}
+						onStatusChange={setIsNameValid}
+					/>
+					<div className='flex justify-between mt-2 gap-2'>
+						<Button
+							title='Отмена'
+							style='white'
+							onClick={() => {
+								setIsOpen(false)
+								setTitle('')
+								setIsNameValid(false)
+							}}
+							width={'50%'}
+						/>
+						<Button
+							title='Добавить модуль'
+							style='black'
+							onClick={handleSave}
+							width={'50%'}
+							disabled={!isNameValid}
+						/>
+					</div>
+				</div>
+			)}
+		</div>
+	)
+}
+
+// ...existing code...
+const CreateLessonButton = ({ onAdd }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [selected, setSelected] = useState(0)
 	const [step, setStep] = useState(0)
 	const [isNameValid, setIsNameValid] = useState(false)
+	const [lessonTitle, setLessonTitle] = useState('')
 
 	const Save = () => {
 		setStep(0)
 		setIsOpen(false)
-		console.log('сохранено')
+		onAdd({
+			type: lessonTypes[selected].label,
+			title: lessonTitle,
+		})
+		setLessonTitle('')
+		setIsNameValid(false)
 	}
 
 	const lessonTypes = [
@@ -81,7 +146,6 @@ const CreateLessonButton = () => {
 		},
 	]
 
-	// Массив шагов как JSX-элементы
 	const steps = [
 		<>
 			<div className='flex justify-center gap-5'>
@@ -121,6 +185,8 @@ const CreateLessonButton = () => {
 				placeholder={'Введите название'}
 				required={true}
 				InputStatus={false}
+				value={lessonTitle}
+				onChange={e => setLessonTitle(e.target.value)}
 				onStatusChange={setIsNameValid}
 			/>
 			<div className='flex justify-between mt-2'>
@@ -129,7 +195,7 @@ const CreateLessonButton = () => {
 					style='black'
 					onClick={Save}
 					width={'100%'}
-					disabled={isNameValid}
+					disabled={!isNameValid}
 				/>
 			</div>
 		</>,
@@ -277,7 +343,12 @@ const ModuleContent = ({ type, index, title, bg, onClick }) => {
 	)
 }
 
-const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
+const ModuleBlock = ({
+	ModuleInfo,
+	onContentSelect,
+	selectedContent,
+	onAddLesson,
+}) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
 	const toggleModule = index => {
@@ -290,7 +361,7 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 	return (
 		<>
 			{ModuleInfo.map((item, index) => {
-				const isExpanded = expandedModules[index] === true // По умолчанию закрыто
+				const isExpanded = expandedModules[index] === true
 
 				return (
 					<div key={index} className='flex flex-col gap-3'>
@@ -306,7 +377,7 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 									{item.content.map((lesson, lessonIndex) => {
 										return (
 											<ModuleContent
-												key={lessonIndex}
+												key={lesson.id}
 												title={lesson.title}
 												type={lesson.type}
 												onClick={() => onContentSelect(lesson)}
@@ -315,7 +386,10 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 										)
 									})}
 								</div>
-								<CreateLessonButton />
+
+								<CreateLessonButton
+									onAdd={lesson => onAddLesson(index, lesson)}
+								/>
 							</>
 						)}
 					</div>
@@ -325,36 +399,30 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 	)
 }
 
-const CreateLevelModal = ({ isOpen, onClose }) => {
+const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 	if (!isOpen) return null
 
-	const [isNameValid, setIsNameValid] = useState(false)
-	const [isFileValid, setIsFileValid] = useState(false)
 	const [answerType, setAnswerType] = useState('single')
 
-	const isFormValid = isNameValid && isFileValid
-
-	// Массив с данными для кнопок
 	const answerTypes = [
-		{
-			id: 'single',
-			label: 'Один правильный ответ',
-			icon: CopyCheck,
-		},
+		{ id: 'single', label: 'Один правильный ответ', icon: CopyCheck },
 		{
 			id: 'multiple',
 			label: 'Несколько правильных ответов',
-			icon: CheckSquare, // Замените на вашу иконку
+			icon: CheckSquare,
 		},
 		{
 			id: 'order',
 			label: 'Расположить в правильном порядке',
-			icon: ListOrdered, // Замените на вашу иконку
+			icon: ListOrdered,
 		},
 	]
 
-	const handleAnswerTypeChange = type => {
-		setAnswerType(type)
+	const handleAnswerTypeChange = type => setAnswerType(type)
+
+	const handleCreate = () => {
+		onCreate(answerType)
+		onClose()
 	}
 
 	return (
@@ -365,15 +433,13 @@ const CreateLevelModal = ({ isOpen, onClose }) => {
 					className='absolute top-1 right-1 text-[var(--middle)] cursor-pointer'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
-					Создание курса
+					Создание вопроса
 				</h2>
 				<div className='mb-4'>
 					<h3 className='text-lg font-medium mb-3'>Тип ответов:</h3>
-
 					{answerTypes.map(type => {
 						const IconComponent = type.icon
 						const isSelected = answerType === type.id
-
 						return (
 							<div
 								key={type.id}
@@ -390,23 +456,59 @@ const CreateLevelModal = ({ isOpen, onClose }) => {
 						)
 					})}
 				</div>
+				<button
+					className='w-full mt-4 bg-[var(--hero-epta)] text-white rounded-lg py-2 font-medium hover:scale-105 transition-all'
+					onClick={handleCreate}
+				>
+					Создать
+				</button>
 			</div>
 		</div>
 	)
 }
 
-const ConstructorLevels = () => {
+const ConstructorLevels = ({
+	questions,
+	setQuestions,
+	activeIndex,
+	setActiveIndex,
+}) => {
 	const [createModalOpen, setCreateModalOpen] = useState(false)
+
+	const handleCreate = type => {
+		setQuestions(prev => [
+			...prev,
+			{ type, id: Date.now() }, // id уникальный
+		])
+		setActiveIndex(questions.length) // сразу активируем новый вопрос
+	}
+
 	return (
 		<>
 			<CreateLevelModal
 				isOpen={createModalOpen}
 				onClose={() => setCreateModalOpen(false)}
+				onCreate={handleCreate}
 			/>
 			<div className='flex gap-3'>
+				{questions.map((q, idx) => (
+					<div
+						key={q.id}
+						onClick={() => setActiveIndex(idx)}
+						className={`w-10 h-10 flex justify-center items-center rounded-md shadow-[var(--shadow)] cursor-pointer transition-all
+                            ${
+															activeIndex === idx
+																? 'bg-[var(--hero-epta)] text-[var(--white)]'
+																: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+														}
+                            active:scale-90`}
+					>
+						{idx + 1}
+					</div>
+				))}
 				<div
 					onClick={() => setCreateModalOpen(true)}
-					className='bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-md hover:bg-[var(--hero-epta)] hover:text-[var(--white)] flex justify-center items-center p-2 transition-all cursor-pointer active:scale-90'
+					className='w-10 h-10 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-md hover:bg-[var(--hero-epta)] hover:text-[var(--white)] flex justify-center items-center p-2 transition-all cursor-pointer active:scale-90'
 				>
 					<Plus />
 				</div>
@@ -418,13 +520,13 @@ const ConstructorLevels = () => {
 const ContentView = ({ content }) => {
 	const [blocks, setBlocks] = useState([])
 
-	const addBlock = type => {
-		setBlocks(prev => [...prev, type])
-	}
+	// Для тестов: вопросы и активный индекс
+	const [questions, setQuestions] = useState([])
+	const [activeIndex, setActiveIndex] = useState(0)
 
-	const removeBlock = index => {
+	const addBlock = type => setBlocks(prev => [...prev, type])
+	const removeBlock = index =>
 		setBlocks(prev => prev.filter((_, i) => i !== index))
-	}
 
 	if (!content) {
 		return (
@@ -442,18 +544,25 @@ const ContentView = ({ content }) => {
 
 			{content.type === 'Тест' ? (
 				<>
-					<ConstructorLevels />
-					<OneVariant />
-					<MoreVariant />
-					<SortVariants />
+					<ConstructorLevels
+						questions={questions}
+						setQuestions={setQuestions}
+						activeIndex={activeIndex}
+						setActiveIndex={setActiveIndex}
+					/>
+					{questions.length > 0 && (
+						<>
+							{questions[activeIndex]?.type === 'single' && <OneVariant />}
+							{questions[activeIndex]?.type === 'multiple' && <MoreVariant />}
+							{questions[activeIndex]?.type === 'order' && <SortVariants />}
+						</>
+					)}
 				</>
 			) : (
 				<>
 					<ConstructorTitleInput DelComponent={() => {}} />
-
-					{/* Рендерим блоки по типу */}
 					{blocks.map((block, i) => {
-						const del = () => removeBlock(i) // функция удаления для конкретного блока
+						const del = () => removeBlock(i)
 						switch (block) {
 							case 'text':
 								return <ConstructorEditor key={i} DelComponent={del} />
@@ -479,8 +588,6 @@ const ContentView = ({ content }) => {
 								return null
 						}
 					})}
-
-					{/* Меню для добавления новых блоков */}
 					<ConstructorMenu onAdd={addBlock} />
 				</>
 			)}
@@ -559,7 +666,7 @@ const ConstructorMenu = ({ onAdd }) => {
 }
 
 const Constructor = () => {
-	const ModuleInfo = [
+	const [ModuleInfo, setModuleInfo] = useState([
 		{
 			id: 0,
 			title: 'Вступление',
@@ -577,7 +684,7 @@ const Constructor = () => {
 					content: 'Задания для практического занятия...',
 				},
 				{
-					id: 1,
+					id: 2,
 					type: 'Тест',
 					title: 'Hello, World! Или как подружиться с кодом',
 					content: 'Задания для практического занятия...',
@@ -589,13 +696,13 @@ const Constructor = () => {
 			title: 'Основы программирования',
 			content: [
 				{
-					id: 2,
+					id: 3,
 					type: 'Лекция',
 					title: 'Переменные и типы данных',
 					content: 'Содержимое лекции о переменных...',
 				},
 				{
-					id: 3,
+					id: 4,
 					type: 'Практика',
 					title: 'Работа с переменными',
 					content: 'Задания для практического занятия...',
@@ -607,25 +714,59 @@ const Constructor = () => {
 			title: 'Условия и циклы',
 			content: [
 				{
-					id: 4,
+					id: 5,
 					type: 'Лекция',
 					title: 'Условные конструкции if/else',
 					content: 'Содержимое лекции об условиях...',
 				},
 				{
-					id: 5,
+					id: 6,
 					type: 'Практика',
 					title: 'Решение задач с условиями',
 					content: 'Задания для практического занятия...',
 				},
 			],
 		},
-	]
+	])
 
 	const [selectedContent, setSelectedContent] = useState(null)
 
 	const handleContentSelect = content => {
 		setSelectedContent(content)
+	}
+
+	// ...existing code...
+	const handleAddLesson = (moduleIndex, lesson) => {
+		setModuleInfo(prev =>
+			prev.map((module, idx) =>
+				idx === moduleIndex
+					? {
+							...module,
+							content: [
+								...module.content,
+								{
+									id: Date.now(),
+									type: lesson.type,
+									title: lesson.title,
+									content: 'Задания для практического занятия...',
+								},
+							],
+					  }
+					: module
+			)
+		)
+	}
+
+	// Новый обработчик для добавления модуля
+	const handleAddModule = title => {
+		setModuleInfo(prev => [
+			...prev,
+			{
+				id: Date.now(),
+				title,
+				content: [],
+			},
+		])
 	}
 
 	return (
@@ -657,25 +798,12 @@ const Constructor = () => {
 								ModuleInfo={ModuleInfo}
 								onContentSelect={handleContentSelect}
 								selectedContent={selectedContent}
+								onAddLesson={handleAddLesson} // передаём функцию
 							/>
 							<div className='h-fit mt-2'>
-								<Button
-									icon={Package}
-									title={'Добавить модуль'}
-									textSize={16}
-									className='w-full'
-								/>
+								<CreateModuleButton onAdd={handleAddModule} />
 							</div>
 						</div>
-					</div>
-
-					<div className='h-fit'>
-						<Button
-							icon={CircleCheckBig}
-							title={'Завершение курса'}
-							textSize={16}
-							className='mt-2 w-full'
-						/>
 					</div>
 				</div>
 

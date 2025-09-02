@@ -86,7 +86,7 @@ const Schedule = () => {
 	}
 
 	return (
-		<div className='grid grid-cols-6 gap-2 p-4'>
+		<div className='grid grid-cols-6 gap-2 p-4 h-screen'>
 			<div className='col-span-1'>
 				<DirectionOfTraining group={'2211-0101.1'} course={3} DofT={'ИБ'} />
 			</div>

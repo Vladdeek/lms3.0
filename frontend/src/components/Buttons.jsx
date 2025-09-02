@@ -105,7 +105,7 @@ export const Button = ({
 				padding: size && 6,
 			}}
 		>
-			{Icon && <Icon size={!size && 24} color={IconColor} />}
+			{Icon && <Icon size={size / 1.75 || 24} color={IconColor} />}
 			{title && (
 				<span className='font-medium' style={{ fontSize: textSize }}>
 					{title}

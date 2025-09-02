@@ -107,32 +107,34 @@ const ScorePage = () => {
 	)
 
 	return (
-		<div className='grid grid-cols-6 gap-2 p-4'>
-			<div className='col-span-1'>
-				<DirectionOfTraining group={'2211-0101.1'} course={3} DofT={'ИБ'} />
-			</div>
-
-			<div className='col-span-5 flex flex-col gap-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4'>
-				<div className='bg-[var(--white)] rounded-lg p-2 flex'>
-					<div className='w-1/5 flex'>
-						<p className='w-1/5 text-center'>№</p>
-						<p className='w-4/5 text-center'>Название предмета</p>
-					</div>
-					<div className='w-4/5 flex gap-2'></div>
-					<div className='flex flex-col items-center w-[3%]'>
-						<p>ср/б</p>
-					</div>
+		<div className='h-screen'>
+			<div className='grid grid-cols-6 gap-2 p-4'>
+				<div className='col-span-1'>
+					<DirectionOfTraining group={'2211-0101.1'} course={3} DofT={'ИБ'} />
 				</div>
-				{ScoreMass.map((item, index) => {
-					return (
-						<SubjectRow
-							SubjectId={index + 1}
-							SubjectName={item.name}
-							scores={item.scores}
-							maxScoresCount={maxScoresCount}
-						/>
-					)
-				})}
+
+				<div className='col-span-5 flex flex-col gap-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4'>
+					<div className='bg-[var(--white)] rounded-lg p-2 flex'>
+						<div className='w-1/5 flex'>
+							<p className='w-1/5 text-center'>№</p>
+							<p className='w-4/5 text-center'>Название предмета</p>
+						</div>
+						<div className='w-4/5 flex gap-2'></div>
+						<div className='flex flex-col items-center w-[3%]'>
+							<p>ср/б</p>
+						</div>
+					</div>
+					{ScoreMass.map((item, index) => {
+						return (
+							<SubjectRow
+								SubjectId={index + 1}
+								SubjectName={item.name}
+								scores={item.scores}
+								maxScoresCount={maxScoresCount}
+							/>
+						)
+					})}
+				</div>
 			</div>
 		</div>
 	)

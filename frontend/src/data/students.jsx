@@ -4,7 +4,7 @@ export const students = [
 	{
 		UserId: 1,
 		name: 'Иванов Иван Иванович',
-		img: 'https://i.pinimg.com/736x/50/e0/91/50e0915b5b2879196b1db57a1e3acc00.jpg',
+		img: 'https://i.pinimg.com/1200x/ed/55/e0/ed55e005e9d504e6a273c19adeee2b49.jpg',
 		score: 5,
 	},
 	{
@@ -15,8 +15,8 @@ export const students = [
 	},
 	{
 		UserId: 3,
-		name: 'Сидоров Сидор Сидорович',
-		img: 'https://i.pinimg.com/736x/50/e0/91/50e0915b5b2879196b1db57a1e3acc00.jpg',
+		name: 'Сидорова Сидор Сидорович',
+		img: 'https://i.pinimg.com/1200x/47/a8/4e/47a84e6db89e3752a70f1caf0c05ce00.jpg',
 		score: 5,
 	},
 	{

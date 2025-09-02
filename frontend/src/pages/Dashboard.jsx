@@ -10,7 +10,7 @@ const Comment = ({ img_path, FullName, lesson, comment }) => {
 		<>
 			<div className='w-full h-35 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] p-4 flex gap-3 text-[var(--black)]'>
 				<img className=' rounded-lg h-10 w-10' src={img_path} alt='' />
-				<div className='flex flex-col'>
+				<div className='flex flex-col w-full'>
 					<div className='flex justify-between text-sm '>
 						<p>
 							{`${FullName.split(' ')[0]} ${FullName.split(' ')[1][0]}. ${
@@ -117,7 +117,9 @@ const Dashboard = () => {
 									size={32}
 									className='hover:scale-125 active:scale-90 cursor-pointer transition-all'
 								/>
-								<p className='text-xl font-medium select-none'>предмет</p>
+								<p className='text-xl font-medium text-center select-none'>
+									Основы программирования
+								</p>
 								<ChevronRight
 									size={32}
 									className='hover:scale-125 active:scale-90 cursor-pointer transition-all'
@@ -165,10 +167,52 @@ const Dashboard = () => {
 						</div>
 						<div className='col-span-4 overflow-y-scroll flex flex-col gap-3 w-full h-85 p-1 pr-3 pb-2'>
 							<LessonCard
-								lesson={'основы программирования'}
-								description={'тут описание какое то'}
+								lesson={'Практика №1'}
+								description={'Переменные'}
 								status={'выполнено'}
-								deadline={'12:00'}
+								deadline={'05.01'}
+							/>
+							<LessonCard
+								lesson={'Тест №1'}
+								description={'Типы переменных'}
+								status={'выполнено'}
+								deadline={'05.01'}
+							/>
+							<LessonCard
+								lesson={'Практика №2'}
+								description={'Условия'}
+								status={'выполнено'}
+								deadline={'10.01'}
+							/>
+							<LessonCard
+								lesson={'Тест №2'}
+								description={'Условные операторы'}
+								status={'не выполнено'}
+								deadline={'05.01'}
+							/>
+							<LessonCard
+								lesson={'Практика №3'}
+								description={'в разработке '}
+								status={'не выполнено'}
+								deadline={'-'}
+							/>
+							<LessonCard
+								lesson={'Практика №4'}
+								description={'в разработке '}
+								status={'не выполнено'}
+								deadline={'-'}
+							/>
+							<LessonCard
+								lesson={'Практика №5'}
+								description={'в разработке '}
+								status={'не выполнено'}
+								deadline={'-'}
+							/>
+							<LessonCard
+								lesson={'Практика №6'}
+								description={'в разработке '}
+								status={'не выполнено'}
+								deadline={'-'}
 							/>
 						</div>
 					</div>
@@ -179,11 +223,17 @@ const Dashboard = () => {
 							</p>
 							<div className='overflow-y-scroll w-full h-75 flex flex-col gap-3 p-1 pr-5 pb-2'>
 								<Comment
-									img_path={students[0].img}
-									FullName={students[0].name}
+									img_path={students[2].img}
+									FullName={students[2].name}
 									lesson={'Практика №1'}
+									comment={'Знаю можешь лучше!!!'}
+								/>
+								<Comment
+									img_path={students[2].img}
+									FullName={students[2].name}
+									lesson={'Практика №2'}
 									comment={
-										'очень большой и информативный комментарий к выполненой работе, тут сказано какой я красавчик что хоть что то сделал и какой я лох что я нихуя не смог сделать но хоть попробовал'
+										'В принципе очень даже хорошо вот только есть там один сомнительный момент, пересдашь?'
 									}
 								/>
 							</div>
@@ -195,10 +245,28 @@ const Dashboard = () => {
 							</button>
 							<div className='overflow-y-scroll w-full h-70 flex flex-col gap-3 p-1 px-3 pb-2 mt-5'>
 								<AverageScore
-									score={3.5}
+									score={4.3}
 									education={'Бакалавриат'}
 									course={3}
 									subject={'Основы программирования'}
+								/>
+								<AverageScore
+									score={3}
+									education={'Бакалавриат'}
+									course={3}
+									subject={'Математический анализ'}
+								/>
+								<AverageScore
+									score={3.5}
+									education={'Бакалавриат'}
+									course={3}
+									subject={'Дискретная математика '}
+								/>
+								<AverageScore
+									score={4}
+									education={'Бакалавриат'}
+									course={3}
+									subject={'СУБД'}
 								/>
 							</div>
 						</div>
