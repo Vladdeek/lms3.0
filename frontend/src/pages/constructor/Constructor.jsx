@@ -1,4 +1,5 @@
 import {
+	ArrowDownUp,
 	ArrowRightFromLine,
 	AudioLines,
 	BookMarked,
@@ -18,6 +19,7 @@ import {
 	Image,
 	LaptopMinimalCheck,
 	Layers2,
+	ListChecks,
 	ListOrdered,
 	ListRestart,
 	MousePointerClick,
@@ -409,12 +411,12 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 		{
 			id: 'multiple',
 			label: 'Несколько правильных ответов',
-			icon: CheckSquare,
+			icon: ListChecks,
 		},
 		{
 			id: 'order',
 			label: 'Расположить в правильном порядке',
-			icon: ListOrdered,
+			icon: ArrowDownUp,
 		},
 	]
 
@@ -435,29 +437,41 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
 					Создание вопроса
 				</h2>
-				<div className='mb-4'>
-					<h3 className='text-lg font-medium mb-3'>Тип ответов:</h3>
-					{answerTypes.map(type => {
-						const IconComponent = type.icon
-						const isSelected = answerType === type.id
-						return (
-							<div
-								key={type.id}
-								className={`rounded-lg shadow-[var(--shadow)] flex gap-3 px-4 py-2 select-none ${
-									isSelected
-										? 'bg-[var(--hero-epta)] text-[var(--white)]'
-										: 'text-[var(--black)] bg-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
-								}   items-center p-2 transition-all cursor-pointer active:scale-95 font-medium mb-2 last:mb-0`}
-								onClick={() => handleAnswerTypeChange(type.id)}
-							>
-								<IconComponent className='flex-shrink-0' />
-								<p className='flex-1'>{type.label}</p>
-							</div>
-						)
-					})}
+				<div className='flex gap-3'>
+					<div className='mb-4'>
+						{answerTypes.map(type => {
+							const IconComponent = type.icon
+							const isSelected = answerType === type.id
+							return (
+								<div
+									key={type.id}
+									className={`rounded-lg shadow-[var(--shadow)] flex gap-3 px-4 py-2 select-none ${
+										isSelected
+											? 'bg-[var(--hero-epta)] text-[var(--white)]'
+											: 'text-[var(--black)] bg-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+									}   items-center p-2 transition-all cursor-pointer active:scale-95 font-medium mb-2 last:mb-0`}
+									onClick={() => handleAnswerTypeChange(type.id)}
+								>
+									<IconComponent className='flex-shrink-0' />
+									<p className='flex-1'>{type.label}</p>
+								</div>
+							)
+						})}
+
+						<p className='border-3 border-[var(--light-middle)] border-dashed rounded-lg text-[var(--middle)] w-125 p-2'>
+							{answerType === 'single'
+								? 'Это классический вопрос, где требуется выбрать единственный верный вариант из предложенного списка. Идеально подходит для проверки знания конкретных фактов. В сам вопрос вы можете вставить аудио для прослушивания, изображение для анализа или формулу — на основе этого медиа-контента и будет строиться задание.'
+								: answerType === 'multiple'
+								? 'Здесь из списка вариантов необходимо отметить все верные, их может быть два или более. Этот формат отлично проверяет умение анализировать и выделять ключевые аспекты. Как и в других типах, вы можете дополнить вопрос аудиофрагментом, фотографией или формулой, чтобы задание стало комплексным.'
+								: answerType === 'order'
+								? 'Данный тип вопроса требует расположить элементы в правильной последовательности, например, расставив исторические события по хронологии или этапы алгоритма по порядку. Для наглядности вы можете добавить в вопрос аудиозапись, изображение или формулу, которые нужно будет проанализировать и использовать для восстановления логической цепочки.'
+								: ''}
+						</p>
+					</div>
 				</div>
+
 				<button
-					className='w-full mt-4 bg-[var(--hero-epta)] text-white rounded-lg py-2 font-medium hover:scale-105 transition-all'
+					className='w-full mt-4 bg-[var(--black)] text-[var(--white)] rounded-lg py-2 font-medium hover:scale-105 active:scale-95 transition-all cursor-pointer'
 					onClick={handleCreate}
 				>
 					Создать

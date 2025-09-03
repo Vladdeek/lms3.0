@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Check, X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
+import { AddMediaButton } from './AddMedia'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -262,6 +263,7 @@ const OneVariant = () => {
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 w-2/3 mb-5'>
 						<InputDefault title={'Введите вопрос'} required={true} />
+						<AddMediaButton />
 					</div>
 
 					<div className='flex flex-col items-center gap-3 w-2/3'>

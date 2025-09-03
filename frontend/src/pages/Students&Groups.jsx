@@ -183,7 +183,7 @@ const StudentCard4Table = ({ num, FullName, scores }) => {
 	)
 }
 
-const CheckPage = () => {
+const StudentsAndGroups = () => {
 	const [Active, setActive] = useState(0)
 	const [ActiveType, setActiveType] = useState(0)
 	const GroupMass = [
@@ -285,4 +285,4 @@ const CheckPage = () => {
 		</>
 	)
 }
-export default CheckPage
+export default StudentsAndGroups

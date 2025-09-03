@@ -82,7 +82,7 @@ export const Button = ({
 		<button
 			disabled={disabled}
 			onClick={onClick}
-			className={`rounded-lg h-full flex gap-4 items-center justify-center hover:scale-102 transition-all cursor-pointer ${className} ${
+			className={`rounded-lg h-full flex gap-4 items-center justify-center hover:scale-102 active:scale-98 transition-all cursor-pointer ${className} ${
 				title ? !size && 'py-2 px-4' : !size && 'p-3'
 			}`}
 			style={{

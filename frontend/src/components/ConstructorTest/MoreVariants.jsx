@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Check, X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
+import { Button } from '../Buttons'
+import { AddMediaButton } from './AddMedia'
 
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({
@@ -45,7 +47,6 @@ const CheckboxCreateMultiple = ({
 		onDelete && onDelete(id)
 	}
 
-	// Синхронизация внешних состояний
 	useEffect(() => {
 		if (checked !== checkedProp) {
 			setChecked(checkedProp)
@@ -126,7 +127,12 @@ const CheckboxCreateMultiple = ({
 	)
 }
 
-const MoreVariant = () => {
+const MoreVariant = ({
+	currentType,
+	setQuestions,
+	questions,
+	setActiveIndex,
+}) => {
 	const [answers, setAnswers] = useState([
 		{ id: '1', text: '', correct: false },
 		{ id: '2', text: '', correct: false },
@@ -138,7 +144,6 @@ const MoreVariant = () => {
 		)
 	}
 
-	// Изменено: теперь можно выбирать несколько правильных ответов
 	const handleCorrectChange = (id, isCorrect) => {
 		setAnswers(prev =>
 			prev.map(answer =>
@@ -154,7 +159,6 @@ const MoreVariant = () => {
 	}
 
 	const handleAddAnswer = () => {
-		// Находим максимальный ID
 		const maxId = Math.max(...answers.map(answer => parseInt(answer.id)))
 		const newId = (maxId + 1).toString()
 		setAnswers(prev => [...prev, { id: newId, text: '', correct: false }])
@@ -165,7 +169,6 @@ const MoreVariant = () => {
 		setAnswers(prev => prev.filter(answer => answer.id !== id))
 	}
 
-	// Функция для подсчета количества правильных ответов
 	const getCorrectAnswersCount = () => {
 		return answers.filter(answer => answer.correct).length
 	}
@@ -176,6 +179,7 @@ const MoreVariant = () => {
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 w-2/3 mb-5'>
 						<InputDefault title={'Введите вопрос'} required={true} />
+						<AddMediaButton />
 					</div>
 
 					<div className='flex flex-col items-center gap-3 w-2/3'>

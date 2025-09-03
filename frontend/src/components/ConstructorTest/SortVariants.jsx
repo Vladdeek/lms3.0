@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
+import { AddMediaButton } from './AddMedia'
 
 // Компонент для пары сопоставления
 const MatchPair = ({
@@ -93,6 +94,7 @@ const SortVariants = () => {
 							value={question}
 							onChange={e => setQuestion(e.target.value)}
 						/>
+						<AddMediaButton />
 					</div>
 
 					<div className='flex flex-col items-center gap-3 w-2/3'>

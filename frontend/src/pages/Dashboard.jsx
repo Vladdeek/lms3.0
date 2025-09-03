@@ -4,6 +4,7 @@ import MiniCalendar from '../components/MiniCalendar'
 import MoodBlock from '../components/MoodBlock'
 import { students } from '../data/students'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
+import { NavLink } from 'react-router-dom'
 
 const Comment = ({ img_path, FullName, lesson, comment }) => {
 	return (
@@ -239,10 +240,13 @@ const Dashboard = () => {
 							</div>
 						</div>
 						<div className='col-span-3 h-full bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-4'>
-							<button className='bg-[var(--white)] shadow-[var(--shadow)] rounded-lg text-[var(--black)] w-full flex justify-between items-center font-medium px-4 py-2'>
+							<NavLink
+								to={'/score'}
+								className='bg-[var(--white)] shadow-[var(--shadow)] rounded-lg text-[var(--black)] w-full flex justify-between items-center font-medium px-4 py-2'
+							>
 								<p className='pt-[2px]'>Моя успеваемость</p>
 								<ArrowUpRight />
-							</button>
+							</NavLink>
 							<div className='overflow-y-scroll w-full h-70 flex flex-col gap-3 p-1 px-3 pb-2 mt-5'>
 								<AverageScore
 									score={4.3}

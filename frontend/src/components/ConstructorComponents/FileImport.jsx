@@ -21,6 +21,8 @@ export const ConstructorFileInput = ({ onStatusChange, DelComponent }) => {
 	const maxSize = 100 * 1024 * 1024 // 100 MB
 	const maxFiles = 10
 
+	console.log(files)
+
 	const handleFileChange = e => {
 		const newFiles = Array.from(e.target.files)
 		validateFiles(newFiles)

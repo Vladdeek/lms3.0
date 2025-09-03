@@ -12,8 +12,6 @@ import { MathJax, MathJaxContext } from 'better-react-mathjax'
 export default function FormulaConstructor({ DelComponent }) {
 	const [formula, setFormula] = useState('E = mc^2')
 
-	console.log(formula)
-
 	const config = {
 		loader: { load: ['input/tex', 'output/chtml'] },
 		tex: {
@@ -63,15 +61,14 @@ export default function FormulaConstructor({ DelComponent }) {
 
 	return (
 		<div className='flex gap-2'>
-			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
-				onClick={DelComponent}
-			>
-				<X />
-			</button>
 			<MathJaxContext version={3} config={config}>
-				<div className='max-w-xl p-6 bg-white shadow-lg rounded-lg space-y-4'>
-					{/* Заголовок */}
+				<div className='max-w-xl p-6 bg-white shadow-lg rounded-lg space-y-4 relative'>
+					<button
+						className='absolute top-1 right-1 self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:bg-red-500 hover:text-white active:brightness-90 cursor-pointer transition-all'
+						onClick={DelComponent}
+					>
+						<X />
+					</button>
 					<div className='flex items-center gap-2 text-lg font-semibold text-gray-800'>
 						<Sigma className='w-6 h-6 text-[var(--black)]' />
 						<span>Конструктор формул</span>

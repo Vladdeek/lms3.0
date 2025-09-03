@@ -1,18 +1,16 @@
 import { ImagePlus, Upload, X } from 'lucide-react'
 import { useId, useState } from 'react'
 
-export const ConstructorPhotoInput = ({ onStatusChange, DelComponent }) => {
+export const PhotoInput = ({ onStatusChange, DelComponent }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [fileInfo, setFileInfo] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [previews, setPreviews] = useState([]) // Изменили на массив для нескольких превью
 
-	console.log(previews)
-
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 	const maxSize = 20 * 1024 * 1024 // 20 MB
-	const maxFiles = 4 // Максимальное количество файлов
+	const maxFiles = 1 // Максимальное количество файлов
 
 	const handleFileChange = e => {
 		const files = Array.from(e.target.files)
@@ -79,21 +77,18 @@ export const ConstructorPhotoInput = ({ onStatusChange, DelComponent }) => {
 	}
 
 	return (
-		<div className='flex gap-2'>
-			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
-				onClick={DelComponent}
-			>
-				<X />
-			</button>
-			<div className='grid grid-cols-2 w-full gap-3'>
+		<div className='flex gap-2 w-full'>
+			<div className='grid grid-cols-1 w-full gap-3'>
 				{/* Отображаем превью загруженных изображений */}
 				{previews.map((previewData, index) => (
-					<div key={index} className='relative col-span-1 aspect-16/9'>
+					<div
+						key={index}
+						className='relative col-span-1 flex justify-center aspect-16/9'
+					>
 						<img
 							src={previewData.preview}
 							alt={`preview-${index}`}
-							className='w-full h-full object-cover rounded-lg'
+							className='w-auto h-full object-cover rounded-lg'
 						/>
 
 						<X
@@ -117,11 +112,17 @@ export const ConstructorPhotoInput = ({ onStatusChange, DelComponent }) => {
 								: 'border-[var(--middle)]'
 						} ${
 							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-						} rounded-lg transition-all`}
+						} rounded-xl transition-all relative`}
 					>
+						<button
+							className='absolute top-1 right-1 self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:bg-red-500 hover:text-white active:brightness-90 cursor-pointer transition-all'
+							onClick={DelComponent}
+						>
+							<X />
+						</button>
 						<label
 							htmlFor='dropzone-file'
-							className={`rounded-lg p-[10px] gap-[10px] transition border-3 aspect-16/9 w-full h-full border-dashed ${
+							className={`rounded-md p-[10px] gap-[10px] transition border-3 aspect-16/9 w-full h-full border-dashed ${
 								isDragActive
 									? 'bg-[var(--hero-pale)] border-[var(--hero-epta)]'
 									: 'bg-[var(--light-gray)] border-[var(--middle)]'

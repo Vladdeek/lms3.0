@@ -1,56 +1,14 @@
-import { FileCode2, Upload, X } from 'lucide-react'
+import { FileAudio, Trash2, Upload, X } from 'lucide-react'
 import { useId, useState } from 'react'
+import CustomAudioPlayer from '../AudioPlayer'
 
-import CustomCodeBlock from '../CustomCodeBlock'
-
-export const CodeFileInput = ({
-	onStatusChange,
-	onFileChange,
-	DelComponent,
-}) => {
+export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const [codeInfo, setCodeInfo] = useState(null)
-	const maxSize = 10 * 1024 * 1024 // 10 MB
-	console.log(codeInfo)
-
-	const getLanguageFromExtension = filename => {
-		const extension = filename.split('.').pop().toLowerCase()
-
-		const languageMap = {
-			js: 'javascript',
-			jsx: 'jsx',
-			ts: 'typescript',
-			tsx: 'tsx',
-			py: 'python',
-			java: 'java',
-			cpp: 'cpp',
-			c: 'c',
-			cs: 'csharp',
-			php: 'php',
-			rb: 'ruby',
-			go: 'go',
-			rs: 'rust',
-			html: 'html',
-			css: 'css',
-			scss: 'scss',
-			sass: 'sass',
-			less: 'less',
-			json: 'json',
-			xml: 'xml',
-			sql: 'sql',
-			md: 'markdown',
-			yml: 'yaml',
-			yaml: 'yaml',
-			sh: 'shell',
-			bat: 'batch',
-			ps1: 'powershell',
-		}
-
-		return languageMap[extension] || extension
-	}
+	const [audioUrl, setAudioUrl] = useState(null)
+	const maxSize = 50 * 1024 * 1024 // 10 MB
 
 	const handleFileChange = e => {
 		const newFile = e.target.files[0]
@@ -59,33 +17,27 @@ export const CodeFileInput = ({
 
 	const validateFile = newFile => {
 		if (!newFile) return
+
+		// Проверка типа файла
+		const isValidType = newFile.type.startsWith('audio/')
+		if (!isValidType) {
+			alert(`Файл ${newFile.name} не является аудиофайлом`)
+			return
+		}
+
 		const isValidSize = newFile.size <= maxSize
 		if (!isValidSize) {
 			alert(`Файл ${newFile.name} превышает максимальный размер 10MB`)
 			return
 		}
 
-		readFile(newFile)
 		setFile(newFile)
+		setAudioUrl(URL.createObjectURL(newFile))
 
 		const newStatus = true
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
 		onFileChange?.(newFile)
-	}
-
-	const readFile = newFile => {
-		const reader = new FileReader()
-		reader.onload = e => {
-			const text = e.target.result
-			setCodeInfo([
-				{
-					code: text,
-					language: getLanguageFromExtension(newFile.name),
-				},
-			])
-		}
-		reader.readAsText(newFile)
 	}
 
 	const handleDragOver = e => {
@@ -108,7 +60,7 @@ export const CodeFileInput = ({
 
 	const removeFile = () => {
 		setFile(null)
-		setCodeInfo(null)
+		setAudioUrl(null)
 		const newStatus = false
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
@@ -117,27 +69,46 @@ export const CodeFileInput = ({
 
 	return (
 		<>
-			<div className='flex gap-2'>
-				<button
-					className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
-					onClick={DelComponent}
-				>
-					<X />
-				</button>
-				{codeInfo ? (
-					<CustomCodeBlock
-						editMode={true}
-						width='w-full'
-						codeInfo={codeInfo[0]}
-						onClick={removeFile}
-					/>
+			<div className='flex gap-2 w-full'>
+				{file ? (
+					<div className='w-full bg-[var(--light-gray)] rounded-lg p-4'>
+						<div className='flex items-center justify-between mb-3'>
+							<div className='flex items-center gap-2'>
+								<FileAudio className='text-[var(--hero-epta)]' size={24} />
+								<span className='font-medium'>{file.name}</span>
+							</div>
+						</div>
+
+						<div className='flex items-center w-full gap-3'>
+							<div className='w-full'>
+								<CustomAudioPlayer audioUrl={audioUrl} />
+							</div>
+
+							<button
+								onClick={removeFile}
+								className='text-[var(--middle)] cursor-pointer hover:bg-red-500 hover:text-[var(--white)] h-9 w-9 flex justify-center items-center rounded-md transition-colors'
+							>
+								<Trash2 size={24} />
+							</button>
+						</div>
+
+						<div className='mt-3 text-sm text-[var(--middle)]'>
+							Размер: {(file.size / (1024 * 1024)).toFixed(2)} MB
+						</div>
+					</div>
 				) : (
 					// Зона загрузки
 					<div
 						className={`p-2 ${
 							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-						} rounded-lg transition-all w-full`}
+						} rounded-lg transition-all w-full relative`}
 					>
+						<button
+							className='absolute top-1 right-1 self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:bg-red-500 hover:text-white active:brightness-90 cursor-pointer transition-all'
+							onClick={DelComponent}
+						>
+							<X />
+						</button>
 						<label
 							htmlFor={inputId}
 							className={`cursor-pointer rounded-md p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
@@ -150,7 +121,7 @@ export const CodeFileInput = ({
 							onDrop={handleDrop}
 						>
 							<div className='w-full flex flex-col justify-center items-center gap-3'>
-								<FileCode2
+								<FileAudio
 									size={80}
 									strokeWidth={1.5}
 									className={`transition-all ${
@@ -167,7 +138,7 @@ export const CodeFileInput = ({
 											: 'bg-[var(--light-middle)] text-[var(--black)]'
 									} `}
 								>
-									до 10 МБ, только файлы кода
+									до 50 МБ, только аудиофайлы
 								</p>
 
 								<button
@@ -176,13 +147,14 @@ export const CodeFileInput = ({
 									type='button'
 								>
 									<Upload strokeWidth={3} />
-									Загрузить код
+									Загрузить аудио
 								</button>
 							</div>
 
 							<input
 								id={inputId}
 								type='file'
+								accept='audio/*'
 								className='hidden'
 								onChange={handleFileChange}
 							/>

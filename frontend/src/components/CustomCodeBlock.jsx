@@ -53,7 +53,7 @@ const CustomCodeBlock = ({
 							<div className='h-3 w-3 rounded-full bg-green-500'></div>
 						</div>
 						<span className='text-gray-700 text-sm uppercase font-medium'>
-							{codeInfo.language}
+							{codeInfo[0].language}
 						</span>
 					</div>
 					{!editMode ? (
@@ -79,10 +79,10 @@ const CustomCodeBlock = ({
 					)}
 				</div>
 
-				<div className='p-0 code-font'>
+				<div className='p-0 code-font overflow-scroll max-h-136'>
 					<CodeBlock
-						text={codeInfo.code}
-						language={codeInfo.language}
+						text={codeInfo[0].code}
+						language={codeInfo[0].language}
 						showLineNumbers={true}
 						theme={github}
 					/>
