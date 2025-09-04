@@ -28,7 +28,7 @@ export const PhotoView = ({ photos }) => {
 					>
 						<img
 							src={item}
-							alt={`preview-${index}`}
+							alt={''}
 							className='w-full h-full object-cover rounded-lg'
 						/>
 					</div>

@@ -223,67 +223,92 @@ const CourseOverview = ({ title }) => {
 						<p className='font-bold text-2xl'>
 							Hello, World! Или как подружиться с кодом
 						</p>,
+
 						<div className='w-full'>
 							<p>
 								<span className='w-full'>
-									<span className='font-bold'>Тема: </span> Массивы <br />
-									<span className='font-bold'>Цель: </span> Изучить массивы
+									<span className='font-bold'>Тема: </span> Первые шаги в
+									программировании <br />
+									<span className='font-bold'>Цель: </span> Познакомиться с
+									программированием через классический пример "Hello, World!"
 								</span>
 							</p>
 						</div>,
+
+						<p>
+							Когда человек только начинает изучать программирование, он
+							чувствует себя так, словно открыл дверь в совершенно новый мир.
+							Всё выглядит сложно, страшно и непонятно: странные слова, символы,
+							скобочки. Но на самом деле это всё обычный язык, только язык не
+							для людей, а для компьютеров. И первый шаг к этому языку —
+							программа <code>Hello, World!</code>.
+						</p>,
+
+						<CalloutView
+							IconId={3}
+							title='Что такое программа?'
+							description='Программа — это набор инструкций, которые компьютер выполняет строго по порядку. 
+    Ты как будто пишешь рецепт, только вместо яиц и сковородки — данные и команды.'
+						/>,
+
+						<p>
+							Представь, что ты объясняешь другу, как приготовить омлет: «Возьми
+							яйца, взбей, пожарь». Программа работает так же — шаг за шагом
+							выполняет твои указания. Чем понятнее и последовательнее
+							инструкции, тем точнее результат.
+						</p>,
+
 						<CustomCodeBlock
 							codeInfo={[
 								{
-									code: '<!DOCTYPE html>\r\n<html lang="en" data-theme="light">\r\n\t<head>\r\n\t\t<meta charset="UTF-8" />\r\n\t\t<link href="./src/index.css" rel="stylesheet" />\r\n\t\t<link href="./src/themes.css" rel="stylesheet" />\r\n\t\t<link rel="icon" type="image/svg+xml" href="/icon.svg" />\r\n\t\t<meta name="viewport" content="width=device-width, initial-scale=1.0" />\r\n\t\t<link href="/src/index.css" rel="stylesheet" />\r\n\t\t<link rel="preconnect" href="https://fonts.googleapis.com" />\r\n\t\t<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\r\n\t\t<link\r\n\t\t\thref="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"\r\n\t\t\trel="stylesheet"\r\n\t\t/>\r\n\t\t<title>LMS</title>\r\n\t</head>\r\n\t<body>\r\n\t\t<div id="root"></div>\r\n\t\t<script type="module" src="/src/main.jsx"></script>\r\n\t</body>\r\n</html>\r\n',
-									language: 'html',
+									code: `// JavaScript
+console.log("Hello, World!");`,
+									language: 'javascript',
 								},
 							]}
 						/>,
+
+						<CustomCodeBlock
+							codeInfo={[
+								{
+									code: `# Python
+print("Hello, World!")`,
+									language: 'python',
+								},
+							]}
+						/>,
+
 						<CalloutView
-							IconId={1}
-							title={'Теорема'}
-							description={'Описание'}
+							IconId={2}
+							title='Почему именно Hello, World?'
+							description='Это традиция. Такой код — минимальная проверка: работает ли твоя среда программирования. 
+    Если ты увидел надпись на экране, значит всё настроено правильно, и можно двигаться дальше.'
 						/>,
-						<ButtonView
-							title={'Кнопка'}
-							to={'https://lucide.dev/icons/square-function'}
+
+						<p>
+							Некоторые новички недооценивают этот шаг и думают: «Ну и что? Это
+							же просто вывод текста!». Но именно в этот момент ты доказываешь
+							самому себе, что можешь заставить компьютер «заговорить». Это не
+							магия, это твой первый инструмент.
+						</p>,
+
+						<CalloutView
+							IconId={8}
+							title='Важно помнить'
+							description='Даже самые сложные программы начинаются с простых инструкций. 
+    Никто не пишет шедевр кода с первого раза. Всё начинается с маленьких шагов.'
 						/>,
-						<FileView
-							Files={[
-								{
-									name: 'index.html',
-									lastModified: 1755599372004,
-									size: 811,
-									type: 'text/html', // возможно нужно добавить type
-								},
-								{
-									name: 'package.json',
-									lastModified: 1756703219789,
-									size: 1188,
-									type: 'application/json', // возможно нужно добавить type
-								},
-							]}
-						/>,
-						<FormulaView
-							Formula={String.raw`\int_0^\infty p(s) ds = 1- \frac{1}{\lambda}p(0)\implies p(0)=\lambda\left(1-\int\limits_0^\infty p(s)ds\right)\ldots\ldots`}
-						/>,
-						<PhotoView
-							photos={[
-								'https://i.pinimg.com/1200x/e5/25/ee/e525ee42975318386bbc4646c8727f0f.jpg',
-								'https://i.pinimg.com/1200x/74/5d/72/745d721c64b0ca1cc316379d361576c1.jpg',
-								'https://i.pinimg.com/1200x/e5/25/ee/e525ee42975318386bbc4646c8727f0f.jpg',
-							]}
-						/>,
-						<VideoPlayer
-							url={'https://rutube.ru/video/113438b8c625081c0ee12f6d36fe7c63/'}
-							course={true}
-						/>,
-						<VideoPlayer url={'/video.mp4'} course={true} />,
-						<CustomAudioPlayer audioUrl={'/audio.wav'} course={true} />,
-						<TableView
-							rows={3}
-							cols={3}
-							values={['1', '2', '', '3', '', '5', '', '', '7']}
+
+						<p>
+							Каждый программист, даже тот, кто сегодня пишет огромные системы,
+							когда-то радовался одной фразе на экране. Поэтому относись к этому
+							коду не как к ерунде, а как к первому кирпичику твоего будущего.
+						</p>,
+
+						<CalloutView
+							IconId={7}
+							title='Заметка'
+							description='В разных языках синтаксис отличается, но смысл остаётся одинаковым: вывести сообщение.'
 						/>,
 					],
 				},
@@ -291,7 +316,92 @@ const CourseOverview = ({ title }) => {
 					id: 1,
 					type: 'Практика',
 					title: 'Hello, World! Или как подружиться с кодом',
-					content: [],
+					content: [
+						<p className='font-bold text-2xl'>Практика: твой первый код</p>,
+
+						<p>
+							Теперь пришло время немного попрактиковаться. Помни: цель практики
+							не в том, чтобы написать сложные алгоритмы, а в том, чтобы
+							почувствовать сам процесс. Ты должен привыкнуть к мысли: «Я
+							написал строку, и компьютер сделал то, что я хотел».
+						</p>,
+
+						<CustomCodeBlock
+							codeInfo={[
+								{
+									code: `// Задание 1
+// Напиши программу, которая выводит твоё имя.
+console.log("Меня зовут Владос");`,
+									language: 'javascript',
+								},
+							]}
+						/>,
+
+						<CalloutView
+							IconId={3}
+							title='Подсказка'
+							description='Функция console.log() в JavaScript — это как твой голос. 
+    Всё, что ты ей скажешь, будет выведено в консоль.'
+						/>,
+
+						<CustomCodeBlock
+							codeInfo={[
+								{
+									code: `# Задание 2
+# Выведи на экран свой любимый фильм.
+print("Мой любимый фильм — Интерстеллар")`,
+									language: 'python',
+								},
+							]}
+						/>,
+
+						<p>
+							Уже чувствуешь магию? Ты пишешь всего пару строк, а компьютер
+							покорно выполняет их. Это и есть самое начало «дружбы с кодом». Но
+							давай не будем останавливаться.
+						</p>,
+
+						<CustomCodeBlock
+							codeInfo={[
+								{
+									code: `// Задание 3
+// Выведи результат простой математики
+console.log(2 + 2); // 4
+console.log(10 - 3); // 7`,
+									language: 'javascript',
+								},
+							]}
+						/>,
+
+						<CalloutView
+							IconId={5}
+							title='Ошибка — это нормально!'
+							description='Если код не заработал с первого раза — не пугайся. 
+    Ошибки — часть процесса. Даже опытные программисты видят их каждый день.'
+						/>,
+
+						<TableView
+							rows={3}
+							cols={2}
+							values={[
+								'Команда',
+								'Что делает',
+								'console.log()',
+								'Выводит сообщение в консоль (JavaScript)',
+								'print()',
+								'Выводит сообщение в терминал (Python)',
+								'2 + 2',
+								'Вычисляет сумму чисел',
+							]}
+						/>,
+
+						<CalloutView
+							IconId={4}
+							title='Совет'
+							description='Всегда пробуй менять текст или числа в заданиях. 
+    Так ты лучше поймёшь, как код реагирует на разные данные.'
+						/>,
+					],
 				},
 				{
 					id: 2,

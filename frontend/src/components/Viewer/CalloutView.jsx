@@ -26,7 +26,7 @@ export const CalloutView = ({ IconId, title, description }) => {
 	return (
 		<>
 			<div className='flex justify-center w-full'>
-				<div className='flex bg-[var(--white)] shadow-[var(--shadow)] items-start rounded-xl min-w-1/4 max-w-1/3 gap-3 p-4 relative'>
+				<div className='flex bg-[var(--white)] shadow-[var(--shadow)] items-start rounded-xl min-w-1/3 max-w-1/2 gap-3 p-4 relative'>
 					<div className='text-[var(--middle)] transition-all'>
 						{icons[IconId].icon}
 					</div>
