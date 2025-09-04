@@ -19,6 +19,7 @@ import Schedule from './pages/Schedule'
 import ScorePage from './pages/ScorePage'
 import StudentsAndGroups from './pages/Students&Groups'
 import CoursePage from './pages/CoursePage'
+import CatalogS from './pages/Tasks'
 
 function MainApp() {
 	const navigate = useNavigate()
@@ -34,7 +35,7 @@ function MainApp() {
 				<Route path='/auth' element={''} />
 				<Route path='/' element={<DashboardLayout />}>
 					<Route path='/catalog' element={<Catalog />} />
-					<Route path='/tasks' element={<Tasks />} />
+					<Route path='/tasks' element={<CatalogS />} />
 					<Route path='/students' element={<StudentsAndGroups />} />
 					<Route path='/constructor' element={<ConstructorPage />} />
 					<Route path='/dashboard' element={<Dashboard />} />

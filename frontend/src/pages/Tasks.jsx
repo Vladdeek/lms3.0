@@ -9,28 +9,36 @@ import {
 	TextArea,
 } from '../components/Inputs'
 
-const Tasks = () => {
-	const options = [{ value: 0, title: 'Активные курсы', icon: LayoutGrid }]
+const CatalogS = () => {
+	const options = [
+		{ value: 0, title: 'Добавленные курсы', icon: LayoutGrid },
+		{ value: 1, title: 'Вебинар', icon: Radio },
+	]
 
-	const courses = [
+	const [courses, setCourses] = useState([
 		{
-			title: 'Очень большой курс 1',
+			title: 'Объектно ориентированное программирование c++',
 			education: 'Бакалавриат',
 			course: 'Курс 1',
 			status: 'Опубликован',
-			img: 'https://i.pinimg.com/736x/74/65/59/746559a982407b366a16d7278cc88519.jpg',
-			deadline: '2023-12-31',
+			img: 'https://i.pinimg.com/736x/7e/d7/a5/7ed7a5d7de6a06d31106b37399da23a5.jpg',
+			deadline: '2025-12-31',
 		},
 		{
-			title: 'Очень большой курс 2',
-			education: 'Магистратура',
+			title: 'Математический анализ',
+			education: 'Бакалавриат',
 			course: 'Курс 2',
 			status: 'В разработке',
-			img: 'https://i.pinimg.com/736x/50/e0/91/50e0915b5b2879196b1db57a1e3acc00.jpg',
+			img: 'https://i.pinimg.com/736x/5f/83/77/5f83771d9306429e18cec682d4445414.jpg',
 		},
-	]
+	])
 
 	const [selected, setSelected] = useState(0)
+	const [createModalOpen, setCreateModalOpen] = useState(false)
+
+	const handleCreateCourse = newCourse => {
+		setCourses(prev => [...prev, newCourse])
+	}
 
 	return (
 		<>
@@ -65,7 +73,7 @@ const Tasks = () => {
 							course={course.course}
 							status={course.status}
 							deadline={course.deadline}
-							to={`/course/${index}`}
+							to={`/course`}
 						/>
 					))}
 				</div>
@@ -74,4 +82,4 @@ const Tasks = () => {
 	)
 }
 
-export default Tasks
+export default CatalogS

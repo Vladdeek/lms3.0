@@ -108,15 +108,16 @@ const Header = () => {
 			],
 			student: [
 				{
+					title: 'Каталог',
+					icon: AlignJustify,
+					to: '/tasks',
+				},
+				{
 					title: 'Расписание',
 					icon: UsersRound,
 					to: '/schedule',
 				},
-				{
-					title: 'Каталог курсов',
-					icon: AlignJustify,
-					to: '/tasks',
-				},
+
 				{
 					title: 'Оценки',
 					icon: CopyCheck,
@@ -152,20 +153,6 @@ const Header = () => {
 			role: 'teacher',
 			img_path:
 				'https://i.pinimg.com/1200x/ed/55/e0/ed55e005e9d504e6a273c19adeee2b49.jpg',
-		},
-	]
-	const Users = [
-		{
-			FullName: 'Иванов Иван Иванович',
-			role: 'student',
-			img_path:
-				'https://i.pinimg.com/736x/93/88/67/938867b05625e9057d9c9138f304f2b8.jpg',
-		},
-		{
-			FullName: 'Покуса Тамила Владимировна',
-			role: 'teacher',
-			img_path:
-				'https://i.pinimg.com/736x/93/88/67/938867b05625e9057d9c9138f304f2b8.jpg',
 		},
 	]
 
