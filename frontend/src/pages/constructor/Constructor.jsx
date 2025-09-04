@@ -614,52 +614,52 @@ const ConstructorMenu = ({ onAdd }) => {
 		{
 			title: 'Текст',
 			type: 'text',
-			icon: <Text size={32} color='var(--middle)' />,
+			icon: <Text size={32} />,
 		},
 		{
 			title: 'Код',
 			type: 'code',
-			icon: <Code size={32} color='var(--middle)' />,
+			icon: <Code size={32} />,
 		},
 		{
 			title: 'Фото',
 			type: 'photo',
-			icon: <Image size={32} color='var(--middle)' />,
+			icon: <Image size={32} />,
 		},
 		{
 			title: 'Видео',
 			type: 'video',
-			icon: <Film size={32} color='var(--middle)' />,
+			icon: <Film size={32} />,
 		},
 		{
 			title: 'Файлы',
 			type: 'files',
-			icon: <Files size={32} color='var(--middle)' />,
+			icon: <Files size={32} />,
 		},
 		{
 			title: 'Таблица',
 			type: 'table',
-			icon: <Table size={32} color='var(--middle)' />,
+			icon: <Table size={32} />,
 		},
 		{
 			title: 'Аудио',
 			type: 'audio',
-			icon: <AudioLines size={32} color='var(--middle)' />,
+			icon: <AudioLines size={32} />,
 		},
 		{
 			title: 'Выноска',
 			type: 'callout',
-			icon: <Layers2 size={32} color='var(--middle)' />,
+			icon: <Layers2 size={32} />,
 		},
 		{
 			title: 'Формула',
 			type: 'formula',
-			icon: <SquareFunction size={32} color='var(--middle)' />,
+			icon: <SquareFunction size={32} />,
 		},
 		{
 			title: 'Кнопка',
 			type: 'button',
-			icon: <MousePointerClick size={32} color='var(--middle)' />,
+			icon: <MousePointerClick size={32} />,
 		},
 	]
 
@@ -669,10 +669,10 @@ const ConstructorMenu = ({ onAdd }) => {
 				<button
 					key={index}
 					onClick={() => onAdd(item.type)}
-					className='flex flex-col aspect-square items-center justify-center gap-2 bg-[var(--light-middle)] rounded-lg h-25 hover:scale-102 hover:shadow-md transition-all'
+					className='flex flex-col aspect-square items-center justify-center gap-2 bg-[var(--light-middle)] rounded-lg h-25 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer text-[var(--middle)] transition-all duration-100'
 				>
 					{item.icon}
-					<p className='text-base text-[var(--middle)]'>{item.title}</p>
+					<p className='text-base '>{item.title}</p>
 				</button>
 			))}
 		</div>

@@ -1,5 +1,7 @@
 import { Film, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
+import { InputDefault } from '../Inputs'
+import VideoPlayer from '../VideoPlayer'
 
 export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 	const inputId = useId()
@@ -7,6 +9,7 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 	const [fileInfo, setFileInfo] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [previews, setPreviews] = useState([])
+	const [videoUrl, setVideoUrl] = useState('') // Состояние для хранения ссылки
 
 	const validFormats = [
 		'video/mp4',
@@ -23,6 +26,57 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 	const maxSize = 100 * 1024 * 1024 // 100 MB
 	const maxFiles = 1
 
+	// Обработчик изменения ссылки
+	const handleUrlChange = e => {
+		const url = e.target.value
+		setVideoUrl(url)
+
+		// Если есть валидная ссылка, добавляем превью
+		if (url && isValidUrl(url)) {
+			// Создаем объект для превью по ссылке
+			const urlPreview = {
+				videoUrl: url,
+				preview: null, // Можно добавить заглушку или попытаться получить превью
+				info: {
+					name: 'Видео по ссылке',
+					size: 'N/A',
+					type: 'video/url',
+					duration: 0,
+				},
+				isUrl: true, // Флаг, что это ссылка, а не файл
+			}
+
+			// Если уже есть превью, заменяем его
+			if (previews.length > 0) {
+				// Освобождаем предыдущий URL если это был файл
+				if (previews[0]?.videoUrl && !previews[0]?.isUrl) {
+					URL.revokeObjectURL(previews[0].videoUrl)
+				}
+				setPreviews([urlPreview])
+			} else {
+				setPreviews([urlPreview])
+			}
+
+			setInputStatus(true)
+			onStatusChange?.(true)
+		} else if (!url && previews.length > 0 && previews[0]?.isUrl) {
+			// Если ссылка удалена и это было единственное превью
+			setPreviews([])
+			setInputStatus(false)
+			onStatusChange?.(false)
+		}
+	}
+
+	// Функция проверки валидности URL
+	const isValidUrl = url => {
+		try {
+			new URL(url)
+			return true
+		} catch (e) {
+			return false
+		}
+	}
+
 	const handleFileChange = e => {
 		const files = Array.from(e.target.files)
 		handleFiles(files)
@@ -30,6 +84,9 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 
 	const handleFiles = files => {
 		if (files.length === 0) return
+
+		// Очищаем поле ссылки при загрузке файла
+		setVideoUrl('')
 
 		const filesToProcess = files.slice(0, maxFiles - previews.length)
 		const validFiles = []
@@ -65,6 +122,7 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 							type: file.type,
 							duration: video.duration || 0,
 						},
+						isUrl: false,
 					})
 
 					setPreviews(prev => [...prev, ...validFiles])
@@ -76,11 +134,15 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 	}
 
 	const removePreview = index => {
-		// Освобождаем URL объекта
-		if (previews[index]?.videoUrl) {
+		// Освобождаем URL объекта только если это не ссылка
+		if (previews[index]?.videoUrl && !previews[index]?.isUrl) {
 			URL.revokeObjectURL(previews[index].videoUrl)
 		}
 		setPreviews(prev => prev.filter((_, i) => i !== index))
+		// Очищаем поле ссылки если удаляем превью по ссылке
+		if (previews[index]?.isUrl) {
+			setVideoUrl('')
+		}
 		if (previews.length === 1) {
 			setInputStatus(false)
 			onStatusChange?.(false)
@@ -109,12 +171,14 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 	useEffect(() => {
 		return () => {
 			previews.forEach(preview => {
-				if (preview.videoUrl) {
+				if (preview.videoUrl && !preview.isUrl) {
 					URL.revokeObjectURL(preview.videoUrl)
 				}
 			})
 		}
 	}, [])
+
+	console.log(previews)
 
 	return (
 		<div className='flex gap-2'>
@@ -128,14 +192,7 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 				{/* Отображаем превью загруженных видео */}
 				{previews.map((previewData, index) => (
 					<div key={index} className='relative w-1/2 aspect-16/9 group'>
-						<video
-							src={previewData.videoUrl}
-							className='w-full h-full object-cover rounded-lg'
-							controls // добавляем элементы управления видео
-							preload='metadata' // предзагрузка метаданных для быстрого отображения
-						>
-							Ваш браузер не поддерживает видео.
-						</video>
+						<VideoPlayer url={previewData.videoUrl} />
 
 						{/* Информация о видео */}
 						<div className='absolute top-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity'>
@@ -207,15 +264,22 @@ export const ConstructorVideoInput = ({ onStatusChange, DelComponent }) => {
 										</p>
 									))}
 								</div>
-								<div className='h-fit'>
+								<div className='flex flex-col items-center gap-3 h-fit w-1/2'>
 									<button
-										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] w-fit cursor-pointer transition-all'
 										onClick={() => document.getElementById(inputId).click()}
 										type='button'
 									>
 										<Upload strokeWidth={3} />
 										Загрузить видео
 									</button>
+									<InputDefault
+										title={'Загрузить по ссылке'}
+										placeholder={'https://example.com'}
+										width={'100%'}
+										value={videoUrl}
+										onChange={handleUrlChange}
+									/>
 								</div>
 							</div>
 

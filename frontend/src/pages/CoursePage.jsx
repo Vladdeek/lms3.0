@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import React from 'react'
 import {
 	ArrowRightFromLine,
 	BookMarked,
@@ -7,6 +8,7 @@ import {
 	ChevronsUp,
 	ChevronUp,
 	Copy,
+	Frown,
 	Gem,
 	LaptopMinimalCheck,
 	ListRestart,
@@ -18,13 +20,13 @@ import { Button, EllipsisButton } from '../components/Buttons'
 import { InputDefault, SearchInput } from '../components/Inputs'
 import CustomCodeBlock from '../components/CustomCodeBlock'
 import CustomAudioPlayer from '../components/AudioPlayer'
-import { VideoView } from '../components/Viewer/VideoView'
 import FormulaView from '../components/Viewer/FormulaView'
-import { TableView } from '../components/Viewer/TableView'
 import { FileView } from '../components/Viewer/FileView'
 import { CalloutView } from '../components/Viewer/CalloutView'
 import { ButtonView } from '../components/Viewer/ButtonView'
 import { PhotoView } from '../components/Viewer/PhotoView'
+import VideoPlayer from '../components/VideoPlayer'
+import TableView from '../components/Viewer/TableView'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -172,37 +174,6 @@ const ContentView = ({ content }) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 
-	const mass = [
-		{
-			lessons: [
-				{
-					title: 'Массивы',
-					content: [
-						<p className='w-full'>
-							<span className='text-center'>
-								<span className='font-bold'>Тема: </span> Массивы <br />
-								<span className='font-bold'>Цель: </span> Изучить массивы
-							</span>
-						</p>,
-						<PhotoView />,
-						<VideoView />,
-						<CustomCodeBlock
-							codeInfo={[
-								{ code: 'console.log(`hello world`)', language: 'js' },
-							]}
-						/>,
-						<CustomAudioPlayer />,
-						<FormulaView />,
-						<TableView />,
-						<FileView />,
-						<CalloutView />,
-						<ButtonView />,
-					],
-				},
-			],
-		},
-	]
-
 	const addBlock = type => setBlocks(prev => [...prev, type])
 	const removeBlock = index =>
 		setBlocks(prev => prev.filter((_, i) => i !== index))
@@ -220,54 +191,20 @@ const ContentView = ({ content }) => {
 	return (
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
 			<ModuleContent bg={true} type={content.type} title={content.title} />
-			<div className='w-full'>
-				<p>
-					<span className='w-full'>
-						<span className='font-bold'>Тема: </span> Массивы <br />
-						<span className='font-bold'>Цель: </span> Изучить массивы
-					</span>
-				</p>
+			<div className='flex flex-col gap-5'>
+				{content.content.length !== 0 ? (
+					content.content.map(item => {
+						return <React.Fragment>{item}</React.Fragment>
+					})
+				) : (
+					<div className='flex w-full h-150 justify-center items-center'>
+						<div className='flex gap-3 text-lg items-center font-medium text-[var(--middle)]'>
+							<p>Пусто</p>
+							<Frown />
+						</div>
+					</div>
+				)}
 			</div>
-
-			<CustomCodeBlock
-				codeInfo={[
-					{
-						code: '<!DOCTYPE html>\r\n<html lang="en" data-theme="light">\r\n\t<head>\r\n\t\t<meta charset="UTF-8" />\r\n\t\t<link href="./src/index.css" rel="stylesheet" />\r\n\t\t<link href="./src/themes.css" rel="stylesheet" />\r\n\t\t<link rel="icon" type="image/svg+xml" href="/icon.svg" />\r\n\t\t<meta name="viewport" content="width=device-width, initial-scale=1.0" />\r\n\t\t<link href="/src/index.css" rel="stylesheet" />\r\n\t\t<link rel="preconnect" href="https://fonts.googleapis.com" />\r\n\t\t<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\r\n\t\t<link\r\n\t\t\thref="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"\r\n\t\t\trel="stylesheet"\r\n\t\t/>\r\n\t\t<title>LMS</title>\r\n\t</head>\r\n\t<body>\r\n\t\t<div id="root"></div>\r\n\t\t<script type="module" src="/src/main.jsx"></script>\r\n\t</body>\r\n</html>\r\n',
-						language: 'html',
-					},
-				]}
-			/>
-			<CalloutView IconId={1} title={'Теорема'} description={'Описание'} />
-			<ButtonView
-				title={'Кнопка'}
-				to={'https://lucide.dev/icons/square-function'}
-			/>
-			<FileView
-				Files={[
-					{
-						name: 'index.html',
-						lastModified: 1755599372004,
-						size: 811,
-						type: 'text/html', // возможно нужно добавить type
-					},
-					{
-						name: 'package.json',
-						lastModified: 1756703219789,
-						size: 1188,
-						type: 'application/json', // возможно нужно добавить type
-					},
-				]}
-			/>
-			<FormulaView
-				Formula={String.raw`\int_0^\infty p(s) ds = 1- \frac{1}{\lambda}p(0)\implies p(0)=\lambda\left(1-\int\limits_0^\infty p(s)ds\right)\ldots\ldots`}
-			/>
-			<PhotoView
-				photos={[
-					'https://i.pinimg.com/1200x/e5/25/ee/e525ee42975318386bbc4646c8727f0f.jpg',
-					'https://i.pinimg.com/1200x/74/5d/72/745d721c64b0ca1cc316379d361576c1.jpg',
-					'https://i.pinimg.com/736x/2c/9a/07/2c9a071c1ac016c3a95223e398e9dafd.jpg',
-				]}
-			/>
 		</div>
 	)
 }
@@ -282,19 +219,85 @@ const CourseOverview = ({ title }) => {
 					id: 0,
 					type: 'Лекция',
 					title: 'Hello, World! Или как подружиться с кодом',
-					content: 'Содержимое лекции о основах программирования...',
+					content: [
+						<p className='font-bold text-2xl'>
+							Hello, World! Или как подружиться с кодом
+						</p>,
+						<div className='w-full'>
+							<p>
+								<span className='w-full'>
+									<span className='font-bold'>Тема: </span> Массивы <br />
+									<span className='font-bold'>Цель: </span> Изучить массивы
+								</span>
+							</p>
+						</div>,
+						<CustomCodeBlock
+							codeInfo={[
+								{
+									code: '<!DOCTYPE html>\r\n<html lang="en" data-theme="light">\r\n\t<head>\r\n\t\t<meta charset="UTF-8" />\r\n\t\t<link href="./src/index.css" rel="stylesheet" />\r\n\t\t<link href="./src/themes.css" rel="stylesheet" />\r\n\t\t<link rel="icon" type="image/svg+xml" href="/icon.svg" />\r\n\t\t<meta name="viewport" content="width=device-width, initial-scale=1.0" />\r\n\t\t<link href="/src/index.css" rel="stylesheet" />\r\n\t\t<link rel="preconnect" href="https://fonts.googleapis.com" />\r\n\t\t<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\r\n\t\t<link\r\n\t\t\thref="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"\r\n\t\t\trel="stylesheet"\r\n\t\t/>\r\n\t\t<title>LMS</title>\r\n\t</head>\r\n\t<body>\r\n\t\t<div id="root"></div>\r\n\t\t<script type="module" src="/src/main.jsx"></script>\r\n\t</body>\r\n</html>\r\n',
+									language: 'html',
+								},
+							]}
+						/>,
+						<CalloutView
+							IconId={1}
+							title={'Теорема'}
+							description={'Описание'}
+						/>,
+						<ButtonView
+							title={'Кнопка'}
+							to={'https://lucide.dev/icons/square-function'}
+						/>,
+						<FileView
+							Files={[
+								{
+									name: 'index.html',
+									lastModified: 1755599372004,
+									size: 811,
+									type: 'text/html', // возможно нужно добавить type
+								},
+								{
+									name: 'package.json',
+									lastModified: 1756703219789,
+									size: 1188,
+									type: 'application/json', // возможно нужно добавить type
+								},
+							]}
+						/>,
+						<FormulaView
+							Formula={String.raw`\int_0^\infty p(s) ds = 1- \frac{1}{\lambda}p(0)\implies p(0)=\lambda\left(1-\int\limits_0^\infty p(s)ds\right)\ldots\ldots`}
+						/>,
+						<PhotoView
+							photos={[
+								'https://i.pinimg.com/1200x/e5/25/ee/e525ee42975318386bbc4646c8727f0f.jpg',
+								'https://i.pinimg.com/1200x/74/5d/72/745d721c64b0ca1cc316379d361576c1.jpg',
+								'https://i.pinimg.com/1200x/e5/25/ee/e525ee42975318386bbc4646c8727f0f.jpg',
+							]}
+						/>,
+						<VideoPlayer
+							url={'https://rutube.ru/video/113438b8c625081c0ee12f6d36fe7c63/'}
+							course={true}
+						/>,
+						<VideoPlayer url={'/video.mp4'} course={true} />,
+						<CustomAudioPlayer audioUrl={'/audio.wav'} course={true} />,
+						<TableView
+							rows={3}
+							cols={3}
+							values={['1', '2', '', '3', '', '5', '', '', '7']}
+						/>,
+					],
 				},
 				{
 					id: 1,
 					type: 'Практика',
 					title: 'Hello, World! Или как подружиться с кодом',
-					content: 'Задания для практического занятия...',
+					content: [],
 				},
 				{
 					id: 2,
 					type: 'Тест',
 					title: 'Hello, World! Или как подружиться с кодом',
-					content: 'Задания для практического занятия...',
+					content: [],
 				},
 			],
 		},
@@ -306,13 +309,13 @@ const CourseOverview = ({ title }) => {
 					id: 3,
 					type: 'Лекция',
 					title: 'Переменные и типы данных',
-					content: 'Содержимое лекции о переменных...',
+					content: [],
 				},
 				{
 					id: 4,
 					type: 'Практика',
 					title: 'Работа с переменными',
-					content: 'Задания для практического занятия...',
+					content: [],
 				},
 			],
 		},
@@ -324,20 +327,19 @@ const CourseOverview = ({ title }) => {
 					id: 5,
 					type: 'Лекция',
 					title: 'Условные конструкции if/else',
-					content: 'Содержимое лекции об условиях...',
+					content: [],
 				},
 				{
 					id: 6,
 					type: 'Практика',
 					title: 'Решение задач с условиями',
-					content: 'Задания для практического занятия...',
+					content: [],
 				},
 			],
 		},
 	])
 
 	const [selectedContent, setSelectedContent] = useState(null)
-
 	const handleContentSelect = content => {
 		setSelectedContent(content)
 	}
