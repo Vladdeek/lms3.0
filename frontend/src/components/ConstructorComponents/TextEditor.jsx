@@ -161,6 +161,8 @@ export const ConstructorEditor = ({ DelComponent }) => {
 		}
 	}, [])
 
+	console.log(value)
+
 	return (
 		<div className='flex gap-2'>
 			<button
