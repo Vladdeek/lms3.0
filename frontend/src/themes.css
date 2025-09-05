@@ -15,7 +15,8 @@
 	--red-status-text: #943333;
 	--red-status-bg: #ffdada;
 
-	--glow-hero-epta: #f43b7550;
+	--glow-hero-epta: rgb(244, 59, 117);
+	--hero-shadow: 1px 2px 8px rgba(244, 59, 117, 0.5);
 
 	--shadow: 1px 2px 8px rgba(0, 0, 0, 0.125);
 

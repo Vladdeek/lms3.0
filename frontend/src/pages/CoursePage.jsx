@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import React from 'react'
 import {
 	ArrowRightFromLine,
 	BookMarked,
 	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
 	ChevronsDown,
 	ChevronsUp,
 	ChevronUp,
@@ -14,6 +16,7 @@ import {
 	ListRestart,
 	NotebookPen,
 	Package,
+	Plus,
 	Trash,
 } from 'lucide-react'
 import { Button, EllipsisButton } from '../components/Buttons'
@@ -27,6 +30,9 @@ import { ButtonView } from '../components/Viewer/ButtonView'
 import { PhotoView } from '../components/Viewer/PhotoView'
 import VideoPlayer from '../components/VideoPlayer'
 import TableView from '../components/Viewer/TableView'
+import MoreVariantView from '../components/TestView/MoreVariantsView'
+import OneVariantView from '../components/TestView/OneVariantView'
+import SortVariantView from '../components/TestView/SortVariantsView'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -167,16 +173,44 @@ const ModuleBlock = ({
 	)
 }
 
+const LevelsBar = ({
+	questions,
+	setQuestions,
+	activeIndex,
+	setActiveIndex,
+}) => {
+	return (
+		<>
+			<div className='flex gap-3'>
+				{questions.map((q, idx) => (
+					<div
+						key={q.id}
+						onClick={() => setActiveIndex(idx)}
+						className={`w-10 h-10 flex justify-center items-center rounded-md shadow-[var(--shadow)] cursor-pointer transition-all
+                            ${
+															activeIndex === idx
+																? 'bg-[var(--hero-epta)] text-[var(--white)]'
+																: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+														}
+                            active:scale-90`}
+					>
+						{idx + 1}
+					</div>
+				))}
+			</div>
+		</>
+	)
+}
+
 const ContentView = ({ content }) => {
 	const [blocks, setBlocks] = useState([])
 
-	// Для тестов: вопросы и активный индекс
-	const [questions, setQuestions] = useState([])
-	const [activeIndex, setActiveIndex] = useState(0)
+	const questions = useMemo(() => {
+		if (!content || !content.content) return []
+		return [...content.content].sort(() => Math.random() - 0.5)
+	}, [content])
 
-	const addBlock = type => setBlocks(prev => [...prev, type])
-	const removeBlock = index =>
-		setBlocks(prev => prev.filter((_, i) => i !== index))
+	const [activeIndex, setActiveIndex] = useState(0)
 
 	if (!content) {
 		return (
@@ -192,10 +226,53 @@ const ContentView = ({ content }) => {
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
 			<ModuleContent bg={true} type={content.type} title={content.title} />
 			<div className='flex flex-col gap-5'>
+				{}
 				{content.content.length !== 0 ? (
-					content.content.map(item => {
-						return <React.Fragment>{item}</React.Fragment>
-					})
+					content.type !== 'Тест' ? (
+						content.content.map(item => {
+							return <React.Fragment>{item}</React.Fragment>
+						})
+					) : (
+						<>
+							<LevelsBar
+								questions={questions}
+								activeIndex={activeIndex}
+								setActiveIndex={setActiveIndex}
+							/>
+							<div className='w-full flex justify-center'>
+								<React.Fragment>{questions?.[activeIndex]}</React.Fragment>
+							</div>
+							<div className='flex justify-center gap-3'>
+								{activeIndex !== 0 ? (
+									<button
+										onClick={() => setActiveIndex(prev => prev - 1)}
+										className={` justify-center items-center pr-4 pl-1 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex`}
+									>
+										<ChevronLeft />
+										<p>Назад</p>
+									</button>
+								) : (
+									<div></div>
+								)}
+								{activeIndex + 1 !== questions.length ? (
+									<button
+										onClick={() => setActiveIndex(prev => prev + 1)}
+										className=' justify-center items-center pl-4 pr-1 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
+									>
+										<p>Далее</p>
+										<ChevronRight />
+									</button>
+								) : (
+									<button
+										onClick={() => console.log('')}
+										className=' justify-center items-center px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
+									>
+										<p>Завершить тест</p>
+									</button>
+								)}
+							</div>
+						</>
+					)
 				) : (
 					<div className='flex w-full h-150 justify-center items-center'>
 						<div className='flex gap-3 text-lg items-center font-medium text-[var(--middle)]'>
@@ -407,7 +484,36 @@ console.log(10 - 3); // 7`,
 					id: 2,
 					type: 'Тест',
 					title: 'Hello, World! Или как подружиться с кодом',
-					content: [],
+					content: [
+						<SortVariantView
+							question={'Вопрос 1'}
+							initialPairs={[
+								{ id: '1', left: 'CPU', right: 'Центральный процессор' },
+								{ id: '2', left: 'RAM', right: 'Оперативная память' },
+								{
+									id: '3',
+									left: 'SSD',
+									right: 'Твердотельный накопитель',
+								},
+							]}
+						/>,
+						<MoreVariantView
+							question={'Вопрос 2'}
+							Answers={['Ответ 1', 'Ответ 2', 'Ответ 3']}
+						/>,
+						<OneVariantView
+							question={'Вопрос 3'}
+							Answers={['Ответ 1', 'Ответ 2', 'Ответ 3']}
+						/>,
+						<OneVariantView
+							question={'Вопрос 4'}
+							Answers={['Ответ 1', 'Ответ 2', 'Ответ 3']}
+						/>,
+						<OneVariantView
+							question={'Вопрос 5'}
+							Answers={['Ответ 1', 'Ответ 2', 'Ответ 3']}
+						/>,
+					],
 				},
 			],
 		},
