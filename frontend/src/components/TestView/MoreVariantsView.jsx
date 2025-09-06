@@ -1,5 +1,7 @@
 import { Check } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
+import CustomAudioPlayer from '../AudioPlayer'
+import FormulaView from '../Viewer/FormulaView'
 
 const StudentCheckbox = ({ id, disabled = false, onChange, answer }) => {
 	const [checked, setChecked] = useState(false)
@@ -42,7 +44,7 @@ const StudentCheckbox = ({ id, disabled = false, onChange, answer }) => {
 	)
 }
 
-const MoreVariantView = ({ question, Answers, onAnswerSelect }) => {
+const MoreVariantView = ({ question, Answers, onAnswerSelect, media }) => {
 	const handleChange = (id, checked) => {
 		if (onAnswerSelect) {
 			onAnswerSelect(id, checked)
@@ -61,6 +63,24 @@ const MoreVariantView = ({ question, Answers, onAnswerSelect }) => {
 			<p className='font-light text-[var(--middle)] text-sm'>
 				Это вопрос с несколькими правильными ответами
 			</p>
+			<div className='w-full'>
+				{media &&
+					(media.type === 'audio' ? (
+						<>
+							<CustomAudioPlayer audioUrl={media.info} />
+						</>
+					) : media.type === 'photo' ? (
+						<div className='aspect-video h-100 flex justify-center'>
+							<img className='w-auto h-full' src={media.info} alt='' />
+						</div>
+					) : media.type === 'formula' ? (
+						<>
+							<FormulaView Formula={media.info} />
+						</>
+					) : (
+						<></>
+					))}
+			</div>
 
 			<div className='flex flex-col items-center gap-3 w-full'>
 				{shuffleAnswers.map(answer => (

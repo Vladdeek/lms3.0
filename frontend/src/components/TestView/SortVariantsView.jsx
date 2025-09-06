@@ -54,7 +54,7 @@ const PairItem = forwardRef(
 	}
 )
 
-const SortVariantView = ({ initialPairs = [], onChange, question }) => {
+const SortVariantView = ({ initialPairs = [], onChange, question, media }) => {
 	const [pairs, setPairs] = useState(initialPairs)
 	const [heights, setHeights] = useState([])
 	const rightRefs = useRef([])
@@ -129,6 +129,25 @@ const SortVariantView = ({ initialPairs = [], onChange, question }) => {
 				Это вопрос на установление соответствия, где нужно правильно сопоставить
 				элементы
 			</p>
+
+			<div className='w-full'>
+				{media &&
+					(media.type === 'audio' ? (
+						<>
+							<CustomAudioPlayer audioUrl={media.info} />
+						</>
+					) : media.type === 'photo' ? (
+						<div className='aspect-video h-100 flex justify-center'>
+							<img className='w-auto h-full' src={media.info} alt='' />
+						</div>
+					) : media.type === 'formula' ? (
+						<>
+							<FormulaView Formula={media.info} />
+						</>
+					) : (
+						<></>
+					))}
+			</div>
 
 			<div className='flex justify-between gap-3'>
 				<div className=' h-full flex flex-col gap-3'>

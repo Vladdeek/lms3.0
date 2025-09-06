@@ -12,6 +12,7 @@ import {
 	Copy,
 	Frown,
 	Gem,
+	Info,
 	LaptopMinimalCheck,
 	ListRestart,
 	NotebookPen,
@@ -536,15 +537,6 @@ console.log(10 - 3); // 7`,
 							question={'Какая из профессий напрямую связана с кодом?'}
 							Answers={['Программист', 'Художник', 'Повар']}
 						/>,
-						<MoreVariantView
-							question={'Что можно сделать с помощью кода?'}
-							Answers={[
-								'Создать сайт',
-								'Написать игру',
-								'Приготовить ужин',
-								'Автоматизировать задачи',
-							]}
-						/>,
 						<OneVariantView
 							question={'Что такое «Hello, world!» в программировании?'}
 							Answers={[
@@ -618,6 +610,46 @@ console.log(10 - 3); // 7`,
 					type: 'Практика',
 					title: 'Работа с переменными',
 					content: [],
+				},
+				{
+					id: 5,
+					type: 'Тест',
+					title: 'Работа с переменными',
+					content: [
+						<MoreVariantView
+							question={'Что является частью программирования?'}
+							Answers={[
+								'Логика',
+								'Тестирование',
+								'Математика',
+								'Игры на PlayStation',
+							]}
+							media={{ type: 'audio', info: './audio.wav' }}
+						/>,
+						<MoreVariantView
+							question={'Что является частью программирования?'}
+							Answers={[
+								'Логика',
+								'Тестирование',
+								'Математика',
+								'Игры на PlayStation',
+							]}
+							media={{
+								type: 'photo',
+								info: 'https://i.pinimg.com/736x/63/62/69/636269f7c5f13b1053c1e5aaba15cd01.jpg',
+							}}
+						/>,
+						<MoreVariantView
+							question={'Что является частью программирования?'}
+							Answers={[
+								'Логика',
+								'Тестирование',
+								'Математика',
+								'Игры на PlayStation',
+							]}
+							media={{ type: 'formula', info: 'E = mc^2' }}
+						/>,
+					],
 				},
 			],
 		},

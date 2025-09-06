@@ -38,7 +38,7 @@ const StudentRadio = ({ id, answer, selectedId, onChange }) => {
 	)
 }
 
-const OneVariantView = ({ question, Answers, onAnswerSelect }) => {
+const OneVariantView = ({ question, Answers, onAnswerSelect, media }) => {
 	const [selectedId, setSelectedId] = useState(null)
 
 	const handleSelect = id => {
@@ -58,6 +58,25 @@ const OneVariantView = ({ question, Answers, onAnswerSelect }) => {
 			<p className='font-light text-[var(--middle)] text-sm'>
 				Это вопрос с единственным правильным ответом
 			</p>
+
+			<div className='w-full'>
+				{media &&
+					(media.type === 'audio' ? (
+						<>
+							<CustomAudioPlayer audioUrl={media.info} />
+						</>
+					) : media.type === 'photo' ? (
+						<div className='aspect-video h-100 flex justify-center'>
+							<img className='w-auto h-full' src={media.info} alt='' />
+						</div>
+					) : media.type === 'formula' ? (
+						<>
+							<FormulaView Formula={media.info} />
+						</>
+					) : (
+						<></>
+					))}
+			</div>
 
 			<div className='flex flex-col items-center gap-3 w-full'>
 				{shuffleAnswers.map((answer, index) => (
