@@ -3,6 +3,7 @@ import { Check, X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { Button } from '../Buttons'
 import { AddMediaButton } from './AddMedia'
+import { ScoreInput1 } from './ScoreInput'
 
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({
@@ -178,7 +179,10 @@ const MoreVariant = ({
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 w-2/3 mb-5'>
-						<InputDefault title={'Введите вопрос'} required={true} />
+						<div className='flex gap-3 items-end'>
+							<InputDefault title={'Введите вопрос'} required={true} />
+							<ScoreInput1 />
+						</div>
 						<AddMediaButton />
 					</div>
 

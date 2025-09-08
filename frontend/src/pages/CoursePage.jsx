@@ -34,6 +34,7 @@ import TableView from '../components/Viewer/TableView'
 import MoreVariantView from '../components/TestView/MoreVariantsView'
 import OneVariantView from '../components/TestView/OneVariantView'
 import SortVariantView from '../components/TestView/SortVariantsView'
+import OpenQuestionView from '../components/TestView/OpenQuestionView'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -205,6 +206,8 @@ const LevelsBar = ({
 
 const ContentView = ({ content }) => {
 	const [blocks, setBlocks] = useState([])
+	const [answers, setAnswers] = useState({})
+	const [singleAnswers, setSingleAnswers] = useState({})
 
 	const questions = useMemo(() => {
 		if (!content || !content.content) return []
@@ -241,7 +244,52 @@ const ContentView = ({ content }) => {
 								setActiveIndex={setActiveIndex}
 							/>
 							<div className='w-full flex justify-center'>
-								<React.Fragment>{questions?.[activeIndex]}</React.Fragment>
+								{(() => {
+									const q = content.content[activeIndex]
+									if (q.type === 'more') {
+										return (
+											<MoreVariantView
+												question={q.question}
+												Answers={q.answers}
+												selected={answers[activeIndex] || []}
+												onAnswerSelect={(id, checked) => {
+													setAnswers(prev => {
+														const prevSelected = prev[activeIndex] || []
+														const newSelected = checked
+															? [...prevSelected, id]
+															: prevSelected.filter(x => x !== id)
+														return { ...prev, [activeIndex]: newSelected }
+													})
+												}}
+											/>
+										)
+									} else if (q.type === 'single') {
+										return (
+											<OneVariantView
+												question={q.question}
+												Answers={q.answers}
+												selectedId={singleAnswers[activeIndex] ?? null}
+												onAnswerSelect={id => {
+													setSingleAnswers(prev => ({
+														...prev,
+														[activeIndex]: id,
+													}))
+												}}
+											/>
+										)
+									} else if (q.type === 'sort') {
+										return (
+											<SortVariantView
+												question={q.question}
+												initialPairs={q.answers}
+											/>
+										)
+									} else if (q.type === 'open') {
+										return <OpenQuestionView question={q.question} />
+									}
+
+									return null
+								})()}
 							</div>
 							<div className='flex justify-center gap-3'>
 								{activeIndex !== 0 ? (
@@ -616,39 +664,41 @@ console.log(10 - 3); // 7`,
 					type: 'Тест',
 					title: 'Работа с переменными',
 					content: [
-						<MoreVariantView
-							question={'Что является частью программирования?'}
-							Answers={[
-								'Логика',
-								'Тестирование',
-								'Математика',
-								'Игры на PlayStation',
-							]}
-							media={{ type: 'audio', info: './audio.wav' }}
-						/>,
-						<MoreVariantView
-							question={'Что является частью программирования?'}
-							Answers={[
-								'Логика',
-								'Тестирование',
-								'Математика',
-								'Игры на PlayStation',
-							]}
-							media={{
-								type: 'photo',
-								info: 'https://i.pinimg.com/736x/63/62/69/636269f7c5f13b1053c1e5aaba15cd01.jpg',
-							}}
-						/>,
-						<MoreVariantView
-							question={'Что является частью программирования?'}
-							Answers={[
-								'Логика',
-								'Тестирование',
-								'Математика',
-								'Игры на PlayStation',
-							]}
-							media={{ type: 'formula', info: 'E = mc^2' }}
-						/>,
+						{
+							type: 'more',
+							question: '1',
+							answers: ['a', 'b', 'c', 'd'],
+						},
+						{
+							type: 'more',
+							question: '2',
+							answers: ['1', '2', '3', '4'],
+						},
+						{
+							type: 'single',
+							question: '3',
+							answers: ['a', 'b', 'c', 'd'],
+						},
+						{
+							type: 'single',
+							question: '4',
+							answers: ['1', '2', '3', '4'],
+						},
+						{
+							type: 'sort',
+							question:
+								'Расположи шаги написания программы в правильном порядке',
+							answers: [
+								{ id: '1', left: '1', right: 'Написать код' },
+								{ id: '2', left: '2', right: 'Запустить программу' },
+								{ id: '3', left: '3', right: 'Увидеть результат' },
+							],
+						},
+						{
+							type: 'open',
+							question:
+								'Расположи шаги написания программы в правильном порядке',
+						},
 					],
 				},
 			],

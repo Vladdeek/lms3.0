@@ -44,7 +44,13 @@ const StudentCheckbox = ({ id, disabled = false, onChange, answer }) => {
 	)
 }
 
-const MoreVariantView = ({ question, Answers, onAnswerSelect, media }) => {
+const MoreVariantView = ({
+	question,
+	Answers,
+	onAnswerSelect,
+	media,
+	selected = [],
+}) => {
 	const handleChange = (id, checked) => {
 		if (onAnswerSelect) {
 			onAnswerSelect(id, checked)
@@ -83,8 +89,14 @@ const MoreVariantView = ({ question, Answers, onAnswerSelect, media }) => {
 			</div>
 
 			<div className='flex flex-col items-center gap-3 w-full'>
-				{shuffleAnswers.map(answer => (
-					<StudentCheckbox answer={answer} onChange={handleChange} />
+				{shuffleAnswers.map((answer, index) => (
+					<StudentCheckbox
+						key={index}
+						id={index}
+						answer={answer}
+						checked={selected.includes(index)}
+						onChange={handleChange}
+					/>
 				))}
 			</div>
 		</div>

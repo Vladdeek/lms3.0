@@ -38,11 +38,14 @@ const StudentRadio = ({ id, answer, selectedId, onChange }) => {
 	)
 }
 
-const OneVariantView = ({ question, Answers, onAnswerSelect, media }) => {
-	const [selectedId, setSelectedId] = useState(null)
-
+const OneVariantView = ({
+	question,
+	Answers,
+	onAnswerSelect,
+	media,
+	selectedId = null,
+}) => {
 	const handleSelect = id => {
-		setSelectedId(id)
 		if (onAnswerSelect) onAnswerSelect(id)
 	}
 

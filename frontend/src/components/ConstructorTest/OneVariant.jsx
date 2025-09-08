@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Check, X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { AddMediaButton } from './AddMedia'
+import { ScoreInput1 } from './ScoreInput'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -224,6 +225,8 @@ const OneVariant = () => {
 		{ id: '2', text: '', correct: false },
 	])
 
+	const [withAnswers, setWithAnswers] = useState(true)
+
 	const handleAnswerChange = (id, text) => {
 		setAnswers(prev =>
 			prev.map(answer => (answer.id === id ? { ...answer, text } : answer))
@@ -262,47 +265,64 @@ const OneVariant = () => {
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 w-2/3 mb-5'>
-						<InputDefault title={'Введите вопрос'} required={true} />
+						<div className='flex gap-3 items-end'>
+							<InputDefault title={'Введите вопрос'} required={true} />
+							<ScoreInput1 />
+						</div>
+
 						<AddMediaButton />
 					</div>
 
 					<div className='flex flex-col items-center gap-3 w-2/3'>
 						<div className='flex flex-col items-center gap-3 w-full'>
-							<h3 className='text-lg font-medium mb-2 text-[var(--middle)]'>
-								Варианты ответов:
-							</h3>
-							{answers.map((answer, index) => (
-								<CheckboxCreate
-									key={answer.id}
-									id={answer.id}
-									answer={answer.text}
-									isCorrect={answer.correct}
-									checked={answer.checked}
-									onAnswerChange={text => handleAnswerChange(answer.id, text)}
-									onCorrectChange={correct =>
-										handleCorrectChange(answer.id, correct)
-									}
-									onChange={checked => handleCheckChange(answer.id, checked)}
-									onDelete={handleDeleteAnswer}
-									label={`Вариант ${index + 1}`}
-									canDelete={answers.length > 2}
-								/>
-							))}
+							<div className='flex gap-3 items-center'>
+								<button
+									onClick={() => setWithAnswers(prev => !prev)}
+									className={`border-1  flex justify-center items-center rounded-sm h-5 w-5 p-[2px] ${
+										!withAnswers
+											? 'bg-transparent border-[var(--middle)]'
+											: 'bg-[var(--hero-epta)] border-[var(--hero-epta)]'
+									}`}
+								>
+									<Check
+										className={`text-white ${
+											!withAnswers ? 'opacity-0' : 'opacity-100'
+										}`}
+									/>
+								</button>
+								<p className='text-lg font-medium text-[var(--middle)]'>
+									Варианты ответов
+								</p>
+							</div>
+							{withAnswers &&
+								answers.map((answer, index) => (
+									<CheckboxCreate
+										key={answer.id}
+										id={answer.id}
+										answer={answer.text}
+										isCorrect={answer.correct}
+										checked={answer.checked}
+										onAnswerChange={text => handleAnswerChange(answer.id, text)}
+										onCorrectChange={correct =>
+											handleCorrectChange(answer.id, correct)
+										}
+										onChange={checked => handleCheckChange(answer.id, checked)}
+										onDelete={handleDeleteAnswer}
+										label={`Вариант ${index + 1}`}
+										canDelete={answers.length > 2}
+									/>
+								))}
 						</div>
 					</div>
-
-					<button
-						onClick={handleAddAnswer}
-						className='flex items-center w-2/3 gap-3 mt-3 justify-center py-2 bg-[var(--light-middle)] text-[var(--middle)] rounded-lg hover:bg-[var(--black)] hover:text-[var(--white)] transition-all active:scale-95'
-					>
-						<Plus size={18} />
-						Добавить вариант ответа
-					</button>
-
-					<div className='mt-6 p-4 bg-gray-50 rounded-md w-1/3 hidden'>
-						<h4 className='font-medium mb-2'>Текущее состояние:</h4>
-						<pre className='text-sm'>{JSON.stringify(answers, null, 2)}</pre>
-					</div>
+					{withAnswers && (
+						<button
+							onClick={handleAddAnswer}
+							className='flex items-center w-2/3 gap-3 mt-3 justify-center py-2 bg-[var(--light-middle)] text-[var(--middle)] rounded-lg hover:bg-[var(--black)] hover:text-[var(--white)] transition-all active:scale-95'
+						>
+							<Plus size={18} />
+							Добавить вариант ответа
+						</button>
+					)}
 				</div>
 				<div className=' flex justify-center items-center  w-1/4'>
 					<p className='border-3 border-dashed p-5 rounded-xl border-[var(--light-middle)] font-light text-[var(--middle)]'>

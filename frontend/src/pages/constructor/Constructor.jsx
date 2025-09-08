@@ -30,6 +30,7 @@ import {
 	SquareFunction,
 	Table,
 	Text,
+	TextCursorInput,
 	Trash,
 	X,
 } from 'lucide-react'
@@ -49,6 +50,7 @@ import { ButtonConstructor } from '../../components/ConstructorComponents/Button
 import OneVariant from '../../components/ConstructorTest/OneVariant'
 import MoreVariant from '../../components/ConstructorTest/MoreVariants'
 import SortVariants from '../../components/ConstructorTest/SortVariants'
+import OpenQuestion from '../../components/ConstructorTest/OpenQuestion'
 
 const CreateModuleButton = ({ onAdd }) => {
 	const [isOpen, setIsOpen] = useState(false)
@@ -418,6 +420,11 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 			label: 'Расположить в правильном порядке',
 			icon: ArrowDownUp,
 		},
+		{
+			id: 'open',
+			label: 'Открытый вопрос',
+			icon: TextCursorInput,
+		},
 	]
 
 	const handleAnswerTypeChange = type => setAnswerType(type)
@@ -465,6 +472,8 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 								? 'Здесь из списка вариантов необходимо отметить все верные, их может быть два или более. Этот формат отлично проверяет умение анализировать и выделять ключевые аспекты. Как и в других типах, вы можете дополнить вопрос аудиофрагментом, фотографией или формулой, чтобы задание стало комплексным.'
 								: answerType === 'order'
 								? 'Данный тип вопроса требует расположить элементы в правильной последовательности, например, расставив исторические события по хронологии или этапы алгоритма по порядку. Для наглядности вы можете добавить в вопрос аудиозапись, изображение или формулу, которые нужно будет проанализировать и использовать для восстановления логической цепочки.'
+								: answerType === 'open'
+								? 'На данный тип вопроса участник сам формулирует ответ. Это может быть объяснение, вывод, мнение или решение задачи. Для контекста можно добавить изображение, аудио, таблицу или формулу.'
 								: ''}
 						</p>
 					</div>
@@ -569,6 +578,7 @@ const ContentView = ({ content }) => {
 							{questions[activeIndex]?.type === 'single' && <OneVariant />}
 							{questions[activeIndex]?.type === 'multiple' && <MoreVariant />}
 							{questions[activeIndex]?.type === 'order' && <SortVariants />}
+							{questions[activeIndex]?.type === 'open' && <OpenQuestion />}
 						</>
 					)}
 				</>
