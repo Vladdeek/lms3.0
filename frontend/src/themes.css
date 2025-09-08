@@ -25,7 +25,7 @@
 	--hard-lvl-text: #b71c1c; /* тёмно-красный */
 
 	--glow-hero-epta: rgb(244, 59, 117);
-	--hero-shadow: 1px 2px 8px rgba(244, 59, 117, 0.5);
+	--hero-shadow: 1px 2px 8px rgba(244, 59, 117, 0.25);
 
 	--shadow: 1px 2px 8px rgba(0, 0, 0, 0.125);
 
@@ -45,6 +45,19 @@
 	--mood-color3-bg: #f7c7c3;
 	--mood-color3-dark: #8d5c5c;
 	--mood-color3-pale: #e6a19b;
+
+	--correct: #daffe6;
+	--not-correct: #ffebee;
+	--correct-dark: #1b5e20;
+	--not-correct-dark: #b71c1c;
+	--correct-glow: 0px 4px 5px rgba(51, 148, 54, 0.15);
+	--middle-correct-glow: #0px 4px 5px rgba(255, 196, 0, 0.15);
+	--not-correct-glow: 0px 4px 5px rgba(193, 15, 28, 0.15);
+	--correct-lvl: #54ac57;
+	--middle-correct-lvl: #ffc400;
+	--not-correct-lvl: #c52c36;
+	--correct-shadow: 1px 2px 8px rgba(51, 148, 54, 0.2);
+	--not-correct-shadow: 1px 2px 8px rgba(193, 15, 28, 0.15);
 }
 
 :root[data-theme='dark'] {
@@ -90,4 +103,7 @@
 	--mood-color3-bg: #de564a;
 	--mood-color3-dark: #4c2626;
 	--mood-color3-pale: #bc3e33;
+
+	--correct: #339436;
+	--not-correct: #c10f1c;
 }

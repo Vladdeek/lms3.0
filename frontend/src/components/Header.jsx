@@ -150,7 +150,7 @@ const Header = () => {
 	const UserInfo = [
 		{
 			FullName: 'Иванов Иван Иванович',
-			role: 'student',
+			role: 'teacher',
 			img_path:
 				'https://i.pinimg.com/1200x/ed/55/e0/ed55e005e9d504e6a273c19adeee2b49.jpg',
 		},

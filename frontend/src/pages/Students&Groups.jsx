@@ -2,23 +2,34 @@ import { act, useState } from 'react'
 import { OptionInput } from '../components/Inputs'
 import { groups } from '../data/groups'
 import { students } from '../data/students'
-import { ArrowBigDownDash, CalendarDays, Filter } from 'lucide-react'
+import {
+	ArrowBigDownDash,
+	CalendarDays,
+	Filter,
+	LaptopMinimalCheck,
+	NotebookPen,
+} from 'lucide-react'
 import { FilterButton } from '../components/Buttons'
+import MoreVariantView from '../components/TestView/MoreVariantsView'
+import OneVariantView from '../components/TestView/OneVariantView'
+import SortVariantView from '../components/TestView/SortVariantsView'
+import OpenQuestionView from '../components/TestView/OpenQuestionView'
 
 const StudentCard = ({ img_path, FullName, score, onClick, active }) => {
-	const [Active, setActive] = useState(active)
 	return (
 		<div
 			onClick={onClick}
-			className={`bg-[var(--white)] shadow-[var(--shadow)] flex gap-3 rounded-md px-3 py-[10px] ${
-				Active && 'border-1 border-[var(--hero-epta)]'
+			className={`bg-[var(--white)]  flex gap-3 rounded-md px-3 py-[10px] ${
+				active
+					? 'ring-1 ring-[var(--hero-epta)] shadow-[var(--hero-shadow)]'
+					: 'shadow-[var(--shadow)] '
 			}`}
 		>
 			<img className='aspect-square rounded-full h-10 ' src={img_path} alt='' />
 			<div className='flex flex-col justify-between'>
 				<p
 					className={`text-[var(--black)] whitespace-nowrap font-medium text-sm ${
-						Active && 'text-[var(--hero-epta)]'
+						active && 'text-[var(--hero-epta)]'
 					}`}
 				>
 					{`${FullName.split(' ')[0]} 
@@ -183,8 +194,185 @@ const StudentCard4Table = ({ num, FullName, scores }) => {
 	)
 }
 
+const TaskCard = ({ title, type, isActive, onClick }) => {
+	return (
+		<div
+			onClick={onClick}
+			className={`bg-[var(--white)]  rounded-lg p-4 items-center flex gap-5 ${
+				isActive
+					? 'ring-1 ring-[var(--hero-epta)] shadow-[var(--hero-shadow)]'
+					: 'shadow-[var(--shadow)]'
+			} transition-all cursor-pointer`}
+		>
+			<div className='flex gap-3 text-[var(--black)]'>
+				{(() => {
+					switch (type) {
+						case 'Практика':
+							return (
+								<>
+									<NotebookPen size={24} />
+								</>
+							)
+						case 'Тест':
+							return (
+								<>
+									<LaptopMinimalCheck size={24} />
+								</>
+							)
+						default:
+							return null
+					}
+				})()}
+				<p className='font-medium '>{type}</p>
+			</div>
+			<p className='font-medium text-[var(--middle)]'>/</p>
+			<p className='text-[var(--middle)]'>{title}</p>
+		</div>
+	)
+}
+
+const PracticeView = ({ content }) => {
+	return (
+		<div className='flex flex-col w-full gap-3'>
+			<TaskCard title={content.title} type={content.type} isActive={false} />
+			<p className='font-medium'>Предоставлены материалы для оценки</p>
+			{content.material.map(item => {
+				return <MaterialCard title={item} />
+			})}
+			<div className='flex flex-col gap-3 w-1/4'>
+				<p className='text-[var(--middle)]'>Введите балл</p>
+				<OptionInput Options={[1, 2, 3, 4, 5]} />
+			</div>
+		</div>
+	)
+}
+
+const LevelsBar = ({
+	questions,
+	setQuestions,
+	activeIndex,
+	setActiveIndex,
+}) => {
+	return (
+		<>
+			<div className='flex gap-3'>
+				{questions.map((q, idx) => {
+					// Определяем статус ответа
+					let answerStatus = 'incorrect' // по умолчанию
+
+					if (Array.isArray(q.selectedId) && Array.isArray(q.correct)) {
+						// Для массива ответов
+						const correctCount = q.selectedId.filter(id =>
+							q.correct.includes(id)
+						).length
+						const totalCorrect = q.correct.length
+
+						if (
+							correctCount === totalCorrect &&
+							q.selectedId.length === totalCorrect
+						) {
+							answerStatus = 'correct'
+						} else if (correctCount > 0) {
+							answerStatus = 'partial'
+						}
+					} else {
+						answerStatus = q.selectedId === q.correct ? 'correct' : 'incorrect'
+					}
+
+					return (
+						<div
+							key={q.id}
+							onClick={() => setActiveIndex(idx)}
+							className={`w-10 h-10 flex flex-wrap justify-center items-center rounded-md cursor-pointer transition-all 
+                ${
+									answerStatus === 'correct'
+										? 'border-b-[3px] border-[var(--correct-lvl)] shadow-[var(--correct-glow)]'
+										: answerStatus === 'partial'
+										? 'border-b-[3px] border-[var(--middle-correct-lvl)] shadow-[var(--middle-correct-glow)]'
+										: 'border-b-[3px] border-[var(--not-correct-lvl)] shadow-[var(--not-correct-glow)]'
+								}
+                ${
+									activeIndex === idx
+										? answerStatus === 'correct'
+											? 'bg-[var(--correct-lvl)] text-white'
+											: answerStatus === 'partial'
+											? 'bg-[var(--middle-correct-lvl)] text-white'
+											: 'bg-[var(--not-correct-lvl)] text-white'
+										: answerStatus === 'correct'
+										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--correct-lvl)] hover:text-[var(--white)]'
+										: answerStatus === 'partial'
+										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle-correct-lvl)] hover:text-[var(--white)]'
+										: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--not-correct-lvl)] hover:text-[var(--white)]'
+								}
+                active:scale-90`}
+						>
+							{idx + 1}
+						</div>
+					)
+				})}
+			</div>
+		</>
+	)
+}
+
+const TestView = ({ content }) => {
+	const [activeIndex, setActiveIndex] = useState(0)
+
+	return (
+		<div className='w-full flex flex-col  gap-3'>
+			<TaskCard title={content.title} type={content.type} isActive={false} />
+			<LevelsBar
+				questions={content.material}
+				activeIndex={activeIndex}
+				setActiveIndex={setActiveIndex}
+			/>
+			<div className='flex justify-center'>
+				{(() => {
+					const q = content.material[activeIndex]
+
+					if (q.type === 'more') {
+						return (
+							<MoreVariantView
+								question={q.question}
+								Answers={q.answers}
+								selected={q.selectedId}
+								shuffle={false}
+								correctAnswers={q.correct}
+								showCorrect={true}
+							/>
+						)
+					} else if (q.type === 'single') {
+						return (
+							<OneVariantView
+								question={q.question}
+								Answers={q.answers}
+								selectedId={q.selectedId}
+								shuffle={false}
+								CorrectAnswer={q.correct}
+							/>
+						)
+					} else if (q.type === 'sort') {
+						return (
+							<SortVariantView
+								question={q.question}
+								initialPairs={q.answers}
+								shuffle={false}
+							/>
+						)
+					} else if (q.type === 'open') {
+						return <OpenQuestionView question={q.question} value={q.answer} />
+					}
+
+					return null
+				})()}
+			</div>
+		</div>
+	)
+}
+
 const StudentsAndGroups = () => {
-	const [Active, setActive] = useState(0)
+	const [ActiveStudent, setActiveStudent] = useState(0)
+	const [ActiveTask, setActiveTask] = useState(0)
 	const [ActiveType, setActiveType] = useState(0)
 	const GroupMass = [
 		'2211-0101.1',
@@ -202,6 +390,44 @@ const StudentsAndGroups = () => {
 	]
 	const Type = ['Оценка', 'Комментарий']
 	const Score = [1, 2, 3, 4, 5]
+	const Tasks = [
+		{ title: 'Практика1', type: 'Практика', material: ['1', '2', '3'] },
+		{
+			title: 'Тест1',
+			type: 'Тест',
+			material: [
+				{
+					type: 'more',
+					question: '2',
+					answers: ['1', '2', '3', '4'],
+					selectedId: [1, 3],
+					correct: [1, 2],
+				},
+
+				{
+					type: 'single',
+					question: '4',
+					answers: ['1', '2', '3', '4'],
+					selectedId: 2,
+					correct: 1,
+				},
+				{
+					type: 'sort',
+					question: 'Расположи шаги написания программы в правильном порядке',
+					answers: [
+						{ id: '1', left: '1', right: 'Написать код' },
+						{ id: '2', left: '2', right: 'Запустить программу' },
+						{ id: '3', left: '3', right: 'Увидеть результат' },
+					],
+				},
+				{
+					type: 'open',
+					question: 'Почему?',
+					answer: 'Потому что',
+				},
+			],
+		},
+	]
 	return (
 		<>
 			<div className='grid grid-cols-12 gap-5 mt-20 select-none'>
@@ -216,8 +442,8 @@ const StudentsAndGroups = () => {
 						{students.map((item, index) => (
 							<StudentCard
 								key={item.id || index}
-								onClick={() => setActive(index)}
-								active={Active === index}
+								onClick={() => setActiveStudent(index)}
+								active={ActiveStudent === index}
 								img_path={item.img}
 								FullName={item.name}
 								score={item.score}
@@ -228,58 +454,31 @@ const StudentsAndGroups = () => {
 				<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5'>
 					<div className='flex flex-col gap-4'>
 						<p className='font-medium text-[var(--black)] text-xl'>
-							Оценивание
+							Выберите занятие для просмотра
 						</p>
-						<p className='font-medium text-[var(--black)] text-base'>
-							Предоставлены материалы для оценки
-						</p>
-						<div className='h-50 overflow-y-scroll flex flex-col gap-3 pl-2 pr-4 pt-1 pb-3'>
-							<MaterialCard
-								title={'ndsaj jdbsja bdjbsajb fjbdab fbd sjab fdsbafb ks'}
-							/>
-							<MaterialCard
-								title={'ndsaj jdbsja bdjbsajb fjbdab fbd sjab fdsbafb ks'}
-							/>
-							<MaterialCard
-								title={'ndsaj jdbsja bdjbsajb fjbdab fbd sjab fdsbafb ks'}
-							/>
-							<MaterialCard
-								title={'ndsaj jdbsja bdjbsajb fjbdab fbd sjab fdsbafb ks'}
-							/>
-							<MaterialCard
-								title={'ndsaj jdbsja bdjbsajb fjbdab fbd sjab fdsbafb ks'}
-							/>
-							<MaterialCard
-								title={'ndsaj jdbsja bdjbsajb fjbdab fbd sjab fdsbafb ks'}
-							/>
-						</div>
-
-						<div className='flex flex-col gap-2'>
-							<p className='text-sm text-[var(--middle)]'>
-								Выберите тип ответа
-							</p>
-							<OptionInput Options={Type} />
-						</div>
-						<div className='flex flex-col gap-2'>
-							<p className='text-sm text-[var(--middle)]'>Выберите балл</p>
-							<OptionInput Options={Score} />
-						</div>
-					</div>
-
-					<div className='flex gap-2 items-center'>
-						<CalendarDays size={20} />
-						<p className='text-[var(--black)] font-medium mt-1'>
-							Дата оценивания: 15.08.2025
-						</p>
+						{Tasks.map((item, index) => {
+							return (
+								<TaskCard
+									title={item.title}
+									type={item.type}
+									onClick={() => setActiveTask(index)}
+									isActive={ActiveTask === index}
+								/>
+							)
+						})}
 					</div>
 				</div>
 				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4'>
-					<div className='w-[95%]'>
-						<StudentTable />
-					</div>
-					<div className='w-[5%] flex h-fit justify-center'>
-						<FilterButton option={['по фамилии', 'по среднему балу']} />
-					</div>
+					{(() => {
+						switch (Tasks[ActiveTask].type) {
+							case 'Практика':
+								return <PracticeView content={Tasks[ActiveTask]} />
+							case 'Тест':
+								return <TestView content={Tasks[ActiveTask]} />
+							default:
+								return <p>Выберите занятие</p>
+						}
+					})()}
 				</div>
 			</div>
 		</>

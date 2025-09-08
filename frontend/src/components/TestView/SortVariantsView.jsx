@@ -16,7 +16,7 @@ const PairItem = forwardRef(
 				onDragOver={e => isRight && e.preventDefault()}
 				onDrop={e => isRight && onDrop(e, index)}
 				style={{ height: height ? `${height}px` : undefined }}
-				className={`grid grid-cols-7 w-150 px-3 py-2 shadow-[var(--shadow)] 
+				className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] 
           rounded-lg bg-white cursor-${
 						isRight ? 'grab' : 'default'
 					} select-none`}
@@ -54,14 +54,23 @@ const PairItem = forwardRef(
 	}
 )
 
-const SortVariantView = ({ initialPairs = [], onChange, question, media }) => {
+const SortVariantView = ({
+	initialPairs = [],
+	onChange,
+	question,
+	media,
+	shuffle = true,
+}) => {
 	const [pairs, setPairs] = useState(initialPairs)
 	const [heights, setHeights] = useState([])
 	const rightRefs = useRef([])
 
 	useEffect(() => {
-		const shuffled = [...initialPairs].sort(() => Math.random() - 0.5)
-		setPairs(shuffled)
+		if (shuffle) {
+			const shuffled = [...initialPairs].sort(() => Math.random() - 0.5)
+			setPairs(shuffled)
+		}
+		setPairs(initialPairs)
 	}, [initialPairs])
 
 	useEffect(() => {
