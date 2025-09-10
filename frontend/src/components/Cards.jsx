@@ -7,6 +7,7 @@ export const CourseCard = ({
 	title,
 	status,
 	deadline,
+	description,
 	to,
 }) => {
 	return (
@@ -18,20 +19,14 @@ export const CourseCard = ({
 						src={img_path}
 						alt=''
 					/>
-					<div className='flex gap-1 mt-4'>
-						<p className='font-medium text-[var(--black)] text-base p-[10px] bg-[var(--light-middle)] rounded-lg'>
-							{education}
-						</p>
-						<p className='font-medium text-[var(--black)] text-base p-[10px] bg-[var(--light-middle)] rounded-lg'>
-							{course}
-						</p>
-					</div>
+
 					<NavLink
 						to={to}
 						className={`font-bold text-[20px] mt-3 text-[var(--black)]`}
 					>
 						{title}
 					</NavLink>
+					<p className='text-[var(--middle)]'>{description}</p>
 					<p
 						className={`p-[10px] rounded-lg text-sm font-normal w-fit mt-5 ${
 							status === 'Опубликован'

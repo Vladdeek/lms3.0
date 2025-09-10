@@ -103,7 +103,12 @@ export const TextArea = ({ type, placeholder, title, required, validate }) => {
 	)
 }
 
-export const FileInput = ({ title, required, onStatusChange }) => {
+export const FileInput = ({
+	title,
+	required,
+	onStatusChange,
+	onFileChange,
+}) => {
 	const [inputStatus, setInputStatus] = useState(false)
 	const [fileInfo, setFileInfo] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
@@ -112,40 +117,33 @@ export const FileInput = ({ title, required, onStatusChange }) => {
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 	const maxSize = 20 * 1024 * 1024 // 20 MB
 
-	const handleFileChange = e => {
-		const file = e.target.files[0]
-		validateFile(file)
-	}
-
 	const validateFile = file => {
-		if (file) {
-			const isValidFormat = validFormats.includes(file.type)
-			const isValidSize = file.size <= maxSize
+		if (!file) return setInputStatus(false)
+		const isValidFormat = validFormats.includes(file.type)
+		const isValidSize = file.size <= maxSize
 
-			if (isValidFormat && isValidSize) {
-				setInputStatus(true)
-				onStatusChange?.(true)
-
-				setFileInfo({
-					name: file.name,
-					size: (file.size / 1024 / 1024).toFixed(2),
-					type: file.type,
-				})
-				setPreview(URL.createObjectURL(file))
-			} else {
-				setInputStatus(false)
-				onStatusChange?.(false)
-
-				setFileInfo(null)
-				setPreview(null)
-			}
+		if (isValidFormat && isValidSize) {
+			setInputStatus(true)
+			onStatusChange?.(true)
+			setFileInfo({
+				name: file.name,
+				size: (file.size / 1024 / 1024).toFixed(2),
+			})
+			setPreview(URL.createObjectURL(file))
+			onFileChange?.(file) // отправляем файл наружу
 		} else {
 			setInputStatus(false)
 			onStatusChange?.(false)
-
 			setFileInfo(null)
 			setPreview(null)
 		}
+	}
+
+	const handleFileChange = e => validateFile(e.target.files[0])
+	const handleDrop = e => {
+		e.preventDefault()
+		setIsDragActive(false)
+		validateFile(e.dataTransfer.files[0])
 	}
 
 	const handleDragOver = e => {
@@ -155,13 +153,6 @@ export const FileInput = ({ title, required, onStatusChange }) => {
 
 	const handleDragLeave = () => {
 		setIsDragActive(false)
-	}
-
-	const handleDrop = e => {
-		e.preventDefault()
-		setIsDragActive(false)
-		const file = e.dataTransfer.files[0]
-		validateFile(file)
 	}
 
 	return (

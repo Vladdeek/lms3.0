@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { Button, RadioButton } from '../components/Buttons'
 import { Blocks, FunnelPlus, LayoutGrid, Radio, X } from 'lucide-react'
 import { CourseCard } from '../components/Cards'
@@ -8,6 +8,8 @@ import {
 	SearchInput,
 	TextArea,
 } from '../components/Inputs'
+
+const API = import.meta.env.VITE_API_URL
 
 const CreateBtn = ({ onClick, title }) => {
 	return (
@@ -30,27 +32,46 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 	const [isFileValid, setIsFileValid] = useState(false)
 	const [title, setTitle] = useState('')
 	const [description, setDescription] = useState('')
-	const [img, setImg] = useState('')
+	const [img, setImg] = useState(null)
 
 	const isFormValid = isNameValid && isFileValid
 
-	const handleSubmit = e => {
+	const handleSubmit = async e => {
 		e.preventDefault()
 		if (!isFormValid) return
 
-		onCreate({
-			title: title,
-			education: 'Не определено',
-			course: 'Не определено',
-			status: 'В разработке',
-			img: '/img.jpg', // здесь путь к фото
-			deadline: undefined,
-			description,
+		const formData = new FormData()
+		formData.append('name', title)
+		formData.append('description', description)
+		formData.append(
+			'teacher_profile_id',
+			'27f1ca7d-70b5-43b3-b310-ffd251670d62'
+		)
+		formData.append(
+			'image_url',
+			'https://i.pinimg.com/736x/87/56/df/8756df2c261c5c80371e37911b2e67de.jpg'
+		)
+
+		console.table(formData)
+
+		const res = await fetch(`${API}/courses`, {
+			method: 'POST',
+			body: formData,
 		})
+
+		if (!res.ok) {
+			console.error('Ошибка сервера:', res.status)
+			return
+		}
+
+		const data = await res.json()
+		console.log('Ответ сервера:', data)
+
+		onCreate(data)
 		onClose()
 		setTitle('')
 		setDescription('')
-		setImg('')
+		setImg(null)
 	}
 
 	return (
@@ -89,11 +110,7 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 						title='Загрузите превью'
 						required={true}
 						onStatusChange={setIsFileValid}
-						onFileChange={file => {
-							// Пример: если FileInput возвращает url, иначе реализуйте загрузку
-							const url = URL.createObjectURL(file)
-							setImg(url)
-						}}
+						onFileChange={file => setImg(file)}
 					/>
 					<input
 						className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
@@ -117,30 +134,23 @@ const Catalog = () => {
 		{ value: 1, title: 'Вебинар', icon: Radio },
 	]
 
-	const [courses, setCourses] = useState([
-		{
-			title: 'Объектно ориентированное программирование c++',
-			education: 'Бакалавриат',
-			course: 'Курс 1',
-			status: 'Опубликован',
-			img: 'https://i.pinimg.com/736x/7e/d7/a5/7ed7a5d7de6a06d31106b37399da23a5.jpg',
-			deadline: '2025-12-31',
-		},
-		{
-			title: 'Математический анализ',
-			education: 'Бакалавриат',
-			course: 'Курс 2',
-			status: 'В разработке',
-			img: 'https://i.pinimg.com/736x/5f/83/77/5f83771d9306429e18cec682d4445414.jpg',
-		},
-	])
-
 	const [selected, setSelected] = useState(0)
 	const [createModalOpen, setCreateModalOpen] = useState(false)
+	const [courses, setCourses] = useState([])
 
 	const handleCreateCourse = newCourse => {
 		setCourses(prev => [...prev, newCourse])
 	}
+
+	useEffect(() => {
+		const fetchCourses = async () => {
+			const res = await fetch(`${API}/courses/`)
+			const data = await res.json()
+			console.log('Список курсов:', data)
+			setCourses(data)
+		}
+		fetchCourses()
+	}, [])
 
 	return (
 		<>
@@ -174,10 +184,9 @@ const Catalog = () => {
 					{courses.map((course, index) => (
 						<CourseCard
 							key={index}
-							title={course.title}
-							img_path={course.img}
-							education={course.education}
-							course={course.course}
+							title={course.name}
+							description={course.description}
+							img_path={course.image_url}
 							status={course.status}
 							deadline={course.deadline}
 							to={`/constructor`}

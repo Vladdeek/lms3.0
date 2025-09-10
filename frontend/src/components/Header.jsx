@@ -96,14 +96,9 @@ const Header = () => {
 					to: '/catalog',
 				},
 				{
-					title: 'Студенты и группы',
-					icon: UsersRound,
-					to: '/students',
-				},
-				{
 					title: 'Проверка заданий',
 					icon: CopyCheck,
-					to: '/tasks',
+					to: '/students',
 				},
 			],
 			student: [

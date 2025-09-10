@@ -33,7 +33,7 @@ const AccessBlock = ({
 			<p className='font-medium'>{title}</p>
 			<div className='flex gap-3 w-full pr-4'>
 				<SearchInput width={'100%'} height={48} />
-				<FilterButton />
+				<FilterButton option={[]} />
 			</div>
 
 			<div className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-12 rounded-lg py-[10px]'>
