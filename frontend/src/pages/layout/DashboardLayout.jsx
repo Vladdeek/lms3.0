@@ -8,7 +8,7 @@ export default function DashboardLayout() {
 			<div className='mx-10'>
 				<Header />
 				<div className='h-25'></div>
-				<div>
+				<div className='mb-40'>
 					<Outlet />
 				</div>
 				<Footer />

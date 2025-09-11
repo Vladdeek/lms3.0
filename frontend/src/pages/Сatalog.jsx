@@ -10,6 +10,7 @@ import {
 } from '../components/Inputs'
 
 const API = import.meta.env.VITE_API_URL
+const IMG_URL = import.meta.env.VITE_IMG_URL
 
 const CreateBtn = ({ onClick, title }) => {
 	return (
@@ -47,12 +48,9 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 			'teacher_profile_id',
 			'27f1ca7d-70b5-43b3-b310-ffd251670d62'
 		)
-		formData.append(
-			'image_url',
-			'https://i.pinimg.com/736x/87/56/df/8756df2c261c5c80371e37911b2e67de.jpg'
-		)
+		formData.append('image', img)
 
-		console.table(formData)
+		console.log(formData)
 
 		const res = await fetch(`${API}/courses`, {
 			method: 'POST',
@@ -137,9 +135,17 @@ const Catalog = () => {
 	const [selected, setSelected] = useState(0)
 	const [createModalOpen, setCreateModalOpen] = useState(false)
 	const [courses, setCourses] = useState([])
+	const [image, setImage] = useState([])
 
 	const handleCreateCourse = newCourse => {
 		setCourses(prev => [...prev, newCourse])
+	}
+
+	const fetchImg = async id => {
+		const imgres = await fetch(`${API}/courses/image/${id}`)
+		const imgdata = await imgres.json()
+		console.log('Фото:', imgdata)
+		setImage(imgdata)
 	}
 
 	useEffect(() => {
@@ -149,6 +155,7 @@ const Catalog = () => {
 			console.log('Список курсов:', data)
 			setCourses(data)
 		}
+
 		fetchCourses()
 	}, [])
 
@@ -186,7 +193,7 @@ const Catalog = () => {
 							key={index}
 							title={course.name}
 							description={course.description}
-							img_path={course.image_url}
+							img_path={() => fetchImg(course.id)}
 							status={course.status}
 							deadline={course.deadline}
 							to={`/constructor`}
