@@ -124,21 +124,7 @@ const Header = () => {
 
 	const HeaderBtnInfo = [
 		{
-			icon: MessagesSquare,
-			onClick: () => {
-				console.log('Messages clicked')
-			},
-			Notifications: 2,
-		},
-		{
 			action: 'toggleTheme',
-		},
-		{
-			icon: Bell,
-			onClick: () => {
-				console.log('Notifications clicked')
-			},
-			Notifications: 8,
 		},
 	]
 
@@ -158,7 +144,7 @@ const Header = () => {
 	return (
 		<>
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
-				<div className='flex items-center gap-5'>
+				<div className='flex items-center gap-5 max-md:hidden'>
 					{links.map((item, index) => (
 						<HeaderLink
 							key={index}
@@ -169,8 +155,8 @@ const Header = () => {
 					))}
 				</div>
 
-				<div className='flex justify-end z-10'>
-					<div className='flex items-center gap-5'>
+				<div className='flex max-md:w-full md:justify-end z-10'>
+					<div className='flex flex-row-reverse items-center max-md:w-full max-md:justify-between gap-5'>
 						{HeaderBtnInfo.map((item, index) => (
 							<HeaderBtn
 								key={index}
@@ -232,6 +218,7 @@ const Header = () => {
 					</div>
 				</div>
 			</div>
+			<div className='md:hidden bg-[var(--white)]'></div>
 		</>
 	)
 }

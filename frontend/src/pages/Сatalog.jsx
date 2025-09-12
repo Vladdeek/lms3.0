@@ -96,13 +96,15 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 						value={title}
 						onChange={e => setTitle(e.target.value)}
 					/>
+
 					<TextArea
 						type='text'
 						placeholder=''
 						title='Введите описание'
-						InputStatus={false}
-						value={description}
-						onChange={e => setDescription(e.target.value)}
+						required={true}
+						value={description} // Передаем значение
+						onChange={e => setDescription(e.target.value)} // Передаем обработчик
+						InputStatus={false} // Опционально: статус валидации извне
 					/>
 					<FileInput
 						title='Загрузите превью'
@@ -139,13 +141,6 @@ const Catalog = () => {
 
 	const handleCreateCourse = newCourse => {
 		setCourses(prev => [...prev, newCourse])
-	}
-
-	const fetchImg = async id => {
-		const imgres = await fetch(`${API}/courses/image/${id}`)
-		const imgdata = await imgres.json()
-		console.log('Фото:', imgdata)
-		setImage(imgdata)
 	}
 
 	useEffect(() => {
@@ -193,7 +188,7 @@ const Catalog = () => {
 							key={index}
 							title={course.name}
 							description={course.description}
-							img_path={() => fetchImg(course.id)}
+							img_path={`${API}/courses/image/${course.id}`}
 							status={course.status}
 							deadline={course.deadline}
 							to={`/constructor`}

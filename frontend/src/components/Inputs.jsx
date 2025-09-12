@@ -66,14 +66,28 @@ export const InputDefault = ({
 	)
 }
 
-export const TextArea = ({ type, placeholder, title, required, validate }) => {
-	const [inputStatus, setInputStatus] = useState(false)
-	const [inputValue, setInputValue] = useState('')
+export const TextArea = ({
+	type,
+	placeholder,
+	title,
+	required,
+	validate,
+	value, // Принимаем value извне
+	onChange, // Принимаем onChange извне
+	InputStatus, // Принимаем статус извне (если нужно)
+}) => {
+	const [internalInputStatus, setInternalInputStatus] = useState(false)
 
 	const handleInputChange = e => {
 		const value = e.target.value
-		setInputValue(value)
-		setInputStatus(validate ? validate(value) : value.trim() !== '')
+		// Вызываем внешний обработчик
+		if (onChange) {
+			onChange(e)
+		}
+		// Валидация (если нужна)
+		if (validate) {
+			setInternalInputStatus(validate(value))
+		}
 	}
 
 	return (
@@ -84,7 +98,9 @@ export const TextArea = ({ type, placeholder, title, required, validate }) => {
 					{required && (
 						<CircleCheck
 							className={`transition-all text-[var(--middle)] ${
-								!inputStatus && 'text-[var(--hero-epta)]'
+								!(InputStatus !== undefined
+									? InputStatus
+									: internalInputStatus) && 'text-[var(--hero-epta)]'
 							}`}
 							size={16}
 						/>
@@ -94,7 +110,7 @@ export const TextArea = ({ type, placeholder, title, required, validate }) => {
 
 			<textarea
 				type={type}
-				value={inputValue}
+				value={value} // Используем внешнее значение
 				onChange={handleInputChange}
 				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition min-h-25 mt-3 resize-none'
 				placeholder={placeholder}

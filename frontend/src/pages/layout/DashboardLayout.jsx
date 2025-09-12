@@ -11,7 +11,6 @@ export default function DashboardLayout() {
 				<div className='mb-40'>
 					<Outlet />
 				</div>
-				<Footer />
 			</div>
 		</>
 	)
