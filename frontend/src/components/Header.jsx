@@ -130,6 +130,7 @@ const Header = () => {
 
 	const UserInfo = [
 		{
+			uuid: 'dsadsadsad',
 			FullName: 'Иванов Иван Иванович',
 			role: 'teacher',
 			img_path:

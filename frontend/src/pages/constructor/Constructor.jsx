@@ -35,7 +35,7 @@ import {
 	X,
 } from 'lucide-react'
 import { Button, EllipsisButton } from '../../components/Buttons'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { InputDefault, SearchInput } from '../../components/Inputs'
 import { ConstructorEditor } from '../../components/ConstructorComponents/TextEditor'
 import { CodeFileInput } from '../../components/ConstructorComponents/CodeImport'
@@ -51,15 +51,52 @@ import OneVariant from '../../components/ConstructorTest/OneVariant'
 import MoreVariant from '../../components/ConstructorTest/MoreVariants'
 import SortVariants from '../../components/ConstructorTest/SortVariants'
 import OpenQuestion from '../../components/ConstructorTest/OpenQuestion'
+import { API } from '../../API'
+import { useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
-const CreateModuleButton = ({ onAdd }) => {
+const CreateModuleButton = ({
+	onAddModule,
+	onReplaceModule,
+	onRemoveModule,
+	courseId,
+}) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [title, setTitle] = useState('')
 	const [isNameValid, setIsNameValid] = useState(false)
 
+	const handleAddModule = async () => {
+		const tempId = Date.now().toString()
+		const tempModule = {
+			id: tempId,
+			name: title,
+			module_sections: [],
+			isTemp: true,
+		}
+
+		onAddModule(tempModule)
+
+		try {
+			const res = await fetch(`${API}/modules/${courseId}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: title }),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+
+			console.log(data)
+			onReplaceModule(tempId, data)
+		} catch (error) {
+			console.error(error)
+			onRemoveModule(tempId)
+		}
+	}
+
 	const handleSave = () => {
 		if (!isNameValid) return
-		onAdd(title)
+		handleAddModule()
 		setTitle('')
 		setIsOpen(false)
 		setIsNameValid(false)
@@ -110,45 +147,83 @@ const CreateModuleButton = ({ onAdd }) => {
 	)
 }
 
-// ...existing code...
-const CreateLessonButton = ({ onAdd }) => {
+const CreateLessonButton = ({
+	moduleId,
+	onAddLesson,
+	onReplaceLesson,
+	onRemoveLesson,
+}) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [selected, setSelected] = useState(0)
 	const [step, setStep] = useState(0)
 	const [isNameValid, setIsNameValid] = useState(false)
 	const [lessonTitle, setLessonTitle] = useState('')
 
-	const Save = () => {
-		setStep(0)
-		setIsOpen(false)
-		onAdd({
-			type: lessonTypes[selected].label,
-			title: lessonTitle,
-		})
-		setLessonTitle('')
-		setIsNameValid(false)
-	}
-
 	const lessonTypes = [
 		{
 			label: 'Лекция',
+			apiType: 'lecture',
 			icon: <BookMarked size={24} />,
 			description:
 				'Теоретический материал с поддержкой текста, изображений, видео и аудио. Можно прикреплять дополнительные файлы для изучения.',
 		},
 		{
 			label: 'Практика',
+			apiType: 'practice',
 			icon: <NotebookPen size={24} />,
 			description:
 				'Задания для самостоятельного выполнения. Включает текстовые инструкции, примеры и возможность загрузки решений.',
 		},
 		{
 			label: 'Тест',
+			apiType: 'test',
 			icon: <LaptopMinimalCheck size={24} />,
 			description:
 				'Проверка знаний с помощью различных типов вопросов: выбор, ввод ответа, соответствие и др.',
 		},
 	]
+
+	const handleAddLesson = async lesson => {
+		const tempId = Date.now().toString()
+		const tempLesson = {
+			id: tempId,
+			title: lesson.title,
+			type: lesson.type,
+			content: {},
+			isTemp: true,
+		}
+
+		onAddLesson(moduleId, tempLesson)
+
+		try {
+			const res = await fetch(`${API}/sections/modules/${moduleId}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					title: lesson.title,
+					type: lesson.type,
+					content: {},
+				}),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+
+			onReplaceLesson(moduleId, tempId, data)
+
+			const data = await res.json()
+		} catch (error) {
+			console.error(error)
+			onRemoveLesson(moduleId, tempId)
+		}
+	}
+
+	const Save = () => {
+		handleAddLesson({ type: lessonTypes[selected].apiType, title: lessonTitle })
+		setStep(0)
+		setIsOpen(false)
+		setLessonTitle('')
+		setIsNameValid(false)
+	}
 
 	const steps = [
 		<>
@@ -249,7 +324,14 @@ const ConstructorTitleInput = ({}) => {
 	)
 }
 
-const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
+const ModuleTitle = ({
+	title,
+	index,
+	isExpanded,
+	onToggle,
+	moduleId,
+	onRemoveModule,
+}) => {
 	const options = [
 		{
 			title: 'Переместить вверх',
@@ -262,8 +344,28 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 			action: 'down',
 		},
 		{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
-		{ title: 'Удалить', icon: <Trash size={20} />, action: 'del' },
+		{
+			title: 'Удалить',
+			icon: <Trash size={20} />,
+			action: () => deleteModule(moduleId),
+		},
 	]
+
+	const deleteModule = async id => {
+		console.log('url API - ', `${API}/modules/${id}`)
+		try {
+			const response = await fetch(`${API}/modules/${id}`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+			})
+
+			if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`)
+			onRemoveModule(id)
+		} catch (err) {
+			console.error('Ошибка при удалении модуля:', err)
+		}
+	}
+
 	return (
 		<div className='flex justify-between items-center'>
 			<div className='flex gap-3 text-[var(--middle)] items-center'>
@@ -285,7 +387,7 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 				/>
 				<EllipsisButton
 					options={options}
-					onOptionClick={option => console.log(option.action)}
+					onOptionClick={options => options.action(moduleId)}
 					bg={true}
 				/>
 			</div>
@@ -293,7 +395,15 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	)
 }
 
-const ModuleContent = ({ type, index, title, bg, onClick }) => {
+const ModuleContent = ({
+	type,
+	index,
+	title,
+	bg,
+	onClick,
+	sectionId,
+	onRemoveLesson,
+}) => {
 	const options = [
 		{
 			title: 'Переместить вверх',
@@ -306,30 +416,56 @@ const ModuleContent = ({ type, index, title, bg, onClick }) => {
 			action: 'down',
 		},
 		{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
-		{ title: 'Удалить', icon: <Trash size={20} />, action: 'del' },
+		{
+			title: 'Удалить',
+			icon: <Trash size={20} />,
+			action: () => deleteSection(sectionId),
+		},
 	]
+
+	const deleteSection = async id => {
+		try {
+			const response = await fetch(`${API}/sections/${id}`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+			})
+
+			if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`)
+			onRemoveLesson(id)
+		} catch (err) {
+			console.error('Ошибка при удалении секции:', err)
+		}
+	}
+
 	return (
 		<div
-			onClick={onClick}
 			className={`flex justify-between items-center ${
 				!bg && 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
 			} rounded-lg cursor-default  transition-all  `}
 		>
-			<div className='flex gap-3 text-[var(--middle)] items-center'>
+			<div
+				onClick={onClick}
+				className='flex gap-3 text-[var(--middle)] items-center'
+			>
 				<div
 					className={`flex items-center gap-4 text-[var(--black)] px-3 py-2 rounded-lg ${
 						bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
 					}`}
 				>
-					{type === 'Лекция' ? (
+					{type === 'lecture' ? (
 						<BookMarked size={20} />
-					) : type === 'Практика' ? (
+					) : type === 'practice' ? (
 						<NotebookPen size={20} />
 					) : (
-						type === 'Тест' && <LaptopMinimalCheck size={20} />
+						type === 'test' && <LaptopMinimalCheck size={20} />
 					)}
 					<p className='font-medium text-base whitespace-nowrap'>
-						{type} {index}
+						{type === 'lecture'
+							? 'Лекция'
+							: type === 'practice'
+							? 'Практика'
+							: type === 'test' && 'Тест'}
+						{index}
 					</p>
 				</div>
 				<p className='font-bold text-base'>/</p>
@@ -340,7 +476,8 @@ const ModuleContent = ({ type, index, title, bg, onClick }) => {
 			{!bg && (
 				<EllipsisButton
 					options={options}
-					onOptionClick={option => console.log(option.action)}
+					onOptionClick={options => options.action(sectionId)}
+					bg={false}
 				/>
 			)}
 		</div>
@@ -352,6 +489,10 @@ const ModuleBlock = ({
 	onContentSelect,
 	selectedContent,
 	onAddLesson,
+	onReplaceLesson,
+	onRemoveLesson,
+	deleteModule,
+	deleteSection,
 }) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
@@ -364,41 +505,80 @@ const ModuleBlock = ({
 
 	return (
 		<>
-			{ModuleInfo.map((item, index) => {
-				const isExpanded = expandedModules[index] === true
+			{ModuleInfo &&
+				ModuleInfo.map((module, index) => {
+					const isExpanded = expandedModules[index] === true
 
-				return (
-					<div key={index} className='flex flex-col gap-3'>
-						<ModuleTitle
-							title={item.title}
-							index={index + 1}
-							isExpanded={isExpanded}
-							onToggle={() => toggleModule(index)}
-						/>
-						{isExpanded && (
-							<>
-								<div className=''>
-									{item.content.map((lesson, lessonIndex) => {
-										return (
-											<ModuleContent
-												key={lesson.id}
-												title={lesson.title}
-												type={lesson.type}
-												onClick={() => onContentSelect(lesson)}
-												isSelected={selectedContent?.id === lesson.id}
-											/>
-										)
-									})}
-								</div>
-
-								<CreateLessonButton
-									onAdd={lesson => onAddLesson(index, lesson)}
+					return (
+						<motion.div
+							key={index}
+							initial={{ scale: 0.8, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							transition={{
+								duration: 0.3,
+								delay: index * 0.1,
+								ease: 'easeOut',
+							}}
+						>
+							<div key={index} className='flex flex-col gap-3'>
+								<ModuleTitle
+									title={module.name}
+									moduleId={module.id}
+									index={index + 1}
+									isExpanded={isExpanded}
+									onToggle={() => toggleModule(index)}
+									onRemoveModule={deleteModule}
 								/>
-							</>
-						)}
-					</div>
-				)
-			})}
+								{isExpanded && module.module_sections && (
+									<>
+										<div>
+											{module.module_sections.map((section, sectionIndex) => {
+												return (
+													<motion.div
+														key={section.id}
+														initial={{ scale: 0.8, opacity: 0 }}
+														animate={{ scale: 1, opacity: 1 }}
+														transition={{
+															duration: 0.3,
+															delay: sectionIndex * 0.1,
+															ease: 'easeOut',
+														}}
+													>
+														<ModuleContent
+															title={section.title}
+															type={section.type}
+															sectionId={section.id}
+															onClick={() => onContentSelect(section)}
+															isSelected={selectedContent?.id === section.id}
+															onRemoveLesson={deleteSection}
+														/>
+													</motion.div>
+												)
+											})}
+										</div>
+										<motion.div
+											key={module.module_sections.length + 1}
+											initial={{ scale: 0.8, opacity: 0 }}
+											animate={{ scale: 1, opacity: 1 }}
+											transition={{
+												duration: 0.3,
+												delay: module.module_sections.length * 0.1,
+												ease: 'easeOut',
+											}}
+										>
+											<CreateLessonButton
+												moduleId={module.id}
+												onAddLesson={onAddLesson}
+												onReplaceLesson={onReplaceLesson}
+												onRemoveLesson={onRemoveLesson}
+											/>
+										</motion.div>
+									</>
+								)}
+							</div>
+						</motion.div>
+					)
+				})}
 		</>
 	)
 }
@@ -499,11 +679,8 @@ const ConstructorLevels = ({
 	const [createModalOpen, setCreateModalOpen] = useState(false)
 
 	const handleCreate = type => {
-		setQuestions(prev => [
-			...prev,
-			{ type, id: Date.now() }, // id уникальный
-		])
-		setActiveIndex(questions.length) // сразу активируем новый вопрос
+		setQuestions(prev => [...prev, { type, id: Date.now() }])
+		setActiveIndex(questions.length)
 	}
 
 	return (
@@ -542,8 +719,6 @@ const ConstructorLevels = ({
 
 const ContentView = ({ content }) => {
 	const [blocks, setBlocks] = useState([])
-
-	// Для тестов: вопросы и активный индекс
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 
@@ -689,108 +864,22 @@ const ConstructorMenu = ({ onAdd }) => {
 	)
 }
 
-const Constructor = () => {
-	const [ModuleInfo, setModuleInfo] = useState([
-		{
-			id: 0,
-			title: 'Вступление',
-			content: [
-				{
-					id: 0,
-					type: 'Лекция',
-					title: 'Hello, World! Или как подружиться с кодом',
-					content: 'Содержимое лекции о основах программирования...',
-				},
-				{
-					id: 1,
-					type: 'Практика',
-					title: 'Hello, World! Или как подружиться с кодом',
-					content: 'Задания для практического занятия...',
-				},
-				{
-					id: 2,
-					type: 'Тест',
-					title: 'Hello, World! Или как подружиться с кодом',
-					content: 'Задания для практического занятия...',
-				},
-			],
-		},
-		{
-			id: 1,
-			title: 'Основы программирования',
-			content: [
-				{
-					id: 3,
-					type: 'Лекция',
-					title: 'Переменные и типы данных',
-					content: 'Содержимое лекции о переменных...',
-				},
-				{
-					id: 4,
-					type: 'Практика',
-					title: 'Работа с переменными',
-					content: 'Задания для практического занятия...',
-				},
-			],
-		},
-		{
-			id: 2,
-			title: 'Условия и циклы',
-			content: [
-				{
-					id: 5,
-					type: 'Лекция',
-					title: 'Условные конструкции if/else',
-					content: 'Содержимое лекции об условиях...',
-				},
-				{
-					id: 6,
-					type: 'Практика',
-					title: 'Решение задач с условиями',
-					content: 'Задания для практического занятия...',
-				},
-			],
-		},
-	])
-
+const Constructor = ({
+	content,
+	onAddModule,
+	onReplaceModule,
+	onRemoveModule,
+	onAddLesson,
+	onReplaceLesson,
+	onRemoveLesson,
+	courseId,
+	deleteModule,
+	deleteSection,
+}) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 
 	const handleContentSelect = content => {
 		setSelectedContent(content)
-	}
-
-	// ...existing code...
-	const handleAddLesson = (moduleIndex, lesson) => {
-		setModuleInfo(prev =>
-			prev.map((module, idx) =>
-				idx === moduleIndex
-					? {
-							...module,
-							content: [
-								...module.content,
-								{
-									id: Date.now(),
-									type: lesson.type,
-									title: lesson.title,
-									content: 'Задания для практического занятия...',
-								},
-							],
-					  }
-					: module
-			)
-		)
-	}
-
-	// Новый обработчик для добавления модуля
-	const handleAddModule = title => {
-		setModuleInfo(prev => [
-			...prev,
-			{
-				id: Date.now(),
-				title,
-				content: [],
-			},
-		])
 	}
 
 	return (
@@ -819,13 +908,34 @@ const Constructor = () => {
 
 						<div className='h-150 flex flex-col gap-3 overflow-scroll w-full py-2 px-2'>
 							<ModuleBlock
-								ModuleInfo={ModuleInfo}
+								ModuleInfo={content?.modules}
 								onContentSelect={handleContentSelect}
 								selectedContent={selectedContent}
-								onAddLesson={handleAddLesson} // передаём функцию
+								onAddLesson={onAddLesson}
+								onReplaceLesson={onReplaceLesson}
+								onRemoveLesson={onRemoveLesson}
+								deleteModule={deleteModule}
+								deleteSection={deleteSection}
 							/>
+
 							<div className='h-fit mt-2'>
-								<CreateModuleButton onAdd={handleAddModule} />
+								<motion.div
+									key={content?.modules.length + 1}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: content?.modules.length * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<CreateModuleButton
+										onAddModule={onAddModule}
+										onReplaceModule={onReplaceModule}
+										onRemoveModule={onRemoveModule}
+										courseId={courseId}
+									/>
+								</motion.div>
 							</div>
 						</div>
 					</div>

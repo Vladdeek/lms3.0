@@ -23,6 +23,7 @@ import CatalogS from './pages/Tasks'
 
 function MainApp() {
 	const navigate = useNavigate()
+
 	return (
 		<Suspense
 			fallback={
@@ -37,7 +38,7 @@ function MainApp() {
 					<Route path='/catalog' element={<Catalog />} />
 					<Route path='/tasks' element={<CatalogS />} />
 					<Route path='/students' element={<StudentsAndGroups />} />
-					<Route path='/constructor' element={<ConstructorPage />} />
+					<Route path='/constructor/:courseId?' element={<ConstructorPage />} />
 					<Route path='/dashboard' element={<Dashboard />} />
 					<Route path='/schedule' element={<Schedule />} />
 					<Route path='/score' element={<ScorePage />} />

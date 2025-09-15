@@ -137,7 +137,15 @@ export const EllipsisButton = ({ options, onOptionClick, bg }) => {
 
 	const handleOptionClick = option => {
 		closeMenu()
-		onOptionClick?.(option)
+
+		// Если action - это функция, вызываем её
+		if (typeof option.action === 'function') {
+			option.action()
+		}
+		// Иначе передаем опцию через пропс onOptionClick
+		else {
+			onOptionClick?.(option)
+		}
 	}
 
 	// Обработчик клика вне области
@@ -194,7 +202,9 @@ export const EllipsisButton = ({ options, onOptionClick, bg }) => {
 			<button
 				onClick={toggleMenu}
 				className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer text-[var(--black)] p-[6px] ${
-					bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
+					bg
+						? 'bg-[var(--white)] shadow-[var(--shadow)]'
+						: 'bg-transparent hover:bg-[var(--white)]'
 				} `}
 				aria-label='Дополнительные опции'
 			>

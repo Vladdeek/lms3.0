@@ -131,7 +131,7 @@ export const FileInput = ({
 	const [preview, setPreview] = useState(null)
 
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
-	const maxSize = 20 * 1024 * 1024 // 20 MB
+	const maxSize = 10 * 1024 * 1024 // 20 MB
 
 	const validateFile = file => {
 		if (!file) return setInputStatus(false)
@@ -210,12 +210,12 @@ export const FileInput = ({
 				<div className='flex flex-wrap gap-[5px] w-2/5'>
 					<p
 						className={`rounded-lg text-sm font-normal p-1 whitespace-nowrap ${
-							fileInfo && fileInfo.size <= 20
+							fileInfo && fileInfo.size <= 10
 								? 'bg-[var(--hero-epta)] text-white'
 								: 'bg-[var(--bg)] text-[var(--black)]'
 						}`}
 					>
-						до 20 мб
+						до 10 мб
 					</p>
 					{['.png', '.jpg', '.webp', '.gif'].map(ext => (
 						<p

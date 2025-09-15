@@ -12,7 +12,10 @@ export const CourseCard = ({
 }) => {
 	return (
 		<>
-			<div className='h-129 p-[10px] w-full rounded-xl flex flex-col justify-between shadow-[var(--shadow)] bg-[var(--white)] hover:scale-101 transition-all'>
+			<NavLink
+				to={to}
+				className='h-129 p-[10px] w-full rounded-xl flex flex-col justify-between shadow-[var(--shadow)] bg-[var(--white)] hover:scale-101 transition-all cursor-pointer'
+			>
 				<div className='inline-flex flex-col'>
 					<img
 						className='h-[239px] w-full rounded-md object-cover'
@@ -20,12 +23,9 @@ export const CourseCard = ({
 						alt=''
 					/>
 
-					<NavLink
-						to={to}
-						className={`font-bold text-[20px] mt-3 text-[var(--black)]`}
-					>
+					<p className={`font-bold text-[20px] mt-3 text-[var(--black)]`}>
 						{title}
-					</NavLink>
+					</p>
 					<p className='text-[var(--middle)]'>{description}</p>
 					<p
 						className={`p-[10px] rounded-lg text-sm font-normal w-fit mt-5 ${
@@ -43,7 +43,7 @@ export const CourseCard = ({
 					Крайний срок сдачи:{' '}
 					<span className='font-medium'>{deadline || 'Не определен'}</span>
 				</p>
-			</div>
+			</NavLink>
 		</>
 	)
 }

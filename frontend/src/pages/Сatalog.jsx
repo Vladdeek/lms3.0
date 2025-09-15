@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useState } from 'react'
-import { Button, RadioButton } from '../components/Buttons'
+import { Button, FilterButton, RadioButton } from '../components/Buttons'
 import { Blocks, FunnelPlus, LayoutGrid, Radio, X } from 'lucide-react'
 import { CourseCard } from '../components/Cards'
 import {
@@ -8,9 +8,8 @@ import {
 	SearchInput,
 	TextArea,
 } from '../components/Inputs'
-
-const API = import.meta.env.VITE_API_URL
-const IMG_URL = import.meta.env.VITE_IMG_URL
+import { API } from '../API'
+import { motion } from 'framer-motion'
 
 const CreateBtn = ({ onClick, title }) => {
 	return (
@@ -101,10 +100,9 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 						type='text'
 						placeholder=''
 						title='Введите описание'
-						required={true}
-						value={description} // Передаем значение
-						onChange={e => setDescription(e.target.value)} // Передаем обработчик
-						InputStatus={false} // Опционально: статус валидации извне
+						value={description}
+						onChange={e => setDescription(e.target.value)}
+						InputStatus={false}
 					/>
 					<FileInput
 						title='Загрузите превью'
@@ -178,27 +176,56 @@ const Catalog = () => {
 					</div>
 					<div className='flex gap-4 h-12'>
 						<SearchInput width={383} />
-						<Button icon={FunnelPlus} />
+						<FilterButton
+							option={[
+								'по статусу',
+								'по алфавиту',
+								'по дате создания',
+								'по хуйне ',
+							]}
+						/>
 					</div>
 				</div>
 
 				<div className='grid grid-cols-4 gap-4'>
 					{courses.map((course, index) => (
-						<CourseCard
-							key={index}
-							title={course.name}
-							description={course.description}
-							img_path={`${API}/courses/image/${course.id}`}
-							status={course.status}
-							deadline={course.deadline}
-							to={`/constructor`}
-						/>
+						<motion.div
+							key={course.id}
+							initial={{ scale: 0.8, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							transition={{
+								duration: 0.3,
+								delay: index * 0.1,
+								ease: 'easeOut',
+							}}
+						>
+							<CourseCard
+								title={course.name}
+								description={course.description}
+								img_path={`${API}/courses/image/${course.id}`}
+								status={course.status}
+								deadline={course.deadline}
+								to={`/constructor/${course.id}`}
+							/>
+						</motion.div>
 					))}
-					<CreateBtn
-						onClick={() => setCreateModalOpen(true)}
-						title='Создать новый курс'
-						icon={LayoutGrid}
-					/>
+
+					<motion.div
+						key={courses.length + 1}
+						initial={{ scale: 0.8, opacity: 0 }}
+						animate={{ scale: 1, opacity: 1 }}
+						transition={{
+							duration: 0.3,
+							delay: courses.length * 0.1,
+							ease: 'easeOut',
+						}}
+					>
+						<CreateBtn
+							onClick={() => setCreateModalOpen(true)}
+							title='Создать новый курс'
+							icon={LayoutGrid}
+						/>
+					</motion.div>
 				</div>
 			</div>
 		</>
