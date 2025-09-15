@@ -5,6 +5,51 @@ import { useState } from 'react'
 import { groups } from '../../data/groups'
 import { students } from '../../data/students'
 
+const GroupComponent = ({
+	number,
+	lvl,
+	course,
+	studentsLength,
+	performance,
+	onRemove,
+	onAdd,
+	dragged,
+	Accessed,
+	onDragStart,
+	onDragEnd,
+}) => {
+	return (
+		<div
+			className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-12 rounded-lg py-[10px]'
+			draggable
+			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
+		>
+			<p className='col-span-2 text-center'>{number}</p>
+			<p className='col-span-2 text-center'>{lvl}</p>
+			<p className='col-span-2 text-center'>{course}</p>
+			<p className='col-span-2 text-center'>{studentsLength}</p>
+			<p className='col-span-3 text-center'>{performance}</p>
+			<p className='col-span-1 text-center flex justify-center gap-3'>
+				<GripVertical
+					className={dragged === number ? 'cursor-grabbing' : 'cursor-grab'}
+				/>
+				{Accessed ? (
+					<Ban
+						className='cursor-pointer'
+						onClick={() => onRemove && onRemove(number)}
+					/>
+				) : (
+					<ChevronsRight
+						className='cursor-pointer'
+						onClick={() => onAdd && onAdd(number)}
+					/>
+				)}
+			</p>
+		</div>
+	)
+}
+
 const AccessBlock = ({
 	title,
 	mass,
@@ -46,40 +91,22 @@ const AccessBlock = ({
 			</div>
 			<div className='flex flex-col gap-3 overflow-y-scroll p-2'>
 				{mass.map(item => (
-					<div
-						key={item.number}
-						className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-12 rounded-lg py-[10px]'
-						draggable
+					<GroupComponent
+						number={item.number}
+						lvl={item.lvl}
+						course={item.course}
+						performance={item.Performance}
+						studentsLength={item.students.length}
+						onAdd={onAdd}
+						onRemove={onRemove}
+						dragged={dragged}
+						Accessed={Accessed}
 						onDragStart={e => {
-							e.dataTransfer.setData('groupNumber', item.number)
-							setDragged(item.number)
+							e.dataTransfer.setData('groupNumber', number)
+							setDragged(number)
 						}}
 						onDragEnd={() => setDragged(null)}
-					>
-						<p className='col-span-2 text-center'>{item.number}</p>
-						<p className='col-span-2 text-center'>{item.lvl}</p>
-						<p className='col-span-2 text-center'>{item.course}</p>
-						<p className='col-span-2 text-center'>{item.students.length}</p>
-						<p className='col-span-3 text-center'>{item.Performance}</p>
-						<p className='col-span-1 text-center flex justify-center gap-3'>
-							<GripVertical
-								className={
-									dragged === item.number ? 'cursor-grabbing' : 'cursor-grab'
-								}
-							/>
-							{Accessed ? (
-								<Ban
-									className='cursor-pointer'
-									onClick={() => onRemove && onRemove(item.number)}
-								/>
-							) : (
-								<ChevronsRight
-									className='cursor-pointer'
-									onClick={() => onAdd && onAdd(item.number)}
-								/>
-							)}
-						</p>
-					</div>
+					/>
 				))}
 			</div>
 		</div>

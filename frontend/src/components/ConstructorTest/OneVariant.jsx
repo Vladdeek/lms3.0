@@ -46,7 +46,6 @@ const CheckboxCreate = ({
 		onDelete && onDelete(id)
 	}
 
-	// Синхронизация внешних состояний
 	useEffect(() => {
 		if (checked !== checkedProp) {
 			setChecked(checkedProp)
@@ -127,105 +126,24 @@ const CheckboxCreate = ({
 	)
 }
 
-const SigleTestCheckbox = ({
-	checked: checkedProp = false,
-	onChange,
-	onAnswerChange,
-	onCorrectChange,
-	answer = '',
-	isCorrect = false,
-	id,
-	disabled = false,
-	className = '',
-	showInput = true,
-	showCorrectToggle = true,
-}) => {
-	const [checked, setChecked] = useState(checkedProp)
-	const [answerText, setAnswerText] = useState(answer)
-	const [correct, setCorrect] = useState(isCorrect)
-
-	const handleCheckboxChange = e => {
-		const value = e.target.checked
-		setChecked(value)
-		onChange && onChange(value)
-	}
-
-	const handleAnswerChange = e => {
-		const value = e.target.value
-		setAnswerText(value)
-		onAnswerChange && onAnswerChange(value)
-	}
-
-	const handleCorrectChange = e => {
-		const value = e.target.checked
-		setCorrect(value)
-		onCorrectChange && onCorrectChange(value)
-	}
-
-	// Синхронизация внешних состояний
-	useEffect(() => {
-		if (checked !== checkedProp) {
-			setChecked(checkedProp)
-		}
-	}, [checkedProp])
-
-	useEffect(() => {
-		if (answerText !== answer) {
-			setAnswerText(answer)
-		}
-	}, [answer])
-
-	useEffect(() => {
-		if (correct !== isCorrect) {
-			setCorrect(isCorrect)
-		}
-	}, [isCorrect])
-
-	return (
-		<div className={`flex items-center gap-3 w-full ${className}`}>
-			{showCorrectToggle && (
-				<label
-					className={`inline-flex items-center gap-2 cursor-pointer select-none ${
-						disabled ? 'opacity-50 cursor-not-allowed' : ''
-					}`}
-					htmlFor={`correct-${id}`}
-				>
-					<span
-						className={`w-5 h-5 flex items-center justify-center rounded border transition
-              ${
-								correct
-									? 'bg-[var(--hero-epta)] border-[var(--hero-epta)]'
-									: 'bg-transparent border-[var(--middle)]'
-							}
-              ${disabled ? 'pointer-events-none' : ''}
-            `}
-					>
-						<input
-							id={`correct-${id}`}
-							type='checkbox'
-							checked={correct}
-							disabled={disabled}
-							onChange={handleCorrectChange}
-							className='appearance-none w-5 h-5 absolute opacity-0'
-							tabIndex={0}
-						/>
-						{correct && <Check size={18} color='white' strokeWidth={3} />}
-					</span>
-				</label>
-			)}
-
-			{showInput && <p>{title}</p>}
-		</div>
-	)
-}
-
 const OneVariant = () => {
+	const [question, setQuestion] = useState('')
+	const [score, setScore] = useState(1)
 	const [answers, setAnswers] = useState([
 		{ id: '1', text: '', correct: false },
 		{ id: '2', text: '', correct: false },
 	])
 
 	const [withAnswers, setWithAnswers] = useState(true)
+
+	const handleQuestionChange = e => {
+		setQuestion(e.target.value)
+	}
+
+	const handleScoreChange = value => {
+		setScore(value)
+		console.log(score)
+	}
 
 	const handleAnswerChange = (id, text) => {
 		setAnswers(prev =>
@@ -249,7 +167,6 @@ const OneVariant = () => {
 	}
 
 	const handleAddAnswer = () => {
-		// Находим максимальный ID
 		const maxId = Math.max(...answers.map(answer => parseInt(answer.id)))
 		const newId = (maxId + 1).toString()
 		setAnswers(prev => [...prev, { id: newId, text: '', correct: false }])
@@ -260,14 +177,38 @@ const OneVariant = () => {
 		setAnswers(prev => prev.filter(answer => answer.id !== id))
 	}
 
+	const generateQuestionJSON = () => {
+		const correctAnswer = answers.find(answer => answer.correct)
+
+		const questionData = {
+			type: 'single',
+			question: question,
+			score: Number(score),
+			answers: answers.map(answer => answer.text),
+			correct: correctAnswer ? correctAnswer.text : '',
+		}
+
+		console.log('JSON:', questionData)
+		return questionData
+	}
+
+	const handleSave = () => {
+		const questionData = generateQuestionJSON()
+	}
+
 	return (
 		<>
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 w-2/3 mb-5'>
 						<div className='flex gap-3 items-end'>
-							<InputDefault title={'Введите вопрос'} required={true} />
-							<ScoreInput1 />
+							<InputDefault
+								title={'Введите вопрос'}
+								required={true}
+								value={question}
+								onChange={handleQuestionChange}
+							/>
+							<ScoreInput1 value={score} onChange={setScore} />
 						</div>
 
 						<AddMediaButton />
@@ -276,20 +217,6 @@ const OneVariant = () => {
 					<div className='flex flex-col items-center gap-3 w-2/3'>
 						<div className='flex flex-col items-center gap-3 w-full'>
 							<div className='flex gap-3 items-center'>
-								<button
-									onClick={() => setWithAnswers(prev => !prev)}
-									className={`border-1  flex justify-center items-center rounded-sm h-5 w-5 p-[2px] ${
-										!withAnswers
-											? 'bg-transparent border-[var(--middle)]'
-											: 'bg-[var(--hero-epta)] border-[var(--hero-epta)]'
-									}`}
-								>
-									<Check
-										className={`text-white ${
-											!withAnswers ? 'opacity-0' : 'opacity-100'
-										}`}
-									/>
-								</button>
 								<p className='text-lg font-medium text-[var(--middle)]'>
 									Варианты ответов
 								</p>
@@ -335,6 +262,12 @@ const OneVariant = () => {
 					</p>
 				</div>
 			</div>
+			<button
+				onClick={handleSave}
+				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2 cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all active:scale-95'
+			>
+				Сохранить
+			</button>
 		</>
 	)
 }

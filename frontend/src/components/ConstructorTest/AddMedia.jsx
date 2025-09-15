@@ -9,8 +9,6 @@ export const AddMediaButton = ({ type }) => {
 	const [modalOpen, setModalOpen] = useState(false)
 	const [selectedType, setSelectedType] = useState(type || null)
 
-	console.log(type)
-
 	const handle = mediaType => {
 		setSelectedType(mediaType)
 		setModalOpen(false)
@@ -19,8 +17,6 @@ export const AddMediaButton = ({ type }) => {
 	const resetSelection = () => {
 		setSelectedType(null)
 	}
-
-	console.log(selectedType)
 
 	if (selectedType) {
 		return (

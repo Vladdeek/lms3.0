@@ -20,10 +20,23 @@ import QRCode from '../../components/QrCode'
 import { useParams } from 'react-router-dom'
 import { API } from '../../API'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
-const SettingsButton = ({ courseId }) => {
+const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 	const [isOpen, setIsOpen] = useState(true)
 	const navigate = useNavigate()
+
+	const [Title, setTitle] = useState(titleValue || '')
+	const [Description, setDescription] = useState(descriptionValue || '')
+
+	useEffect(() => {
+		if (titleValue !== undefined) {
+			setTitle(titleValue)
+		}
+		if (descriptionValue !== undefined) {
+			setDescription(descriptionValue)
+		}
+	}, [titleValue, descriptionValue])
 
 	async function deleteCourse() {
 		try {
@@ -64,13 +77,20 @@ const SettingsButton = ({ courseId }) => {
 				<Settings size={24} />
 			</button>
 			{!isOpen && (
-				<div className='absolute w-[466px] bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 left-0'>
+				<div className='absolute w-[466px] z-1000 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 left-0'>
 					<p className='font-medium text-xl text-center'>Настройки курса</p>
 					<InputDefault
 						placeholder={'Введите название'}
 						title={'Название курса'}
+						value={Title}
+						onChange={e => setTitle(e.target.value)}
 					/>
-					<TextArea placeholder={'Введите описание'} title={'Описание курса'} />
+					<TextArea
+						placeholder={'Введите описание'}
+						title={'Описание курса'}
+						value={Description}
+						onChange={e => setDescription(e.target.value)}
+					/>
 					<FileInput title={'Загрузить превью'} />
 					<div className='flex gap-3 w-full'>
 						<Button
@@ -268,12 +288,23 @@ const ConstructorPage = () => {
 							/>
 						))}
 					</div>
-					<div className='flex bg-[var(--white)] rounded-lg shadow-[var(--shadow)] px-4 py-3 gap-3'>
-						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
-						<p className='font-medium text-2xl text-[var(--black)]'>
-							{courseContent?.name}
-						</p>
-					</div>
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{
+							duration: 0.3,
+							delay: 0.2,
+							ease: 'easeOut',
+						}}
+					>
+						<div className='flex bg-[var(--white)] rounded-lg shadow-[var(--shadow)] px-4 py-3 gap-3'>
+							<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
+
+							<p className='font-medium text-2xl text-[var(--black)]'>
+								{courseContent?.name}
+							</p>
+						</div>
+					</motion.div>
 					<div className='flex gap-5 items-center'>
 						{selected === 1 ? (
 							<QrCodeButton
@@ -283,7 +314,11 @@ const ConstructorPage = () => {
 							<DateButton />
 						)}
 
-						<SettingsButton courseId={courseId} />
+						<SettingsButton
+							courseId={courseId}
+							titleValue={courseContent?.name}
+							descriptionValue={courseContent?.description}
+						/>
 						<Button title={'Сохранить'} style='outline' />
 						<Button title={'Опубликовать курс'} style='black' />
 					</div>

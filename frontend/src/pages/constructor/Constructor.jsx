@@ -207,10 +207,10 @@ const CreateLessonButton = ({
 			})
 
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+			console.log(data)
 
 			onReplaceLesson(moduleId, tempId, data)
-
-			const data = await res.json()
 		} catch (error) {
 			console.error(error)
 			onRemoveLesson(moduleId, tempId)
@@ -439,14 +439,12 @@ const ModuleContent = ({
 
 	return (
 		<div
+			onClick={onClick}
 			className={`flex justify-between items-center ${
 				!bg && 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
 			} rounded-lg cursor-default  transition-all  `}
 		>
-			<div
-				onClick={onClick}
-				className='flex gap-3 text-[var(--middle)] items-center'
-			>
+			<div className='flex gap-3 text-[var(--middle)] items-center'>
 				<div
 					className={`flex items-center gap-4 text-[var(--black)] px-3 py-2 rounded-lg ${
 						bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
@@ -740,7 +738,7 @@ const ContentView = ({ content }) => {
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
 			<ModuleContent bg={true} type={content.type} title={content.title} />
 
-			{content.type === 'Тест' ? (
+			{content.type === 'test' ? (
 				<>
 					<ConstructorLevels
 						questions={questions}

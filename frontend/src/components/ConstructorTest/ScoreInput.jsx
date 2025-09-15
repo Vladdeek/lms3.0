@@ -1,12 +1,15 @@
 import { Angry, Frown, Smile } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-export const ScoreInput1 = () => {
+export const ScoreInput1 = ({ value, onChange }) => {
 	return (
 		<div className='flex flex-col'>
 			<p className='text-[var(--middle)] mb-2'>Балл</p>
 			<input
 				type={'number'}
+				onChange={e => onChange(e.target.value)}
+				value={value}
+				min='1'
 				className='rounded-xl p-[10px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition text-lg font-medium w-20'
 			/>
 		</div>
