@@ -9,7 +9,6 @@ const VideoPlayer = ({ url, course = false }) => {
 	const [duration, setDuration] = useState(0)
 	const videoRef = useRef(null)
 
-	// Определяем платформу
 	const getEmbedUrl = url => {
 		try {
 			const ytMatch = url.match(/(?:youtube\.com.*v=|youtu\.be\/)([^&]+)/)
@@ -87,7 +86,7 @@ const VideoPlayer = ({ url, course = false }) => {
 			<div className={course ? 'w-2/3' : 'w-full'}>
 				<div className='relative w-full pt-[56.25%] rounded-xl overflow-hidden bg-[var(--light-gray)] shadow-[var(--shadow)]'>
 					{source ? (
-						source.type === 'iframe' ? (
+						source?.type === 'iframe' ? (
 							<iframe
 								src={source.src}
 								width='100%'
@@ -112,7 +111,7 @@ const VideoPlayer = ({ url, course = false }) => {
 						</div>
 					)}
 
-					{source.type !== 'iframe' && (
+					{source?.type !== 'iframe' && (
 						<div className='absolute bottom-2 left-2 right-2 p-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-lg'>
 							{source?.type === 'video' && (
 								<div

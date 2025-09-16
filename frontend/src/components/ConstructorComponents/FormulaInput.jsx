@@ -6,13 +6,11 @@ import {
 	Superscript,
 	X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MathJax, MathJaxContext } from 'better-react-mathjax'
 
-export default function FormulaConstructor({ DelComponent }) {
+export default function FormulaConstructor({ DelComponent, onChange }) {
 	const [formula, setFormula] = useState('E = mc^2')
-
-	console.log(formula)
 
 	const config = {
 		loader: { load: ['input/tex', 'output/chtml'] },
@@ -28,7 +26,6 @@ export default function FormulaConstructor({ DelComponent }) {
 		},
 	}
 
-	// вставка шаблона в формулу
 	const insertTemplate = tpl => {
 		setFormula(prev => prev + tpl)
 	}
@@ -60,6 +57,13 @@ export default function FormulaConstructor({ DelComponent }) {
 			onClick: () => insertTemplate('\\int f(x) dx'),
 		},
 	]
+
+	useEffect(() => {
+		const data = {
+			formula,
+		}
+		onChange?.(data)
+	}, [formula])
 
 	return (
 		<div className='flex gap-2'>

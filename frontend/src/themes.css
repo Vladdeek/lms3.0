@@ -65,45 +65,58 @@
 	--white: #2d2d2d;
 	--black: #f0f0f0;
 	--hero-epta: #ff5c8d;
-	--middle: #767676;
-	--light-middle: #3a3a3a;
-	--light-gray: #efefef;
+	--middle: #bbbbbb;
+	--light-middle: #222222;
+	--light-gray: #1a1a1a;
 
-	--yellow-status-text: #e6c273;
-	--yellow-status-bg: #4a3f26;
-	--green-status-text: #6bc76e;
-	--green-status-bg: #2c4533;
+	--yellow-status-text: #ffd36b;
+	--yellow-status-bg: #3a2d1a;
+	--green-status-text: #7fd49f;
+	--green-status-bg: #1e3b2a;
+	--red-status-text: #ff7b7b;
+	--red-status-bg: #3b1a1a;
 
-	--easy-lvl-bg: #2e7d32; /* тёмно-зелёный */
-	--easy-lvl-text: #c8e6c9; /* светло-зелёный текст */
+	--easy-lvl-bg: #1e3b2a; /* тёмно-зелёный фон */
+	--easy-lvl-text: #a5d6a7; /* светло-зелёный текст */
 
-	--mid-lvl-bg: #f9a825; /* насыщенный жёлтый */
-	--mid-lvl-text: #fff8e1; /* светлый жёлтоватый текст */
+	--mid-lvl-bg: #3b331a; /* тёмно-жёлтый фон */
+	--mid-lvl-text: #ffb74d; /* светло-оранжевый текст */
 
-	--hard-lvl-bg: #c62828; /* тёмно-красный */
-	--hard-lvl-text: #ffebee; /* светлый красноватый текст */
+	--hard-lvl-bg: #3b1a1a; /* тёмно-красный фон */
+	--hard-lvl-text: #ef9a9a; /* светло-красный текст */
 
-	--glow-hero-epta: #ff5c8d50;
+	--glow-hero-epta: rgb(244, 59, 117);
+	--hero-shadow: 1px 2px 8px rgba(244, 59, 117, 0.5);
 
-	--shadow: 1px 2px 8px rgba(0, 0, 0, 0.25);
+	--shadow: 1px 2px 8px rgba(0, 0, 0, 0.5);
 
 	--button1-bg: #f43b75;
-	--button2-bg: #111111;
-	--button3-bg: #0066ff;
+	--button2-bg: #ededed;
+	--button3-bg: #3399ff;
 	--button4-bg: #ffc400;
 	--button5-bg: #1daf00;
-	--button6-bg: #ff0f0f;
+	--button6-bg: #ff6f6f;
 
-	--mood-color1-bg: #7cd880;
-	--mood-color1-dark: #264c27;
-	--mood-color1-pale: #6bb96d;
-	--mood-color2-bg: #e3d96c;
-	--mood-color2-dark: #4c3f26;
-	--mood-color2-pale: #b9b06b;
-	--mood-color3-bg: #de564a;
-	--mood-color3-dark: #4c2626;
-	--mood-color3-pale: #bc3e33;
+	--mood-color1-bg: #1e3b2a;
+	--mood-color1-dark: #0f2515;
+	--mood-color1-pale: #3a7041;
+	--mood-color2-bg: #3b331a;
+	--mood-color2-dark: #1e160f;
+	--mood-color2-pale: #5c502d;
+	--mood-color3-bg: #3b1a1a;
+	--mood-color3-dark: #1a0f0f;
+	--mood-color3-pale: #7f3f3a;
 
-	--correct: #339436;
-	--not-correct: #c10f1c;
+	--correct: #1e3b2a;
+	--not-correct: #3b1a1a;
+	--correct-dark: #7fd49f;
+	--not-correct-dark: #ff7b7b;
+	--correct-glow: 0px 4px 5px rgba(127, 212, 159, 0.25);
+	--middle-correct-glow: 0px 4px 5px rgba(255, 196, 0, 0.25);
+	--not-correct-glow: 0px 4px 5px rgba(255, 123, 123, 0.25);
+	--correct-lvl: #7fd49f;
+	--middle-correct-lvl: #ffc400;
+	--not-correct-lvl: #ff7b7b;
+	--correct-shadow: 1px 2px 8px rgba(127, 212, 159, 0.3);
+	--not-correct-shadow: 1px 2px 8px rgba(255, 123, 123, 0.3);
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react'
+import React, { useMemo, useCallback, useState, useEffect } from 'react'
 import { createEditor } from 'slate'
 import { Slate, Editable, withReact } from 'slate-react'
 import { withHistory } from 'slate-history'
@@ -14,7 +14,7 @@ import {
 	AlignRight,
 	X,
 } from 'lucide-react'
-import { Editor, Transforms, Element as SlateElement, Text } from 'slate'
+import { Editor, Transforms, Element as SlateElement, Text, Node } from 'slate'
 
 const isMarkActive = (editor, format) => {
 	const marks = Editor.marks(editor)
@@ -62,7 +62,7 @@ const toggleBlock = (editor, format) => {
 	Transforms.setNodes(editor, newProperties)
 }
 
-export const ConstructorEditor = ({ DelComponent }) => {
+export const ConstructorEditor = ({ DelComponent, onChange }) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), [])
 
 	const initialValue = useMemo(
@@ -76,6 +76,14 @@ export const ConstructorEditor = ({ DelComponent }) => {
 	)
 
 	const [value, setValue] = useState(initialValue)
+
+	useEffect(() => {
+		const data = {
+			content: JSON.stringify(value),
+			plainText: Node.string({ children: value }),
+		}
+		onChange?.(data)
+	}, [value])
 
 	const ToolbarButton = ({ format, icon: Icon, isBlock = false }) => {
 		const isActive = isBlock

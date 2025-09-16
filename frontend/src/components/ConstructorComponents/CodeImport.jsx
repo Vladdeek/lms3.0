@@ -13,8 +13,7 @@ export const CodeFileInput = ({
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [codeInfo, setCodeInfo] = useState(null)
-	const maxSize = 10 * 1024 * 1024 // 10 MB
-	console.log(codeInfo)
+	const maxSize = 10 * 1024 * 1024
 
 	const getLanguageFromExtension = filename => {
 		const extension = filename.split('.').pop().toLowerCase()
@@ -78,12 +77,12 @@ export const CodeFileInput = ({
 		const reader = new FileReader()
 		reader.onload = e => {
 			const text = e.target.result
-			setCodeInfo([
-				{
-					code: text,
-					language: getLanguageFromExtension(newFile.name),
-				},
-			])
+			const info = {
+				code: text,
+				language: getLanguageFromExtension(newFile.name),
+			}
+			setCodeInfo([info])
+			onFileChange?.(info)
 		}
 		reader.readAsText(newFile)
 	}
@@ -128,11 +127,10 @@ export const CodeFileInput = ({
 					<CustomCodeBlock
 						editMode={true}
 						width='w-full'
-						codeInfo={codeInfo[0]}
+						codeInfo={codeInfo}
 						onClick={removeFile}
 					/>
 				) : (
-					// Зона загрузки
 					<div
 						className={`p-2 ${
 							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'

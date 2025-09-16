@@ -194,6 +194,8 @@ const ConstructorPage = () => {
 		fetchCourses()
 	}, [courseId])
 
+	console.log('modules: ', courseContent?.modules)
+
 	// Модули
 	const addModule = newModule =>
 		setCourseContent(prev => ({

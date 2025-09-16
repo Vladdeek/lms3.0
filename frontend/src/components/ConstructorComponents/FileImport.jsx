@@ -11,9 +11,13 @@ import {
 	Upload,
 	X,
 } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 
-export const ConstructorFileInput = ({ onStatusChange, DelComponent }) => {
+export const ConstructorFileInput = ({
+	onStatusChange,
+	DelComponent,
+	onChange,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [files, setFiles] = useState([])
@@ -21,7 +25,10 @@ export const ConstructorFileInput = ({ onStatusChange, DelComponent }) => {
 	const maxSize = 100 * 1024 * 1024 // 100 MB
 	const maxFiles = 10
 
-	console.log(files)
+	useEffect(() => {
+		const data = files
+		onChange?.(data)
+	}, [files])
 
 	const handleFileChange = e => {
 		const newFiles = Array.from(e.target.files)
@@ -33,7 +40,6 @@ export const ConstructorFileInput = ({ onStatusChange, DelComponent }) => {
 	}
 
 	const validateFiles = newFiles => {
-		// Проверка на превышение лимита файлов
 		if (files.length + newFiles.length > maxFiles) {
 			alert(`Можно загрузить не более ${maxFiles} файлов`)
 			return
@@ -68,7 +74,6 @@ export const ConstructorFileInput = ({ onStatusChange, DelComponent }) => {
 
 	const handleDragLeave = e => {
 		e.preventDefault()
-		// Проверяем, что мы действительно покидаем область drop zone
 		if (e.currentTarget.contains(e.relatedTarget)) return
 		setIsDragActive(false)
 	}

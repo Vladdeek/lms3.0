@@ -720,7 +720,8 @@ const ContentView = ({ content }) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 
-	const addBlock = type => setBlocks(prev => [...prev, type])
+	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
+
 	const removeBlock = index =>
 		setBlocks(prev => prev.filter((_, i) => i !== index))
 
@@ -733,6 +734,8 @@ const ContentView = ({ content }) => {
 			</div>
 		)
 	}
+
+	console.log(blocks)
 
 	return (
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
@@ -760,39 +763,162 @@ const ContentView = ({ content }) => {
 					<ConstructorTitleInput DelComponent={() => {}} />
 					{blocks.map((block, i) => {
 						const del = () => removeBlock(i)
-						switch (block) {
+						switch (block.type) {
 							case 'text':
-								return <ConstructorEditor key={i} DelComponent={del} />
+								return (
+									<ConstructorEditor
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'code':
-								return <CodeFileInput key={i} DelComponent={del} />
+								return (
+									<CodeFileInput
+										key={i}
+										DelComponent={del}
+										onFileChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'photo':
-								return <ConstructorPhotoInput key={i} DelComponent={del} />
+								return (
+									<ConstructorPhotoInput
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'video':
-								return <ConstructorVideoInput key={i} DelComponent={del} />
+								return (
+									<ConstructorVideoInput
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'files':
-								return <ConstructorFileInput key={i} DelComponent={del} />
+								return (
+									<ConstructorFileInput
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'table':
-								return <TableConstructor key={i} DelComponent={del} />
+								return (
+									<TableConstructor
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'audio':
-								return <AudioInput key={i} DelComponent={del} />
+								return (
+									<AudioInput
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'callout':
-								return <CalloutConstructor key={i} DelComponent={del} />
+								return (
+									<CalloutConstructor
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'formula':
-								return <FormulaConstructor key={i} DelComponent={del} />
+								return (
+									<FormulaConstructor
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							case 'button':
-								return <ButtonConstructor key={i} DelComponent={del} />
+								return (
+									<ButtonConstructor
+										key={i}
+										DelComponent={del}
+										onChange={data => {
+											setBlocks(prev =>
+												prev.map((b, index) =>
+													index === i ? { ...b, content: data } : b
+												)
+											)
+										}}
+									/>
+								)
 							default:
 								return null
 						}
 					})}
-					<ConstructorMenu onAdd={addBlock} />
+					<ConstructorMenu
+						onAdd={addBlock}
+						onClick={() => console.log('JSON: ', blocks)}
+					/>
 				</>
 			)}
 		</div>
 	)
 }
 
-const ConstructorMenu = ({ onAdd }) => {
+const ConstructorMenu = ({ onAdd, onClick }) => {
 	const buttons = [
 		{
 			title: 'Текст',
@@ -847,18 +973,26 @@ const ConstructorMenu = ({ onAdd }) => {
 	]
 
 	return (
-		<div className='grid lg:grid-cols-5 grid-cols-3 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
-			{buttons.map((item, index) => (
-				<button
-					key={index}
-					onClick={() => onAdd(item.type)}
-					className='flex flex-col aspect-square items-center justify-center gap-2 bg-[var(--light-middle)] rounded-lg h-25 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer text-[var(--middle)] transition-all duration-100'
-				>
-					{item.icon}
-					<p className='text-base '>{item.title}</p>
-				</button>
-			))}
-		</div>
+		<>
+			<div className='grid lg:grid-cols-5 grid-cols-3 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
+				{buttons.map((item, index) => (
+					<button
+						key={index}
+						onClick={() => onAdd(item.type)}
+						className='flex flex-col aspect-square items-center justify-center gap-2 bg-[var(--light-middle)] rounded-lg h-25 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer text-[var(--middle)] transition-all duration-100'
+					>
+						{item.icon}
+						<p className='text-base '>{item.title}</p>
+					</button>
+				))}
+			</div>
+			<button
+				onClick={onClick}
+				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit px-4'
+			>
+				JSON
+			</button>
+		</>
 	)
 }
 

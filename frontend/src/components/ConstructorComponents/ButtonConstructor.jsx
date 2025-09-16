@@ -10,7 +10,6 @@ export const CustomConstructButton = ({ title }) => {
 	)
 }
 
-// Создаем управляемую версию InputDefault специально для ButtonConstructor
 const ControlledInputDefault = ({ value, onChange, ...props }) => {
 	const [internalValue, setInternalValue] = useState(value || '')
 
@@ -30,7 +29,7 @@ const ControlledInputDefault = ({ value, onChange, ...props }) => {
 	)
 }
 
-export const ButtonConstructor = ({ DelComponent }) => {
+export const ButtonConstructor = ({ DelComponent, onChange }) => {
 	const [buttonTitle, setButtonTitle] = useState('')
 	const [buttonUrl, setButtonUrl] = useState('')
 	const [isValidUrl, setIsValidUrl] = useState(false)
@@ -47,6 +46,14 @@ export const ButtonConstructor = ({ DelComponent }) => {
 			setIsValidUrl(false)
 		}
 	}, [buttonUrl])
+
+	useEffect(() => {
+		const data = {
+			buttonTitle,
+			buttonUrl,
+		}
+		onChange?.(data)
+	}, [buttonTitle, buttonUrl])
 
 	return (
 		<div className='flex gap-2'>

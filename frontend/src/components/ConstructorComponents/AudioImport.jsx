@@ -8,7 +8,12 @@ export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [audioUrl, setAudioUrl] = useState(null)
-	const maxSize = 50 * 1024 * 1024 // 10 MB
+	const maxSize = 50 * 1024 * 1024
+
+	useEffect(() => {
+		const data = file
+		onChange?.(data)
+	}, [file])
 
 	const handleFileChange = e => {
 		const newFile = e.target.files[0]

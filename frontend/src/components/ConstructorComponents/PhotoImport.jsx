@@ -1,18 +1,25 @@
 import { ImagePlus, Upload, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 
-export const ConstructorPhotoInput = ({ onStatusChange, DelComponent }) => {
+export const ConstructorPhotoInput = ({
+	onStatusChange,
+	DelComponent,
+	onChange,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [fileInfo, setFileInfo] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const [previews, setPreviews] = useState([]) // Изменили на массив для нескольких превью
+	const [previews, setPreviews] = useState([])
 
-	console.log(previews)
+	useEffect(() => {
+		const data = previews
+		onChange?.(data)
+	}, [fileInfo])
 
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
-	const maxSize = 20 * 1024 * 1024 // 20 MB
-	const maxFiles = 4 // Максимальное количество файлов
+	const maxSize = 20 * 1024 * 1024
+	const maxFiles = 4
 
 	const handleFileChange = e => {
 		const files = Array.from(e.target.files)
@@ -22,7 +29,6 @@ export const ConstructorPhotoInput = ({ onStatusChange, DelComponent }) => {
 	const handleFiles = files => {
 		if (files.length === 0) return
 
-		// Ограничиваем количество файлов до максимума
 		const filesToProcess = files.slice(0, maxFiles - previews.length)
 
 		const validFiles = []
@@ -66,7 +72,6 @@ export const ConstructorPhotoInput = ({ onStatusChange, DelComponent }) => {
 
 	const handleDragLeave = e => {
 		e.preventDefault()
-		// Проверяем, покидаем ли мы элемент целиком
 		if (e.currentTarget.contains(e.relatedTarget)) return
 		setIsDragActive(false)
 	}
