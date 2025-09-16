@@ -15,7 +15,7 @@ export const RadioButton = ({
 }) => {
 	return (
 		<label
-			className={`flex items-center gap-2 px-4 py-2 rounded-xl border cursor-pointer transition-all ${
+			className={`flex items-center gap-2 px-4 py-2 max-md:w-full max-md:justify-center rounded-xl border cursor-pointer transition-all ${
 				checked
 					? 'bg-[var(--white)] border-[var(--hero-epta)] text-[var(--hero-epta)]'
 					: 'bg-transparent border-[var(--middle)] text-[var(--middle)] hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)]'
@@ -42,14 +42,16 @@ export const AltRadioButton = ({
 	onChange,
 	icon: Icon,
 	title,
+	width,
 }) => {
 	return (
 		<label
-			className={`flex items-center shadow-[var(--shadow)] bg-[var(--white)] gap-2 px-4 py-[9px] h-fit w-fit rounded-xl cursor-pointer transition-all ${
+			className={`flex items-center shadow-[var(--shadow)] bg-[var(--white)] gap-2 px-4 py-[9px] h-fit w-fit rounded-xl truncate text-ellipsis cursor-pointer transition-all ${
 				checked
 					? 'text-[var(--hero-epta)]'
 					: 'text-[var(--black)] hover:text-[var(--hero-epta)]'
 			}`}
+			style={{ width: width }}
 		>
 			<input
 				type='radio'
@@ -60,7 +62,9 @@ export const AltRadioButton = ({
 				className='hidden'
 			/>
 			{Icon && <Icon size={24} />}
-			<span className='text-[20px] font-medium'>{title}</span>
+			<span className='text-[20px] font-medium truncate text-ellipsis'>
+				{title}
+			</span>
 		</label>
 	)
 }
@@ -107,7 +111,10 @@ export const Button = ({
 		>
 			{Icon && <Icon size={size / 1.75 || 24} color={IconColor} />}
 			{title && (
-				<span className='font-medium' style={{ fontSize: textSize }}>
+				<span
+					className='font-medium truncate text-ellipsis'
+					style={{ fontSize: textSize }}
+				>
 					{title}
 				</span>
 			)}

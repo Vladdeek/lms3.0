@@ -84,64 +84,33 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 	)
 }
 
-const Header = () => {
-	const [activeUser, setActiveUser] = useState(null)
-	const location = useLocation()
-	const HeaderLinkInfo = [
-		{
-			teacher: [
-				{
-					title: 'Каталог',
-					icon: AlignJustify,
-					to: '/catalog',
-				},
-				{
-					title: 'Проверка заданий',
-					icon: CopyCheck,
-					to: '/students',
-				},
-			],
-			student: [
-				{
-					title: 'Каталог',
-					icon: AlignJustify,
-					to: '/tasks',
-				},
-				{
-					title: 'Расписание',
-					icon: UsersRound,
-					to: '/schedule',
-				},
+const MobileHeaderLink = ({ title, icon: Icon, to }) => {
+	return (
+		<NavLink
+			to={to}
+			className={({ isActive }) =>
+				`inline-flex flex-col justify-center items-center gap-2 rounded-lg h-full aspect-square cursor-pointer text-[var(--black)] transition-all select-none ${
+					!isActive ? 'text-[var(--black)]' : 'text-[var(--hero-epta)] '
+				}`
+			}
+		>
+			{({ isActive }) => (
+				<>
+					<Icon size={24} />
+					<p
+						className={`font-normal text-sm transition-all text-center ${
+							!isActive ? 'text-[var(--middle)]' : 'text-[var(--hero-epta)] '
+						}`}
+					>
+						{title}
+					</p>
+				</>
+			)}
+		</NavLink>
+	)
+}
 
-				{
-					title: 'Оценки',
-					icon: CopyCheck,
-					to: '/score',
-				},
-			],
-		},
-	]
-
-	const HeaderBtnInfo = [
-		{
-			action: 'toggleTheme',
-		},
-	]
-
-	const UserInfo = [
-		{
-			uuid: 'dsadsadsad',
-			FullName: 'Иванов Иван Иванович',
-			role: 'teacher',
-			img_path:
-				'https://i.pinimg.com/1200x/ed/55/e0/ed55e005e9d504e6a273c19adeee2b49.jpg',
-		},
-	]
-
-	const [openIndex, setOpenIndex] = useState(null)
-
-	const links = HeaderLinkInfo[0][UserInfo[0].role]
-
+export const Header = ({ links, HeaderBtnInfo, UserInfo }) => {
 	return (
 		<>
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
@@ -157,7 +126,7 @@ const Header = () => {
 				</div>
 
 				<div className='flex max-md:w-full md:justify-end z-10'>
-					<div className='flex flex-row-reverse items-center max-md:w-full max-md:justify-between gap-5'>
+					<div className='flex max-md:flex-row-reverse items-center max-md:w-full max-md:justify-between gap-5'>
 						{HeaderBtnInfo.map((item, index) => (
 							<HeaderBtn
 								key={index}
@@ -219,8 +188,23 @@ const Header = () => {
 					</div>
 				</div>
 			</div>
-			<div className='md:hidden bg-[var(--white)]'></div>
 		</>
 	)
 }
-export default Header
+
+export const MobileMenuBar = ({ links }) => {
+	return (
+		<div className='fixed bottom-0 left-0 z-50 w-full h-20 bg-[var(--white)] shadow-[var(--shadow)] '>
+			<div className='flex justify-between h-full max-w-lg  mx-20 font-medium'>
+				{links.map((item, index) => (
+					<MobileHeaderLink
+						key={index}
+						title={item.title}
+						icon={item.icon}
+						to={item.to}
+					/>
+				))}
+			</div>
+		</div>
+	)
+}

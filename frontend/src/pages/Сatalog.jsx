@@ -15,7 +15,7 @@ const CreateBtn = ({ onClick, title }) => {
 	return (
 		<button
 			onClick={onClick}
-			className='flex flex-col w-2/3 items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer h-129'
+			className='flex flex-col w-2/3 max-md:w-full items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer max-md:h-75 max-md:mb-30 h-129'
 		>
 			<Blocks size={112} strokeWidth={0.5} />
 			<span className='text-base font-medium px-4 py-3 rounded-lg mt-4 transition-all'>
@@ -160,8 +160,8 @@ const Catalog = () => {
 				onCreate={handleCreateCourse}
 			/>
 			<div className='h-screen flex flex-col gap-4 py-[50px]'>
-				<div className='flex justify-between'>
-					<div className='flex gap-4 h-12'>
+				<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
+					<div className='flex gap-4 max-lg:gap-2 h-12'>
 						{options.map(option => (
 							<RadioButton
 								key={option.value}
@@ -174,8 +174,8 @@ const Catalog = () => {
 							/>
 						))}
 					</div>
-					<div className='flex gap-4 h-12'>
-						<SearchInput width={383} />
+					<div className='flex gap-4 max-lg:gap-2 h-12'>
+						<SearchInput />
 						<FilterButton
 							option={[
 								'по статусу',
@@ -187,7 +187,7 @@ const Catalog = () => {
 					</div>
 				</div>
 
-				<div className='grid grid-cols-4 gap-4'>
+				<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
 					{courses.map((course, index) => (
 						<motion.div
 							key={course.id}

@@ -273,10 +273,10 @@ const ConstructorPage = () => {
 
 	return (
 		<>
-			<div className='flex flex-col gap-5'>
-				<div className='flex justify-between items-center mt-10'>
-					<div className='flex gap-5 items-center '>
-						{options.map(option => (
+			<div className='flex flex-col gap-5 '>
+				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center max-[1366px]:mt-5 mt-10'>
+					<div className='flex gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
+						{options.map((option, index) => (
 							<AltRadioButton
 								key={option.value}
 								name='example'
@@ -285,6 +285,7 @@ const ConstructorPage = () => {
 								icon={option.icon}
 								checked={selected === option.value}
 								onChange={() => setSelected(option.value)}
+								width={index === 0 ? '200px' : '225px'}
 							/>
 						))}
 					</div>
@@ -297,7 +298,7 @@ const ConstructorPage = () => {
 							ease: 'easeOut',
 						}}
 					>
-						<div className='flex bg-[var(--white)] rounded-lg shadow-[var(--shadow)] px-4 py-3 gap-3'>
+						<div className='flex  max-[1366px]:order-1  max-[1366px]:w-[435px] max-[1366px]:justify-center bg-[var(--white)] rounded-xl shadow-[var(--shadow)] px-4 py-2 gap-3'>
 							<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
 
 							<p className='font-medium text-2xl text-[var(--black)]'>
@@ -305,7 +306,7 @@ const ConstructorPage = () => {
 							</p>
 						</div>
 					</motion.div>
-					<div className='flex gap-5 items-center'>
+					<div className='flex gap-5 max-[1366px]:hidden  max-[1366px]:gap-2  max-[1366px]:order-3 items-center'>
 						{selected === 1 ? (
 							<QrCodeButton
 								url={'https://www.npmjs.com/package/qr-code-styling'}
@@ -320,7 +321,11 @@ const ConstructorPage = () => {
 							descriptionValue={courseContent?.description}
 						/>
 						<Button title={'Сохранить'} style='outline' />
-						<Button title={'Опубликовать курс'} style='black' />
+						<Button
+							title={'Опубликовать курс'}
+							style='black'
+							className='truncate text-ellipsis'
+						/>
 					</div>
 				</div>
 				{selected === 0 ? (

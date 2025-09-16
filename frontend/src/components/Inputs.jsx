@@ -266,8 +266,8 @@ export const FileInput = ({
 export const SearchInput = ({ width, height = 'auto' }) => {
 	return (
 		<div
-			className='w-[383px] inline-flex group rounded-lg p-[6px] bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)] gap-3 outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition'
-			style={{ width: width, height: height }}
+			className='w-[383px] max-md:w-full inline-flex group rounded-lg p-[6px] bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)] gap-3 outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition'
+			style={{ width: width && width, height: height && height }}
 		>
 			<ScanSearch className='h-full w-auto aspect-square' strokeWidth={1.5} />
 			<input className='outline-0' type={'text'} placeholder={'Поиск'} />

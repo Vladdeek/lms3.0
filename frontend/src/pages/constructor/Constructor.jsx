@@ -518,7 +518,7 @@ const ModuleBlock = ({
 								ease: 'easeOut',
 							}}
 						>
-							<div key={index} className='flex flex-col gap-3'>
+							<div key={index} className='flex flex-col gap-3 '>
 								<ModuleTitle
 									title={module.name}
 									moduleId={module.id}
@@ -847,7 +847,7 @@ const ConstructorMenu = ({ onAdd }) => {
 	]
 
 	return (
-		<div className='grid grid-cols-5 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
+		<div className='grid lg:grid-cols-5 grid-cols-3 gap-2 p-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] w-fit'>
 			{buttons.map((item, index) => (
 				<button
 					key={index}
@@ -882,8 +882,8 @@ const Constructor = ({
 
 	return (
 		<>
-			<div className='grid grid-cols-[1fr_3fr] gap-5 h-fit min-h-[607px]'>
-				<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between'>
+			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] gap-3 2xl:gap-5 h-fit min-h-[607px]'>
+				<div className='bg-[var(--white)] shadow-[var(--shadow)] max-[1200px]:w-full rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between'>
 					<div className='flex flex-col gap-3'>
 						<div className='flex flex-col gap-3 px-2'>
 							<div className='flex justify-between w-full'>
@@ -938,8 +938,9 @@ const Constructor = ({
 						</div>
 					</div>
 				</div>
-
-				<ContentView content={selectedContent} />
+				<div className='max-[1200px]:hidden'>
+					<ContentView content={selectedContent} />
+				</div>
 			</div>
 		</>
 	)
