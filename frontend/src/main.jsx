@@ -42,7 +42,7 @@ function MainApp() {
 					<Route path='/dashboard' element={<Dashboard />} />
 					<Route path='/schedule' element={<Schedule />} />
 					<Route path='/score' element={<ScorePage />} />
-					<Route path='/course' element={<CoursePage />} />
+					<Route path='/course/:courseId?' element={<CoursePage />} />
 				</Route>
 			</Routes>
 		</Suspense>

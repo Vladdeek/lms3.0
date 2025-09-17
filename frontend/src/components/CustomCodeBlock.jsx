@@ -8,6 +8,7 @@ const CustomCodeBlock = ({
 	width = 'w-2/3',
 	editMode = false,
 	onClick,
+	view = false,
 }) => {
 	const [copied, setCopied] = useState(false)
 
@@ -81,8 +82,8 @@ const CustomCodeBlock = ({
 
 				<div className='p-0 code-font overflow-scroll max-h-136'>
 					<CodeBlock
-						text={codeInfo?.code}
-						language={codeInfo?.language}
+						text={!view ? codeInfo[0]?.code : codeInfo.code}
+						language={!view ? codeInfo[0]?.language : codeInfo.language}
 						showLineNumbers={true}
 						theme={github}
 					/>

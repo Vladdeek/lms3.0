@@ -2,77 +2,15 @@
   {
     "type": "text",
     "content": {
-      "content": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"жирный\",\"bold\":true}]},{\"type\":\"align-center\",\"children\":[{\"text\":\"по центру\"}]},{\"type\":\"align-right\",\"children\":[{\"text\":\"по правому краю\"}]},{\"type\":\"align-left\",\"children\":[{\"text\":\"италик\",\"italic\":true}]},{\"type\":\"align-left\",\"children\":[{\"text\":\"подчеркнутый\",\"underline\":true}]},{\"type\":\"align-left\",\"children\":[{\"text\":\"перечекнутый\",\"strikethrough\":true}]}]",
-      "plainText": "жирныйпо центрупо правому краюиталикподчеркнутыйперечекнутый"
+      "content": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"1111\"}]}]",
+      "plainText": "1111"
     }
   },
   {
     "type": "code",
     "content": {
-      "code": "//Первый код\r\nconsole.log('Hello, world!')\r\n",
-      "language": "jsx"
-    }
-  },
-  {
-    "type": "photo",
-    "content": []
-  },
-  {
-    "type": "video",
-    "content": [
-      {
-        "videoUrl": "https://rutube.ru/video/df2207e3a752cae366d2e0e0315ea3a4/",
-        "preview": null,
-        "info": {
-          "name": "Видео по ссылке",
-          "size": "N/A",
-          "type": "video/url",
-          "duration": 0
-        },
-        "isUrl": true
-      }
-    ]
-  },
-  {
-    "type": "files",
-    "content": [
-      {},
-      {},
-      {}
-    ]
-  },
-  {
-    "type": "table",
-    "content": {
-      "rows": 2,
-      "cols": 2,
-      "data": [
-        "1",
-        "",
-        "",
-        "2"
-      ]
-    }
-  },
-  {
-    "type": "callout",
-    "content": {
-      "icon": "Megaphone",
-      "title": "заголовок",
-      "description": "описание выноски"
-    }
-  },
-  {
-    "type": "formula",
-    "content": {
-      "formula": "E = mc^2"
-    }
-  },
-  {
-    "type": "button",
-    "content": {
-      "buttonTitle": "ссылка на видео ",
-      "buttonUrl": "https://rutube.ru/video/df2207e3a752cae366d2e0e0315ea3a4/"
+      "code": "import requests\r\nfrom bs4 import BeautifulSoup\r\nfrom urllib.parse import urljoin\r\nfrom openpyxl import Workbook\r\n\r\nBASE_URL = \"https://melsu.ru\"\r\nLIST_URL = BASE_URL + \"/divisions\"\r\nHEADERS = {\r\n    # простой \"человеческий\" User-Agent, чтобы сайт не думал, что мы бот\r\n    \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) \"\r\n                  \"AppleWebKit/537.36 (KHTML, like Gecko) \"\r\n                  \"Chrome/124.0.0.0 Safari/537.36\"\r\n}\r\n\r\ndef fetch_soup(url):\r\n    resp = requests.get(url, headers=HEADERS, timeout=30)\r\n    resp.raise_for_status()\r\n    return BeautifulSoup(resp.content, \"html.parser\")  # замените на \"lxml\", если установили\r\n\r\ndef get_division_links():\r\n    soup = fetch_soup(LIST_URL)\r\n    block = soup.find(id=\"UniversityStructure\")\r\n    if not block:\r\n        raise RuntimeError(\"Не найден <div id='UniversityStructure'> на странице /divisions\")\r\n\r\n    seen = set()\r\n    items = []\r\n    for a in block.find_all(\"a\", href=True):\r\n        name = a.get_text(strip=True)\r\n        href = urljoin(BASE_URL, a[\"href\"])\r\n        if href not in seen:      # пропускаем повторяющиеся\r\n            seen.add(href)\r\n            items.append((name, href))\r\n    return items\r\n\r\n\r\ndef page_has_word(url, word=\"Положение\"):\r\n    try:\r\n        soup = fetch_soup(url)\r\n        for a in soup.find_all(\"a\"):\r\n            if a.get_text(strip=True).lower().find(word.lower()) != -1:\r\n                return True\r\n        return False\r\n    except Exception as e:\r\n        print(f\"[WARN] Не удалось проверить {url}: {e}\")\r\n        return False\r\n\r\n\r\n\r\ndef save_excel(rows, filename=\"divisions.xlsx\"):\r\n    # Теперь rows содержит кортежи (название, ссылка, \"ДА\"/\"нет\")\r\n    wb = Workbook()\r\n    ws = wb.active\r\n    ws.title = \"divisions\"\r\n    ws.append([\"Название\", \"Ссылка\", \"Положение\"])  # 3 столбца\r\n    for name, link, status in rows:\r\n        ws.append([name, link, status])\r\n    wb.save(filename)\r\n    print(f\"[OK] Файл сохранён: {filename}\")\r\n\r\ndef main():\r\n    links = get_division_links()\r\n\r\n    # Проверяем наличие слова «Положение» и формируем новый список для Excel\r\n    print(f\"Найдено ссылок: {len(links)}\\nПроверяю наличие слова «Положение» на страницах...\")\r\n    excel_rows = []\r\n    for name, url in links:\r\n        has_word = page_has_word(url, \"Положение\")\r\n        status = \"ДА\" if has_word else \"нет\"\r\n        if has_word:\r\n            print(f\"- {name} → {url} | Положение: {status}\")\r\n            excel_rows.append((name, url, status))\r\n        \r\n\r\n\r\n\r\n    # Сохраняем в Excel\r\n    save_excel(excel_rows, \"divisions3.xlsx\")\r\n\r\n\r\nif __name__ == \"__main__\":\r\n    main()\r\n",
+      "language": "python"
     }
   }
 ]

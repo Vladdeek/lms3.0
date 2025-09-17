@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, RadioButton } from '../components/Buttons'
+import { Button, FilterButton, RadioButton } from '../components/Buttons'
 import { Blocks, FunnelPlus, LayoutGrid, Radio, X } from 'lucide-react'
 import { CourseCard } from '../components/Cards'
 import {
@@ -8,6 +8,8 @@ import {
 	SearchInput,
 	TextArea,
 } from '../components/Inputs'
+import { motion } from 'framer-motion'
+import { API } from '../API'
 
 const CatalogS = () => {
 	const options = [
@@ -15,36 +17,26 @@ const CatalogS = () => {
 		{ value: 1, title: 'Вебинар', icon: Radio },
 	]
 
-	const [courses, setCourses] = useState([
-		{
-			title: 'Объектно ориентированное программирование c++',
-			education: 'Бакалавриат',
-			course: 'Курс 1',
-			status: 'Опубликован',
-			img: 'https://i.pinimg.com/736x/7e/d7/a5/7ed7a5d7de6a06d31106b37399da23a5.jpg',
-			deadline: '2025-12-31',
-		},
-		{
-			title: 'Математический анализ',
-			education: 'Бакалавриат',
-			course: 'Курс 2',
-			status: 'В разработке',
-			img: 'https://i.pinimg.com/736x/5f/83/77/5f83771d9306429e18cec682d4445414.jpg',
-		},
-	])
-
 	const [selected, setSelected] = useState(0)
-	const [createModalOpen, setCreateModalOpen] = useState(false)
 
-	const handleCreateCourse = newCourse => {
-		setCourses(prev => [...prev, newCourse])
-	}
+	const [courses, setCourses] = useState([])
+
+	useEffect(() => {
+		const fetchCourses = async () => {
+			const res = await fetch(`${API}/courses/`)
+			const data = await res.json()
+			console.log('Список курсов:', data)
+			setCourses(data)
+		}
+
+		fetchCourses()
+	}, [])
 
 	return (
 		<>
 			<div className='h-screen flex flex-col gap-4 py-[50px]'>
-				<div className='flex justify-between'>
-					<div className='flex gap-4 h-12'>
+				<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
+					<div className='flex gap-4 max-lg:gap-2 h-12'>
 						{options.map(option => (
 							<RadioButton
 								key={option.value}
@@ -57,24 +49,40 @@ const CatalogS = () => {
 							/>
 						))}
 					</div>
-					<div className='flex gap-4 h-12'>
-						<SearchInput width={383} />
-						<Button icon={FunnelPlus} />
+					<div className='flex gap-4 max-lg:gap-2 h-12'>
+						<SearchInput />
+						<FilterButton
+							option={[
+								'по статусу',
+								'по алфавиту',
+								'по дате создания',
+								'по хуйне ',
+							]}
+						/>
 					</div>
 				</div>
 
-				<div className='grid grid-cols-4 gap-4'>
+				<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
 					{courses.map((course, index) => (
-						<CourseCard
-							key={index}
-							title={course.title}
-							img_path={course.img}
-							education={course.education}
-							course={course.course}
-							status={course.status}
-							deadline={course.deadline}
-							to={`/course`}
-						/>
+						<motion.div
+							key={course.id}
+							initial={{ scale: 0.8, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							transition={{
+								duration: 0.3,
+								delay: index * 0.1,
+								ease: 'easeOut',
+							}}
+						>
+							<CourseCard
+								title={course.name}
+								description={course.description}
+								img_path={`${API}/courses/image/${course.id}`}
+								status={course.status}
+								deadline={course.deadline}
+								to={`/course/${course.id}`}
+							/>
+						</motion.div>
 					))}
 				</div>
 			</div>

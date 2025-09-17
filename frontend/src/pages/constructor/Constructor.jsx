@@ -715,7 +715,7 @@ const ConstructorLevels = ({
 	)
 }
 
-const ContentView = ({ content }) => {
+const ContentView = ({ content, onBlocksChange }) => {
 	const [blocks, setBlocks] = useState([])
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
@@ -724,6 +724,15 @@ const ContentView = ({ content }) => {
 
 	const removeBlock = index =>
 		setBlocks(prev => prev.filter((_, i) => i !== index))
+
+	const handleBlockChange = (index, data) => {
+		setBlocks(prev =>
+			prev.map((b, i) => (i === index ? { ...b, content: data } : b))
+		)
+		onBlocksChange?.(
+			blocks.map((b, i) => (i === index ? { ...b, content: data } : b))
+		)
+	}
 
 	if (!content) {
 		return (
@@ -734,8 +743,6 @@ const ContentView = ({ content }) => {
 			</div>
 		)
 	}
-
-	console.log(blocks)
 
 	return (
 		<div className=' flex flex-col gap-3 rounded-xl overflow-scroll p-5 max-h-200'>
@@ -769,13 +776,7 @@ const ContentView = ({ content }) => {
 									<ConstructorEditor
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'code':
@@ -783,27 +784,15 @@ const ContentView = ({ content }) => {
 									<CodeFileInput
 										key={i}
 										DelComponent={del}
-										onFileChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onFileChange={data => handleBlockChange(i, data)}
 									/>
 								)
-							case 'photo':
+							case 'image':
 								return (
 									<ConstructorPhotoInput
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'video':
@@ -811,13 +800,7 @@ const ContentView = ({ content }) => {
 									<ConstructorVideoInput
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'files':
@@ -825,13 +808,7 @@ const ContentView = ({ content }) => {
 									<ConstructorFileInput
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'table':
@@ -839,13 +816,7 @@ const ContentView = ({ content }) => {
 									<TableConstructor
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'audio':
@@ -853,13 +824,7 @@ const ContentView = ({ content }) => {
 									<AudioInput
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'callout':
@@ -867,13 +832,7 @@ const ContentView = ({ content }) => {
 									<CalloutConstructor
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'formula':
@@ -881,13 +840,7 @@ const ContentView = ({ content }) => {
 									<FormulaConstructor
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							case 'button':
@@ -895,30 +848,21 @@ const ContentView = ({ content }) => {
 									<ButtonConstructor
 										key={i}
 										DelComponent={del}
-										onChange={data => {
-											setBlocks(prev =>
-												prev.map((b, index) =>
-													index === i ? { ...b, content: data } : b
-												)
-											)
-										}}
+										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
 							default:
 								return null
 						}
 					})}
-					<ConstructorMenu
-						onAdd={addBlock}
-						onClick={() => console.log('JSON: ', blocks)}
-					/>
+					<ConstructorMenu onAdd={addBlock} />
 				</>
 			)}
 		</div>
 	)
 }
 
-const ConstructorMenu = ({ onAdd, onClick }) => {
+const ConstructorMenu = ({ onAdd }) => {
 	const buttons = [
 		{
 			title: 'Текст',
@@ -932,7 +876,7 @@ const ConstructorMenu = ({ onAdd, onClick }) => {
 		},
 		{
 			title: 'Фото',
-			type: 'photo',
+			type: 'image',
 			icon: <Image size={32} />,
 		},
 		{
@@ -986,12 +930,6 @@ const ConstructorMenu = ({ onAdd, onClick }) => {
 					</button>
 				))}
 			</div>
-			<button
-				onClick={onClick}
-				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit px-4'
-			>
-				JSON
-			</button>
 		</>
 	)
 }
@@ -1007,11 +945,14 @@ const Constructor = ({
 	courseId,
 	deleteModule,
 	deleteSection,
+	onBlocksChange,
+	onSelectedContentChange,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 
 	const handleContentSelect = content => {
 		setSelectedContent(content)
+		onSelectedContentChange?.(content.id)
 	}
 
 	return (
@@ -1073,7 +1014,10 @@ const Constructor = ({
 					</div>
 				</div>
 				<div className='max-[1200px]:hidden bg-[var(--white)] shadow-[var(--shadow)] rounded-xl'>
-					<ContentView content={selectedContent} />
+					<ContentView
+						content={selectedContent}
+						onBlocksChange={onBlocksChange}
+					/>
 				</div>
 			</div>
 		</>

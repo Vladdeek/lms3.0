@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+
 import {
 	ArrowRightFromLine,
 	BookMarked,
@@ -36,6 +36,8 @@ import OneVariantView from '../components/TestView/OneVariantView'
 import SortVariantView from '../components/TestView/SortVariantsView'
 import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { TextViewer } from '../components/Viewer/TextViewer'
+import { useParams } from 'react-router-dom'
+import { API } from '../API'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -77,20 +79,6 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 }
 
 const ModuleContent = ({ type, index, title, bg, onClick }) => {
-	const options = [
-		{
-			title: 'Переместить вверх',
-			icon: <ChevronsUp size={20} />,
-			action: 'up',
-		},
-		{
-			title: 'Переместить вниз',
-			icon: <ChevronsDown size={20} />,
-			action: 'down',
-		},
-		{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
-		{ title: 'Удалить', icon: <Trash size={20} />, action: 'del' },
-	]
 	return (
 		<div
 			onClick={onClick}
@@ -104,15 +92,20 @@ const ModuleContent = ({ type, index, title, bg, onClick }) => {
 						bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
 					}`}
 				>
-					{type === 'Лекция' ? (
+					{type === 'lecture' ? (
 						<BookMarked size={20} />
-					) : type === 'Практика' ? (
+					) : type === 'practice' ? (
 						<NotebookPen size={20} />
 					) : (
-						type === 'Тест' && <LaptopMinimalCheck size={20} />
+						type === 'test' && <LaptopMinimalCheck size={20} />
 					)}
 					<p className='font-medium text-base whitespace-nowrap'>
-						{type} {index}
+						{type === 'lecture'
+							? 'Лекция'
+							: type === 'practice'
+							? 'Практика'
+							: type === 'test' && 'Тест'}
+						{index}
 					</p>
 				</div>
 				<p className='font-bold text-base'>/</p>
@@ -124,12 +117,7 @@ const ModuleContent = ({ type, index, title, bg, onClick }) => {
 	)
 }
 
-const ModuleBlock = ({
-	ModuleInfo,
-	onContentSelect,
-	selectedContent,
-	onAddLesson,
-}) => {
+const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
 	const toggleModule = index => {
@@ -141,13 +129,13 @@ const ModuleBlock = ({
 
 	return (
 		<>
-			{ModuleInfo.map((item, index) => {
+			{ModuleInfo?.map((item, index) => {
 				const isExpanded = expandedModules[index] === true
 
 				return (
 					<div key={index} className='flex flex-col gap-3'>
 						<ModuleTitle
-							title={item.title}
+							title={item.name}
 							index={index + 1}
 							isExpanded={isExpanded}
 							onToggle={() => toggleModule(index)}
@@ -155,13 +143,15 @@ const ModuleBlock = ({
 						{isExpanded && (
 							<>
 								<div className=''>
-									{item.content.map((lesson, lessonIndex) => {
+									{item?.module_sections?.map((lesson, lessonIndex) => {
 										return (
 											<ModuleContent
 												key={lesson.id}
 												title={lesson.title}
 												type={lesson.type}
-												onClick={() => onContentSelect(lesson)}
+												onClick={() =>
+													onContentSelect(lesson.id, lesson.type, lesson.title)
+												}
 												isSelected={selectedContent?.id === lesson.id}
 											/>
 										)
@@ -205,8 +195,7 @@ const LevelsBar = ({
 	)
 }
 
-const ContentView = ({ content }) => {
-	const [blocks, setBlocks] = useState([])
+const ContentView = ({ content, contentType, contentTitle }) => {
 	const [answers, setAnswers] = useState({})
 	const [singleAnswers, setSingleAnswers] = useState({})
 
@@ -229,17 +218,23 @@ const ContentView = ({ content }) => {
 
 	return (
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
-			<ModuleContent bg={true} type={content.type} title={content.title} />
+			<ModuleContent bg={true} type={contentType} title={contentTitle} />
 			<div className='flex flex-col gap-5'>
-				{content.content.length !== 0 ? (
-					content.type !== 'test' ? (
-						content.content.map((item, i) => {
+				{content.length !== 0 ? (
+					contentType !== 'test' ? (
+						content.map((item, i) => {
 							switch (item.type) {
 								case 'text':
 									return <TextViewer key={i} content={item?.content?.content} />
 								case 'code':
-									return <CustomCodeBlock key={i} codeInfo={item?.content} />
-								case 'photo':
+									return (
+										<CustomCodeBlock
+											view={true}
+											key={i}
+											codeInfo={item?.content}
+										/>
+									)
+								case 'image':
 									return <p>блок {item.type}</p>
 								case 'video':
 									return <p>блок {item.type}</p>
@@ -381,264 +376,36 @@ const ContentView = ({ content }) => {
 	)
 }
 
-const CourseOverview = ({ title }) => {
-	const [ModuleInfo, setModuleInfo] = useState([
-		{
-			id: 0,
-			title: 'Вступление',
-			content: [
-				{
-					id: 0,
-					type: 'Лекция',
-					title: 'Hello, World! Или как подружиться с кодом',
-					content: [
-						{
-							type: 'text',
-							content: {
-								content:
-									'[{"type":"paragraph","children":[{"text":"жирный","bold":true}]},{"type":"align-center","children":[{"text":"по центру"}]},{"type":"align-right","children":[{"text":"по правому краю"}]},{"type":"align-left","children":[{"text":"италик","italic":true}]},{"type":"align-left","children":[{"text":"подчеркнутый","underline":true}]},{"type":"align-left","children":[{"text":"перечекнутый","strikethrough":true}]}]',
-								plainText:
-									'жирныйпо центрупо правому краюиталикподчеркнутыйперечекнутый',
-							},
-						},
-						{
-							type: 'code',
-							content: {
-								code: "//Первый код\r\nconsole.log('Hello, world!')\r\n",
-								language: 'jsx',
-							},
-						},
-						{
-							type: 'photo',
-							content: [],
-						},
-						{
-							type: 'video',
-							content: [
-								{
-									videoUrl:
-										'https://rutube.ru/video/df2207e3a752cae366d2e0e0315ea3a4/',
-									preview: null,
-									info: {
-										name: 'Видео по ссылке',
-										size: 'N/A',
-										type: 'video/url',
-										duration: 0,
-									},
-									isUrl: true,
-								},
-							],
-						},
-						{
-							type: 'files',
-							content: [{}, {}, {}],
-						},
-						{
-							type: 'table',
-							content: {
-								rows: 2,
-								cols: 2,
-								data: ['1', '', '', '2'],
-							},
-						},
-						{
-							type: 'callout',
-							content: {
-								icon: 'Megaphone',
-								title: 'заголовок',
-								description: 'описание выноски',
-							},
-						},
-						{
-							type: 'formula',
-							content: {
-								formula: 'E = mc^2',
-							},
-						},
-						{
-							type: 'button',
-							content: {
-								buttonTitle: 'ссылка на видео ',
-								buttonUrl:
-									'https://rutube.ru/video/df2207e3a752cae366d2e0e0315ea3a4/',
-							},
-						},
-					],
-				},
-				{
-					id: 1,
-					type: 'Практика',
-					title: 'Hello, World! Или как подружиться с кодом',
-					content: [
-						{
-							type: 'text',
-							content: {
-								content:
-									'[{"type":"paragraph","children":[{"text":"dsadkhvsahjdvjhsavdh"}]},{"type":"align-center","children":[{"text":"dasdsa","bold":true}]}]',
-								plainText: 'dsadkhvsahjdvjhsavdhdasdsa',
-							},
-						},
-						{
-							type: 'table',
-							content: {
-								rows: 3,
-								cols: 2,
-								data: ['1111', '', '', '2222', '4444', '333'],
-							},
-						},
-						{
-							type: 'callout',
-							content: {
-								icon: 'ShieldAlert',
-								title: 'Заголовок',
-								description: 'описание выноски',
-							},
-						},
-						{
-							type: 'formula',
-							content: {
-								formula: 'E = mc^2',
-							},
-						},
-						{
-							type: 'button',
-							content: {
-								buttonTitle: 'стаканы на wb',
-								buttonUrl:
-									'https://www.wildberries.ru/catalog/209746142/detail.aspx',
-							},
-						},
-						{
-							type: 'code',
-							content: {
-								code: "//Первый код\r\nconsole.log('Hello, world!')\r\n",
-								language: 'jsx',
-							},
-						},
-					],
-				},
-				{
-					id: 2,
-					type: 'Тест',
-					title: 'Hello, World! Или как подружиться с кодом',
-					content: [],
-				},
-			],
-		},
-		{
-			id: 1,
-			title: 'Основы программирования',
-			content: [
-				{
-					id: 3,
-					type: 'Лекция',
-					title: 'Переменные и типы данных',
-					content: [],
-				},
-				{
-					id: 4,
-					type: 'Практика',
-					title: 'Работа с переменными',
-					content: [],
-				},
-				{
-					id: 5,
-					type: 'Тест',
-					title: 'Работа с переменными',
-					content: [
-						{
-							type: 'more',
-							question: '1',
-							answers: ['a', 'b', 'c', 'd'],
-						},
-						{
-							type: 'more',
-							question: '2',
-							answers: ['1', '2', '3', '4'],
-						},
-						{
-							type: 'single',
-							question: '3',
-							answers: ['a', 'b', 'c', 'd'],
-						},
-						{
-							type: 'single',
-							question: '4',
-							answers: ['1', '2', '3', '4'],
-						},
-						{
-							type: 'sort',
-							question:
-								'Расположи шаги написания программы в правильном порядке',
-							answers: [
-								{ id: '1', left: '1', right: 'Написать код' },
-								{ id: '2', left: '2', right: 'Запустить программу' },
-								{ id: '3', left: '3', right: 'Увидеть результат' },
-							],
-						},
-						{
-							type: 'open',
-							question:
-								'Расположи шаги написания программы в правильном порядке',
-						},
-					],
-				},
-			],
-		},
-		{
-			id: 2,
-			title: 'Условия и циклы',
-			content: [
-				{
-					id: 5,
-					type: 'Лекция',
-					title: 'Условные конструкции if/else',
-					content: [],
-				},
-				{
-					id: 6,
-					type: 'Практика',
-					title: 'Решение задач с условиями',
-					content: [],
-				},
-			],
-		},
-	])
-
+const CourseOverview = ({ content }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
-	const handleContentSelect = content => {
-		setSelectedContent(content)
+	const [selectedType, setSelectedType] = useState(null)
+	const [selectedName, setSelectedName] = useState(null)
+	const [sectionId, setSectionId] = useState(null)
+
+	const handleContentSelect = (SectionId, SectionType) => {
+		setSectionId(SectionId)
+		setSelectedType(SectionType)
+		setSelectedName(SectionName)
 	}
-	const handleAddLesson = (moduleIndex, lesson) => {
-		setModuleInfo(prev =>
-			prev.map((module, idx) =>
-				idx === moduleIndex
-					? {
-							...module,
-							content: [
-								...module.content,
-								{
-									id: Date.now(),
-									type: lesson.type,
-									title: lesson.title,
-									content: 'Задания для практического занятия...',
-								},
-							],
-					  }
-					: module
-			)
-		)
-	}
-	const handleAddModule = title => {
-		setModuleInfo(prev => [
-			...prev,
-			{
-				id: Date.now(),
-				title,
-				content: [],
-			},
-		])
-	}
+
+	useEffect(() => {
+		if (!sectionId) return
+
+		const fetchContent = async () => {
+			try {
+				const res = await fetch(`${API}/sections/${sectionId}/content`)
+				if (!res.ok) throw new Error('Ошибка при загрузке контента')
+				const data = await res.json()
+
+				console.log('Fetched content data:', data) // Логируем полученные данные
+				setSelectedContent(data)
+			} catch (err) {
+				console.error(err)
+			}
+		}
+
+		fetchContent()
+	}, [sectionId])
 
 	return (
 		<>
@@ -646,7 +413,9 @@ const CourseOverview = ({ title }) => {
 				<div className='flex flex-col gap-3'>
 					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
-						<p className='font-medium text-2xl text-[var(--black)]'>{title}</p>
+						<p className='font-medium text-2xl text-[var(--black)]'>
+							{content?.name}
+						</p>
 					</div>
 					<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between'>
 						<div className='flex flex-col gap-3'>
@@ -665,31 +434,44 @@ const CourseOverview = ({ title }) => {
 
 							<div className='h-150 flex flex-col gap-3 overflow-scroll w-full py-2 px-2'>
 								<ModuleBlock
-									ModuleInfo={ModuleInfo}
+									ModuleInfo={content?.modules}
 									onContentSelect={handleContentSelect}
 									selectedContent={selectedContent}
-									onAddLesson={handleAddLesson}
 								/>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<ContentView content={selectedContent} />
+				<ContentView
+					content={selectedContent}
+					contentType={selectedType}
+					contentTitle={selectedName}
+				/>
 			</div>
 		</>
 	)
 }
 
 const CoursePage = () => {
-	const title = 'Основы программирования'
+	const { courseId } = useParams()
+	const [courseContent, setCourseContent] = useState()
+
+	useEffect(() => {
+		const fetchCourses = async () => {
+			const res = await fetch(`${API}/courses/${courseId}`)
+			const data = await res.json()
+			setCourseContent(data)
+		}
+		fetchCourses()
+	}, [courseId])
 
 	return (
 		<>
 			<div className='flex flex-col gap-5'>
 				<div className='flex justify-between items-center mt-10'></div>
 
-				<CourseOverview title={title} />
+				<CourseOverview content={courseContent} />
 			</div>
 		</>
 	)

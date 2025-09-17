@@ -15,8 +15,6 @@ export const CodeFileInput = ({
 	const [codeInfo, setCodeInfo] = useState(null)
 	const maxSize = 10 * 1024 * 1024
 
-	console.log('code:', codeInfo)
-
 	const getLanguageFromExtension = filename => {
 		const extension = filename.split('.').pop().toLowerCase()
 

@@ -5,6 +5,7 @@ import {
 	Settings,
 	UsersRound,
 	QrCode,
+	Blocks,
 } from 'lucide-react'
 import { AltRadioButton, Button } from '../../components/Buttons'
 import { useEffect, useState } from 'react'
@@ -194,8 +195,6 @@ const ConstructorPage = () => {
 		fetchCourses()
 	}, [courseId])
 
-	console.log('modules: ', courseContent?.modules)
-
 	// Модули
 	const addModule = newModule =>
 		setCourseContent(prev => ({
@@ -272,6 +271,30 @@ const ConstructorPage = () => {
 		}))
 	}
 	const [selected, setSelected] = useState(0)
+	const [blocks, setBlocks] = useState()
+	const [selectedContentId, setSelectedContentId] = useState(null)
+
+	const handleSubmit = async (content, sectionId) => {
+		console.log(
+			'Отправка контента: ',
+			JSON.stringify(content),
+			'\nКуда: ',
+			selectedContentId
+		)
+		const res = await fetch(`${API}/sections/${sectionId}/content`, {
+			method: 'PUT',
+			body: JSON.stringify(content),
+			headers: { 'Content-Type': 'application/json' },
+		})
+
+		if (!res.ok) {
+			console.error('Ошибка сервера:', res.status)
+			return
+		}
+
+		const data = await res.json()
+		console.log('Ответ сервера:', data)
+	}
 
 	return (
 		<>
@@ -322,7 +345,11 @@ const ConstructorPage = () => {
 							titleValue={courseContent?.name}
 							descriptionValue={courseContent?.description}
 						/>
-						<Button title={'Сохранить'} style='outline' />
+						<Button
+							title={'Сохранить'}
+							style='outline'
+							onClick={() => handleSubmit(blocks, selectedContentId)}
+						/>
 						<Button
 							title={'Опубликовать курс'}
 							style='black'
@@ -342,6 +369,8 @@ const ConstructorPage = () => {
 						courseId={courseId}
 						deleteModule={onRemoveModule}
 						deleteSection={onRemoveLesson}
+						onBlocksChange={setBlocks}
+						onSelectedContentChange={setSelectedContentId}
 					/>
 				) : (
 					selected === 1 && <AccessManagement />
