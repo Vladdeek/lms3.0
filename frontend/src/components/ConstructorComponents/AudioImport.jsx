@@ -1,8 +1,13 @@
 import { FileAudio, Trash2, Upload, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 
-export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
+export const AudioInput = ({
+	onStatusChange,
+	onFileChange,
+	DelComponent,
+	onChange,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [file, setFile] = useState(null)
@@ -23,7 +28,6 @@ export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
 	const validateFile = newFile => {
 		if (!newFile) return
 
-		// Проверка типа файла
 		const isValidType = newFile.type.startsWith('audio/')
 		if (!isValidType) {
 			alert(`Файл ${newFile.name} не является аудиофайлом`)

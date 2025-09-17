@@ -469,7 +469,53 @@ const CourseOverview = ({ title }) => {
 					id: 1,
 					type: 'Практика',
 					title: 'Hello, World! Или как подружиться с кодом',
-					content: [],
+					content: [
+						{
+							type: 'text',
+							content: {
+								content:
+									'[{"type":"paragraph","children":[{"text":"dsadkhvsahjdvjhsavdh"}]},{"type":"align-center","children":[{"text":"dasdsa","bold":true}]}]',
+								plainText: 'dsadkhvsahjdvjhsavdhdasdsa',
+							},
+						},
+						{
+							type: 'table',
+							content: {
+								rows: 3,
+								cols: 2,
+								data: ['1111', '', '', '2222', '4444', '333'],
+							},
+						},
+						{
+							type: 'callout',
+							content: {
+								icon: 'ShieldAlert',
+								title: 'Заголовок',
+								description: 'описание выноски',
+							},
+						},
+						{
+							type: 'formula',
+							content: {
+								formula: 'E = mc^2',
+							},
+						},
+						{
+							type: 'button',
+							content: {
+								buttonTitle: 'стаканы на wb',
+								buttonUrl:
+									'https://www.wildberries.ru/catalog/209746142/detail.aspx',
+							},
+						},
+						{
+							type: 'code',
+							content: {
+								code: "//Первый код\r\nconsole.log('Hello, world!')\r\n",
+								language: 'jsx',
+							},
+						},
+					],
 				},
 				{
 					id: 2,

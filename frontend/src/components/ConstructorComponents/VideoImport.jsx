@@ -170,7 +170,7 @@ export const ConstructorVideoInput = ({
 
 				{previews.length < maxFiles && (
 					<div
-						className={`p-2 w-full h-full flex aspect-32/9 ${
+						className={`p-2 w-full h-full flex  ${
 							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
 						} rounded-lg transition-all`}
 					>

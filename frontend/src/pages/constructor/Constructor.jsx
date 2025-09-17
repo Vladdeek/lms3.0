@@ -738,7 +738,7 @@ const ContentView = ({ content }) => {
 	console.log(blocks)
 
 	return (
-		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
+		<div className=' flex flex-col gap-3 rounded-xl overflow-scroll p-5 max-h-200'>
 			<ModuleContent bg={true} type={content.type} title={content.title} />
 
 			{content.type === 'test' ? (
@@ -1072,7 +1072,7 @@ const Constructor = ({
 						</div>
 					</div>
 				</div>
-				<div className='max-[1200px]:hidden'>
+				<div className='max-[1200px]:hidden bg-[var(--white)] shadow-[var(--shadow)] rounded-xl'>
 					<ContentView content={selectedContent} />
 				</div>
 			</div>

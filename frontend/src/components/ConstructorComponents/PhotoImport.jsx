@@ -13,6 +13,10 @@ export const ConstructorPhotoInput = ({
 	const [previews, setPreviews] = useState([])
 
 	useEffect(() => {
+		console.log('фото:', fileInfo)
+	}, [fileInfo])
+
+	useEffect(() => {
 		const data = previews
 		onChange?.(data)
 	}, [fileInfo])
@@ -113,9 +117,7 @@ export const ConstructorPhotoInput = ({
 				{previews.length < maxFiles && (
 					<div
 						className={`p-2 flex ${
-							previews.length === 0
-								? 'col-span-2 aspect-32/9'
-								: 'col-span-1 aspect-16/9'
+							previews.length === 0 ? 'col-span-2' : 'col-span-1 aspect-16/9'
 						}   ${
 							isDragActive
 								? 'border-[var(--hero-epta)]'
@@ -126,7 +128,7 @@ export const ConstructorPhotoInput = ({
 					>
 						<label
 							htmlFor='dropzone-file'
-							className={`rounded-lg p-[10px] gap-[10px] transition border-3 aspect-16/9 w-full h-full border-dashed ${
+							className={`rounded-lg p-[10px] gap-[10px] transition border-3 w-full h-full border-dashed ${
 								isDragActive
 									? 'bg-[var(--hero-pale)] border-[var(--hero-epta)]'
 									: 'bg-[var(--light-gray)] border-[var(--middle)]'
