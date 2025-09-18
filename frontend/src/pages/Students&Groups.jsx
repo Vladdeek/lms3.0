@@ -438,7 +438,7 @@ const StudentsAndGroups = () => {
 						</p>
 						<OptionInput Options={GroupMass} />
 					</div>
-					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5 h-150 overflow-y-scroll'>
+					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5 h-150 overflow-y-scroll hide-scrollbar'>
 						{students.map((item, index) => (
 							<StudentCard
 								key={item.id || index}

@@ -211,3 +211,11 @@ body {
 	left: 0;
 	top: 0;
 }
+
+.hide-scrollbar {
+	-ms-overflow-style: none; /* IE и Edge */
+	scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, Opera */
+}

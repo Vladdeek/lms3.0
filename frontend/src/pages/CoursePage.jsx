@@ -433,7 +433,7 @@ const CourseOverview = ({ content }) => {
 								</div>
 							</div>
 
-							<div className='h-150 flex flex-col gap-3 overflow-scroll w-full py-2 px-2'>
+							<div className='h-150 flex flex-col gap-3 overflow-y-scroll hide-scrollbar w-full py-2 px-2'>
 								<ModuleBlock
 									ModuleInfo={content?.modules}
 									onContentSelect={handleContentSelect}

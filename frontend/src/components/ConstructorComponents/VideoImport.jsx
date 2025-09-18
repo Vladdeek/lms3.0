@@ -2,17 +2,26 @@ import { Film, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { InputDefault } from '../Inputs'
 import VideoPlayer from '../VideoPlayer'
+import { API, FILE_API } from '../../API'
 
 export const ConstructorVideoInput = ({
 	onStatusChange,
 	DelComponent,
 	onChange,
+	takeValues,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [previews, setPreviews] = useState([])
 	const [videoUrl, setVideoUrl] = useState('')
 	const [isDragActive, setIsDragActive] = useState(false)
+	const [uploading, setUploading] = useState(false)
+
+	useEffect(() => {
+		if (takeValues && !videoUrl) {
+			setPreviews([{ fileUrl: takeValues[0]?.fileUrl }])
+		}
+	}, [])
 
 	const validFormats = [
 		'video/mp4',
@@ -38,6 +47,49 @@ export const ConstructorVideoInput = ({
 		}
 	}
 
+	const uploadFileToAPI = async fileToUpload => {
+		setUploading(true)
+		try {
+			const formData = new FormData()
+			formData.append('file', fileToUpload)
+
+			const response = await fetch(`${API}/files/`, {
+				method: 'POST',
+				body: formData,
+			})
+
+			if (!response.ok) {
+				const errorText = await response.text()
+				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
+			}
+
+			const result = await response.json()
+
+			const uploadedUrl = `${FILE_API}${
+				result?.file_path?.match(/static\\.*$/)?.[0]
+			}`
+
+			return {
+				file: fileToUpload,
+				fileId: result.id,
+				fileUrl: uploadedUrl,
+				preview: URL.createObjectURL(fileToUpload),
+				info: {
+					name: fileToUpload.name,
+					size: (fileToUpload.size / 1024 / 1024).toFixed(2),
+					type: fileToUpload.type,
+					duration: 0,
+				},
+				isUrl: false,
+			}
+		} catch (error) {
+			console.error('Ошибка загрузки файла:', error)
+			throw error
+		} finally {
+			setUploading(false)
+		}
+	}
+
 	const handleUrlChange = e => {
 		const url = e.target.value
 		setVideoUrl(url)
@@ -57,11 +109,13 @@ export const ConstructorVideoInput = ({
 			setPreviews([urlPreview])
 			setInputStatus(true)
 			onStatusChange?.(true)
+			onChange?.([urlPreview])
 		} else {
 			setPreviews(prev => prev.filter(p => !p.isUrl))
 			if (previews.length === 0) {
 				setInputStatus(false)
 				onStatusChange?.(false)
+				onChange?.([])
 			}
 		}
 	}
@@ -71,51 +125,34 @@ export const ConstructorVideoInput = ({
 		handleFiles(files)
 	}
 
-	const handleFiles = files => {
+	const handleFiles = async files => {
 		if (!files.length) return
 		setVideoUrl('')
 
-		files.slice(0, maxFiles - previews.length).forEach(file => {
-			if (!validFormats.includes(file.type) || file.size > maxSize) return
+		const file = files[0]
+		if (!validFormats.includes(file.type) || file.size > maxSize) return
 
-			const video = document.createElement('video')
-			video.src = URL.createObjectURL(file)
-			video.onloadeddata = () => {
-				const canvas = document.createElement('canvas')
-				canvas.width = video.videoWidth
-				canvas.height = video.videoHeight
-				canvas
-					.getContext('2d')
-					.drawImage(video, 0, 0, canvas.width, canvas.height)
-				const thumbnail = canvas.toDataURL('image/jpeg')
+		try {
+			const uploadedFile = await uploadFileToAPI(file)
 
-				setPreviews(prev => [
-					...prev,
-					{
-						file,
-						videoUrl: video.src,
-						preview: thumbnail,
-						info: {
-							name: file.name,
-							size: (file.size / 1024 / 1024).toFixed(2),
-							type: file.type,
-							duration: video.duration,
-						},
-						isUrl: false,
-					},
-				])
-				setInputStatus(true)
-				onStatusChange?.(true)
-			}
-		})
+			setPreviews([uploadedFile])
+			setInputStatus(true)
+			onStatusChange?.(true)
+			onChange?.([uploadedFile])
+		} catch (error) {
+			console.error('Ошибка обработки файла:', error)
+		}
 	}
 
 	const removePreview = index => {
-		if (!previews[index].isUrl) URL.revokeObjectURL(previews[index].videoUrl)
+		if (!previews[index].isUrl) {
+			URL.revokeObjectURL(previews[index].preview)
+		}
 		setPreviews(prev => prev.filter((_, i) => i !== index))
 		if (previews.length === 1) {
 			setInputStatus(false)
 			onStatusChange?.(false)
+			onChange?.([])
 		}
 	}
 
@@ -134,9 +171,9 @@ export const ConstructorVideoInput = ({
 	}
 
 	useEffect(() => {
-		onChange?.(previews)
-		return () =>
-			previews.forEach(p => !p.isUrl && URL.revokeObjectURL(p.videoUrl))
+		return () => {
+			previews.forEach(p => !p.isUrl && URL.revokeObjectURL(p.preview))
+		}
 	}, [previews])
 
 	return (
@@ -151,16 +188,8 @@ export const ConstructorVideoInput = ({
 			<div className='flex justify-center w-full gap-3'>
 				{previews.map((p, i) => (
 					<div key={i} className='relative w-1/2 aspect-16/9 group'>
-						<VideoPlayer url={p.videoUrl} />
-						<div className='absolute top-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity'>
-							<div className='truncate'>{p.info.name}</div>
-							<div className='flex justify-between text-[10px] opacity-80'>
-								<span>{p.info.size} MB</span>
-								{p.info.duration > 0 && (
-									<span>{Math.round(p.info.duration)}s</span>
-								)}
-							</div>
-						</div>
+						<VideoPlayer url={p.videoUrl || p.fileUrl} />
+
 						<X
 							onClick={() => removePreview(i)}
 							className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
@@ -243,6 +272,7 @@ export const ConstructorVideoInput = ({
 								accept='.mp4,.webm,.ogg,.mov,.avi,.wmv,.mkv,.3gp,.mpeg'
 								className='hidden'
 								onChange={handleFileChange}
+								disabled={uploading}
 							/>
 						</label>
 					</div>

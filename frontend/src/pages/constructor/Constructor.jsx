@@ -765,7 +765,7 @@ const ContentView = ({
 	}
 
 	return (
-		<div className=' flex flex-col gap-3 rounded-xl overflow-scroll p-5 max-h-200'>
+		<div className=' flex flex-col gap-3 rounded-xl overflow-y-scroll hide-scrollbar hide-scrollbar p-5 max-h-200'>
 			<ModuleContent bg={true} type={SectionType} title={SectionName} />
 
 			{SectionType === 'test' ? (
@@ -827,6 +827,7 @@ const ContentView = ({
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
+										takeValues={block?.content}
 									/>
 								)
 								break
@@ -1066,7 +1067,7 @@ const Constructor = ({
 							</div>
 						</div>
 
-						<div className='h-150 flex flex-col gap-3 overflow-scroll w-full py-2 px-2'>
+						<div className='h-150 flex flex-col gap-3 overflow-y-scroll hide-scrollbar w-full py-2 px-2'>
 							<ModuleBlock
 								ModuleInfo={content?.modules}
 								onContentSelect={handleContentSelect}

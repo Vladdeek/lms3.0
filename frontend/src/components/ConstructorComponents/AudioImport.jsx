@@ -1,6 +1,7 @@
 import { FileAudio, Trash2, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
+import { API, FILE_API } from '../../API'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -18,6 +19,44 @@ export const AudioInput = ({
 	useEffect(() => {
 		const data = file
 		onChange?.(data)
+
+		const uploadFileToAPI = async fileToUpload => {
+			try {
+				const formData = new FormData()
+				formData.append('file', file)
+				const response = await fetch(`${API}/files/`, {
+					method: 'POST',
+					body: formData,
+				})
+
+				if (!response.ok) {
+					const errorText = await response.text()
+					throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
+				}
+
+				const result = await response.json()
+
+				setAudioUrl(
+					`${FILE_API}${result?.file_path?.match(/static\\.*$/)?.[0]}`
+				)
+
+				onFileChange?.({
+					file: fileToUpload,
+					fileId: result.id,
+					fileUrl: result.url,
+				})
+
+				return result
+			} catch (error) {
+				console.error('Ошибка загрузки файла:', error)
+
+				throw error
+			} finally {
+			}
+		}
+		if (data) {
+			uploadFileToAPI(data)
+		}
 	}, [file])
 
 	const handleFileChange = e => {

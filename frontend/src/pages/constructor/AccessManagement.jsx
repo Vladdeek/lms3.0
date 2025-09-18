@@ -89,7 +89,7 @@ const AccessBlock = ({
 				<p className='col-span-3 text-center'>Успеваемость</p>
 				<p className='col-span-1 text-center'></p>
 			</div>
-			<div className='flex flex-col gap-3 overflow-y-scroll p-2'>
+			<div className='flex flex-col gap-3 overflow-y-scroll hide-scrollbar p-2'>
 				{mass.map(item => (
 					<GroupComponent
 						number={item.number}

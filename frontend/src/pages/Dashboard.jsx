@@ -5,6 +5,7 @@ import MoodBlock from '../components/MoodBlock'
 import { students } from '../data/students'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import { NavLink } from 'react-router-dom'
+import DirectionOfTraining from '../components/DirectionOfTraining'
 
 const Comment = ({ img_path, FullName, lesson, comment }) => {
 	return (
@@ -88,23 +89,28 @@ const Dashboard = () => {
 			<div className='grid grid-cols-12 gap-5 mt-10'>
 				<div className='col-span-5 flex flex-col gap-5'>
 					<div className='flex gap-5'>
-						<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col items-center gap-3 rounded-xl w-2/5 p-4'>
-							<img
-								className='aspect-square rounded-lg shadow-[var(--shadow)]'
-								src={students[0].img}
-								alt=''
+						<div className='w-2/5 flex-col'>
+							<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col items-center gap-3 rounded-xl p-4 mb-5'>
+								<img
+									className='aspect-square rounded-lg shadow-[var(--shadow)]'
+									src={students[0].img}
+									alt=''
+								/>
+								<p className='font-medium text-[var(--black)]'>
+									{students[0].name}
+								</p>
+							</div>
+							<DirectionOfTraining
+								group={'2211-0101.1'}
+								course={3}
+								DofT={'ИБ'}
 							/>
-							<p className='font-medium text-[var(--black)]'>
-								{students[0].name}
-							</p>
 						</div>
-						<div className='w-3/5'>
-							<MiniCalendar />
-						</div>
-					</div>
-					<div className='flex gap-5'>
-						<div className='w-2/5'></div>
-						<div className='w-3/5'>
+
+						<div className='w-3/5 flex-col'>
+							<div className='mb-5'>
+								<MiniCalendar />
+							</div>
 							<MoodBlock />
 						</div>
 					</div>
@@ -166,7 +172,7 @@ const Dashboard = () => {
 								</div>
 							</div>
 						</div>
-						<div className='col-span-4 overflow-y-scroll flex flex-col gap-3 w-full h-85 p-1 pr-3 pb-2'>
+						<div className='col-span-4 overflow-y-scroll hide-scrollbar flex flex-col gap-3 w-full h-85 p-1 pr-3 pb-2'>
 							<LessonCard
 								lesson={'Практика №1'}
 								description={'Переменные'}
@@ -222,7 +228,7 @@ const Dashboard = () => {
 							<p className='text-[var(--black)] mb-2'>
 								Комментарии к выполненным работам
 							</p>
-							<div className='overflow-y-scroll w-full h-75 flex flex-col gap-3 p-1 pr-5 pb-2'>
+							<div className='overflow-y-scroll hide-scrollbar w-full h-75 flex flex-col gap-3 p-1 pr-5 pb-2'>
 								<Comment
 									img_path={students[2].img}
 									FullName={students[2].name}
@@ -247,7 +253,7 @@ const Dashboard = () => {
 								<p className='pt-[2px]'>Моя успеваемость</p>
 								<ArrowUpRight />
 							</NavLink>
-							<div className='overflow-y-scroll w-full h-70 flex flex-col gap-3 p-1 px-3 pb-2 mt-5'>
+							<div className='overflow-y-scroll hide-scrollbar w-full h-70 flex flex-col gap-3 p-1 px-3 pb-2 mt-5'>
 								<AverageScore
 									score={4.3}
 									education={'Бакалавриат'}

@@ -356,7 +356,7 @@ export const OptionInput = ({ Options, color = 'white', placeholder = '' }) => {
 				{isOpen && (
 					<div
 						className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
-				max-h-50 overflow-scroll w-full top-14 z-100'
+				max-h-50 overflow-scroll w-full top-14 z-100 text-[var(--black)]'
 					>
 						{Options.map((item, index) => {
 							return (
