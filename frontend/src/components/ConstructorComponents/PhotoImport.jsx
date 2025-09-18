@@ -1,30 +1,72 @@
 import { ImagePlus, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
+import { API, FILE_API } from '../../API'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
 	DelComponent,
 	onChange,
+	takeValues,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
-	const [fileInfo, setFileInfo] = useState(null)
+
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [previews, setPreviews] = useState([])
+	const [imgUrl, setImgUrl] = useState(takeValues || [])
 
-	console.log('фото:', previews)
+	console.log(imgUrl)
 
 	useEffect(() => {
-		const data = previews
+		const data = imgUrl
 		onChange?.(data)
-	}, [fileInfo])
+	}, [imgUrl])
 
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 	const maxSize = 20 * 1024 * 1024
 	const maxFiles = 4
 
+	const uploadFileToAPI = async fileToUpload => {
+		try {
+			const formData = new FormData()
+			formData.append('file', fileToUpload)
+			const response = await fetch(`${API}/files/`, {
+				method: 'POST',
+				body: formData,
+			})
+
+			if (!response.ok) {
+				const errorText = await response.text()
+				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
+			}
+
+			const result = await response.json()
+
+			setImgUrl(prevUrls => [
+				...prevUrls,
+				{
+					photoUrl: `${FILE_API}${
+						result?.file_path?.match(/static\\.*$/)?.[0]
+					}`,
+				},
+			])
+
+			return result
+		} catch (error) {
+			console.error('Ошибка загрузки файла:', error)
+
+			throw error
+		} finally {
+		}
+	}
+
 	const handleFileChange = e => {
 		const files = Array.from(e.target.files)
+
+		console.log('files: ', files[0])
+
+		uploadFileToAPI(files[0])
+
 		handleFiles(files)
 	}
 
@@ -95,10 +137,10 @@ export const ConstructorPhotoInput = ({
 			</button>
 			<div className='grid grid-cols-2 w-full gap-3'>
 				{/* Отображаем превью загруженных изображений */}
-				{previews.map((previewData, index) => (
+				{imgUrl.map((previewData, index) => (
 					<div key={index} className='relative col-span-1 aspect-16/9'>
 						<img
-							src={previewData.preview}
+							src={previewData.photoUrl}
 							alt={`preview-${index}`}
 							className='w-full h-full object-cover rounded-lg'
 						/>
@@ -112,10 +154,10 @@ export const ConstructorPhotoInput = ({
 				))}
 
 				{/* Показываем поле загрузки, если не достигнут лимит */}
-				{previews.length < maxFiles && (
+				{imgUrl.length < maxFiles && (
 					<div
 						className={`p-2 flex ${
-							previews.length === 0 ? 'col-span-2' : 'col-span-1 aspect-16/9'
+							imgUrl.length === 0 ? 'col-span-2' : 'col-span-1 aspect-16/9'
 						}   ${
 							isDragActive
 								? 'border-[var(--hero-epta)]'
@@ -183,7 +225,6 @@ export const ConstructorPhotoInput = ({
 							<input
 								id={inputId}
 								type='file'
-								multiple
 								accept='.png,.jpg,.jpeg,.webp,.gif'
 								className='hidden'
 								onChange={handleFileChange}
