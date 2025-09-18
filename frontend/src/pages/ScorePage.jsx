@@ -20,8 +20,8 @@ const SubjectRow = ({ scores, SubjectId, SubjectName, maxScoresCount }) => {
 	return (
 		<div className='bg-[var(--white)] rounded-lg p-2 flex items-center shadow-[var(--shadow)]'>
 			<div className='w-1/5 flex mr-5'>
-				<p className='w-1/5 text-center'>{SubjectId}</p>
-				<p className='w-4/5 text-center'>{SubjectName}</p>
+				<p className='w-1/5 text-center text-[var(--black)]'>{SubjectId}</p>
+				<p className='w-4/5 text-center text-[var(--black)]'>{SubjectName}</p>
 			</div>
 			<div className='w-4/5 flex'>
 				{scores.map((item, index) => {
@@ -114,7 +114,7 @@ const ScorePage = () => {
 				</div>
 
 				<div className='col-span-5 flex flex-col gap-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4'>
-					<div className='bg-[var(--white)] rounded-lg p-2 flex'>
+					<div className='bg-[var(--white)] rounded-lg p-2 flex text-[var(--black)]'>
 						<div className='w-1/5 flex'>
 							<p className='w-1/5 text-center'>№</p>
 							<p className='w-4/5 text-center'>Название предмета</p>

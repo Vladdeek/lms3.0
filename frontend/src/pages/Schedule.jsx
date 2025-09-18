@@ -48,9 +48,7 @@ const DayCard = ({ isCurrentDay, isWeekendDay, day, month, weekDay }) => {
 	return (
 		<div
 			className={` rounded-xl shadow-[var(--shadow)] flex items-center justify-center gap-3 text-[var(--black)] font-medium w-full p-4 ${
-				isCurrentDay
-					? 'bg-[var(--hero-epta)] text-[var(--white)]'
-					: 'bg-[var(--white)]'
+				isCurrentDay ? 'bg-[var(--hero-epta)] text-white' : 'bg-[var(--white)]'
 			} ${isWeekendDay ? 'opacity-60' : ''}`}
 		>
 			<div className='flex flex-col items-center justify-center'>

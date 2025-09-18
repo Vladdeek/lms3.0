@@ -64,7 +64,7 @@
 	--bg: #1a1a1a;
 	--white: #252525;
 	--black: #f0f0f0;
-	--hero-epta: #ff5c8d;
+	--hero-epta: #f43b75;
 	--hero-pale: #463037;
 	--middle: #bbbbbb;
 	--light-middle: #222222;
@@ -98,15 +98,15 @@
 	--button5-bg: #1daf00;
 	--button6-bg: #ff6f6f;
 
-	--mood-color1-bg: #1e3b2a;
-	--mood-color1-dark: #0f2515;
-	--mood-color1-pale: #3a7041;
-	--mood-color2-bg: #3b331a;
-	--mood-color2-dark: #1e160f;
-	--mood-color2-pale: #5c502d;
-	--mood-color3-bg: #3b1a1a;
-	--mood-color3-dark: #1a0f0f;
-	--mood-color3-pale: #7f3f3a;
+	--mood-color1-bg: #7cd880;
+	--mood-color1-dark: #264c27;
+	--mood-color1-pale: #6bb96d;
+	--mood-color2-bg: #e3d96c;
+	--mood-color2-dark: #4c3f26;
+	--mood-color2-pale: #b9b06b;
+	--mood-color3-bg: #de564a;
+	--mood-color3-dark: #4c2626;
+	--mood-color3-pale: #bc3e33;
 
 	--correct: #1e3b2a;
 	--not-correct: #3b1a1a;

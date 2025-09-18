@@ -77,7 +77,7 @@ const MiniCalendar = () => {
 																? 'opacity-40'
 																: 'text-[var(--black)]'
 														}
-                            hover:bg-[var(--hero-epta)] p-[10px] hover:text-white transition
+                            hover:bg-[var(--hero-epta)] p-[10px] hover:text-white transition text-[var(--black)]
                         `}
 					>
 						{format(day, 'd')}
