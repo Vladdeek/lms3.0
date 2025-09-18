@@ -274,6 +274,8 @@ const ConstructorPage = () => {
 	const [blocks, setBlocks] = useState()
 	const [selectedContentId, setSelectedContentId] = useState(null)
 
+	console.log('blocks: ', blocks, '\nid: ', selectedContentId)
+
 	const handleSubmit = async (content, sectionId) => {
 		console.log(
 			'Отправка контента: ',

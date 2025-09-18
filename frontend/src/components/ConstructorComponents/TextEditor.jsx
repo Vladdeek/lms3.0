@@ -62,17 +62,20 @@ const toggleBlock = (editor, format) => {
 	Transforms.setNodes(editor, newProperties)
 }
 
-export const ConstructorEditor = ({ DelComponent, onChange }) => {
+export const ConstructorEditor = ({ DelComponent, onChange, takeValue }) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), [])
 
 	const initialValue = useMemo(
-		() => [
-			{
-				type: 'paragraph',
-				children: [{ text: '' }],
-			},
-		],
-		[]
+		() =>
+			takeValue
+				? JSON.parse(takeValue)
+				: [
+						{
+							type: 'paragraph',
+							children: [{ text: '' }],
+						},
+				  ],
+		[takeValue]
 	)
 
 	const [value, setValue] = useState(initialValue)

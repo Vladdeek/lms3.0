@@ -1,11 +1,19 @@
 import { Minus, Plus, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-export const TableConstructor = ({ DelComponent, onChange }) => {
-	const [rows, setRows] = useState(2)
-	const [cols, setCols] = useState(2)
+export const TableConstructor = ({ DelComponent, onChange, takeValues }) => {
+	const [rows, setRows] = useState(takeValues?.rows || 2)
+	const [cols, setCols] = useState(takeValues?.cols || 2)
+
+	const reshapeTo2D = (flat, rows, cols) => {
+		return Array.from({ length: rows }, (_, rowIndex) =>
+			flat.slice(rowIndex * cols, rowIndex * cols + cols)
+		)
+	}
+
 	const [tableData, setTableData] = useState(
-		Array.from({ length: rows }, () => Array(cols).fill(''))
+		reshapeTo2D(takeValues?.data, takeValues?.rows, takeValues?.cols) ||
+			Array.from({ length: rows }, () => Array(cols).fill(''))
 	)
 
 	useEffect(() => {

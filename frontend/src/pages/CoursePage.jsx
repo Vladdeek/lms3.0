@@ -382,7 +382,7 @@ const CourseOverview = ({ content }) => {
 	const [selectedName, setSelectedName] = useState(null)
 	const [sectionId, setSectionId] = useState(null)
 
-	const handleContentSelect = (SectionId, SectionType) => {
+	const handleContentSelect = (SectionId, SectionType, SectionName) => {
 		setSectionId(SectionId)
 		setSelectedType(SectionType)
 		setSelectedName(SectionName)
@@ -397,9 +397,10 @@ const CourseOverview = ({ content }) => {
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
 				const data = await res.json()
 
-				console.log('Fetched content data:', data) // Логируем полученные данные
+				console.log('Fetched content data:', data)
 				setSelectedContent(data)
 			} catch (err) {
+				setSelectedContent(null)
 				console.error(err)
 			}
 		}

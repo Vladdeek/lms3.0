@@ -7,12 +7,13 @@ export const CodeFileInput = ({
 	onStatusChange,
 	onFileChange,
 	DelComponent,
+	takeValues,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const [codeInfo, setCodeInfo] = useState(null)
+	const [codeInfo, setCodeInfo] = useState(takeValues || null)
 	const maxSize = 10 * 1024 * 1024
 
 	const getLanguageFromExtension = filename => {
@@ -129,6 +130,7 @@ export const CodeFileInput = ({
 						width='w-full'
 						codeInfo={codeInfo}
 						onClick={removeFile}
+						view={takeValues}
 					/>
 				) : (
 					<div

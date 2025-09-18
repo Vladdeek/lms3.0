@@ -29,9 +29,9 @@ const ControlledInputDefault = ({ value, onChange, ...props }) => {
 	)
 }
 
-export const ButtonConstructor = ({ DelComponent, onChange }) => {
-	const [buttonTitle, setButtonTitle] = useState('')
-	const [buttonUrl, setButtonUrl] = useState('')
+export const ButtonConstructor = ({ DelComponent, onChange, takeValues }) => {
+	const [buttonTitle, setButtonTitle] = useState(takeValues?.buttonTitle || '')
+	const [buttonUrl, setButtonUrl] = useState(takeValues?.buttonUrl || '')
 	const [isValidUrl, setIsValidUrl] = useState(false)
 
 	useEffect(() => {

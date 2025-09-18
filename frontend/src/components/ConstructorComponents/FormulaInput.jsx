@@ -9,8 +9,12 @@ import {
 import { useEffect, useState } from 'react'
 import { MathJax, MathJaxContext } from 'better-react-mathjax'
 
-export default function FormulaConstructor({ DelComponent, onChange }) {
-	const [formula, setFormula] = useState('E = mc^2')
+export default function FormulaConstructor({
+	DelComponent,
+	onChange,
+	takeValues,
+}) {
+	const [formula, setFormula] = useState(takeValues?.formula || 'E = mc^2')
 
 	const config = {
 		loader: { load: ['input/tex', 'output/chtml'] },

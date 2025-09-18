@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-export const CalloutConstructor = ({ DelComponent, onChange }) => {
+export const CalloutConstructor = ({ DelComponent, onChange, takeValues }) => {
 	const icons = [
 		{ name: 'ShieldAlert', icon: <ShieldAlert size={32} strokeWidth={1.5} /> },
 		{ name: 'Megaphone', icon: <Megaphone size={32} strokeWidth={1.5} /> },
@@ -30,8 +30,8 @@ export const CalloutConstructor = ({ DelComponent, onChange }) => {
 
 	const [isOpen, setIsOpen] = useState(false)
 	const [selectedIcon, setSelectedIcon] = useState(icons[1])
-	const [title, setTitle] = useState('')
-	const [description, setDescription] = useState('')
+	const [title, setTitle] = useState(takeValues?.title || '')
+	const [description, setDescription] = useState(takeValues?.description || '')
 
 	useEffect(() => {
 		const data = {
@@ -47,6 +47,8 @@ export const CalloutConstructor = ({ DelComponent, onChange }) => {
 		setIsOpen(false)
 	}
 
+	const iconObj = icons.find(i => i.name === takeValues?.icon)
+
 	return (
 		<div className='flex gap-2'>
 			<button
@@ -61,7 +63,7 @@ export const CalloutConstructor = ({ DelComponent, onChange }) => {
 					onClick={() => setIsOpen(prev => !prev)}
 					className='relative cursor-pointer text-[var(--middle)] hover:text-[var(--black)] transition-all'
 				>
-					{selectedIcon.icon}
+					{takeValues ? iconObj?.icon : selectedIcon.icon}
 				</button>
 
 				{isOpen && (

@@ -715,10 +715,16 @@ const ConstructorLevels = ({
 	)
 }
 
-const ContentView = ({ content, onBlocksChange }) => {
-	const [blocks, setBlocks] = useState([])
+const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
+	const [blocks, setBlocks] = useState([])
+
+	useEffect(() => {
+		if (content) {
+			setBlocks(content)
+		}
+	}, [content])
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
 
@@ -726,12 +732,13 @@ const ContentView = ({ content, onBlocksChange }) => {
 		setBlocks(prev => prev.filter((_, i) => i !== index))
 
 	const handleBlockChange = (index, data) => {
-		setBlocks(prev =>
-			prev.map((b, i) => (i === index ? { ...b, content: data } : b))
-		)
-		onBlocksChange?.(
-			blocks.map((b, i) => (i === index ? { ...b, content: data } : b))
-		)
+		setBlocks(prev => {
+			const updated = prev.map((b, i) =>
+				i === index ? { ...b, content: data } : b
+			)
+			onBlocksChange?.(updated)
+			return updated
+		})
 	}
 
 	if (!content) {
@@ -746,9 +753,9 @@ const ContentView = ({ content, onBlocksChange }) => {
 
 	return (
 		<div className=' flex flex-col gap-3 rounded-xl overflow-scroll p-5 max-h-200'>
-			<ModuleContent bg={true} type={content.type} title={content.title} />
+			<ModuleContent bg={true} type={SectionType} title={SectionName} />
 
-			{content.type === 'test' ? (
+			{SectionType === 'test' ? (
 				<>
 					<ConstructorLevels
 						questions={questions}
@@ -768,8 +775,9 @@ const ContentView = ({ content, onBlocksChange }) => {
 			) : (
 				<>
 					<ConstructorTitleInput DelComponent={() => {}} />
-					{blocks.map((block, i) => {
+					{blocks?.map((block, i) => {
 						const del = () => removeBlock(i)
+
 						switch (block.type) {
 							case 'text':
 								return (
@@ -777,6 +785,7 @@ const ContentView = ({ content, onBlocksChange }) => {
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
+										takeValue={block?.content?.content}
 									/>
 								)
 							case 'code':
@@ -785,6 +794,7 @@ const ContentView = ({ content, onBlocksChange }) => {
 										key={i}
 										DelComponent={del}
 										onFileChange={data => handleBlockChange(i, data)}
+										takeValues={block?.content}
 									/>
 								)
 							case 'image':
@@ -817,6 +827,7 @@ const ContentView = ({ content, onBlocksChange }) => {
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
+										takeValues={block?.content}
 									/>
 								)
 							case 'audio':
@@ -833,6 +844,7 @@ const ContentView = ({ content, onBlocksChange }) => {
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
+										takeValues={block?.content}
 									/>
 								)
 							case 'formula':
@@ -841,6 +853,7 @@ const ContentView = ({ content, onBlocksChange }) => {
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
+										takeValues={block?.content}
 									/>
 								)
 							case 'button':
@@ -849,6 +862,7 @@ const ContentView = ({ content, onBlocksChange }) => {
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
+										takeValues={block?.content}
 									/>
 								)
 							default:
@@ -949,11 +963,31 @@ const Constructor = ({
 	onSelectedContentChange,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
+	const [section, setSection] = useState(null)
 
-	const handleContentSelect = content => {
-		setSelectedContent(content)
-		onSelectedContentChange?.(content.id)
+	const handleContentSelect = SectionId => {
+		setSection(SectionId)
+		onSelectedContentChange?.(SectionId?.id)
 	}
+
+	useEffect(() => {
+		if (!section) return
+
+		const fetchContent = async () => {
+			try {
+				const res = await fetch(`${API}/sections/${section?.id}/content`)
+				if (!res.ok) throw new Error('Ошибка при загрузке контента')
+				const data = await res.json()
+
+				setSelectedContent(data)
+			} catch (err) {
+				setSelectedContent(null)
+				console.error(err)
+			}
+		}
+
+		fetchContent()
+	}, [section])
 
 	return (
 		<>
@@ -1016,6 +1050,8 @@ const Constructor = ({
 				<div className='max-[1200px]:hidden bg-[var(--white)] shadow-[var(--shadow)] rounded-xl'>
 					<ContentView
 						content={selectedContent}
+						SectionType={section?.type}
+						SectionName={section?.title}
 						onBlocksChange={onBlocksChange}
 					/>
 				</div>
