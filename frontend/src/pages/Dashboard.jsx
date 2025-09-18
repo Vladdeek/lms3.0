@@ -218,8 +218,8 @@ const Dashboard = () => {
 						</div>
 					</div>
 					<div className='h-1/2 grid grid-cols-7 gap-5'>
-						<div className='col-span-4 h-full bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-4'>
-							<p className='text-[var(--black)]'>
+						<div className='col-span-4 h-full  bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-4'>
+							<p className='text-[var(--black)] mb-2'>
 								Комментарии к выполненным работам
 							</p>
 							<div className='overflow-y-scroll w-full h-75 flex flex-col gap-3 p-1 pr-5 pb-2'>

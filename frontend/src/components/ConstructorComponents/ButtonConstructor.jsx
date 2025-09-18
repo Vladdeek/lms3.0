@@ -4,7 +4,7 @@ import { InputDefault } from '../Inputs'
 
 export const CustomConstructButton = ({ title }) => {
 	return (
-		<button className='text-[var(--white)] px-4 py-3 rounded-lg cursor-pointer hover:scale-105 active:scale-95 transition-all bg-[var(--hero-epta)] font-medium'>
+		<button className='text-white px-4 py-3 rounded-lg cursor-pointer hover:scale-105 active:scale-95 transition-all bg-[var(--hero-epta)] font-medium '>
 			{title || 'Кнопка'}
 		</button>
 	)
@@ -58,7 +58,7 @@ export const ButtonConstructor = ({ DelComponent, onChange, takeValues }) => {
 	return (
 		<div className='flex gap-2'>
 			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
 				onClick={DelComponent}
 			>
 				<X />

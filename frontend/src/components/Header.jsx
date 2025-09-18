@@ -29,7 +29,7 @@ const HeaderBtn = ({ onClick, action, icon: Icon, Notifications = null }) => {
 			onClick={action === 'toggleTheme' ? toggleTheme : onClick}
 			className={`relative rounded-lg p-[14px] ${
 				action === 'toggleTheme' &&
-				'hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+				'hover:bg-[var(--hero-epta)] hover:text-white'
 			}  text-[var(--black)] shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer`}
 		>
 			{action === 'toggleTheme' ? (

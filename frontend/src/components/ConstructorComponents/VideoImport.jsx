@@ -143,7 +143,7 @@ export const ConstructorVideoInput = ({
 		<div className='flex gap-2'>
 			<button
 				onClick={DelComponent}
-				className='self-start bg-[var(--white)] shadow p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer'
+				className='self-start bg-[var(--white)] shadow p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer text-[var(--black)]'
 			>
 				<X />
 			</button>

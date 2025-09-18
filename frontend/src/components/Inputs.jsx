@@ -59,7 +59,7 @@ export const InputDefault = ({
 				type={type}
 				value={internalValue}
 				onChange={handleInputChange}
-				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition mt-3'
+				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] placeholder:text-[var(--middle)] text-[var(--black)] transition mt-3'
 				placeholder={placeholder}
 			/>
 		</div>

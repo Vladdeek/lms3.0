@@ -56,7 +56,7 @@ export const TableConstructor = ({ DelComponent, onChange, takeValues }) => {
 	return (
 		<div className='flex gap-2'>
 			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
 				onClick={DelComponent}
 			>
 				<X />
@@ -81,7 +81,7 @@ export const TableConstructor = ({ DelComponent, onChange, takeValues }) => {
 										type='text'
 										value={cell}
 										onChange={e => updateCell(r, c, e.target.value)}
-										className={`outline-0 border border-[var(--light-middle)] p-2 transition-all ${
+										className={`outline-0 border border-[var(--light-middle)] p-2 transition-all text-[var(--black)] ${
 											isDark ? ' bg-[var(--light-gray)]' : ' bg-[var(--white)]'
 										}`}
 									/>

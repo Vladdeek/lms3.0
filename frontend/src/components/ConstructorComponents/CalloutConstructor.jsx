@@ -52,7 +52,7 @@ export const CalloutConstructor = ({ DelComponent, onChange, takeValues }) => {
 	return (
 		<div className='flex gap-2'>
 			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
 				onClick={DelComponent}
 			>
 				<X />
@@ -82,13 +82,13 @@ export const CalloutConstructor = ({ DelComponent, onChange, takeValues }) => {
 				<div className='flex flex-col w-full gap-3 h-30'>
 					<input
 						type='text'
-						className='text-base font-medium outline-0'
+						className='text-base font-medium outline-0 text-[var(--black)] placeholder:text-[var(--middle)]'
 						placeholder='Заголовок'
 						value={title}
 						onChange={e => setTitle(e.target.value)}
 					/>
 					<textarea
-						className='resize-none h-full text-sm font-normal outline-0'
+						className='resize-none h-full text-sm font-normal outline-0 text-[var(--black)] placeholder:text-[var(--middle)]'
 						placeholder='Описание'
 						value={description}
 						onChange={e => setDescription(e.target.value)}

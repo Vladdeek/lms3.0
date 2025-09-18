@@ -175,13 +175,13 @@ export const ConstructorEditor = ({ DelComponent, onChange, takeValue }) => {
 	return (
 		<div className='flex gap-2'>
 			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
 				onClick={DelComponent}
 			>
 				<X />
 			</button>
 
-			<div className='w-full flex flex-col'>
+			<div className='w-full flex flex-col text-[var(--black)]'>
 				<div className='flex flex-wrap gap-1 mb-2 bg-[var(--white)] shadow-[var(--shadow)] p-2 rounded-lg w-fit'>
 					<ToolbarButton format='bold' icon={Bold} />
 					<ToolbarButton format='italic' icon={Italic} />
@@ -194,7 +194,7 @@ export const ConstructorEditor = ({ DelComponent, onChange, takeValue }) => {
 					<ToolbarButton format='align-right' icon={AlignRight} isBlock />
 				</div>
 
-				<div className='w-full'>
+				<div className='w-full text-[var(--black)]'>
 					<Slate
 						editor={editor}
 						value={value}

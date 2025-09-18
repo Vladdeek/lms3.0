@@ -10,7 +10,7 @@ import { ru } from 'date-fns/locale'
 import DirectionOfTraining from '../components/DirectionOfTraining'
 
 const scheduleData = {
-	'2025-09-01': [
+	'2025-09-18': [
 		{
 			time: '9:00',
 			title: 'Основы программирования',

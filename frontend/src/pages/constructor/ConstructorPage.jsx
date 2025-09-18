@@ -22,6 +22,7 @@ import { useParams } from 'react-router-dom'
 import { API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { is } from 'date-fns/locale'
 
 const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 	const [isOpen, setIsOpen] = useState(true)
@@ -273,16 +274,16 @@ const ConstructorPage = () => {
 	const [selected, setSelected] = useState(0)
 	const [blocks, setBlocks] = useState()
 	const [selectedContentId, setSelectedContentId] = useState(null)
-
-	console.log('blocks: ', blocks, '\nid: ', selectedContentId)
+	const [isLoading, setIsLoading] = useState(false)
 
 	const handleSubmit = async (content, sectionId) => {
-		console.log(
-			'Отправка контента: ',
-			JSON.stringify(content),
-			'\nКуда: ',
-			selectedContentId
-		)
+		//console.log(
+		//	'Отправка контента: ',
+		//	JSON.stringify(content),
+		//	'\nКуда: ',
+		//	selectedContentId
+		//)
+
 		const res = await fetch(`${API}/sections/${sectionId}/content`, {
 			method: 'PUT',
 			body: JSON.stringify(content),
@@ -291,10 +292,12 @@ const ConstructorPage = () => {
 
 		if (!res.ok) {
 			console.error('Ошибка сервера:', res.status)
+			setIsLoading(false)
 			return
 		}
 
 		const data = await res.json()
+
 		console.log('Ответ сервера:', data)
 	}
 
@@ -373,6 +376,7 @@ const ConstructorPage = () => {
 						deleteSection={onRemoveLesson}
 						onBlocksChange={setBlocks}
 						onSelectedContentChange={setSelectedContentId}
+						isLoading={isLoading}
 					/>
 				) : (
 					selected === 1 && <AccessManagement />

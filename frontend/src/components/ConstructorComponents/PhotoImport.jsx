@@ -12,9 +12,7 @@ export const ConstructorPhotoInput = ({
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [previews, setPreviews] = useState([])
 
-	useEffect(() => {
-		console.log('фото:', fileInfo)
-	}, [fileInfo])
+	console.log('фото:', previews)
 
 	useEffect(() => {
 		const data = previews
@@ -90,7 +88,7 @@ export const ConstructorPhotoInput = ({
 	return (
 		<div className='flex gap-2'>
 			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
 				onClick={DelComponent}
 			>
 				<X />

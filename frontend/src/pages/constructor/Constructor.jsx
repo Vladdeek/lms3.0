@@ -54,6 +54,7 @@ import OpenQuestion from '../../components/ConstructorTest/OpenQuestion'
 import { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import Loader from '../../components/Loader'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -715,15 +716,19 @@ const ConstructorLevels = ({
 	)
 }
 
-const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
+const ContentView = ({
+	content,
+	onBlocksChange,
+	SectionType,
+	SectionName,
+	isLoading,
+}) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 
 	useEffect(() => {
-		if (content) {
-			setBlocks(content)
-		}
+		setBlocks(content)
 	}, [content])
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
@@ -741,12 +746,20 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 		})
 	}
 
-	if (!content) {
+	if (!content && !SectionType) {
 		return (
 			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
 				<p className='text-[var(--middle)] text-lg'>
 					Выберите занятие для просмотра
 				</p>
+			</div>
+		)
+	}
+
+	if (SectionType && !content) {
+		return (
+			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
+				<Loader />
 			</div>
 		)
 	}
@@ -774,13 +787,13 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 				</>
 			) : (
 				<>
-					<ConstructorTitleInput DelComponent={() => {}} />
 					{blocks?.map((block, i) => {
 						const del = () => removeBlock(i)
 
+						let content
 						switch (block.type) {
 							case 'text':
-								return (
+								content = (
 									<ConstructorEditor
 										key={i}
 										DelComponent={del}
@@ -788,8 +801,9 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 										takeValue={block?.content?.content}
 									/>
 								)
+								break
 							case 'code':
-								return (
+								content = (
 									<CodeFileInput
 										key={i}
 										DelComponent={del}
@@ -797,32 +811,36 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 										takeValues={block?.content}
 									/>
 								)
+								break
 							case 'image':
-								return (
+								content = (
 									<ConstructorPhotoInput
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
+								break
 							case 'video':
-								return (
+								content = (
 									<ConstructorVideoInput
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
+								break
 							case 'files':
-								return (
+								content = (
 									<ConstructorFileInput
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
+								break
 							case 'table':
-								return (
+								content = (
 									<TableConstructor
 										key={i}
 										DelComponent={del}
@@ -830,16 +848,18 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 										takeValues={block?.content}
 									/>
 								)
+								break
 							case 'audio':
-								return (
+								content = (
 									<AudioInput
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
 									/>
 								)
+								break
 							case 'callout':
-								return (
+								content = (
 									<CalloutConstructor
 										key={i}
 										DelComponent={del}
@@ -847,8 +867,9 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 										takeValues={block?.content}
 									/>
 								)
+								break
 							case 'formula':
-								return (
+								content = (
 									<FormulaConstructor
 										key={i}
 										DelComponent={del}
@@ -856,8 +877,9 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 										takeValues={block?.content}
 									/>
 								)
+								break
 							case 'button':
-								return (
+								content = (
 									<ButtonConstructor
 										key={i}
 										DelComponent={del}
@@ -865,11 +887,38 @@ const ContentView = ({ content, onBlocksChange, SectionType, SectionName }) => {
 										takeValues={block?.content}
 									/>
 								)
+								break
 							default:
-								return null
+								content = null
 						}
+
+						return (
+							<motion.div
+								key={i}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: i * 0.1,
+									ease: 'easeOut',
+								}}
+							>
+								{content}
+							</motion.div>
+						)
 					})}
-					<ConstructorMenu onAdd={addBlock} />
+					<motion.div
+						key={blocks?.length}
+						initial={{ scale: 0.8, opacity: 0 }}
+						animate={{ scale: 1, opacity: 1 }}
+						transition={{
+							duration: 0.3,
+							delay: blocks?.length * 0.1,
+							ease: 'easeOut',
+						}}
+					>
+						<ConstructorMenu onAdd={addBlock} />
+					</motion.div>
 				</>
 			)}
 		</div>
@@ -961,6 +1010,7 @@ const Constructor = ({
 	deleteSection,
 	onBlocksChange,
 	onSelectedContentChange,
+	isLoading,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
@@ -968,13 +1018,16 @@ const Constructor = ({
 	const handleContentSelect = SectionId => {
 		setSection(SectionId)
 		onSelectedContentChange?.(SectionId?.id)
+		setSelectedContent(null)
 	}
 
 	useEffect(() => {
-		if (!section) return
-
+		if (!section) {
+			return
+		}
 		const fetchContent = async () => {
 			try {
+				setSelectedContent(null)
 				const res = await fetch(`${API}/sections/${section?.id}/content`)
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
 				const data = await res.json()
@@ -1053,6 +1106,7 @@ const Constructor = ({
 						SectionType={section?.type}
 						SectionName={section?.title}
 						onBlocksChange={onBlocksChange}
+						isLoading={isLoading}
 					/>
 				</div>
 			</div>

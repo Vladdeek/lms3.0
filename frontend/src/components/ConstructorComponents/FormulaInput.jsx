@@ -72,15 +72,15 @@ export default function FormulaConstructor({
 	return (
 		<div className='flex gap-2'>
 			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
 				onClick={DelComponent}
 			>
 				<X />
 			</button>
 			<MathJaxContext version={3} config={config}>
-				<div className='max-w-xl p-6 bg-white shadow-lg rounded-lg space-y-4'>
+				<div className='max-w-xl p-6 bg-[var(--white)] shadow-[var(--shadow)] rounded-lg space-y-4'>
 					{/* Заголовок */}
-					<div className='flex items-center gap-2 text-lg font-semibold text-gray-800'>
+					<div className='flex items-center gap-2 text-lg font-semibold text-[var(--black)]'>
 						<Sigma className='w-6 h-6 text-[var(--black)]' />
 						<span>Конструктор формул</span>
 					</div>
