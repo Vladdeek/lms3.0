@@ -10,6 +10,10 @@ const VideoPlayer = ({ url, course = false }) => {
 	const videoRef = useRef(null)
 
 	const getEmbedUrl = url => {
+		if (course === true) {
+			url = url[0]?.fileUrl
+		}
+
 		try {
 			const ytMatch = url.match(/(?:youtube\.com.*v=|youtu\.be\/)([^&]+)/)
 			if (ytMatch) {

@@ -729,12 +729,18 @@ const ContentView = ({
 
 	useEffect(() => {
 		setBlocks(content)
+		console.log('block: ', blocks)
 	}, [content])
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
 
-	const removeBlock = index =>
-		setBlocks(prev => prev.filter((_, i) => i !== index))
+	const removeBlock = index => {
+		setBlocks(prev => {
+			const updated = prev.filter((_, i) => i !== index)
+			onBlocksChange?.(updated)
+			return updated
+		})
+	}
 
 	const handleBlockChange = (index, data) => {
 		setBlocks(prev => {
@@ -838,6 +844,7 @@ const ContentView = ({
 										key={i}
 										DelComponent={del}
 										onChange={data => handleBlockChange(i, data)}
+										takeValues={block?.content}
 									/>
 								)
 								break

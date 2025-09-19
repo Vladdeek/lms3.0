@@ -12,7 +12,8 @@ import {
 	Upload,
 	X,
 } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
+import { API, FILE_API } from '../../API'
 
 export const FileView = ({ onStatusChange, Files }) => {
 	const inputId = useId()
@@ -66,6 +67,58 @@ export const FileView = ({ onStatusChange, Files }) => {
 		const sizes = ['Bytes', 'KB', 'MB', 'GB']
 		const i = Math.floor(Math.log(bytes) / Math.log(k))
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+	}
+
+	const downloadAPI = async id => {
+		console.log(
+			JSON.stringify({
+				file_name: files[id]?.name.split('.')[0],
+				file_path: files[id]?.file_path.split(`${FILE_API}`)[1],
+			})
+		)
+
+		try {
+			const response = await fetch(`${API}/files/download`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					file_name: files[id]?.name.split('.')[0],
+					file_path: files[id]?.file_path.split(`${FILE_API}`)[1],
+				}),
+			})
+
+			if (!response.ok) {
+				throw new Error(`Ошибка HTTP: ${response.status}`)
+			}
+
+			// Скачиваем файл
+			const blob = await response.blob()
+			const url = window.URL.createObjectURL(blob)
+			const a = document.createElement('a')
+			a.style.display = 'none'
+			a.href = url
+
+			// Получаем имя файла
+			const contentDisposition = response.headers.get('content-disposition')
+			let filename = 'file'
+
+			if (contentDisposition) {
+				const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i)
+				if (filenameMatch && filenameMatch.length > 1) {
+					filename = filenameMatch[1]
+				}
+			}
+
+			a.download = filename
+			document.body.appendChild(a)
+			a.click()
+			window.URL.revokeObjectURL(url)
+			document.body.removeChild(a)
+		} catch (err) {
+			console.error('Ошибка:', err)
+		}
 	}
 
 	const getFileIcon = file => {
@@ -155,36 +208,33 @@ export const FileView = ({ onStatusChange, Files }) => {
 
 	return (
 		<div className='flex gap-2 justify-center'>
-			{/* Отображение загруженных файлов */}
-			{files.length > 0 && (
-				<div className='w-1/2 flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
-					{files.map((file, index) => (
-						<div
-							key={index}
-							className={`flex items-center justify-between p-3 file ${
-								index % 2 === 0 ? 'bg-[var(--white)]' : 'bg-[var(--light-gray)]'
-							} w-full`}
-						>
-							<div className='flex items-center gap-2'>
-								{getFileIcon(file.name)}
-								<div>
-									<p className='text-sm font-medium truncate w-full'>
-										{file.name}
-									</p>
-									<p className='text-xs text-[var(--middle)]'>
-										{file.type} • {formatFileSize(file.size)}
-									</p>
-								</div>
+			<div className='w-1/2 flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
+				{files?.map((file, index) => (
+					<div
+						key={index}
+						className={`flex items-center justify-between p-3 file ${
+							index % 2 === 0 ? 'bg-[var(--white)]' : 'bg-[var(--light-gray)]'
+						} w-full`}
+					>
+						<div className='flex items-center gap-2'>
+							{getFileIcon(file.name)}
+							<div>
+								<p className='text-sm font-medium truncate w-full'>
+									{file.name}
+								</p>
+								<p className='text-xs text-[var(--middle)]'>
+									{file.type} • {formatFileSize(file.size)}
+								</p>
 							</div>
-							<Download
-								size={20}
-								onClick={() => console.log('Загрузка')}
-								className='text-[var(--black)] hover:bg-[var(--green-status-bg)] hover:text-[var(--green-status-text)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-							/>
 						</div>
-					))}
-				</div>
-			)}
+						<Download
+							size={20}
+							onClick={() => downloadAPI(index)}
+							className='text-[var(--black)] hover:bg-[var(--green-status-bg)] hover:text-[var(--green-status-text)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+						/>
+					</div>
+				))}
+			</div>
 		</div>
 	)
 }

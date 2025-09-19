@@ -235,11 +235,11 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 										/>
 									)
 								case 'image':
-									return <p>блок {item.type}</p>
+									return <PhotoView photos={item?.content} />
 								case 'video':
-									return <p>блок {item.type}</p>
+									return <VideoPlayer url={item?.content} course={true} />
 								case 'files':
-									return <p>блок {item.type}</p>
+									return <FileView Files={item?.content} />
 								case 'table':
 									return (
 										<TableView

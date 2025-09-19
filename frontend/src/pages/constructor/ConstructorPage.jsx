@@ -277,12 +277,7 @@ const ConstructorPage = () => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const handleSubmit = async (content, sectionId) => {
-		//console.log(
-		//	'Отправка контента: ',
-		//	JSON.stringify(content),
-		//	'\nКуда: ',
-		//	selectedContentId
-		//)
+		//console.log('Отправка контента: ', content, '\nКуда: ', selectedContentId)
 
 		const res = await fetch(`${API}/sections/${sectionId}/content`, {
 			method: 'PUT',

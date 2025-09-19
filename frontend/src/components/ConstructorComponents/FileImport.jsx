@@ -12,15 +12,17 @@ import {
 	X,
 } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
+import { API, FILE_API } from '../../API'
 
 export const ConstructorFileInput = ({
 	onStatusChange,
 	DelComponent,
 	onChange,
+	takeValues,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
-	const [files, setFiles] = useState([])
+	const [files, setFiles] = useState(takeValues?.length !== 0 ? takeValues : [])
 	const [isDragActive, setIsDragActive] = useState(false)
 	const maxSize = 100 * 1024 * 1024 // 100 MB
 	const maxFiles = 10
@@ -33,19 +35,54 @@ export const ConstructorFileInput = ({
 	const handleFileChange = e => {
 		const newFiles = Array.from(e.target.files)
 		validateFiles(newFiles)
+		uploadFileToAPI(newFiles[0])
 	}
 
 	const handleFormat = ({ files }) => {
 		console.log('handleFormat - ' + files)
 	}
 
-	const validateFiles = newFiles => {
+	const uploadFileToAPI = async fileToUpload => {
+		console.log(fileToUpload)
+		try {
+			const formData = new FormData()
+			formData.append('file', fileToUpload)
+			const response = await fetch(`${API}/files/`, {
+				method: 'POST',
+				body: formData,
+			})
+
+			if (!response.ok) {
+				const errorText = await response.text()
+				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
+			}
+
+			const result = await response.json()
+			console.log('res: ', result)
+
+			setFiles(prevUrls => [
+				...prevUrls,
+				{
+					file_path: `${FILE_API}${result?.file_path}`,
+					name: fileToUpload.name,
+					size: fileToUpload.size,
+					type: fileToUpload.type,
+				},
+			])
+		} catch (error) {
+			console.error('Ошибка загрузки файла:', error)
+			throw error
+		}
+	}
+
+	const validateFiles = async newFiles => {
 		if (files.length + newFiles.length > maxFiles) {
 			alert(`Можно загрузить не более ${maxFiles} файлов`)
 			return
 		}
 
 		const validFiles = []
+		const uploadPromises = []
 
 		newFiles.forEach(file => {
 			const isValidSize = file.size <= maxSize
@@ -59,11 +96,21 @@ export const ConstructorFileInput = ({
 
 		if (validFiles.length > 0) {
 			const updatedFiles = [...files, ...validFiles]
-			setFiles(updatedFiles)
 
 			const newStatus = updatedFiles.length > 0
 			setInputStatus(newStatus)
 			onStatusChange?.(newStatus)
+
+			validFiles.forEach(file => {
+				uploadPromises.push(uploadFileToAPI(file))
+			})
+
+			try {
+				await Promise.all(uploadPromises)
+				console.log('Все файлы успешно загружены')
+			} catch (error) {
+				console.error('Ошибка при загрузке файлов:', error)
+			}
 		}
 	}
 
@@ -291,7 +338,6 @@ export const ConstructorFileInput = ({
 								type='file'
 								className='hidden'
 								onChange={handleFileChange}
-								multiple
 							/>
 						</label>
 					</div>
