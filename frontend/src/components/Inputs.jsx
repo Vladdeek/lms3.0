@@ -124,6 +124,7 @@ export const FileInput = ({
 	required,
 	onStatusChange,
 	onFileChange,
+	photoUrl,
 }) => {
 	const [inputStatus, setInputStatus] = useState(false)
 	const [fileInfo, setFileInfo] = useState(null)
@@ -197,9 +198,9 @@ export const FileInput = ({
 				onDrop={handleDrop}
 			>
 				<div className='w-1/5 flex justify-center items-center'>
-					{preview ? (
+					{preview || photoUrl ? (
 						<img
-							src={preview}
+							src={preview || photoUrl}
 							alt='preview'
 							className='w-[80px] h-[80px] object-cover rounded-lg'
 						/>

@@ -91,7 +91,7 @@ const MoodBlock = () => {
 					style={{ backgroundColor: darkColor }}
 				></div>
 			</div>
-			<div className='flex justify-between w-[85%] mx-auto mt-3 mb-5'>
+			<div className='flex flex-row-reverse justify-between w-[85%] mx-auto mt-3 mb-5'>
 				{moods.map((item, index) => (
 					<p
 						className='uppercase text-center font-medium text-mb transition-all'

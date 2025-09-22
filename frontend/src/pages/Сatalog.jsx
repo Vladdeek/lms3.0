@@ -10,6 +10,7 @@ import {
 } from '../components/Inputs'
 import { API } from '../API'
 import { motion } from 'framer-motion'
+import { Navigate } from 'react-router-dom'
 
 const CreateBtn = ({ onClick, title }) => {
 	return (
@@ -126,7 +127,7 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 	)
 }
 
-const Catalog = () => {
+const Catalog = ({ role }) => {
 	const options = [
 		{ value: 0, title: 'Добавленные курсы', icon: LayoutGrid },
 		{ value: 1, title: 'Вебинар', icon: Radio },
@@ -152,7 +153,9 @@ const Catalog = () => {
 		fetchCourses()
 	}, [])
 
-	return (
+	return role !== 'student' ? (
+		<Navigate to='/catalogs' replace />
+	) : (
 		<>
 			<CreateModal
 				isOpen={createModalOpen}

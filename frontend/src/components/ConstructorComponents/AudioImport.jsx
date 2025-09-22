@@ -35,10 +35,7 @@ export const AudioInput = ({
 				}
 
 				const result = await response.json()
-
-				setAudioUrl(
-					`${FILE_API}${result?.file_path?.match(/static\\.*$/)?.[0]}`
-				)
+				setAudioUrl(`${FILE_API}${result?.file_path}`)
 
 				onFileChange?.({
 					file: fileToUpload,

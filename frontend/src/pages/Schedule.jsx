@@ -8,6 +8,8 @@ import {
 } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import DirectionOfTraining from '../components/DirectionOfTraining'
+import { useEffect, useState } from 'react'
+import { API } from '../API'
 
 const scheduleData = {
 	'2025-09-18': [
@@ -64,6 +66,17 @@ const Schedule = () => {
 	const today = new Date()
 	const weekStart = startOfWeek(today, { weekStartsOn: 1 })
 	const weekDays = Array.from({ length: 5 }, (_, i) => addDays(weekStart, i))
+
+	const [scheduleData1, setScheduleData1] = useState()
+
+	useEffect(() => {
+		const fetchSchedule = async () => {
+			const res = await fetch(`https:///courses/`)
+			const data = await res.json()
+			console.log('Список курсов:', data)
+			setScheduleData1(data)
+		}
+	}, [])
 
 	// Функция для проверки, является ли урок текущим
 	const isCurrentLesson = (lessonDate, lessonTime) => {

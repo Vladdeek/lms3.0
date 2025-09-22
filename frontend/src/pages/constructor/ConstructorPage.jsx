@@ -6,6 +6,7 @@ import {
 	UsersRound,
 	QrCode,
 	Blocks,
+	Frown,
 } from 'lucide-react'
 import { AltRadioButton, Button } from '../../components/Buttons'
 import { useEffect, useState } from 'react'
@@ -30,6 +31,7 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 
 	const [Title, setTitle] = useState(titleValue || '')
 	const [Description, setDescription] = useState(descriptionValue || '')
+	const [image, setImage] = useState()
 
 	useEffect(() => {
 		if (titleValue !== undefined) {
@@ -70,6 +72,28 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 		}
 	}
 
+	const handleSubmit = async (title, description, img) => {
+		const formData = new FormData()
+		formData.append('name', title)
+		formData.append('description', description)
+		formData.append('image', img || null)
+
+		console.log(formData)
+
+		const res = await fetch(`${API}/courses/${courseId}`, {
+			method: 'PUT',
+			body: formData,
+		})
+
+		const data = await res.json()
+		console.log('Ответ сервера:', data)
+
+		if (!res.ok) {
+			console.error('Ошибка сервера:', res.status)
+			return
+		}
+	}
+
 	return (
 		<div className='relative'>
 			<button
@@ -93,7 +117,11 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 						value={Description}
 						onChange={e => setDescription(e.target.value)}
 					/>
-					<FileInput title={'Загрузить превью'} />
+					<FileInput
+						title={'Загрузить превью'}
+						photoUrl={`${API}/courses/image/${courseId}`}
+						onFileChange={file => setImage(file)}
+					/>
 					<div className='flex gap-3 w-full'>
 						<Button
 							title={'Удалить курс'}
@@ -101,7 +129,12 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 							width={'100%'}
 							onClick={deleteCourse}
 						/>
-						<Button title={'Сохранить'} style='black' width={'100%'} />
+						<Button
+							title={'Сохранить'}
+							style='black'
+							width={'100%'}
+							onClick={() => handleSubmit(Title, Description, image)}
+						/>
 					</div>
 				</div>
 			)}
@@ -152,7 +185,7 @@ const DateButton = () => {
 	}
 
 	return (
-		<div className='relative'>
+		<div className='relative z-1000'>
 			<button
 				onClick={() => setIsOpen(prev => !prev)}
 				className='rounded-lg h-full flex gap-4 aspect-square justify-center items-center hover:scale-102 transition-all cursor-pointer text-[var(--black)] p-[12px] bg-[var(--white)] shadow-[var(--shadow)]'
@@ -178,7 +211,7 @@ const DateButton = () => {
 	)
 }
 
-const ConstructorPage = () => {
+const ConstructorPage = ({ role }) => {
 	const options = [
 		{ value: 0, title: 'Конструктор', icon: BrickWall },
 		{ value: 1, title: 'Управление доступом', icon: UsersRound },
@@ -296,7 +329,14 @@ const ConstructorPage = () => {
 		console.log('Ответ сервера:', data)
 	}
 
-	return (
+	return role !== 'student' ? (
+		<>
+			<div className='h-screen w-screen flex justify-center gap-3 items-center text-[var(--middle)] font-medium'>
+				<p>Доступ запрещен</p>
+				<Frown size={32} strokeWidth={1.75} />
+			</div>
+		</>
+	) : (
 		<>
 			<div className='flex flex-col gap-5 '>
 				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center max-[1366px]:mt-5 mt-10'>

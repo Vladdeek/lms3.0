@@ -2,10 +2,11 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import Footer from '../../components/Footer'
 import { Header, MobileMenuBar } from '../../components/Header'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AlignJustify, CalendarDays, CopyCheck, UsersRound } from 'lucide-react'
+import ToggleRole from '../../components/ToggleRole'
 
-export default function DashboardLayout() {
+export default function DashboardLayout({ onChange }) {
 	const [activeUser, setActiveUser] = useState(null)
 	const location = useLocation()
 	const HeaderLinkInfo = [
@@ -14,7 +15,7 @@ export default function DashboardLayout() {
 				{
 					title: 'Каталог',
 					icon: AlignJustify,
-					to: '/catalog',
+					to: '/catalogt',
 				},
 				{
 					title: 'Задания',
@@ -26,7 +27,7 @@ export default function DashboardLayout() {
 				{
 					title: 'Каталог',
 					icon: AlignJustify,
-					to: '/tasks',
+					to: '/catalogs',
 				},
 				{
 					title: 'Расписание',
@@ -49,11 +50,17 @@ export default function DashboardLayout() {
 		},
 	]
 
+	const [isTeacher, setIsTeacher] = useState(true)
+	const handleRoleChange = () => {
+		setIsTeacher(prev => !prev)
+		onChange(isTeacher)
+	}
+
 	const UserInfo = [
 		{
 			uuid: 'dsadsadsad',
 			FullName: 'Иванов Иван Иванович',
-			role: 'student',
+			role: isTeacher ? 'student' : 'teacher',
 			img_path:
 				'https://i.pinimg.com/1200x/ed/55/e0/ed55e005e9d504e6a273c19adeee2b49.jpg',
 		},
@@ -62,8 +69,12 @@ export default function DashboardLayout() {
 	const [openIndex, setOpenIndex] = useState(null)
 
 	const links = HeaderLinkInfo[0][UserInfo[0].role]
+
 	return (
 		<>
+			<div className='fixed bottom-2 right-2'>
+				<ToggleRole onChange={value => handleRoleChange(value)} />
+			</div>
 			<div className='md:mx-10 mx-2'>
 				<Header
 					links={links}

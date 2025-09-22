@@ -22,7 +22,9 @@ export const ConstructorFileInput = ({
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
-	const [files, setFiles] = useState(takeValues?.length !== 0 ? takeValues : [])
+	const [files, setFiles] = useState(
+		takeValues && takeValues.length > 0 ? takeValues : []
+	)
 	const [isDragActive, setIsDragActive] = useState(false)
 	const maxSize = 100 * 1024 * 1024 // 100 MB
 	const maxFiles = 10
@@ -234,6 +236,8 @@ export const ConstructorFileInput = ({
 		)
 	}
 
+	console.log(files?.length)
+
 	return (
 		<div className='flex gap-2'>
 			<button
@@ -244,11 +248,10 @@ export const ConstructorFileInput = ({
 			</button>
 			<div
 				className={`${
-					files.length > 0 && 'shadow-[var(--shadow)] p-4 rounded-xl'
+					files?.length > 0 && 'shadow-[var(--shadow)] p-4 rounded-xl'
 				} flex flex-col justify-center w-full gap-3`}
 			>
-				{/* Отображение загруженных файлов */}
-				{files.length > 0 && (
+				{files?.length > 0 && (
 					<div className='w-full flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
 						{files.map((file, index) => (
 							<div
@@ -260,13 +263,13 @@ export const ConstructorFileInput = ({
 								} w-full`}
 							>
 								<div className='flex items-center gap-2'>
-									{getFileIcon(file.name)}
+									{getFileIcon(file?.name)}
 									<div>
 										<p className='text-sm font-medium truncate w-full'>
-											{file.name}
+											{file?.name}
 										</p>
 										<p className='text-xs text-[var(--middle)]'>
-											{file.type} • {formatFileSize(file.size)}
+											{file?.type} • {formatFileSize(file?.size)}
 										</p>
 									</div>
 								</div>
@@ -280,8 +283,7 @@ export const ConstructorFileInput = ({
 					</div>
 				)}
 
-				{/* Отображение зоны загрузки, если не достигнут лимит файлов */}
-				{files.length < maxFiles && (
+				{files?.length < maxFiles && (
 					<div
 						className={`p-2 ${
 							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
@@ -328,7 +330,7 @@ export const ConstructorFileInput = ({
 										type='button'
 									>
 										<Upload strokeWidth={3} />
-										Загрузить файл{files.length > 0 ? ' ещё' : ''}
+										Загрузить файл{files?.length > 0 ? ' ещё' : ''}
 									</button>
 								</div>
 							</div>
@@ -343,10 +345,9 @@ export const ConstructorFileInput = ({
 					</div>
 				)}
 
-				{/* Информация о количестве загруженных файлов */}
-				{files.length > 0 && (
+				{files?.length > 0 && (
 					<p className='text-sm text-[var(--middle)]'>
-						Загружено {files.length} из {maxFiles} файлов
+						Загружено {files?.length} из {maxFiles} файлов
 					</p>
 				)}
 			</div>

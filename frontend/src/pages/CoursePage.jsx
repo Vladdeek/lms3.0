@@ -454,7 +454,7 @@ const CourseOverview = ({ content }) => {
 	)
 }
 
-const CoursePage = () => {
+const CoursePage = ({}) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 

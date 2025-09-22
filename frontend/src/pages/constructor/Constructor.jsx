@@ -1034,6 +1034,7 @@ const Constructor = ({
 		if (!section) {
 			return
 		}
+
 		const fetchContent = async () => {
 			try {
 				setSelectedContent(null)
@@ -1047,8 +1048,21 @@ const Constructor = ({
 				console.error(err)
 			}
 		}
+		const fetchQuestions = async () => {
+			try {
+				setSelectedContent(null)
+				const res = await fetch(`${API}/sections/${section?.id}/content`)
+				if (!res.ok) throw new Error('Ошибка при загрузке контента')
+				const data = await res.json()
 
-		fetchContent()
+				setSelectedContent(data)
+			} catch (err) {
+				setSelectedContent(null)
+				console.error(err)
+			}
+		}
+
+		section?.type !== 'test' ? fetchContent() : fetchQuestions()
 	}, [section])
 
 	return (
