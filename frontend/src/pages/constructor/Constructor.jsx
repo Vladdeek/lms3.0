@@ -644,7 +644,7 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 							)
 						})}
 
-						<p className='border-3 border-[var(--light-middle)] border-dashed rounded-lg text-[var(--middle)] w-125 p-2'>
+						<p className='border-3 border-[var(--light-middle)] border-dashed rounded-lg text-[var(--middle)] w-125 p-2 mt-5'>
 							{answerType === 'single'
 								? 'Это классический вопрос, где требуется выбрать единственный верный вариант из предложенного списка. Идеально подходит для проверки знания конкретных фактов. В сам вопрос вы можете вставить аудио для прослушивания, изображение для анализа или формулу — на основе этого медиа-контента и будет строиться задание.'
 								: answerType === 'multiple'
@@ -678,7 +678,7 @@ const ConstructorLevels = ({
 	const [createModalOpen, setCreateModalOpen] = useState(false)
 
 	const handleCreate = type => {
-		setQuestions(prev => [...prev, { type, id: Date.now() }])
+		setQuestions(prev => [...prev, { type }])
 		setActiveIndex(questions.length)
 	}
 
@@ -689,8 +689,8 @@ const ConstructorLevels = ({
 				onClose={() => setCreateModalOpen(false)}
 				onCreate={handleCreate}
 			/>
-			<div className='flex gap-3'>
-				{questions.map((q, idx) => (
+			<div className='flex flex-wrap  gap-3'>
+				{questions?.map((q, idx) => (
 					<div
 						key={q.id}
 						onClick={() => setActiveIndex(idx)}
@@ -722,14 +722,14 @@ const ContentView = ({
 	SectionType,
 	SectionName,
 	isLoading,
+	sectionId,
 }) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 
 	useEffect(() => {
-		setBlocks(content)
-		console.log('block: ', blocks)
+		SectionType === 'test' ? setQuestions(content?.content) : setBlocks(content)
 	}, [content])
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
@@ -782,13 +782,37 @@ const ContentView = ({
 						activeIndex={activeIndex}
 						setActiveIndex={setActiveIndex}
 					/>
-					{questions.length > 0 && (
-						<>
-							{questions[activeIndex]?.type === 'single' && <OneVariant />}
-							{questions[activeIndex]?.type === 'multiple' && <MoreVariant />}
-							{questions[activeIndex]?.type === 'order' && <SortVariants />}
-							{questions[activeIndex]?.type === 'open' && <OpenQuestion />}
-						</>
+					{isLoading ? (
+						<Loader />
+					) : (
+						questions?.length > 0 && (
+							<>
+								{questions[activeIndex]?.type === 'single' && (
+									<OneVariant
+										sectionId={sectionId}
+										testId={questions[activeIndex]?.id}
+									/>
+								)}
+								{questions[activeIndex]?.type === 'multiple' && (
+									<MoreVariant
+										sectionId={sectionId}
+										testId={questions[activeIndex]?.id}
+									/>
+								)}
+								{questions[activeIndex]?.type === 'order' && (
+									<SortVariants
+										sectionId={sectionId}
+										testId={questions[activeIndex]?.id}
+									/>
+								)}
+								{questions[activeIndex]?.type === 'open' && (
+									<OpenQuestion
+										sectionId={sectionId}
+										testId={questions[activeIndex]?.id}
+									/>
+								)}
+							</>
+						)
 					)}
 				</>
 			) : (
@@ -1042,18 +1066,7 @@ const Constructor = ({
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
 				const data = await res.json()
 
-				setSelectedContent(data)
-			} catch (err) {
-				setSelectedContent(null)
-				console.error(err)
-			}
-		}
-		const fetchQuestions = async () => {
-			try {
-				setSelectedContent(null)
-				const res = await fetch(`${API}/sections/${section?.id}/content`)
-				if (!res.ok) throw new Error('Ошибка при загрузке контента')
-				const data = await res.json()
+				console.log(data)
 
 				setSelectedContent(data)
 			} catch (err) {
@@ -1062,7 +1075,7 @@ const Constructor = ({
 			}
 		}
 
-		section?.type !== 'test' ? fetchContent() : fetchQuestions()
+		fetchContent()
 	}, [section])
 
 	return (
@@ -1130,6 +1143,7 @@ const Constructor = ({
 						SectionName={section?.title}
 						onBlocksChange={onBlocksChange}
 						isLoading={isLoading}
+						sectionId={section?.id}
 					/>
 				</div>
 			</div>

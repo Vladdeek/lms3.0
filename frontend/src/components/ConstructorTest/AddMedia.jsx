@@ -1,13 +1,17 @@
 import { Headphones, Image, Plus, SquareFunction, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ConstructorPhotoInput } from '../ConstructorComponents/PhotoImport'
 import { AudioInput } from './AudioImport'
 import FormulaConstructor from './FormulaInput'
 import { PhotoInput } from './PhotoImport'
 
-export const AddMediaButton = ({ type }) => {
+export const AddMediaButton = ({ type, onChange, url }) => {
 	const [modalOpen, setModalOpen] = useState(false)
 	const [selectedType, setSelectedType] = useState(type || null)
+
+	useEffect(() => {
+		setSelectedType(type)
+	}, [type])
 
 	const handle = mediaType => {
 		setSelectedType(mediaType)
@@ -23,7 +27,13 @@ export const AddMediaButton = ({ type }) => {
 			<div className='inline-flex justify-center w-full'>
 				{
 					{
-						photo: <PhotoInput DelComponent={resetSelection} />,
+						photo: (
+							<PhotoInput
+								DelComponent={resetSelection}
+								onChange={onChange}
+								url={url}
+							/>
+						),
 						audio: <AudioInput DelComponent={resetSelection} />,
 						formula: <FormulaConstructor DelComponent={resetSelection} />,
 					}[selectedType]

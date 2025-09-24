@@ -224,6 +224,7 @@ const ConstructorPage = ({ role }) => {
 		const fetchCourses = async () => {
 			const res = await fetch(`${API}/courses/${courseId}`)
 			const data = await res.json()
+			console.log(data)
 			setCourseContent(data)
 		}
 		fetchCourses()

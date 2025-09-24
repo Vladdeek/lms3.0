@@ -1,57 +1,58 @@
 import { ImagePlus, Upload, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
+import { API, FILE_API } from '../../API'
 
-export const PhotoInput = ({ onStatusChange, DelComponent }) => {
+export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [fileInfo, setFileInfo] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const [previews, setPreviews] = useState([]) // Изменили на массив для нескольких превью
-
-	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
-	const maxSize = 20 * 1024 * 1024 // 20 MB
-	const maxFiles = 1 // Максимальное количество файлов
+	const [photoUrl, setPhotoUrl] = useState(url ? [{ photoUrl: `${url}` }] : [])
 
 	const handleFileChange = e => {
-		const files = Array.from(e.target.files)
-		handleFiles(files)
+		const files = e.target.files
+		uploadFileToAPI(files[0])
 	}
 
-	const handleFiles = files => {
-		if (files.length === 0) return
+	useEffect(() => {
+		const data = { info: photoUrl[0]?.photoUrl, type: 'photo' }
+		onChange?.(data)
+	}, [photoUrl])
 
-		// Ограничиваем количество файлов до максимума
-		const filesToProcess = files.slice(0, maxFiles - previews.length)
+	const uploadFileToAPI = async fileToUpload => {
+		try {
+			const formData = new FormData()
+			formData.append('file', fileToUpload)
+			const response = await fetch(`${API}/files/`, {
+				method: 'POST',
+				body: formData,
+			})
 
-		const validFiles = []
-
-		filesToProcess.forEach(file => {
-			const isValidFormat = validFormats.includes(file.type)
-			const isValidSize = file.size <= maxSize
-
-			if (isValidFormat && isValidSize) {
-				validFiles.push({
-					file,
-					preview: URL.createObjectURL(file),
-					info: {
-						name: file.name,
-						size: (file.size / 1024 / 1024).toFixed(2),
-						type: file.type,
-					},
-				})
+			if (!response.ok) {
+				const errorText = await response.text()
+				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
 			}
-		})
 
-		if (validFiles.length > 0) {
-			setPreviews(prev => [...prev, ...validFiles])
-			setInputStatus(true)
-			onStatusChange?.(true)
+			const result = await response.json()
+
+			setPhotoUrl(prevUrls => [
+				...prevUrls,
+				{
+					photoUrl: `${FILE_API}${result?.file_path}`,
+				},
+			])
+
+			return result
+		} catch (error) {
+			console.error('Ошибка загрузки файла:', error)
+
+			throw error
 		}
 	}
 
 	const removePreview = index => {
-		setPreviews(prev => prev.filter((_, i) => i !== index))
-		if (previews.length === 1) {
+		setPhotoUrl(prev => prev.filter((_, i) => i !== index))
+		if (photoUrl?.length === 1) {
 			setInputStatus(false)
 			onStatusChange?.(false)
 		}
@@ -64,7 +65,7 @@ export const PhotoInput = ({ onStatusChange, DelComponent }) => {
 
 	const handleDragLeave = e => {
 		e.preventDefault()
-		// Проверяем, покидаем ли мы элемент целиком
+
 		if (e.currentTarget.contains(e.relatedTarget)) return
 		setIsDragActive(false)
 	}
@@ -72,21 +73,20 @@ export const PhotoInput = ({ onStatusChange, DelComponent }) => {
 	const handleDrop = e => {
 		e.preventDefault()
 		setIsDragActive(false)
-		const files = Array.from(e.dataTransfer.files)
-		handleFiles(files)
+		const files = e.dataTransfer.files
+		uploadFileToAPI(files[0])
 	}
 
 	return (
 		<div className='flex gap-2 w-full'>
 			<div className='grid grid-cols-1 w-full gap-3'>
-				{/* Отображаем превью загруженных изображений */}
-				{previews.map((previewData, index) => (
+				{photoUrl?.map((image, index) => (
 					<div
 						key={index}
 						className='relative col-span-1 flex justify-center aspect-16/9'
 					>
 						<img
-							src={previewData.preview}
+							src={image.photoUrl}
 							alt={`preview-${index}`}
 							className='w-auto h-full object-cover rounded-lg'
 						/>
@@ -99,14 +99,9 @@ export const PhotoInput = ({ onStatusChange, DelComponent }) => {
 					</div>
 				))}
 
-				{/* Показываем поле загрузки, если не достигнут лимит */}
-				{previews.length < maxFiles && (
+				{photoUrl?.length === 0 && (
 					<div
-						className={`p-2 flex ${
-							previews.length === 0
-								? 'col-span-2 aspect-32/9'
-								: 'col-span-1 aspect-16/9'
-						}   ${
+						className={`p-2 flex col-span-1 aspect-16/9  ${
 							isDragActive
 								? 'border-[var(--hero-epta)]'
 								: 'border-[var(--middle)]'

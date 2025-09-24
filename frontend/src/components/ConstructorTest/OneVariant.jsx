@@ -3,6 +3,8 @@ import { Check, X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
+import { API } from '../../API'
+import Loader from '../Loader'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -126,13 +128,16 @@ const CheckboxCreate = ({
 	)
 }
 
-const OneVariant = () => {
+const OneVariant = ({ sectionId, testId }) => {
 	const [question, setQuestion] = useState('')
 	const [score, setScore] = useState(1)
 	const [answers, setAnswers] = useState([
-		{ id: '1', text: '', correct: false },
-		{ id: '2', text: '', correct: false },
+		{ option_code: '1', name: '', correct: false },
+		{ option_code: '2', name: '', correct: false },
 	])
+	const [media, setMedia] = useState()
+
+	const [isLoading, setIsLoading] = useState(false)
 
 	const [withAnswers, setWithAnswers] = useState(true)
 
@@ -177,26 +182,101 @@ const OneVariant = () => {
 		setAnswers(prev => prev.filter(answer => answer.id !== id))
 	}
 
-	const generateQuestionJSON = () => {
-		const correctAnswer = answers.find(answer => answer.correct)
-
-		const questionData = {
-			type: 'single',
-			question: question,
-			score: Number(score),
-			answers: answers.map(answer => answer.text),
-			correct: correctAnswer ? correctAnswer.text : '',
-		}
-
-		console.log('JSON:', questionData)
-		return questionData
+	const fetchTest = async id => {
+		const res = await fetch(`${API}/questions/${id}`)
+		const data = await res.json()
+		if (data) setIsLoading(false)
+		console.log('get: ', data)
+		setQuestion(data?.title)
+		setScore(data?.score)
+		setMedia(data?.media)
+		setAnswers(data?.question_options)
 	}
+
+	const handleCreate = async () => {
+		console.log('POST create')
+		const correctAnswer = answers.find(answer => answer.correct)
+		try {
+			const res = await fetch(`${API}/questions/test/${sectionId}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					question_type: 'single',
+					title: question,
+					score: Number(score),
+					answer_data: {
+						type: 'single',
+						correct_answer: correctAnswer ? correctAnswer.text : '',
+					},
+					question_options: answers.map(answer => ({
+						name: answer?.text,
+						option_code: answer?.id,
+					})),
+					media: media || [],
+				}),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+
+			fetchTest(data?.id)
+		} catch (error) {
+			console.error(error)
+		}
+	}
+	const handleEdit = async () => {
+		console.log('PUT edit')
+		const correctAnswer = answers.find(answer => answer.correct)
+		try {
+			const res = await fetch(`${API}/questions/${testId}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					question_type: 'single',
+					title: question,
+					score: Number(score),
+					answer_data: {
+						type: 'single',
+						correct_answer: correctAnswer ? correctAnswer.text : '',
+					},
+					question_options: answers.map(answer => ({
+						name: answer?.text,
+						option_code: answer?.id,
+					})),
+					media: media || [],
+				}),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+
+			fetchTest(data?.id)
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	useEffect(() => {
+		setIsLoading(true)
+		if (testId) fetchTest(testId)
+		else {
+			setQuestion('')
+			setScore(1)
+			setMedia({})
+			setAnswers([
+				{ option_code: '1', name: '', correct: false },
+				{ option_code: '2', name: '', correct: false },
+			])
+			setIsLoading(false)
+		}
+	}, [testId])
 
 	const handleSave = () => {
-		const questionData = generateQuestionJSON()
+		testId ? handleEdit() : handleCreate()
 	}
-
-	return (
+	return isLoading ? (
+		<Loader />
+	) : (
 		<>
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
@@ -211,7 +291,11 @@ const OneVariant = () => {
 							<ScoreInput1 value={score} onChange={setScore} />
 						</div>
 
-						<AddMediaButton />
+						<AddMediaButton
+							onChange={setMedia}
+							type={media?.type}
+							url={media?.info}
+						/>
 					</div>
 
 					<div className='flex flex-col items-center gap-3 w-2/3'>
@@ -224,10 +308,10 @@ const OneVariant = () => {
 							{withAnswers &&
 								answers.map((answer, index) => (
 									<CheckboxCreate
-										key={answer.id}
-										id={answer.id}
-										answer={answer.text}
-										isCorrect={answer.correct}
+										key={answer?.option_code}
+										id={answer?.option_code}
+										answer={answer?.name}
+										isCorrect={answer?.correct}
 										checked={answer.checked}
 										onAnswerChange={text => handleAnswerChange(answer.id, text)}
 										onCorrectChange={correct =>
@@ -266,7 +350,7 @@ const OneVariant = () => {
 				onClick={handleSave}
 				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2 cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all active:scale-95'
 			>
-				Сохранить
+				{testId ? 'Обновить' : 'Сохранить'}
 			</button>
 		</>
 	)

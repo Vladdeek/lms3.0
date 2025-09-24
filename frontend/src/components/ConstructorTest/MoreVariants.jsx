@@ -1,70 +1,44 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { Check, X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { Button } from '../Buttons'
 import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
+import { API } from '../../API'
+import Loader from '../Loader'
 
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({
-	checked: checkedProp = false,
+	id,
+	value = '',
+	isCorrect = false,
+	checked = false,
 	onChange,
 	onAnswerChange,
 	onCorrectChange,
 	onDelete,
 	label = '',
-	answer = '',
-	isCorrect = false,
-	id,
 	disabled = false,
 	className = '',
 	showInput = true,
 	showCorrectToggle = true,
 	canDelete = false,
 }) => {
-	const [checked, setChecked] = useState(checkedProp)
-	const [answerText, setAnswerText] = useState(answer)
-	const [correct, setCorrect] = useState(isCorrect)
-
 	const handleCheckboxChange = e => {
-		const value = e.target.checked
-		setChecked(value)
-		onChange && onChange(value)
+		onChange?.(e.target.checked)
 	}
 
 	const handleAnswerChange = e => {
-		const value = e.target.value
-		setAnswerText(value)
-		onAnswerChange && onAnswerChange(value)
+		onAnswerChange?.(e.target.value)
 	}
 
 	const handleCorrectChange = e => {
-		const value = e.target.checked
-		setCorrect(value)
-		onCorrectChange && onCorrectChange(value)
+		onCorrectChange?.(e.target.checked)
 	}
 
 	const handleDelete = () => {
-		onDelete && onDelete(id)
+		onDelete?.(id)
 	}
-
-	useEffect(() => {
-		if (checked !== checkedProp) {
-			setChecked(checkedProp)
-		}
-	}, [checkedProp])
-
-	useEffect(() => {
-		if (answerText !== answer) {
-			setAnswerText(answer)
-		}
-	}, [answer])
-
-	useEffect(() => {
-		if (correct !== isCorrect) {
-			setCorrect(isCorrect)
-		}
-	}, [isCorrect])
 
 	return (
 		<div className={`flex items-center gap-3 w-full ${className}`}>
@@ -77,24 +51,24 @@ const CheckboxCreateMultiple = ({
 				>
 					<span
 						className={`w-5 h-5 flex items-center justify-center rounded border transition
-              ${
-								correct
+							${
+								isCorrect
 									? 'bg-[var(--hero-epta)] border-[var(--hero-epta)]'
 									: 'bg-transparent border-[var(--middle)]'
 							}
-              ${disabled ? 'pointer-events-none' : ''}
-            `}
+							${disabled ? 'pointer-events-none' : ''}
+						`}
 					>
 						<input
 							id={`correct-multiple-${id}`}
 							type='checkbox'
-							checked={correct}
+							checked={isCorrect}
 							disabled={disabled}
 							onChange={handleCorrectChange}
 							className='appearance-none w-5 h-5 absolute opacity-0'
 							tabIndex={0}
 						/>
-						{correct && <Check size={18} color='white' strokeWidth={3} />}
+						{isCorrect && <Check size={18} color='white' strokeWidth={3} />}
 					</span>
 				</label>
 			)}
@@ -102,7 +76,7 @@ const CheckboxCreateMultiple = ({
 			{showInput && (
 				<input
 					type='text'
-					value={answerText}
+					value={value}
 					onChange={handleAnswerChange}
 					disabled={disabled}
 					placeholder='Введите ответ...'
@@ -133,57 +107,185 @@ const MoreVariant = ({
 	setQuestions,
 	questions,
 	setActiveIndex,
+	testId,
+	sectionId,
 }) => {
+	const [question, setQuestion] = useState('')
+	const [score, setScore] = useState(1)
 	const [answers, setAnswers] = useState([
-		{ id: '1', text: '', correct: false },
-		{ id: '2', text: '', correct: false },
+		{ option_code: '1', name: '', correct: false },
+		{ option_code: '2', name: '', correct: false },
 	])
+
+	const [isLoading, setIsLoading] = useState(false)
+
+	const [media, setMedia] = useState()
 
 	const handleAnswerChange = (id, text) => {
 		setAnswers(prev =>
-			prev.map(answer => (answer.id === id ? { ...answer, text } : answer))
+			prev.map(answer =>
+				answer.option_code === id ? { ...answer, name: text } : answer
+			)
 		)
 	}
 
 	const handleCorrectChange = (id, isCorrect) => {
 		setAnswers(prev =>
 			prev.map(answer =>
-				answer.id === id ? { ...answer, correct: isCorrect } : answer
+				answer.option_code === id ? { ...answer, correct: isCorrect } : answer
 			)
 		)
 	}
 
 	const handleCheckChange = (id, checked) => {
 		setAnswers(prev =>
-			prev.map(answer => (answer.id === id ? { ...answer, checked } : answer))
+			prev.map(answer =>
+				answer.option_code === id ? { ...answer, checked } : answer
+			)
 		)
 	}
 
 	const handleAddAnswer = () => {
-		const maxId = Math.max(...answers.map(answer => parseInt(answer.id)))
+		const maxId = Math.max(
+			...answers.map(answer => parseInt(answer.option_code))
+		)
 		const newId = (maxId + 1).toString()
-		setAnswers(prev => [...prev, { id: newId, text: '', correct: false }])
+		setAnswers(prev => [
+			...prev,
+			{ option_code: newId, name: '', correct: false },
+		])
 	}
 
 	const handleDeleteAnswer = id => {
 		if (answers.length <= 2) return
-		setAnswers(prev => prev.filter(answer => answer.id !== id))
+		setAnswers(prev => prev.filter(answer => answer.option_code !== id))
 	}
 
-	const getCorrectAnswersCount = () => {
-		return answers.filter(answer => answer.correct).length
+	const getCorrectAnswers = () => {
+		return answers.filter(answer => answer.correct)
 	}
 
-	return (
+	const handleQuestionChange = e => {
+		setQuestion(e.target.value)
+	}
+
+	const fetchTest = async id => {
+		const res = await fetch(`${API}/questions/${id}`)
+		const data = await res.json()
+		if (data) setIsLoading(false)
+		console.log('get: ', data)
+		setQuestion(data?.title)
+		setScore(data?.score)
+		setMedia(data?.media)
+		setAnswers(data?.question_options)
+	}
+
+	const handleCreate = async () => {
+		console.log('POST create')
+		const correctAnswers = getCorrectAnswers()
+		try {
+			const res = await fetch(`${API}/questions/test/${sectionId}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					question_type: 'multiple',
+					title: question,
+					score: Number(score),
+					answer_data: {
+						type: 'multiple',
+						correct_answer: correctAnswers.map(answer => answer.name) || [],
+					},
+					question_options: answers.map(answer => ({
+						name: answer?.name,
+						option_code: answer?.option_code,
+					})),
+					media: media || {},
+				}),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+			console.log('multiple Ответ сервера: ', data)
+
+			fetchTest(data?.id)
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const handleEdit = async () => {
+		console.log('PUT edit')
+		const correctAnswers = getCorrectAnswers()
+		try {
+			const res = await fetch(`${API}/questions/${testId}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					question_type: 'multiple',
+					title: question,
+					score: Number(score),
+					answer_data: {
+						type: 'multiple',
+						correct_answer: correctAnswers.map(answer => answer.name) || [],
+					},
+					question_options: answers.map(answer => ({
+						name: answer?.name,
+						option_code: answer?.option_code,
+					})),
+					media: media || {},
+				}),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+			console.log('multiple Ответ сервера: ', data)
+
+			fetchTest(data?.id)
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	useEffect(() => {
+		setIsLoading(true)
+		if (testId) fetchTest(testId)
+		else {
+			setQuestion('')
+			setScore(1)
+			setMedia({})
+			setAnswers([
+				{ option_code: '1', name: '', correct: false },
+				{ option_code: '2', name: '', correct: false },
+			])
+			setIsLoading(false)
+		}
+	}, [testId])
+
+	const handleSave = () => {
+		testId ? handleEdit() : handleCreate()
+	}
+
+	return isLoading ? (
+		<Loader />
+	) : (
 		<>
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 w-2/3 mb-5'>
 						<div className='flex gap-3 items-end'>
-							<InputDefault title={'Введите вопрос'} required={true} />
-							<ScoreInput1 />
+							<InputDefault
+								title={'Введите вопрос'}
+								required={true}
+								value={question}
+								onChange={handleQuestionChange}
+							/>
+							<ScoreInput1 value={score} onChange={setScore} />
 						</div>
-						<AddMediaButton />
+						<AddMediaButton
+							onChange={setMedia}
+							type={media?.type}
+							url={media?.info}
+						/>
 					</div>
 
 					<div className='flex flex-col items-center gap-3 w-2/3'>
@@ -193,16 +295,20 @@ const MoreVariant = ({
 							</h3>
 							{answers.map((answer, index) => (
 								<CheckboxCreateMultiple
-									key={answer.id}
-									id={answer.id}
-									answer={answer.text}
+									key={answer.option_code}
+									id={answer.option_code}
+									value={answer.name}
 									isCorrect={answer.correct}
 									checked={answer.checked}
-									onAnswerChange={text => handleAnswerChange(answer.id, text)}
-									onCorrectChange={correct =>
-										handleCorrectChange(answer.id, correct)
+									onAnswerChange={text =>
+										handleAnswerChange(answer.option_code, text)
 									}
-									onChange={checked => handleCheckChange(answer.id, checked)}
+									onCorrectChange={correct =>
+										handleCorrectChange(answer.option_code, correct)
+									}
+									onChange={checked =>
+										handleCheckChange(answer.option_code, checked)
+									}
 									onDelete={handleDeleteAnswer}
 									label={`Вариант ${index + 1}`}
 									canDelete={answers.length > 2}
@@ -235,6 +341,12 @@ const MoreVariant = ({
 					</p>
 				</div>
 			</div>
+			<button
+				onClick={handleSave}
+				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2 cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all active:scale-95'
+			>
+				{testId ? 'Обновить' : 'Сохранить'}
+			</button>
 		</>
 	)
 }
