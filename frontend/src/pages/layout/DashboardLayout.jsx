@@ -5,6 +5,7 @@ import { Header, MobileMenuBar } from '../../components/Header'
 import { useEffect, useState } from 'react'
 import { AlignJustify, CalendarDays, CopyCheck, UsersRound } from 'lucide-react'
 import ToggleRole from '../../components/ToggleRole'
+import { NotFoundError404 } from '../../components/Errors'
 
 export default function DashboardLayout({ onChange }) {
 	const [activeUser, setActiveUser] = useState(null)
@@ -67,6 +68,7 @@ export default function DashboardLayout({ onChange }) {
 	]
 
 	const [openIndex, setOpenIndex] = useState(null)
+	const [error, setError] = useState('')
 
 	const links = HeaderLinkInfo[0][UserInfo[0].role]
 
@@ -82,8 +84,19 @@ export default function DashboardLayout({ onChange }) {
 					UserInfo={UserInfo}
 				/>
 				<div className='h-25'></div>
+
 				<div className='mb-40'>
-					<Outlet />
+					{error ? (
+						error === '404' ? (
+							<NotFoundError404 />
+						) : error === '500' ? (
+							<NotFoundError404 />
+						) : (
+							error === '503' && <NotFoundError404 />
+						)
+					) : (
+						<Outlet />
+					)}
 				</div>
 			</div>
 			<div className='md:hidden'>
