@@ -147,12 +147,13 @@ const OneVariant = ({ sectionId, testId }) => {
 
 	const handleScoreChange = value => {
 		setScore(value)
-		console.log(score)
 	}
 
 	const handleAnswerChange = (id, text) => {
 		setAnswers(prev =>
-			prev.map(answer => (answer.id === id ? { ...answer, text } : answer))
+			prev.map(answer =>
+				answer.option_code === id ? { ...answer, name: text } : answer
+			)
 		)
 	}
 
@@ -160,33 +161,39 @@ const OneVariant = ({ sectionId, testId }) => {
 		setAnswers(prev =>
 			prev.map(answer => ({
 				...answer,
-				correct: answer.id === id ? isCorrect : false,
+				correct: answer.option_code === id ? isCorrect : false,
 			}))
 		)
 	}
 
 	const handleCheckChange = (id, checked) => {
 		setAnswers(prev =>
-			prev.map(answer => (answer.id === id ? { ...answer, checked } : answer))
+			prev.map(answer =>
+				answer.option_code === id ? { ...answer, checked } : answer
+			)
 		)
 	}
 
 	const handleAddAnswer = () => {
-		const maxId = Math.max(...answers.map(answer => parseInt(answer.id)))
+		const maxId = Math.max(
+			...answers.map(answer => parseInt(answer.option_code))
+		)
 		const newId = (maxId + 1).toString()
-		setAnswers(prev => [...prev, { id: newId, text: '', correct: false }])
+		setAnswers(prev => [
+			...prev,
+			{ option_code: newId, name: '', correct: false },
+		])
 	}
 
 	const handleDeleteAnswer = id => {
 		if (answers.length <= 2) return
-		setAnswers(prev => prev.filter(answer => answer.id !== id))
+		setAnswers(prev => prev.filter(answer => answer.option_code !== id))
 	}
 
 	const fetchTest = async id => {
 		const res = await fetch(`${API}/questions/${id}`)
 		const data = await res.json()
 		if (data) setIsLoading(false)
-		console.log('get: ', data)
 		setQuestion(data?.title)
 		setScore(data?.score)
 		setMedia(data?.media)
@@ -194,7 +201,6 @@ const OneVariant = ({ sectionId, testId }) => {
 	}
 
 	const handleCreate = async () => {
-		console.log('POST create')
 		const correctAnswer = answers.find(answer => answer.correct)
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
@@ -206,11 +212,11 @@ const OneVariant = ({ sectionId, testId }) => {
 					score: Number(score),
 					answer_data: {
 						type: 'single',
-						correct_answer: correctAnswer ? correctAnswer.text : '',
+						correct_answer: correctAnswer ? correctAnswer?.name : '',
 					},
 					question_options: answers.map(answer => ({
-						name: answer?.text,
-						option_code: answer?.id,
+						name: answer?.name,
+						option_code: answer?.option_code,
 					})),
 					media: media || [],
 				}),
@@ -225,7 +231,6 @@ const OneVariant = ({ sectionId, testId }) => {
 		}
 	}
 	const handleEdit = async () => {
-		console.log('PUT edit')
 		const correctAnswer = answers.find(answer => answer.correct)
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
@@ -294,7 +299,7 @@ const OneVariant = ({ sectionId, testId }) => {
 						<AddMediaButton
 							onChange={setMedia}
 							type={media?.type}
-							url={media?.info}
+							info={media?.info}
 						/>
 					</div>
 
@@ -313,11 +318,15 @@ const OneVariant = ({ sectionId, testId }) => {
 										answer={answer?.name}
 										isCorrect={answer?.correct}
 										checked={answer.checked}
-										onAnswerChange={text => handleAnswerChange(answer.id, text)}
-										onCorrectChange={correct =>
-											handleCorrectChange(answer.id, correct)
+										onAnswerChange={text =>
+											handleAnswerChange(answer.option_code, text)
 										}
-										onChange={checked => handleCheckChange(answer.id, checked)}
+										onCorrectChange={correct =>
+											handleCorrectChange(answer.option_code, correct)
+										}
+										onChange={checked =>
+											handleCheckChange(answer.option_code, checked)
+										}
 										onDelete={handleDeleteAnswer}
 										label={`Вариант ${index + 1}`}
 										canDelete={answers.length > 2}

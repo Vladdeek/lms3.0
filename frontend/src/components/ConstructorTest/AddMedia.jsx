@@ -5,7 +5,7 @@ import { AudioInput } from './AudioImport'
 import FormulaConstructor from './FormulaInput'
 import { PhotoInput } from './PhotoImport'
 
-export const AddMediaButton = ({ type, onChange, url }) => {
+export const AddMediaButton = ({ type, onChange, info }) => {
 	const [modalOpen, setModalOpen] = useState(false)
 	const [selectedType, setSelectedType] = useState(type || null)
 
@@ -31,11 +31,23 @@ export const AddMediaButton = ({ type, onChange, url }) => {
 							<PhotoInput
 								DelComponent={resetSelection}
 								onChange={onChange}
-								url={url}
+								url={info}
 							/>
 						),
-						audio: <AudioInput DelComponent={resetSelection} />,
-						formula: <FormulaConstructor DelComponent={resetSelection} />,
+						audio: (
+							<AudioInput
+								DelComponent={resetSelection}
+								onChange={onChange}
+								info={info}
+							/>
+						),
+						formula: (
+							<FormulaConstructor
+								DelComponent={resetSelection}
+								onChange={onChange}
+								info={info}
+							/>
+						),
 					}[selectedType]
 				}
 			</div>

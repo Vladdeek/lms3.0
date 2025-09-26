@@ -284,7 +284,7 @@ const MoreVariant = ({
 						<AddMediaButton
 							onChange={setMedia}
 							type={media?.type}
-							url={media?.info}
+							info={media?.info}
 						/>
 					</div>
 

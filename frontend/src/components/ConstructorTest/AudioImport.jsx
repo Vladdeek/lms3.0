@@ -1,43 +1,61 @@
 import { FileAudio, Trash2, Upload, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
+import { API, FILE_API } from '../../API'
 
-export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
+export const AudioInput = ({
+	onStatusChange,
+	onFileChange,
+	DelComponent,
+	onChange,
+	info,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const [audioUrl, setAudioUrl] = useState(null)
+	const [audioUrl, setAudioUrl] = useState(info ? JSON.parse(info) : null)
 	const maxSize = 50 * 1024 * 1024 // 10 MB
+
+	useEffect(() => {
+		const data = { info: JSON.stringify(audioUrl), type: 'audio' }
+		onChange?.(data)
+	}, [audioUrl])
 
 	const handleFileChange = e => {
 		const newFile = e.target.files[0]
-		validateFile(newFile)
+		uploadFileToAPI(newFile)
 	}
 
-	const validateFile = newFile => {
-		if (!newFile) return
+	const uploadFileToAPI = async fileToUpload => {
+		try {
+			const formData = new FormData()
+			formData.append('file', fileToUpload)
 
-		// Проверка типа файла
-		const isValidType = newFile.type.startsWith('audio/')
-		if (!isValidType) {
-			alert(`Файл ${newFile.name} не является аудиофайлом`)
-			return
+			const response = await fetch(`${API}/files/`, {
+				method: 'POST',
+				body: formData,
+			})
+
+			if (!response.ok) {
+				const errorText = await response.text()
+				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
+			}
+
+			const result = await response.json()
+
+			setAudioUrl({
+				audioUrl: `${FILE_API}${result?.file_path}`,
+				fileName: fileToUpload?.name,
+				fileSize: fileToUpload?.size,
+			})
+
+			return result
+		} catch (error) {
+			console.error('Ошибка загрузки файла:', error)
+
+			throw error
 		}
-
-		const isValidSize = newFile.size <= maxSize
-		if (!isValidSize) {
-			alert(`Файл ${newFile.name} превышает максимальный размер 10MB`)
-			return
-		}
-
-		setFile(newFile)
-		setAudioUrl(URL.createObjectURL(newFile))
-
-		const newStatus = true
-		setInputStatus(newStatus)
-		onStatusChange?.(newStatus)
-		onFileChange?.(newFile)
 	}
 
 	const handleDragOver = e => {
@@ -55,7 +73,7 @@ export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
 		e.preventDefault()
 		setIsDragActive(false)
 		const newFile = e.dataTransfer.files[0]
-		validateFile(newFile)
+		uploadFileToAPI(newFile)
 	}
 
 	const removeFile = () => {
@@ -70,18 +88,18 @@ export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
 	return (
 		<>
 			<div className='flex gap-2 w-full'>
-				{file ? (
+				{audioUrl ? (
 					<div className='w-full bg-[var(--light-gray)] rounded-lg p-4'>
 						<div className='flex items-center justify-between mb-3'>
 							<div className='flex items-center gap-2'>
 								<FileAudio className='text-[var(--hero-epta)]' size={24} />
-								<span className='font-medium'>{file.name}</span>
+								<span className='font-medium'>{audioUrl?.fileName}</span>
 							</div>
 						</div>
 
 						<div className='flex items-center w-full gap-3'>
 							<div className='w-full'>
-								<CustomAudioPlayer audioUrl={audioUrl} />
+								<CustomAudioPlayer audioUrl={audioUrl?.audioUrl} />
 							</div>
 
 							<button
@@ -93,7 +111,7 @@ export const AudioInput = ({ onStatusChange, onFileChange, DelComponent }) => {
 						</div>
 
 						<div className='mt-3 text-sm text-[var(--middle)]'>
-							Размер: {(file.size / (1024 * 1024)).toFixed(2)} MB
+							Размер: {(audioUrl?.fileSize / (1024 * 1024)).toFixed(2)} MB
 						</div>
 					</div>
 				) : (
