@@ -5,7 +5,10 @@ import { Header, MobileMenuBar } from '../../components/Header'
 import { useEffect, useState } from 'react'
 import { AlignJustify, CalendarDays, CopyCheck, UsersRound } from 'lucide-react'
 import ToggleRole from '../../components/ToggleRole'
-import { NotFoundError404 } from '../../components/Errors'
+import {
+	InternalServerError500,
+	NotFoundError404,
+} from '../../components/Errors'
 
 export default function DashboardLayout({ onChange }) {
 	const [activeUser, setActiveUser] = useState(null)
@@ -90,7 +93,7 @@ export default function DashboardLayout({ onChange }) {
 						error === '404' ? (
 							<NotFoundError404 />
 						) : error === '500' ? (
-							<NotFoundError404 />
+							<InternalServerError500 />
 						) : (
 							error === '503' && <NotFoundError404 />
 						)
