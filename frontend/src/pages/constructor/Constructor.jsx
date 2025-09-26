@@ -697,7 +697,7 @@ const ConstructorLevels = ({
 						className={`w-10 h-10 flex justify-center items-center rounded-md shadow-[var(--shadow)] cursor-pointer transition-all
                             ${
 															activeIndex === idx
-																? 'bg-[var(--hero-epta)] text-[var(--white)]'
+																? 'bg-[var(--hero-epta)] text-white'
 																: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
 														}
                             active:scale-90`}

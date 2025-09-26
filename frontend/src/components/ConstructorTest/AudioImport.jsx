@@ -93,7 +93,9 @@ export const AudioInput = ({
 						<div className='flex items-center justify-between mb-3'>
 							<div className='flex items-center gap-2'>
 								<FileAudio className='text-[var(--hero-epta)]' size={24} />
-								<span className='font-medium'>{audioUrl?.fileName}</span>
+								<span className='font-medium text-[var(--black)]'>
+									{audioUrl?.fileName}
+								</span>
 							</div>
 						</div>
 

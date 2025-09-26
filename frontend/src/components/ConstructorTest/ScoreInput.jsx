@@ -10,7 +10,8 @@ export const ScoreInput1 = ({ value, onChange }) => {
 				onChange={e => onChange(e.target.value)}
 				value={value}
 				min='1'
-				className='rounded-xl p-[10px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition text-lg font-medium w-20'
+				max={'5'}
+				className='rounded-xl p-[10px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] text-[var(--black)] transition text-lg font-medium w-20'
 			/>
 		</div>
 	)

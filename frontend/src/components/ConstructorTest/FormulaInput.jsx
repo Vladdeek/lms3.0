@@ -1,16 +1,17 @@
 import {
 	Divide,
+	FolderMinus,
 	FunctionSquare,
 	Sigma,
 	SquareRadical,
 	Superscript,
 	X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MathJax, MathJaxContext } from 'better-react-mathjax'
 
-export default function FormulaConstructor({ DelComponent }) {
-	const [formula, setFormula] = useState('E = mc^2')
+export default function FormulaConstructor({ DelComponent, onChange, info }) {
+	const [formula, setFormula] = useState(info || 'E = mc^2')
 
 	const config = {
 		loader: { load: ['input/tex', 'output/chtml'] },
@@ -26,10 +27,14 @@ export default function FormulaConstructor({ DelComponent }) {
 		},
 	}
 
-	// вставка шаблона в формулу
 	const insertTemplate = tpl => {
 		setFormula(prev => prev + tpl)
 	}
+
+	useEffect(() => {
+		const data = { info: formula, type: 'formula' }
+		!info && onChange?.(data)
+	}, [formula])
 
 	const buttons = [
 		{
@@ -62,14 +67,14 @@ export default function FormulaConstructor({ DelComponent }) {
 	return (
 		<div className='flex gap-2'>
 			<MathJaxContext version={3} config={config}>
-				<div className='max-w-xl p-6 bg-white shadow-lg rounded-lg space-y-4 relative'>
+				<div className='max-w-xl p-6 bg-[var(--white)] shadow-[var(--shadow)] rounded-lg space-y-4 relative'>
 					<button
-						className='absolute top-1 right-1 self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:bg-red-500 hover:text-white active:brightness-90 cursor-pointer transition-all'
+						className='absolute top-1 right-1 self-start bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)] p-1 rounded-lg hover:bg-red-500 hover:text-white active:brightness-90 cursor-pointer transition-all'
 						onClick={DelComponent}
 					>
 						<X />
 					</button>
-					<div className='flex items-center gap-2 text-lg font-semibold text-gray-800'>
+					<div className='flex items-center gap-2 text-lg font-semibold text-[var(--black)]'>
 						<Sigma className='w-6 h-6 text-[var(--black)]' />
 						<span>Конструктор формул</span>
 					</div>
@@ -94,7 +99,7 @@ export default function FormulaConstructor({ DelComponent }) {
 						value={formula}
 						onChange={e => setFormula(e.target.value)}
 						placeholder='Введи формулу в TeX-нотации...'
-						className='w-full px-4 py-2 border border-[var(--light-middle)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] text-[var(--black)]'
+						className='w-full px-4 py-2 border-2 border-[var(--light-middle)] rounded-md focus:outline-none focus:ring-2 focus:shadow-[var(--hero-shadow)] focus:ring-[var(--hero-epta)] text-[var(--black)] transition-all'
 					/>
 
 					{/* Превью */}

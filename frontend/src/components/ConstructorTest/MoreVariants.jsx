@@ -80,7 +80,7 @@ const CheckboxCreateMultiple = ({
 					onChange={handleAnswerChange}
 					disabled={disabled}
 					placeholder='Введите ответ...'
-					className={`flex w-full px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] transition-all ${
+					className={`flex w-full px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 placeholder:text-[var(--middle)] text-[var(--black)] focus:ring-[var(--hero-epta)] transition-all ${
 						disabled ? 'bg-[var(--light-gray)] opacity-50' : 'bg-transparent'
 					}`}
 				/>

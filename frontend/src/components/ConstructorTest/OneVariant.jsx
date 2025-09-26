@@ -106,7 +106,7 @@ const CheckboxCreate = ({
 					onChange={handleAnswerChange}
 					disabled={disabled}
 					placeholder='Введите ответ...'
-					className={`flex w-full px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] transition-all ${
+					className={`flex w-full px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] placeholder:text-[var(--middle)] text-[var(--black)] transition-all ${
 						disabled ? 'bg-[var(--light-gray)] opacity-50' : 'bg-transparent'
 					}`}
 				/>
@@ -193,6 +193,7 @@ const OneVariant = ({ sectionId, testId }) => {
 	const fetchTest = async id => {
 		const res = await fetch(`${API}/questions/${id}`)
 		const data = await res.json()
+		console.log('get: ', data)
 		if (data) setIsLoading(false)
 		setQuestion(data?.title)
 		setScore(data?.score)
@@ -263,8 +264,9 @@ const OneVariant = ({ sectionId, testId }) => {
 
 	useEffect(() => {
 		setIsLoading(true)
-		if (testId) fetchTest(testId)
-		else {
+		if (testId) {
+			fetchTest(testId)
+		} else {
 			setQuestion('')
 			setScore(1)
 			setMedia({})
@@ -279,6 +281,9 @@ const OneVariant = ({ sectionId, testId }) => {
 	const handleSave = () => {
 		testId ? handleEdit() : handleCreate()
 	}
+
+	console.log('1', media)
+
 	return isLoading ? (
 		<Loader />
 	) : (

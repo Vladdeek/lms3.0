@@ -6,7 +6,7 @@ import {
 	Navigate,
 	useNavigate,
 } from 'react-router-dom'
-import { Suspense, use, useEffect, useState } from 'react'
+import { StrictMode, Suspense, use, useEffect, useState } from 'react'
 import './index.css'
 import './themes.css'
 import DashboardLayout from './pages/layout/DashboardLayout'
