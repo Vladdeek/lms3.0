@@ -1,7 +1,28 @@
-import { Check } from 'lucide-react'
-import { useState, useEffect, useMemo } from 'react'
+import { Check, X } from 'lucide-react'
+import { useState, useEffect, useMemo, use } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 import FormulaView from '../Viewer/FormulaView'
+import { API } from '../../API'
+import Loader from '../Loader'
+
+const FullScreen = ({ url, prevImg, nextImg, close }) => {
+	return (
+		<div className='flex fixed top-0 left-0 bg-[#00000025] backdrop-blur-[2px] z-1000 h-screen w-screen justify-center items-center'>
+			<div className='relative flex justify-center items-center w-full h-full '>
+				<div className='relative w-auto h-[75%] flex items-center rounded-3xl overflow-hidden'>
+					<button
+						onClick={close}
+						className=' bg-red-500 text-white absolute right-3 top-3 p-1 rounded-full flex justify-center items-center hover:scale-110  active:scale-90 active:brightness-80 transition-all cursor-pointer'
+					>
+						<X size={20} strokeWidth={2.5} />
+					</button>
+
+					<img className='w-full h-full' src={url} alt='' />
+				</div>
+			</div>
+		</div>
+	)
+}
 
 const StudentCheckbox = ({
 	id,
@@ -10,12 +31,8 @@ const StudentCheckbox = ({
 	answer,
 	checked = false,
 	correctAnswers = [],
-	showCorrect = false,
 }) => {
 	const isCorrect = correctAnswers.includes(id)
-	const isIncorrectSelected = checked && !isCorrect
-	const isCorrectSelected = checked && isCorrect
-	const shouldShowCorrect = showCorrect && isCorrect
 
 	const handleChange = () => {
 		const newChecked = !checked
@@ -25,18 +42,12 @@ const StudentCheckbox = ({
 	return (
 		<label
 			className={`inline-flex items-center justify-between cursor-pointer rounded-lg p-4 w-3/4 select-none transition-all font-medium ${
-				shouldShowCorrect
-					? 'bg-[var(--correct)] text-[var(--correct-dark)] shadow-[var(--correct-shadow))]' // Правильный ответ
-					: isIncorrectSelected
-					? 'bg-[var(--not-correct)] text-[var(--not-correct-dark)] shadow-[var(--not-correct-shadow))]' // Неправильный выбранный ответ
-					: isCorrectSelected
-					? 'bg-[var(--correct)] text-[var(--correct-dark)] shadow-[var(--correct-shadow))]' // Правильный выбранный ответ
-					: checked
-					? 'bg-[var(--hero-epta)] text-white shadow-[var(--hero-shadow)]' // Обычный выбранный ответ
-					: 'bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)]' // Невыбранный ответ
-			} `}
+				checked
+					? 'bg-[var(--hero-epta)] text-white shadow-[var(--hero-shadow)]'
+					: 'bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)]'
+			}`}
 		>
-			{answer && <span>{answer}</span>}
+			{answer && <span>{answer.name}</span>}
 
 			<span className='relative w-5 h-5 flex items-center justify-center rounded bg-transparent transition'>
 				{checked && <Check size={24} strokeWidth={3} />}
@@ -54,68 +65,93 @@ const StudentCheckbox = ({
 	)
 }
 
-const MoreVariantView = ({
-	question,
-	Answers,
-	onAnswerSelect,
-	media,
-	selected = [],
-	shuffle = true,
-	correctAnswers = [],
-	showCorrect = false,
-}) => {
-	const handleChange = (id, checked) => {
-		if (onAnswerSelect && !showCorrect) {
-			// Блокируем изменения при показе правильных ответов
-			onAnswerSelect(id, checked)
+const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
+	const [isLoading, setIsLoading] = useState(false)
+	const [score, setScore] = useState(1)
+	const [answers, setAnswers] = useState([])
+	const [question, setQuestion] = useState('')
+	const [media, setMedia] = useState()
+
+	const [selected, setSelected] = useState([]) // уже есть, убедись
+
+	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
+
+	console.log('selected: ', selected)
+
+	const handleChange = (optionCode, checked) => {
+		let newSelected
+		if (checked) {
+			newSelected = [...selected, optionCode] // добавить
+		} else {
+			newSelected = selected.filter(code => code !== optionCode) // убрать
 		}
+		setSelected(newSelected)
+		if (onAnswerSelect) onAnswerSelect(optionCode, checked)
 	}
 
-	const shuffleAnswers = useMemo(() => {
-		if (shuffle) {
-			if (!Answers) return []
-			return [...Answers].sort(() => Math.random() - 0.5)
+	useEffect(() => {
+		setIsLoading(true)
+		const fetchTest = async id => {
+			const res = await fetch(`${API}/questions/${id}`)
+			const data = await res.json()
+			if (data) setIsLoading(false)
+			console.log('get: ', data)
+			setQuestion(data?.title)
+			setScore(data?.score)
+			setMedia(data?.media)
+			setAnswers(data?.question_options)
 		}
-		return Answers
-	}, [Answers, shuffle])
+		fetchTest(testId)
+	}, [testId])
+
+	if (isLoading) return <Loader />
 
 	return (
-		<div className='flex flex-col justify-center items-center p-4 gap-5 w-3/4'>
-			<p className='font-medium text-lg'>{question}</p>
+		<>
+			{fullScreenPhoto !== null && (
+				<FullScreen
+					url={fullScreenPhoto}
+					close={() => setFullScreenPhoto(null)}
+				/>
+			)}
+			<div className='flex flex-col justify-center items-center p-4 gap-5 w-3/4'>
+				<p className='font-medium text-lg'>{question}</p>
 
-			<p className='font-light text-[var(--middle)] text-sm'>
-				Это вопрос с несколькими правильными ответами
-				{showCorrect && ' (показаны правильные ответы)'}
-			</p>
+				<p className='font-light text-[var(--middle)] text-sm'>
+					Это вопрос с несколькими правильными ответами
+				</p>
 
-			<div className='w-full'>
-				{media &&
-					(media.type === 'audio' ? (
-						<CustomAudioPlayer audioUrl={media.info} />
-					) : media.type === 'photo' ? (
-						<div className='aspect-video h-100 flex justify-center'>
-							<img className='w-auto h-full' src={media.info} alt='' />
-						</div>
-					) : media.type === 'formula' ? (
-						<FormulaView Formula={media.info} />
-					) : null)}
+				<div className='w-full flex justify-center'>
+					{media &&
+						(media?.type === 'audio' ? (
+							<CustomAudioPlayer audioUrl={JSON.parse(media?.info)?.audioUrl} />
+						) : media?.type === 'photo' ? (
+							<div className='aspect-video h-100 flex justify-center'>
+								<img
+									className='w-auto h-full rounded-xl hover:shadow-[var(--shadow)] hover:scale-101 transition'
+									src={media.info}
+									alt=''
+									onClick={() => setFullScreenPhoto(media.info)}
+								/>
+							</div>
+						) : media?.type === 'formula' ? (
+							<FormulaView Formula={media?.info} />
+						) : null)}
+				</div>
+
+				<div className='flex flex-col items-center gap-3 w-full'>
+					{answers?.map((answer, index) => (
+						<StudentCheckbox
+							key={answer.option_code}
+							id={answer.option_code} // используем уникальный option_code
+							answer={answer} // объект
+							checked={selected.includes(answer.option_code)}
+							onChange={handleChange}
+						/>
+					))}
+				</div>
 			</div>
-
-			<div className='flex flex-col items-center gap-3 w-full'>
-				{shuffleAnswers.map((answer, index) => (
-					<StudentCheckbox
-						key={index}
-						id={index}
-						answer={answer}
-						checked={selected.includes(index)}
-						onChange={handleChange}
-						correctAnswers={correctAnswers}
-						showCorrect={showCorrect}
-						disabled={showCorrect} // Блокируем изменения при показе правильных ответов
-					/>
-				))}
-			</div>
-		</div>
+		</>
 	)
 }
 

@@ -1,9 +1,41 @@
-import { useState, useEffect, useRef, forwardRef } from 'react'
-import { ChevronsUp, ChevronsDown, GripHorizontal } from 'lucide-react'
+import { useState, useEffect, useRef, forwardRef, use } from 'react'
+import { ChevronsUp, ChevronsDown, GripHorizontal, X } from 'lucide-react'
+import { API } from '../../API'
+import Loader from '../Loader'
+import { set } from 'date-fns'
+
+const FullScreen = ({ url, prevImg, nextImg, close }) => {
+	return (
+		<div className='flex fixed top-0 left-0 bg-[#00000025] backdrop-blur-[2px] z-1000 h-screen w-screen justify-center items-center'>
+			<div className='relative flex justify-center items-center w-full h-full '>
+				<div className='relative w-auto h-[75%] flex items-center rounded-3xl overflow-hidden'>
+					<button
+						onClick={close}
+						className=' bg-red-500 text-white absolute right-3 top-3 p-1 rounded-full flex justify-center items-center hover:scale-110  active:scale-90 active:brightness-80 transition-all cursor-pointer'
+					>
+						<X size={20} strokeWidth={2.5} />
+					</button>
+
+					<img className='w-full h-full' src={url} alt='' />
+				</div>
+			</div>
+		</div>
+	)
+}
 
 const PairItem = forwardRef(
 	(
-		{ pair, index, side, moveUp, moveDown, onDragStart, onDrop, height },
+		{
+			pair,
+			index,
+			side,
+			moveUp,
+			moveDown,
+			onDragStart,
+			onDrop,
+			height,
+			length,
+		},
 		ref
 	) => {
 		const isRight = side === 'right'
@@ -16,17 +48,14 @@ const PairItem = forwardRef(
 				onDragOver={e => isRight && e.preventDefault()}
 				onDrop={e => isRight && onDrop(e, index)}
 				style={{ height: height ? `${height}px` : undefined }}
-				className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] 
-          rounded-lg bg-white cursor-${
-						isRight ? 'grab' : 'default'
-					} select-none`}
+				className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-white cursor-default select-none`}
 			>
 				<span className='col-span-4 flex items-center w-full'>
-					{side === 'left' ? pair.left : pair.right}
+					{side === 'left' ? pair : pair}
 				</span>
 
 				{isRight && (
-					<div className='col-span-2 flex items-center justify-center w-full'>
+					<div className='col-span-2 flex items-center justify-center w-full cursor-grab'>
 						<GripHorizontal size={24} />
 					</div>
 				)}
@@ -35,15 +64,25 @@ const PairItem = forwardRef(
 					<div className='col-span-1 flex items-center justify-center w-full'>
 						<button
 							onClick={() => moveUp(index)}
-							className='p-1 hover:bg-gray-200 rounded cursor-pointer'
+							className={`p-1 z-10 rounded  ${
+								index === 0
+									? 'opacity-25 cursor-not-allowed'
+									: 'hover:bg-gray-200 cursor-pointer'
+							}`}
 							aria-label='Переместить вверх'
+							disabled={index === 0}
 						>
 							<ChevronsUp size={24} />
 						</button>
 						<button
 							onClick={() => moveDown(index)}
-							className='p-1 hover:bg-gray-200 rounded cursor-pointer'
+							className={`p-1 z-10 rounded  ${
+								index === length - 1
+									? 'opacity-25 cursor-not-allowed'
+									: 'hover:bg-gray-200 cursor-pointer'
+							}`}
 							aria-label='Переместить вниз'
+							disabled={index === length - 1}
 						>
 							<ChevronsDown size={24} />
 						</button>
@@ -54,63 +93,55 @@ const PairItem = forwardRef(
 	}
 )
 
-const SortVariantView = ({
-	initialPairs = [],
-	onChange,
-	question,
-	media,
-	shuffle = true,
-}) => {
-	const [pairs, setPairs] = useState(initialPairs)
+const SortVariantView = ({ onChange, testId }) => {
 	const [heights, setHeights] = useState([])
 	const rightRefs = useRef([])
+	const [isLoading, setIsLoading] = useState(false)
+	const [left_option, setLeft_option] = useState([])
+	const [right_option, setRight_option] = useState([])
+	const [score, setScore] = useState(1)
+	const [media, setMedia] = useState()
+	const [question, setQuestion] = useState('')
+	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
 	useEffect(() => {
-		if (shuffle) {
-			const shuffled = [...initialPairs].sort(() => Math.random() - 0.5)
-			setPairs(shuffled)
+		const fetchTest = async id => {
+			setIsLoading(true)
+			const res = await fetch(`${API}/questions/${id}`)
+			const data = await res.json()
+			setQuestion(data?.title)
+			setMedia(data?.media)
+			setScore(data?.score)
+			setLeft_option(data?.answer_data?.left_options || [])
+			setRight_option(data?.answer_data?.right_options || [])
+			setIsLoading(false)
 		}
-		setPairs(initialPairs)
-	}, [initialPairs])
+		if (testId) fetchTest(testId)
+	}, [testId])
 
-	useEffect(() => {
-		if (onChange) {
-			const answers = initialPairs.map((pair, idx) => [
-				pair.left,
-				pairs[idx]?.right || '',
-			])
-			onChange(answers)
-		}
-	}, [pairs, initialPairs, onChange])
-
+	// высоты правой колонки
 	useEffect(() => {
 		const newHeights = rightRefs.current.map(ref =>
 			ref ? ref.getBoundingClientRect().height : 0
 		)
 		setHeights(newHeights)
-	}, [pairs])
+	}, [right_option])
 
 	const moveUp = index => {
 		if (index === 0) return
-		setPairs(prev => {
-			const newPairs = [...prev]
-			;[newPairs[index - 1], newPairs[index]] = [
-				newPairs[index],
-				newPairs[index - 1],
-			]
-			return newPairs
+		setRight_option(prev => {
+			const newArr = [...prev]
+			;[newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]]
+			return newArr
 		})
 	}
 
 	const moveDown = index => {
-		if (index === pairs.length - 1) return
-		setPairs(prev => {
-			const newPairs = [...prev]
-			;[newPairs[index + 1], newPairs[index]] = [
-				newPairs[index],
-				newPairs[index + 1],
-			]
-			return newPairs
+		if (index === right_option.length - 1) return
+		setRight_option(prev => {
+			const newArr = [...prev]
+			;[newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]]
+			return newArr
 		})
 	}
 
@@ -122,80 +153,114 @@ const SortVariantView = ({
 		const dragIndex = parseInt(e.dataTransfer.getData('dragIndex'))
 		if (isNaN(dragIndex)) return
 
-		setPairs(prev => {
-			const newPairs = [...prev]
-			const [dragged] = newPairs.splice(dragIndex, 1)
-			newPairs.splice(dropIndex, 0, dragged)
-			return newPairs
+		setRight_option(prev => {
+			const newArr = [...prev]
+			const [dragged] = newArr.splice(dragIndex, 1)
+			newArr.splice(dropIndex, 0, dragged)
+			return newArr
 		})
 	}
 
+	// передаем изменения наверх
+	useEffect(() => {
+		if (onChange) {
+			const answers = left_option.map((left, idx) => [
+				left,
+				right_option[idx] || '',
+			])
+			onChange(answers)
+		}
+	}, [left_option, right_option, onChange])
+
+	if (isLoading) return <Loader />
+
 	return (
-		<div className='flex flex-col items-center gap-5'>
-			<p className='font-medium text-lg'>{question}</p>
+		<>
+			{fullScreenPhoto !== null && (
+				<FullScreen
+					url={fullScreenPhoto}
+					close={() => setFullScreenPhoto(null)}
+				/>
+			)}
+			<div className='flex flex-col items-center gap-5'>
+				<p className='font-medium text-lg'>{question}</p>
 
-			<p className='font-light text-[var(--middle)] text-sm'>
-				Это вопрос на установление соответствия, где нужно правильно сопоставить
-				элементы
-			</p>
+				<p className='font-light text-[var(--middle)] text-sm'>
+					Это вопрос на установление соответствия, где нужно правильно
+					сопоставить элементы
+				</p>
 
-			<div className='w-full'>
-				{media &&
-					(media.type === 'audio' ? (
-						<>
-							<CustomAudioPlayer audioUrl={media.info} />
-						</>
-					) : media.type === 'photo' ? (
-						<div className='aspect-video h-100 flex justify-center'>
-							<img className='w-auto h-full' src={media.info} alt='' />
-						</div>
-					) : media.type === 'formula' ? (
-						<>
-							<FormulaView Formula={media.info} />
-						</>
-					) : (
-						<></>
-					))}
-			</div>
+				<div className='w-full flex justify-center'>
+					{media &&
+						(media.type === 'audio' ? (
+							<>
+								<CustomAudioPlayer
+									audioUrl={JSON.parse(media?.info)?.audioUrl}
+								/>
+							</>
+						) : media.type === 'photo' ? (
+							<div className='aspect-video h-100 flex justify-center'>
+								<img
+									className='w-auto h-full rounded-xl hover:shadow-[var(--shadow)] hover:scale-101 transition'
+									src={media.info}
+									alt=''
+									onClick={() => setFullScreenPhoto(media.info)}
+								/>
+							</div>
+						) : media.type === 'formula' ? (
+							<>
+								<FormulaView Formula={media.info} />
+							</>
+						) : (
+							<></>
+						))}
+				</div>
 
-			<div className='flex justify-between gap-3'>
-				<div className=' h-full flex flex-col gap-3'>
-					{initialPairs.map((pair, idx) => (
-						<div className='flex '>
+				<div className='flex justify-between gap-3 w-full'>
+					<div className='flex flex-col gap-3'>
+						{left_option.map((pair, idx) => (
+							<div
+								key={idx}
+								className='grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-white select-none'
+								style={{
+									height: heights[idx] ? `${heights[idx]}px` : undefined,
+								}}
+							>
+								<span className='col-span-4 flex items-center w-full'>
+									{pair}
+								</span>
+							</div>
+						))}
+					</div>
+
+					<div className='flex flex-col gap-3'>
+						{left_option.map((_, idx) => (
+							<div key={idx} className='w-full h-full flex items-center'>
+								<div className='h-0 w-5 border-b-2 border-[var(--black)]'></div>
+							</div>
+						))}
+					</div>
+
+					<div className='flex flex-col gap-3'>
+						{right_option.map((pair, index) => (
 							<PairItem
-								key={pair.id}
+								key={pair.id || index}
 								pair={pair}
-								side='left'
-								height={heights[idx]}
+								index={index}
+								side='right'
+								moveUp={moveUp}
+								moveDown={moveDown}
+								onDragStart={handleDragStart}
+								onDrop={handleDrop}
+								ref={el => (rightRefs.current[index] = el)}
+								height={heights[index]}
+								length={right_option.length}
 							/>
-						</div>
-					))}
-				</div>
-				<div className=' h-full  flex flex-col gap-3'>
-					{initialPairs.map(() => (
-						<div className='w-full h-full flex items-center'>
-							<div className='h-0 w-5 border-b-2 border-[var(--black)]'></div>
-						</div>
-					))}
-				</div>
-
-				<div className=' h-full  flex flex-col gap-3'>
-					{pairs.map((pair, index) => (
-						<PairItem
-							key={pair.id}
-							pair={pair}
-							index={index}
-							side='right'
-							moveUp={moveUp}
-							moveDown={moveDown}
-							onDragStart={handleDragStart}
-							onDrop={handleDrop}
-							ref={el => (rightRefs.current[index] = el)}
-						/>
-					))}
+						))}
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	)
 }
 

@@ -174,7 +174,7 @@ const LevelsBar = ({
 }) => {
 	return (
 		<>
-			<div className='flex gap-3'>
+			<div className='flex flex-wrap gap-3'>
 				{questions.map((q, idx) => (
 					<div
 						key={q.id}
@@ -198,10 +198,10 @@ const LevelsBar = ({
 const ContentView = ({ content, contentType, contentTitle }) => {
 	const [answers, setAnswers] = useState({})
 	const [singleAnswers, setSingleAnswers] = useState({})
+	const [questions, setQuestions] = useState([])
 
-	const questions = useMemo(() => {
-		if (!content || !content.content) return []
-		return [...content.content].sort(() => Math.random() - 0.5)
+	useEffect(() => {
+		contentType === 'test' && setQuestions(content?.content)
 	}, [content])
 
 	const [activeIndex, setActiveIndex] = useState(0)
@@ -222,7 +222,7 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 			<div className='flex flex-col gap-5'>
 				{content.length !== 0 ? (
 					contentType !== 'test' ? (
-						content.map((item, i) => {
+						content?.map((item, i) => {
 							switch (item.type) {
 								case 'text':
 									return <TextViewer key={i} content={item?.content?.content} />
@@ -287,46 +287,23 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 							<div className='w-full flex justify-center'>
 								{(() => {
 									const q = content.content[activeIndex]
-									if (q.type === 'more') {
+
+									if (q.type === 'multiple') {
 										return (
-											<MoreVariantView
-												question={q.question}
-												Answers={q.answers}
-												selected={answers[activeIndex] || []}
-												onAnswerSelect={(id, checked) => {
-													setAnswers(prev => {
-														const prevSelected = prev[activeIndex] || []
-														const newSelected = checked
-															? [...prevSelected, id]
-															: prevSelected.filter(x => x !== id)
-														return { ...prev, [activeIndex]: newSelected }
-													})
-												}}
-											/>
+											<MoreVariantView testId={questions[activeIndex]?.id} />
 										)
 									} else if (q.type === 'single') {
 										return (
-											<OneVariantView
-												question={q.question}
-												Answers={q.answers}
-												selectedId={singleAnswers[activeIndex] ?? null}
-												onAnswerSelect={id => {
-													setSingleAnswers(prev => ({
-														...prev,
-														[activeIndex]: id,
-													}))
-												}}
-											/>
+											<OneVariantView testId={questions[activeIndex]?.id} />
 										)
-									} else if (q.type === 'sort') {
+									} else if (q.type === 'matching') {
 										return (
-											<SortVariantView
-												question={q.question}
-												initialPairs={q.answers}
-											/>
+											<SortVariantView testId={questions[activeIndex]?.id} />
 										)
 									} else if (q.type === 'open') {
-										return <OpenQuestionView question={q.question} />
+										return (
+											<OpenQuestionView testId={questions[activeIndex]?.id} />
+										)
 									}
 
 									return null

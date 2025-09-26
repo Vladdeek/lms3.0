@@ -1,0 +1,18 @@
+{
+	"title": "вопрос ",
+	"question_type": "match",
+	"media": {},
+	"score": 1,
+	"answer_data": [
+		{
+			"id": "1",
+			"left": "1",
+			"right": "1"
+		},
+		{
+			"id": "2",
+			"left": "2",
+			"right": "2"
+		}
+	]
+}

@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
+import { API } from '../../API'
+import Loader from '../Loader'
 
 // Компонент для пары сопоставления
 const MatchPair = ({
@@ -53,38 +55,136 @@ const MatchPair = ({
 	)
 }
 
-const SortVariants = () => {
-	const [pairs, setPairs] = useState([
-		{ id: '1', left: '', right: '' },
-		{ id: '2', left: '', right: '' },
-	])
-
+const SortVariants = ({ sectionId, testId }) => {
+	const [pairs, setPairs] = useState([])
+	const [left_option, setLeft_option] = useState(['', ''])
+	const [right_option, setRight_option] = useState(['', ''])
+	const [score, setScore] = useState(1)
+	const [media, setMedia] = useState()
+	const [isLoading, setIsLoading] = useState(false)
 	const [question, setQuestion] = useState('')
 
-	const handleLeftChange = (id, value) => {
-		setPairs(prev =>
-			prev.map(pair => (pair.id === id ? { ...pair, left: value } : pair))
-		)
+	useEffect(() => {
+		const combinedPairs = left_option.map((left, index) => ({
+			id: (index + 1).toString(),
+			left: left,
+			right: right_option[index] || '',
+		}))
+		setPairs(combinedPairs)
+	}, [left_option, right_option])
+
+	const handleLeftChange = (index, value) => {
+		setLeft_option(prev => {
+			const updated = [...prev]
+			updated[index] = value
+			return updated
+		})
 	}
 
-	const handleRightChange = (id, value) => {
-		setPairs(prev =>
-			prev.map(pair => (pair.id === id ? { ...pair, right: value } : pair))
-		)
+	const handleRightChange = (index, value) => {
+		setRight_option(prev => {
+			const updated = [...prev]
+			updated[index] = value
+			return updated
+		})
+	}
+
+	const handleDeletePair = index => {
+		if (left_option.length <= 2) return
+		setLeft_option(prev => prev.filter((_, i) => i !== index))
+		setRight_option(prev => prev.filter((_, i) => i !== index))
 	}
 
 	const handleAddPair = () => {
-		const maxId = Math.max(...pairs.map(pair => parseInt(pair.id)))
-		const newId = (maxId + 1).toString()
-		setPairs(prev => [...prev, { id: newId, left: '', right: '' }])
+		setLeft_option(prev => [...prev, ''])
+		setRight_option(prev => [...prev, ''])
 	}
 
-	const handleDeletePair = id => {
-		if (pairs.length <= 2) return
-		setPairs(prev => prev.filter(pair => pair.id !== id))
+	const fetchTest = async id => {
+		const res = await fetch(`${API}/questions/${id}`)
+		const data = await res.json()
+		if (data) setIsLoading(false)
+		setQuestion(data?.title)
+		setScore(data?.score)
+		setMedia(data?.media)
+		setLeft_option(data?.answer_data?.left_options || ['', ''])
+		setRight_option(data?.answer_data?.right_options || ['', ''])
 	}
 
-	return (
+	const handleCreate = async () => {
+		try {
+			const res = await fetch(`${API}/questions/test/${sectionId}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					title: question,
+					question_type: 'matching',
+					media: media || {},
+					score: Number(score),
+					answer_data: {
+						type: 'matching',
+						left_options: left_option,
+						right_options: right_option,
+					},
+				}),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+
+			fetchTest(data?.id)
+		} catch (error) {
+			console.error(error)
+		}
+	}
+	const handleEdit = async () => {
+		try {
+			const res = await fetch(`${API}/questions/${testId}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					title: question,
+					question_type: 'matching',
+					media: media || {},
+					score: Number(score),
+					answer_data: {
+						type: 'matching',
+						left_options: left_option,
+						right_options: right_option,
+					},
+				}),
+			})
+
+			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
+			const data = await res.json()
+
+			fetchTest(data?.id)
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	useEffect(() => {
+		setIsLoading(true)
+		if (testId) {
+			fetchTest(testId)
+		} else {
+			setQuestion('')
+			setScore(1)
+			setMedia({})
+			setLeft_option(['', ''])
+			setRight_option(['', ''])
+			setIsLoading(false)
+		}
+	}, [testId])
+
+	const handleSave = () => {
+		testId ? handleEdit() : handleCreate()
+	}
+
+	return isLoading ? (
+		<Loader />
+	) : (
 		<>
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
@@ -96,10 +196,14 @@ const SortVariants = () => {
 								value={question}
 								onChange={e => setQuestion(e.target.value)}
 							/>
-							<ScoreInput1 />
+							<ScoreInput1 value={score} onChange={setScore} />
 						</div>
 
-						<AddMediaButton />
+						<AddMediaButton
+							onChange={setMedia}
+							type={media?.type}
+							info={media?.info}
+						/>
 					</div>
 
 					<div className='flex flex-col items-center gap-3 w-2/3'>
@@ -112,12 +216,14 @@ const SortVariants = () => {
 								{pairs.map((pair, index) => (
 									<MatchPair
 										key={pair.id}
-										id={pair.id}
-										leftValue={pair.left}
-										rightValue={pair.right}
-										onLeftChange={handleLeftChange}
-										onRightChange={handleRightChange}
-										onDelete={handleDeletePair}
+										id={index} // или pair.id
+										leftValue={left_option[index]} // конкретный элемент массива
+										rightValue={right_option[index]} // конкретный элемент массива
+										onLeftChange={(id, value) => handleLeftChange(index, value)}
+										onRightChange={(id, value) =>
+											handleRightChange(index, value)
+										}
+										onDelete={() => handleDeletePair(index)}
 										canDelete={pairs.length > 2}
 										label={`Пара ${index + 1}`}
 									/>
@@ -155,6 +261,12 @@ const SortVariants = () => {
 					</p>
 				</div>
 			</div>
+			<button
+				onClick={handleSave}
+				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2 cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all active:scale-95'
+			>
+				{testId ? 'Обновить' : 'Сохранить'}
+			</button>
 		</>
 	)
 }

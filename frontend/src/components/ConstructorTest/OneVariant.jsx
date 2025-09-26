@@ -282,8 +282,6 @@ const OneVariant = ({ sectionId, testId }) => {
 		testId ? handleEdit() : handleCreate()
 	}
 
-	console.log('1', media)
-
 	return isLoading ? (
 		<Loader />
 	) : (
