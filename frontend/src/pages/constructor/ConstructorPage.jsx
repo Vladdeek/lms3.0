@@ -24,6 +24,7 @@ import { API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
+import { useError } from '../../components/Errors'
 
 const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 	const [isOpen, setIsOpen] = useState(true)
@@ -220,17 +221,28 @@ const ConstructorPage = ({ role }) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
+	const { setError } = useError()
+
 	useEffect(() => {
 		const fetchCourses = async () => {
-			const res = await fetch(`${API}/courses/${courseId}`)
-			const data = await res.json()
-			console.log(data)
-			setCourseContent(data)
+			try {
+				const res = await fetch(`${API}/courses/${courseId}`)
+				const data = await res.json()
+
+				if (!res.ok) {
+					setError(res.status.toString())
+				} else {
+					setError(null)
+					setCourseContent(data)
+				}
+			} catch (err) {
+				setError('500')
+			}
 		}
+
 		fetchCourses()
 	}, [courseId])
 
-	// Модули
 	const addModule = newModule =>
 		setCourseContent(prev => ({
 			...prev,

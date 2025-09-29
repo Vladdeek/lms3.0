@@ -2,10 +2,11 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import Footer from '../../components/Footer'
 import { Header, MobileMenuBar } from '../../components/Header'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { AlignJustify, CalendarDays, CopyCheck, UsersRound } from 'lucide-react'
 import ToggleRole from '../../components/ToggleRole'
 import {
+	ErrorProvider,
 	InternalServerError500,
 	NotFoundError404,
 } from '../../components/Errors'
@@ -71,7 +72,6 @@ export default function DashboardLayout({ onChange }) {
 	]
 
 	const [openIndex, setOpenIndex] = useState(null)
-	const [error, setError] = useState('')
 
 	const links = HeaderLinkInfo[0][UserInfo[0].role]
 
@@ -89,17 +89,9 @@ export default function DashboardLayout({ onChange }) {
 				<div className='h-25'></div>
 
 				<div className='mb-40'>
-					{error ? (
-						error === '404' ? (
-							<NotFoundError404 />
-						) : error === '500' ? (
-							<InternalServerError500 />
-						) : (
-							error === '503' && <NotFoundError404 />
-						)
-					) : (
+					<ErrorProvider>
 						<Outlet />
-					)}
+					</ErrorProvider>
 				</div>
 			</div>
 			<div className='md:hidden'>

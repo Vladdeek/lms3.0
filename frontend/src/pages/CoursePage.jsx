@@ -38,6 +38,7 @@ import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { TextViewer } from '../components/Viewer/TextViewer'
 import { useParams } from 'react-router-dom'
 import { API } from '../API'
+import { useError } from '../components/Errors'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -435,12 +436,25 @@ const CoursePage = ({}) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
+	const { setError } = useError()
+
 	useEffect(() => {
 		const fetchCourses = async () => {
-			const res = await fetch(`${API}/courses/${courseId}`)
-			const data = await res.json()
-			setCourseContent(data)
+			try {
+				const res = await fetch(`${API}/courses/${courseId}`)
+				const data = await res.json()
+
+				if (!res.ok) {
+					setError(res.status.toString())
+				} else {
+					setError(null)
+					setCourseContent(data)
+				}
+			} catch (err) {
+				setError('500')
+			}
 		}
+
 		fetchCourses()
 	}, [courseId])
 
