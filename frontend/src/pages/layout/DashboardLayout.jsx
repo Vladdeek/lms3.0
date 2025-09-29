@@ -10,10 +10,13 @@ import {
 	InternalServerError500,
 	NotFoundError404,
 } from '../../components/Errors'
+import Loader from '../../components/Loader'
+import { motion } from 'framer-motion'
 
 export default function DashboardLayout({ onChange }) {
 	const [activeUser, setActiveUser] = useState(null)
 	const location = useLocation()
+	const navigate = useNavigate()
 	const HeaderLinkInfo = [
 		{
 			teacher: [
@@ -75,6 +78,12 @@ export default function DashboardLayout({ onChange }) {
 
 	const links = HeaderLinkInfo[0][UserInfo[0].role]
 
+	useEffect(() => {
+		if (location.pathname === '/') {
+			navigate('/catalogs')
+		}
+	}, [location, navigate])
+
 	return (
 		<>
 			<div className='fixed bottom-2 right-2'>
@@ -88,10 +97,26 @@ export default function DashboardLayout({ onChange }) {
 				/>
 				<div className='h-25'></div>
 
+				{location.pathname === '/' && (
+					<div className='h-screen flex justify-center items-center'>
+						<div className='w-2/3'>
+							<Loader />
+						</div>
+					</div>
+				)}
+
 				<ErrorProvider>
 					<Outlet />
 				</ErrorProvider>
-				<Footer />
+
+				<motion.div
+					key={location.pathname}
+					initial={{ opacity: 0, y: 30 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.5, ease: 'easeOut' }}
+				>
+					<Footer />
+				</motion.div>
 			</div>
 			<div className='md:hidden'>
 				<MobileMenuBar links={links} />

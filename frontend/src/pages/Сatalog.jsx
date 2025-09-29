@@ -162,7 +162,7 @@ const Catalog = ({ role }) => {
 				onClose={() => setCreateModalOpen(false)}
 				onCreate={handleCreateCourse}
 			/>
-			<div className='h-screen flex flex-col gap-4 py-[50px]'>
+			<div className='h-full flex flex-col gap-4 py-[50px] '>
 				<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
 					<div className='flex gap-4 max-lg:gap-2 h-12'>
 						{options.map(option => (
