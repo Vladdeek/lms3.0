@@ -218,7 +218,7 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 	}
 
 	return (
-		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll max-h-200'>
+		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll'>
 			<ModuleContent bg={true} type={contentType} title={contentTitle} />
 			<div className='flex flex-col gap-5'>
 				{content.length !== 0 ? (
@@ -388,15 +388,15 @@ const CourseOverview = ({ content }) => {
 
 	return (
 		<>
-			<div className='grid grid-cols-[1fr_3fr] gap-5 h-fit min-h-[607px]'>
-				<div className='flex flex-col gap-3'>
+			<div className='grid grid-cols-[1fr_3fr] gap-5 h-5/6 '>
+				<div className='flex flex-col gap-3 '>
 					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
 						<p className='font-medium text-2xl text-[var(--black)]'>
 							{content?.name}
 						</p>
 					</div>
-					<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between'>
+					<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between h-full'>
 						<div className='flex flex-col gap-3'>
 							<div className='flex flex-col gap-3 px-2'>
 								<div className='flex justify-between w-full'>
@@ -460,7 +460,7 @@ const CoursePage = ({}) => {
 
 	return (
 		<>
-			<div className='flex flex-col gap-5'>
+			<div className='flex flex-col gap-5 h-screen'>
 				<div className='flex justify-between items-center mt-10'></div>
 
 				<CourseOverview content={courseContent} />

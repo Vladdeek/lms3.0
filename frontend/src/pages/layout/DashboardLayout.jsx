@@ -88,11 +88,10 @@ export default function DashboardLayout({ onChange }) {
 				/>
 				<div className='h-25'></div>
 
-				<div className='mb-40'>
-					<ErrorProvider>
-						<Outlet />
-					</ErrorProvider>
-				</div>
+				<ErrorProvider>
+					<Outlet />
+				</ErrorProvider>
+				<Footer />
 			</div>
 			<div className='md:hidden'>
 				<MobileMenuBar links={links} />

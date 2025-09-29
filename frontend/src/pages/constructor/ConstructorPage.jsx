@@ -344,14 +344,14 @@ const ConstructorPage = ({ role }) => {
 
 	return role !== 'student' ? (
 		<>
-			<div className='h-screen w-screen flex justify-center gap-3 items-center text-[var(--middle)] font-medium'>
+			<div className='h-screen w-full flex justify-center gap-3 items-center text-[var(--middle)] font-medium'>
 				<p>Доступ запрещен</p>
 				<Frown size={32} strokeWidth={1.75} />
 			</div>
 		</>
 	) : (
 		<>
-			<div className='flex flex-col gap-5 '>
+			<div className='flex flex-col gap-5 h-screen'>
 				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center max-[1366px]:mt-5 mt-10'>
 					<div className='flex gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
 						{options.map((option, index) => (

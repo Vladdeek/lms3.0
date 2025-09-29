@@ -2,6 +2,8 @@ import {
 	Check,
 	ChevronDown,
 	CircleCheck,
+	Eye,
+	EyeClosed,
 	FileText,
 	ImagePlus,
 	ScanSearch,
@@ -18,6 +20,7 @@ export const InputDefault = ({
 	onStatusChange,
 	value, // Добавляем проп value
 	onChange, // Добавляем проп onChange
+	blackText = false,
 }) => {
 	const [inputStatus, setInputStatus] = useState(false)
 	const [internalValue, setInternalValue] = useState(value || '')
@@ -45,7 +48,13 @@ export const InputDefault = ({
 		<div className='w-full inline-flex flex-col group'>
 			{title && (
 				<div className='inline-flex items-center gap-[10px]'>
-					<p className='text-[18px] text-[var(--middle)]'>{title}</p>
+					<p
+						className={`text-[18px]  ${
+							!blackText ? 'text-[var(--middle)]' : 'text-[var(--black)]'
+						}`}
+					>
+						{title}
+					</p>
 					{required && (
 						<CircleCheck
 							color={!inputStatus ? 'var(--middle)' : 'var(--hero-epta)'}
@@ -59,9 +68,84 @@ export const InputDefault = ({
 				type={type}
 				value={internalValue}
 				onChange={handleInputChange}
-				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] placeholder:text-[var(--middle)] text-[var(--black)] transition mt-3'
+				className='rounded-xl p-[12px] bg-[var(--white)] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] focus:shadow-[var(--hero-shadow)] placeholder:text-[var(--middle)] text-[var(--black)] transition mt-3'
 				placeholder={placeholder}
 			/>
+		</div>
+	)
+}
+
+export const InputAuth = ({
+	placeholder,
+	title,
+	required,
+	validate,
+	onStatusChange,
+	value,
+	onChange,
+	password = false,
+}) => {
+	const [inputStatus, setInputStatus] = useState(false)
+	const [internalValue, setInternalValue] = useState(value || '')
+	const [showPassword, setShowPassword] = useState(false)
+
+	useEffect(() => {
+		setInternalValue(value || '')
+	}, [value])
+
+	const handleInputChange = e => {
+		const newValue = e.target.value
+		setInternalValue(newValue)
+
+		if (onChange) {
+			onChange(e)
+		}
+
+		const status = validate ? validate(newValue) : newValue.trim() !== ''
+		setInputStatus(status)
+		if (onStatusChange) onStatusChange(status)
+	}
+
+	return (
+		<div className='w-full inline-flex flex-col group'>
+			{title && (
+				<div className='inline-flex items-center gap-[10px]'>
+					<p className={`text-[18px]  text-[var(--black)]`}>{title}</p>
+					{required && (
+						<CircleCheck
+							color={!inputStatus ? 'var(--middle)' : 'var(--hero-epta)'}
+							size={16}
+						/>
+					)}
+				</div>
+			)}
+			<div
+				className={` flex  items-center justify-center rounded-xl overflow-hidden bg-[var(--white)] shadow-[var(--shadow)]  focus-within:ring-1 focus-within:ring-[var(--hero-epta)] focus-within:shadow-[var(--hero-shadow)] placeholder:text-[var(--middle)] text-[var(--black)] transition mt-3`}
+			>
+				<input
+					type={password && !showPassword ? 'password' : 'text'}
+					value={internalValue}
+					onChange={handleInputChange}
+					placeholder={placeholder}
+					className='outline-0 w-full p-4'
+				/>
+				{password && (
+					<button
+						onClick={() => {
+							setShowPassword(prev => !prev)
+						}}
+						className='mx-3 cursor-pointer'
+					>
+						<div
+							className={`transition-all duration-300 ${
+								showPassword ? 'rotate-x-180' : 'rotate-x-0'
+							}`}
+						>
+							{showPassword ? <Eye /> : <EyeClosed />}
+						</div>
+					</button>
+				)}
+			</div>
 		</div>
 	)
 }

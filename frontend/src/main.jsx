@@ -21,6 +21,7 @@ import StudentsAndGroups from './pages/Students&Groups'
 import CoursePage from './pages/CoursePage'
 import CatalogS from './pages/Tasks'
 import { useScroll } from 'framer-motion'
+import Authorization from './pages/Authorization'
 
 function MainApp() {
 	const navigate = useNavigate()
@@ -41,7 +42,7 @@ function MainApp() {
 			}
 		>
 			<Routes>
-				<Route path='/auth' element={''} />
+				<Route path='/auth' element={<Authorization />} />
 				<Route path='/' element={<DashboardLayout onChange={setIsTeacher} />}>
 					<Route path='/catalogt' element={<Catalog role={role} />} />
 					<Route path='/catalogs' element={<CatalogS role={role} />} />

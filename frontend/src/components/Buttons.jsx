@@ -122,6 +122,27 @@ export const Button = ({
 	)
 }
 
+export const SubmitButton = ({
+	onClick,
+	icon: Icon,
+	title,
+	IconColor,
+	disabled = false,
+}) => {
+	return (
+		<button
+			disabled={disabled}
+			onClick={onClick}
+			className={`rounded-xl h-full flex gap-4 items-center justify-center active:scale-99 active:brightness-90 hover:bg-[var(--hero-epta)] transition-all cursor-pointer bg-[var(--black)] text-[var(--white)] py-4`}
+		>
+			{Icon && <Icon size={size / 1.75 || 24} color={IconColor} />}
+			{title && (
+				<span className='font-medium truncate text-ellipsis'>{title}</span>
+			)}
+		</button>
+	)
+}
+
 export const EllipsisButton = ({ options, onOptionClick, bg }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isVisible, setIsVisible] = useState(false)
