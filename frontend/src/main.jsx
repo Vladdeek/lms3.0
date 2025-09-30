@@ -42,7 +42,13 @@ function MainApp() {
 			}
 		>
 			<Routes>
-				<Route path='/auth' element={<Authorization />} />
+				<Route path='/auth'>
+					<Route path='login' element={<Authorization isRegister={false} />} />
+					<Route
+						path='register'
+						element={<Authorization isRegister={true} />}
+					/>
+				</Route>
 				<Route path='/' element={<DashboardLayout onChange={setIsTeacher} />}>
 					<Route path='/catalogt' element={<Catalog role={role} />} />
 					<Route path='/catalogs' element={<CatalogS role={role} />} />
