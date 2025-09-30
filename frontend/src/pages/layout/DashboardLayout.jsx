@@ -104,10 +104,11 @@ export default function DashboardLayout({ onChange }) {
 						</div>
 					</div>
 				)}
-
-				<ErrorProvider>
-					<Outlet />
-				</ErrorProvider>
+				<div className='h-screen'>
+					<ErrorProvider>
+						<Outlet />
+					</ErrorProvider>
+				</div>
 
 				<motion.div
 					key={location.pathname}
