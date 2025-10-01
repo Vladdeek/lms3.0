@@ -15,6 +15,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 const CatalogS = ({ role }) => {
 	const [selected, setSelected] = useState(0)
 	const [courses, setCourses] = useState([])
+	const [webinars, setWebinars] = useState([])
 	const options = [
 		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
 		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
@@ -45,11 +46,18 @@ const CatalogS = ({ role }) => {
 			const res = await fetch(`${API}/courses/`)
 			const data = await res.json()
 			console.log('Список курсов:', data)
-			setCourses(data)
+			setCourses(data || [])
 		}
-
-		fetchCourses()
-	}, [])
+		const fetchWebinars = async () => {
+			const res = await fetch(`${API}/webinar/`)
+			const data = await res.json()
+			console.log('Список вебинаров:', data)
+			setWebinars(data.detail === 'Not Found' ? [] : data)
+		}
+		location.pathname === '/catalogt/courses'
+			? fetchCourses()
+			: location.pathname === '/catalogt/webinars' && fetchWebinars()
+	}, [location.pathname])
 
 	return (
 		<>
@@ -115,9 +123,9 @@ const CatalogS = ({ role }) => {
 					) : (
 						location.pathname === '/catalogs/webinars' && (
 							<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
-								{courses.map((course, index) => (
+								{webinars?.map((web, index) => (
 									<motion.div
-										key={course.id}
+										key={web.id}
 										initial={{ scale: 0.8, opacity: 0 }}
 										animate={{ scale: 1, opacity: 1 }}
 										transition={{
@@ -126,13 +134,12 @@ const CatalogS = ({ role }) => {
 											ease: 'easeOut',
 										}}
 									>
-										<CourseCard
-											title={course.name}
-											description={course.description}
-											img_path={`${API}/courses/image/${course.id}`}
-											status={course.status}
-											deadline={course.deadline}
-											to={`/course/${course.id}`}
+										<WebinarCard
+											title={web.name}
+											description={web.description}
+											img_path={`${FILE_API}${web.image_url}`}
+											deadline={web.due_date}
+											to={web.link_url}
 										/>
 									</motion.div>
 								))}
