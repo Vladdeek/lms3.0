@@ -110,7 +110,7 @@ const CreateModuleButton = ({
 				title={'Добавить модуль'}
 				textSize={16}
 				className='w-full'
-				onClick={() => setIsOpen(true)}
+				onClick={() => setIsOpen(prev => !prev)}
 			/>
 			{isOpen && (
 				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 top-14 left-0 flex flex-col gap-3 z-10 w-full'>
@@ -125,20 +125,10 @@ const CreateModuleButton = ({
 					/>
 					<div className='flex justify-between mt-2 gap-2'>
 						<Button
-							title='Отмена'
-							style='white'
-							onClick={() => {
-								setIsOpen(false)
-								setTitle('')
-								setIsNameValid(false)
-							}}
-							width={'50%'}
-						/>
-						<Button
 							title='Добавить модуль'
 							style='black'
 							onClick={handleSave}
-							width={'50%'}
+							width={'100%'}
 							disabled={!isNameValid}
 						/>
 					</div>
@@ -255,6 +245,7 @@ const CreateLessonButton = ({
 					{lessonTypes[selected].description}
 				</p>
 			)}
+
 			<div className='flex justify-end mt-2'>
 				<Button title='Далее' style='black' onClick={() => setStep(1)} />
 			</div>
@@ -269,7 +260,8 @@ const CreateLessonButton = ({
 				onChange={e => setLessonTitle(e.target.value)}
 				onStatusChange={setIsNameValid}
 			/>
-			<div className='flex justify-between mt-2'>
+			<div className='flex justify-between gap-2 mt-2'>
+				<Button title='назад' style='outline' onClick={() => setStep(0)} />
 				<Button
 					title='Добавить занятие'
 					style='black'
@@ -282,7 +274,7 @@ const CreateLessonButton = ({
 	]
 
 	return (
-		<div className='relative'>
+		<div className=''>
 			<Button
 				icon={FilePlus2}
 				title={'Добавить занятие'}
@@ -292,7 +284,7 @@ const CreateLessonButton = ({
 				width={'100%'}
 			/>
 			{isOpen && (
-				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 top-14 flex flex-col gap-3 z-10 w-full'>
+				<div className=' bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 mt-2  flex flex-col gap-3 z-1000 w-full'>
 					{steps[step]}
 				</div>
 			)}
@@ -530,7 +522,7 @@ const ModuleBlock = ({
 										onRemoveModule={deleteModule}
 									/>
 									{isExpanded && module.module_sections && (
-										<>
+										<div>
 											<div>
 												{module.module_sections.map((section, sectionIndex) => {
 													return (
@@ -573,7 +565,7 @@ const ModuleBlock = ({
 													onRemoveLesson={onRemoveLesson}
 												/>
 											</motion.div>
-										</>
+										</div>
 									)}
 								</div>
 							</motion.div>
