@@ -1,17 +1,5 @@
-import {
-	a11yDark,
-	atomOneDark,
-	CodeBlock,
-	dracula,
-	googlecode,
-	hopscotch,
-	hybrid,
-	irBlack,
-	monokai,
-	monokaiSublime,
-	solarizedDark,
-} from 'react-code-blocks'
-import { github } from 'react-code-blocks'
+import { CodeBlock } from 'react-code-blocks'
+import { github, a11yDark } from 'react-code-blocks'
 import { useEffect, useState } from 'react'
 import { Copy, Check, Code, Trash } from 'lucide-react'
 
@@ -23,20 +11,13 @@ const CustomCodeBlock = ({
 	view = false,
 }) => {
 	const [copied, setCopied] = useState(false)
-	const [theme, setTheme] = useState('github')
+	const htmlElement = document.documentElement
+	const themeAttr = htmlElement.getAttribute('data-theme')
 
 	const themes = {
-		dark: 'github',
-		light: 'a11yDark',
+		light: github,
+		dark: a11yDark,
 	}
-
-	useEffect(() => {
-		const htmlElement = document.documentElement
-		const themeAttr = htmlElement.getAttribute('data-theme')
-		if (themeAttr && themes[themeAttr]) {
-			setTheme(themes[themeAttr])
-		}
-	}, [])
 
 	const handleCopy = async () => {
 		try {
@@ -111,7 +92,7 @@ const CustomCodeBlock = ({
 						text={!view ? codeInfo[0]?.code : codeInfo.code}
 						language={!view ? codeInfo[0]?.language : codeInfo.language}
 						showLineNumbers={true}
-						theme={a11yDark}
+						theme={themes[themeAttr]}
 					/>
 				</div>
 				<div

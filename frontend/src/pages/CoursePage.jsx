@@ -129,41 +129,47 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 	}
 
 	return (
-		<>
-			{ModuleInfo?.map((item, index) => {
-				const isExpanded = expandedModules[index] === true
+		<div className='h-fit overflow-y-scroll hide-scrollbar hide-scrollbar p-2'>
+			<div className=' flex flex-col gap-3 rounded-xl'>
+				{ModuleInfo?.map((item, index) => {
+					const isExpanded = expandedModules[index] === true
 
-				return (
-					<div key={index} className='flex flex-col gap-3'>
-						<ModuleTitle
-							title={item.name}
-							index={index + 1}
-							isExpanded={isExpanded}
-							onToggle={() => toggleModule(index)}
-						/>
-						{isExpanded && (
-							<>
-								<div className=''>
-									{item?.module_sections?.map((lesson, lessonIndex) => {
-										return (
-											<ModuleContent
-												key={lesson.id}
-												title={lesson.title}
-												type={lesson.type}
-												onClick={() =>
-													onContentSelect(lesson.id, lesson.type, lesson.title)
-												}
-												isSelected={selectedContent?.id === lesson.id}
-											/>
-										)
-									})}
-								</div>
-							</>
-						)}
-					</div>
-				)
-			})}
-		</>
+					return (
+						<div key={index} className='flex flex-col gap-3'>
+							<ModuleTitle
+								title={item.name}
+								index={index + 1}
+								isExpanded={isExpanded}
+								onToggle={() => toggleModule(index)}
+							/>
+							{isExpanded && (
+								<>
+									<div className=''>
+										{item?.module_sections?.map((lesson, lessonIndex) => {
+											return (
+												<ModuleContent
+													key={lesson.id}
+													title={lesson.title}
+													type={lesson.type}
+													onClick={() =>
+														onContentSelect(
+															lesson.id,
+															lesson.type,
+															lesson.title
+														)
+													}
+													isSelected={selectedContent?.id === lesson.id}
+												/>
+											)
+										})}
+									</div>
+								</>
+							)}
+						</div>
+					)
+				})}
+			</div>
+		</div>
 	)
 }
 
@@ -411,7 +417,7 @@ const CourseOverview = ({ content }) => {
 								</div>
 							</div>
 
-							<div className='h-150 flex flex-col gap-3 overflow-y-scroll hide-scrollbar w-full py-2 px-2'>
+							<div className='flex flex-col gap-3 rounded-xl p-2'>
 								<ModuleBlock
 									ModuleInfo={content?.modules}
 									onContentSelect={handleContentSelect}

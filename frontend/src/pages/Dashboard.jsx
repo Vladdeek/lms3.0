@@ -85,7 +85,7 @@ const Dashboard = () => {
 	const percentage = 75
 
 	return (
-		<>
+		<div className='h-screen'>
 			<div className='grid grid-cols-12 gap-5 mt-10'>
 				<div className='col-span-5 flex flex-col gap-5'>
 					<div className='flex gap-5'>
@@ -283,7 +283,7 @@ const Dashboard = () => {
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }
 export default Dashboard
