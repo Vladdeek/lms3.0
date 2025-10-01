@@ -50,8 +50,14 @@ function MainApp() {
 					/>
 				</Route>
 				<Route path='/' element={<DashboardLayout onChange={setIsTeacher} />}>
-					<Route path='/catalogt' element={<Catalog role={role} />} />
-					<Route path='/catalogs' element={<CatalogS role={role} />} />
+					<Route path='/catalogt' element={<Catalog role={role} />}>
+						<Route path='courses' element={<CatalogS role={role} />} />
+						<Route path='webinars' element={<CatalogS role={role} />} />
+					</Route>
+					<Route path='/catalogs' element={<CatalogS role={role} />}>
+						<Route path='courses' element={<CatalogS role={role} />} />
+						<Route path='webinars' element={<CatalogS role={role} />} />
+					</Route>
 					<Route path='/students' element={<StudentsAndGroups />} />
 					<Route
 						path='/constructor/:courseId?'

@@ -3,7 +3,13 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Footer from '../../components/Footer'
 import { Header, MobileMenuBar } from '../../components/Header'
 import { use, useEffect, useState } from 'react'
-import { AlignJustify, CalendarDays, CopyCheck, UsersRound } from 'lucide-react'
+import {
+	AlignJustify,
+	Bell,
+	CalendarDays,
+	CopyCheck,
+	UsersRound,
+} from 'lucide-react'
 import ToggleRole from '../../components/ToggleRole'
 import {
 	ErrorProvider,
@@ -52,12 +58,6 @@ export default function DashboardLayout({ onChange }) {
 		},
 	]
 
-	const HeaderBtnInfo = [
-		{
-			action: 'toggleTheme',
-		},
-	]
-
 	const [isTeacher, setIsTeacher] = useState(true)
 	const handleRoleChange = () => {
 		setIsTeacher(prev => !prev)
@@ -90,11 +90,7 @@ export default function DashboardLayout({ onChange }) {
 				<ToggleRole onChange={value => handleRoleChange(value)} />
 			</div>
 			<div className='md:mx-10 mx-2'>
-				<Header
-					links={links}
-					HeaderBtnInfo={HeaderBtnInfo}
-					UserInfo={UserInfo}
-				/>
+				<Header links={links} UserInfo={UserInfo} />
 				<div className='h-25'></div>
 
 				{location.pathname === '/' && (

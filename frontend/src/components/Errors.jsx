@@ -60,7 +60,7 @@ export const ErrorProvider = ({ children }) => {
 		504: 'Превышено время ожидания ответа от сервера.',
 	}
 
-	console.log('error: ', error)
+	//console.log('error: ', error)
 
 	useEffect(() => {
 		setError(null)

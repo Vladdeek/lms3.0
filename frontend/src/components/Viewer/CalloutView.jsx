@@ -36,7 +36,7 @@ export const CalloutView = ({ IconName, title, description }) => {
 						{iconObj?.icon}
 					</div>
 
-					<div className='flex flex-col w-full gap-3 h-30'>
+					<div className='flex flex-col w-full gap-3 h-30 text-[var(--black)]'>
 						<p className='text-base font-medium'>{title}</p>
 						<p className=' h-fit text-sm font-normal'>{description}</p>
 					</div>

@@ -196,7 +196,7 @@ export const TextArea = ({
 				type={type}
 				value={value} // Используем внешнее значение
 				onChange={handleInputChange}
-				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition min-h-25 mt-3 resize-none'
+				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] placeholder:text-[var(--middle)] text-[var(--black)] transition min-h-25 mt-3 resize-none'
 				placeholder={placeholder}
 			/>
 		</div>
@@ -355,7 +355,11 @@ export const SearchInput = ({ width, height = 'auto' }) => {
 			style={{ width: width && width, height: height && height }}
 		>
 			<ScanSearch className='h-full w-auto aspect-square' strokeWidth={1.5} />
-			<input className='outline-0' type={'text'} placeholder={'Поиск'} />
+			<input
+				className='outline-0 placeholder:text-[var(--middle)]'
+				type={'text'}
+				placeholder={'Поиск'}
+			/>
 		</div>
 	)
 }

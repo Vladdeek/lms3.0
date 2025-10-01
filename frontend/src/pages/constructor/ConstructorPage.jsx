@@ -104,8 +104,10 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 				<Settings size={24} />
 			</button>
 			{!isOpen && (
-				<div className='absolute w-[466px] z-1000 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 left-0'>
-					<p className='font-medium text-xl text-center'>Настройки курса</p>
+				<div className='absolute w-[466px] z-10 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 left-0'>
+					<p className='font-medium text-xl text-center text-[var(--black)]'>
+						Настройки курса
+					</p>
 					<InputDefault
 						placeholder={'Введите название'}
 						title={'Название курса'}
@@ -186,7 +188,7 @@ const DateButton = () => {
 	}
 
 	return (
-		<div className='relative z-1000'>
+		<div className='relative z-10'>
 			<button
 				onClick={() => setIsOpen(prev => !prev)}
 				className='rounded-lg h-full flex gap-4 aspect-square justify-center items-center hover:scale-102 transition-all cursor-pointer text-[var(--black)] p-[12px] bg-[var(--white)] shadow-[var(--shadow)]'

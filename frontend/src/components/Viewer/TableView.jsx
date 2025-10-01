@@ -24,7 +24,7 @@ const TableView = ({ rows = 2, cols = 2, values = [] }) => {
 									type='text'
 									value={value}
 									readOnly
-									className={`outline-0 border border-[var(--light-middle)] p-2 transition-all ${
+									className={`outline-0 border border-[var(--light-middle)] p-2 text-[var(--black)] transition-all ${
 										isDark ? 'bg-[var(--light-gray)]' : 'bg-[var(--white)]'
 									}`}
 								/>

@@ -503,82 +503,84 @@ const ModuleBlock = ({
 	}
 
 	return (
-		<>
-			{ModuleInfo &&
-				ModuleInfo.map((module, index) => {
-					const isExpanded = expandedModules[index] === true
+		<div className='h-fit overflow-y-scroll hide-scrollbar hide-scrollbar p-2'>
+			<div className=' flex flex-col gap-3 rounded-xl'>
+				{ModuleInfo &&
+					ModuleInfo.map((module, index) => {
+						const isExpanded = expandedModules[index] === true
 
-					return (
-						<motion.div
-							key={index}
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{
-								duration: 0.3,
-								delay: index * 0.1,
-								ease: 'easeOut',
-							}}
-						>
-							<div key={index} className='flex flex-col gap-3 '>
-								<ModuleTitle
-									title={module.name}
-									moduleId={module.id}
-									index={index + 1}
-									isExpanded={isExpanded}
-									onToggle={() => toggleModule(index)}
-									onRemoveModule={deleteModule}
-								/>
-								{isExpanded && module.module_sections && (
-									<>
-										<div>
-											{module.module_sections.map((section, sectionIndex) => {
-												return (
-													<motion.div
-														key={section.id}
-														initial={{ scale: 0.8, opacity: 0 }}
-														animate={{ scale: 1, opacity: 1 }}
-														transition={{
-															duration: 0.3,
-															delay: sectionIndex * 0.1,
-															ease: 'easeOut',
-														}}
-													>
-														<ModuleContent
-															title={section.title}
-															type={section.type}
-															sectionId={section.id}
-															onClick={() => onContentSelect(section)}
-															isSelected={selectedContent?.id === section.id}
-															onRemoveLesson={deleteSection}
-														/>
-													</motion.div>
-												)
-											})}
-										</div>
-										<motion.div
-											key={module.module_sections.length + 1}
-											initial={{ scale: 0.8, opacity: 0 }}
-											animate={{ scale: 1, opacity: 1 }}
-											transition={{
-												duration: 0.3,
-												delay: module.module_sections.length * 0.1,
-												ease: 'easeOut',
-											}}
-										>
-											<CreateLessonButton
-												moduleId={module.id}
-												onAddLesson={onAddLesson}
-												onReplaceLesson={onReplaceLesson}
-												onRemoveLesson={onRemoveLesson}
-											/>
-										</motion.div>
-									</>
-								)}
-							</div>
-						</motion.div>
-					)
-				})}
-		</>
+						return (
+							<motion.div
+								key={index}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: index * 0.1,
+									ease: 'easeOut',
+								}}
+							>
+								<div key={index} className='flex flex-col gap-3'>
+									<ModuleTitle
+										title={module.name}
+										moduleId={module.id}
+										index={index + 1}
+										isExpanded={isExpanded}
+										onToggle={() => toggleModule(index)}
+										onRemoveModule={deleteModule}
+									/>
+									{isExpanded && module.module_sections && (
+										<>
+											<div>
+												{module.module_sections.map((section, sectionIndex) => {
+													return (
+														<motion.div
+															key={section.id}
+															initial={{ scale: 0.8, opacity: 0 }}
+															animate={{ scale: 1, opacity: 1 }}
+															transition={{
+																duration: 0.3,
+																delay: sectionIndex * 0.1,
+																ease: 'easeOut',
+															}}
+														>
+															<ModuleContent
+																title={section.title}
+																type={section.type}
+																sectionId={section.id}
+																onClick={() => onContentSelect(section)}
+																isSelected={selectedContent?.id === section.id}
+																onRemoveLesson={deleteSection}
+															/>
+														</motion.div>
+													)
+												})}
+											</div>
+											<motion.div
+												key={module.module_sections.length + 1}
+												initial={{ scale: 0.8, opacity: 0 }}
+												animate={{ scale: 1, opacity: 1 }}
+												transition={{
+													duration: 0.3,
+													delay: module.module_sections.length * 0.1,
+													ease: 'easeOut',
+												}}
+											>
+												<CreateLessonButton
+													moduleId={module.id}
+													onAddLesson={onAddLesson}
+													onReplaceLesson={onReplaceLesson}
+													onRemoveLesson={onRemoveLesson}
+												/>
+											</motion.div>
+										</>
+									)}
+								</div>
+							</motion.div>
+						)
+					})}
+			</div>
+		</div>
 	)
 }
 
@@ -754,7 +756,7 @@ const ContentView = ({
 
 	if (!content && !SectionType) {
 		return (
-			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
+			<div className='flex items-center justify-center h-full'>
 				<p className='text-[var(--middle)] text-lg'>
 					Выберите занятие для просмотра
 				</p>
@@ -764,196 +766,198 @@ const ContentView = ({
 
 	if (SectionType && !content) {
 		return (
-			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
+			<div className=' flex items-center justify-center h-full'>
 				<Loader />
 			</div>
 		)
 	}
 
 	return (
-		<div className=' flex flex-col gap-3 rounded-xl overflow-y-scroll hide-scrollbar hide-scrollbar p-5 max-h-200'>
-			<ModuleContent bg={true} type={SectionType} title={SectionName} />
+		<div className='h-fit overflow-y-scroll hide-scrollbar hide-scrollbar'>
+			<div className=' flex flex-col gap-3 rounded-xl p-2'>
+				<ModuleContent bg={true} type={SectionType} title={SectionName} />
 
-			{SectionType === 'test' ? (
-				<>
-					<ConstructorLevels
-						questions={questions}
-						setQuestions={setQuestions}
-						activeIndex={activeIndex}
-						setActiveIndex={setActiveIndex}
-					/>
-					{isLoading ? (
-						<Loader />
-					) : (
-						questions?.length > 0 && (
-							<>
-								{questions[activeIndex]?.type === 'single' && (
-									<OneVariant
-										sectionId={sectionId}
-										testId={questions[activeIndex]?.id}
-									/>
-								)}
-								{questions[activeIndex]?.type === 'multiple' && (
-									<MoreVariant
-										sectionId={sectionId}
-										testId={questions[activeIndex]?.id}
-									/>
-								)}
-								{questions[activeIndex]?.type === 'matching' && (
-									<SortVariants
-										sectionId={sectionId}
-										testId={questions[activeIndex]?.id}
-									/>
-								)}
-								{questions[activeIndex]?.type === 'open' && (
-									<OpenQuestion
-										sectionId={sectionId}
-										testId={questions[activeIndex]?.id}
-									/>
-								)}
-							</>
-						)
-					)}
-				</>
-			) : (
-				<>
-					{blocks?.map((block, i) => {
-						const del = () => removeBlock(i)
+				{SectionType === 'test' ? (
+					<>
+						<ConstructorLevels
+							questions={questions}
+							setQuestions={setQuestions}
+							activeIndex={activeIndex}
+							setActiveIndex={setActiveIndex}
+						/>
+						{isLoading ? (
+							<Loader />
+						) : (
+							questions?.length > 0 && (
+								<>
+									{questions[activeIndex]?.type === 'single' && (
+										<OneVariant
+											sectionId={sectionId}
+											testId={questions[activeIndex]?.id}
+										/>
+									)}
+									{questions[activeIndex]?.type === 'multiple' && (
+										<MoreVariant
+											sectionId={sectionId}
+											testId={questions[activeIndex]?.id}
+										/>
+									)}
+									{questions[activeIndex]?.type === 'matching' && (
+										<SortVariants
+											sectionId={sectionId}
+											testId={questions[activeIndex]?.id}
+										/>
+									)}
+									{questions[activeIndex]?.type === 'open' && (
+										<OpenQuestion
+											sectionId={sectionId}
+											testId={questions[activeIndex]?.id}
+										/>
+									)}
+								</>
+							)
+						)}
+					</>
+				) : (
+					<>
+						{blocks?.map((block, i) => {
+							const del = () => removeBlock(i)
 
-						let content
-						switch (block.type) {
-							case 'text':
-								content = (
-									<ConstructorEditor
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValue={block?.content?.content}
-									/>
-								)
-								break
-							case 'code':
-								content = (
-									<CodeFileInput
-										key={i}
-										DelComponent={del}
-										onFileChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							case 'image':
-								content = (
-									<ConstructorPhotoInput
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							case 'video':
-								content = (
-									<ConstructorVideoInput
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							case 'files':
-								content = (
-									<ConstructorFileInput
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							case 'table':
-								content = (
-									<TableConstructor
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							case 'audio':
-								content = (
-									<AudioInput
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-									/>
-								)
-								break
-							case 'callout':
-								content = (
-									<CalloutConstructor
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							case 'formula':
-								content = (
-									<FormulaConstructor
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							case 'button':
-								content = (
-									<ButtonConstructor
-										key={i}
-										DelComponent={del}
-										onChange={data => handleBlockChange(i, data)}
-										takeValues={block?.content}
-									/>
-								)
-								break
-							default:
-								content = null
-						}
+							let content
+							switch (block.type) {
+								case 'text':
+									content = (
+										<ConstructorEditor
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValue={block?.content?.content}
+										/>
+									)
+									break
+								case 'code':
+									content = (
+										<CodeFileInput
+											key={i}
+											DelComponent={del}
+											onFileChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								case 'image':
+									content = (
+										<ConstructorPhotoInput
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								case 'video':
+									content = (
+										<ConstructorVideoInput
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								case 'files':
+									content = (
+										<ConstructorFileInput
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								case 'table':
+									content = (
+										<TableConstructor
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								case 'audio':
+									content = (
+										<AudioInput
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+										/>
+									)
+									break
+								case 'callout':
+									content = (
+										<CalloutConstructor
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								case 'formula':
+									content = (
+										<FormulaConstructor
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								case 'button':
+									content = (
+										<ButtonConstructor
+											key={i}
+											DelComponent={del}
+											onChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
+										/>
+									)
+									break
+								default:
+									content = null
+							}
 
-						return (
-							<motion.div
-								key={i}
-								initial={{ scale: 0.8, opacity: 0 }}
-								animate={{ scale: 1, opacity: 1 }}
-								transition={{
-									duration: 0.3,
-									delay: i * 0.1,
-									ease: 'easeOut',
-								}}
-							>
-								{content}
-							</motion.div>
-						)
-					})}
-					<motion.div
-						key={blocks?.length}
-						initial={{ scale: 0.8, opacity: 0 }}
-						animate={{ scale: 1, opacity: 1 }}
-						transition={{
-							duration: 0.3,
-							delay: blocks?.length * 0.1,
-							ease: 'easeOut',
-						}}
-					>
-						<ConstructorMenu onAdd={addBlock} />
-					</motion.div>
-				</>
-			)}
+							return (
+								<motion.div
+									key={i}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: i * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									{content}
+								</motion.div>
+							)
+						})}
+						<motion.div
+							key={blocks?.length}
+							initial={{ scale: 0.8, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							transition={{
+								duration: 0.3,
+								delay: blocks?.length * 0.1,
+								ease: 'easeOut',
+							}}
+						>
+							<ConstructorMenu onAdd={addBlock} />
+						</motion.div>
+					</>
+				)}
+			</div>
 		</div>
 	)
 }
@@ -1102,7 +1106,7 @@ const Constructor = ({
 							</div>
 						</div>
 
-						<div className='h-150 flex flex-col gap-3 overflow-y-scroll hide-scrollbar w-full py-2 px-2'>
+						<div className='flex flex-col gap-3 rounded-xl p-2'>
 							<ModuleBlock
 								ModuleInfo={content?.modules}
 								onContentSelect={handleContentSelect}
@@ -1113,7 +1117,6 @@ const Constructor = ({
 								deleteModule={deleteModule}
 								deleteSection={deleteSection}
 							/>
-
 							<div className='h-fit mt-2'>
 								<motion.div
 									key={content?.modules.length + 1}
@@ -1136,15 +1139,17 @@ const Constructor = ({
 						</div>
 					</div>
 				</div>
-				<div className='max-[1200px]:hidden bg-[var(--white)] shadow-[var(--shadow)] rounded-xl'>
-					<ContentView
-						content={selectedContent}
-						SectionType={section?.type}
-						SectionName={section?.title}
-						onBlocksChange={onBlocksChange}
-						isLoading={isLoading}
-						sectionId={section?.id}
-					/>
+				<div className='max-[1200px]:hidden bg-[var(--white)] shadow-[var(--shadow)] rounded-xl overflow-y-auto hide-scrollbar'>
+					<div className='flex flex-col gap-3 rounded-xl p-5'>
+						<ContentView
+							content={selectedContent}
+							SectionType={section?.type}
+							SectionName={section?.title}
+							onBlocksChange={onBlocksChange}
+							isLoading={isLoading}
+							sectionId={section?.id}
+						/>
+					</div>
 				</div>
 			</div>
 		</>

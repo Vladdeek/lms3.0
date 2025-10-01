@@ -10,7 +10,7 @@ import {
 } from '../components/Inputs'
 import { API } from '../API'
 import { motion } from 'framer-motion'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 const CreateBtn = ({ onClick, title }) => {
 	return (
@@ -128,12 +128,32 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 }
 
 const Catalog = ({ role }) => {
+	const [selected, setSelected] = useState(0)
 	const options = [
-		{ value: 0, title: 'Добавленные курсы', icon: LayoutGrid },
-		{ value: 1, title: 'Вебинар', icon: Radio },
+		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
+		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
 	]
 
-	const [selected, setSelected] = useState(0)
+	const location = useLocation()
+	const navigate = useNavigate()
+
+	const NavigateTo = (to, value) => {
+		setSelected(value)
+		navigate(to)
+	}
+
+	useEffect(() => {
+		if (location.pathname === '/catalogt') {
+			NavigateTo(options[0].to, options[0].value)
+		}
+
+		if (location.pathname === '/catalogt/courses') {
+			setSelected(options[0].value)
+		} else if (location.pathname === '/catalogt/webinars') {
+			setSelected(options[1].value)
+		}
+	}, [location.pathname])
+
 	const [createModalOpen, setCreateModalOpen] = useState(false)
 	const [courses, setCourses] = useState([])
 	const [image, setImage] = useState([])
@@ -164,7 +184,7 @@ const Catalog = ({ role }) => {
 			/>
 			<div
 				className={`${
-					courses?.length !== 0 ? 'h-full' : 'h-screen'
+					courses?.length === 0 || courses?.length < 4 ? 'h-screen' : 'h-full'
 				} flex flex-col gap-4 py-[50px]`}
 			>
 				<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
@@ -177,7 +197,7 @@ const Catalog = ({ role }) => {
 								title={option.title}
 								icon={option.icon}
 								checked={selected === option.value}
-								onChange={() => setSelected(option.value)}
+								onChange={() => NavigateTo(option.to, option.value)}
 							/>
 						))}
 					</div>
@@ -193,47 +213,91 @@ const Catalog = ({ role }) => {
 						/>
 					</div>
 				</div>
+				{location.pathname === '/catalogt/courses' ? (
+					<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
+						{courses.map((course, index) => (
+							<motion.div
+								key={course.id}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: index * 0.1,
+									ease: 'easeOut',
+								}}
+							>
+								<CourseCard
+									title={course.name}
+									description={course.description}
+									img_path={`${API}/courses/image/${course.id}`}
+									status={course.status}
+									deadline={course.deadline}
+									to={`/constructor/${course.id}`}
+								/>
+							</motion.div>
+						))}
 
-				<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
-					{courses.map((course, index) => (
 						<motion.div
-							key={course.id}
+							key={courses.length + 1}
 							initial={{ scale: 0.8, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							transition={{
 								duration: 0.3,
-								delay: index * 0.1,
+								delay: courses.length * 0.1,
 								ease: 'easeOut',
 							}}
 						>
-							<CourseCard
-								title={course.name}
-								description={course.description}
-								img_path={`${API}/courses/image/${course.id}`}
-								status={course.status}
-								deadline={course.deadline}
-								to={`/constructor/${course.id}`}
+							<CreateBtn
+								onClick={() => setCreateModalOpen(true)}
+								title='Создать новый курс'
+								icon={LayoutGrid}
 							/>
 						</motion.div>
-					))}
+					</div>
+				) : (
+					location.pathname === '/catalogt/webinars' && (
+						<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
+							{courses.map((course, index) => (
+								<motion.div
+									key={course.id}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: index * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<CourseCard
+										title={course.name}
+										description={course.description}
+										img_path={`${API}/courses/image/${course.id}`}
+										status={course.status}
+										deadline={course.deadline}
+										to={`/constructor/${course.id}`}
+									/>
+								</motion.div>
+							))}
 
-					<motion.div
-						key={courses.length + 1}
-						initial={{ scale: 0.8, opacity: 0 }}
-						animate={{ scale: 1, opacity: 1 }}
-						transition={{
-							duration: 0.3,
-							delay: courses.length * 0.1,
-							ease: 'easeOut',
-						}}
-					>
-						<CreateBtn
-							onClick={() => setCreateModalOpen(true)}
-							title='Создать новый курс'
-							icon={LayoutGrid}
-						/>
-					</motion.div>
-				</div>
+							<motion.div
+								key={courses.length + 1}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: courses.length * 0.1,
+									ease: 'easeOut',
+								}}
+							>
+								<CreateBtn
+									onClick={() => setCreateModalOpen(true)}
+									title='Добавить вебинар'
+									icon={LayoutGrid}
+								/>
+							</motion.div>
+						</div>
+					)
+				)}
 			</div>
 		</>
 	)

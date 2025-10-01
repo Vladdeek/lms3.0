@@ -110,8 +110,8 @@ const VideoPlayer = ({ url, course = false }) => {
 							/>
 						)
 					) : (
-						<div className='absolute inset-0 flex items-center justify-center bg-gray-200'>
-							<p className='text-gray-600'>Неверная ссылка на видео</p>
+						<div className='absolute inset-0 flex items-center justify-center bg-[var(--light-middle)]'>
+							<p className='text-[var(--middle)]'>Неверная ссылка на видео</p>
 						</div>
 					)}
 
@@ -129,11 +129,11 @@ const VideoPlayer = ({ url, course = false }) => {
 								</div>
 							)}
 
-							<div className='flex items-center justify-between'>
+							<div className='flex items-center justify-between text-[var(--black)]'>
 								<div className='flex items-center gap-4'>
 									<button
 										onClick={togglePlay}
-										className='text-black hover:text-[var(--hero-epta)] transition-colors cursor-pointer'
+										className='hover:text-[var(--hero-epta)] transition-colors cursor-pointer'
 									>
 										{playing ? <Pause size={20} /> : <Play size={20} />}
 									</button>
@@ -141,7 +141,7 @@ const VideoPlayer = ({ url, course = false }) => {
 									<div className='flex items-center gap-2'>
 										<button
 											onClick={toggleMute}
-											className='text-black hover:text-[var(--hero-epta)] transition-colors cursor-pointer'
+											className=' hover:text-[var(--hero-epta)] transition-colors cursor-pointer'
 										>
 											{muted || volume === 0 ? (
 												<VolumeX size={18} />

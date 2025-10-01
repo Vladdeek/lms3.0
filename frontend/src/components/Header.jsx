@@ -11,50 +11,101 @@ import {
 	Home,
 } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
+import { isWithinInterval } from 'date-fns'
 
-const HeaderBtn = ({ onClick, action, icon: Icon, Notifications = null }) => {
+const NotificationCard = ({ title, description }) => {
+	return (
+		<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-lg px-3 py-2'>
+			<p className='text-lg font-medium text-[var(--black)]'>{title}</p>
+			<p className='text-base font-normal text-[var(--middle)]'>
+				{description}
+			</p>
+		</div>
+	)
+}
+
+const ToggleTheme = () => {
 	const [isLight, setIsLight] = useState(() => {
+		const savedTheme = localStorage.getItem('theme')
+		if (savedTheme) {
+			return savedTheme === 'light'
+		}
 		return document.documentElement.dataset.theme === 'light'
 	})
 
+	useEffect(() => {
+		const theme = isLight ? 'light' : 'dark'
+		document.documentElement.dataset.theme = theme
+		localStorage.setItem('theme', theme)
+	}, [isLight])
+
 	const toggleTheme = () => {
-		setIsLight(prev => {
-			const newTheme = !prev ? 'light' : 'dark'
-			document.documentElement.dataset.theme = newTheme
-			return !prev
-		})
+		setIsLight(prev => !prev)
 	}
+
 	return (
 		<button
-			onClick={action === 'toggleTheme' ? toggleTheme : onClick}
-			className={`relative rounded-lg p-[14px] ${
-				action === 'toggleTheme' &&
-				'hover:bg-[var(--hero-epta)] hover:text-white'
-			}  text-[var(--black)] shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer`}
+			onClick={toggleTheme}
+			className={`relative rounded-lg p-[14px] hover:bg-[var(--hero-epta)] hover:text-white text-[var(--black)] shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer `}
 		>
-			{action === 'toggleTheme' ? (
-				!isLight ? (
-					<Sun size={20} />
-				) : (
-					<Moon size={20} />
-				)
-			) : (
-				<>
-					<Icon size={20} />
-					{Notifications !== null ? (
-						<p
-							className={`h-4 w-4 p-[1px] flex justify-center items-center rounded-full absolute -top-1 -right-1 bg-[var(--hero-epta)] text-[var(--white)] ${
-								Notifications > 9 ? 'text-[8px]' : 'text-xs'
-							}`}
-						>
-							{Notifications > 9 ? '9+' : Notifications}
-						</p>
-					) : (
-						''
-					)}
-				</>
-			)}
+			{!isLight ? <Sun size={20} /> : <Moon size={20} />}
 		</button>
+	)
+}
+
+const Notification = () => {
+	const [isOpen, setIsOpen] = useState(false)
+
+	const Notifications = [
+		{
+			title: 'Обновление',
+			description: 'Добавили такой-то такой-то функционал',
+		},
+		{
+			title: 'Обновление',
+			description: 'Добавили такой-то такой-то функционал',
+		},
+		{
+			title: 'Предупреждение',
+			description: 'Нужно пройти тест',
+		},
+	]
+	return (
+		<div className='relative'>
+			<button
+				onClick={() => {
+					setIsOpen(prev => !prev)
+				}}
+				className={`relative rounded-lg p-[14px] hover:bg-[var(--hero-epta)] hover:text-white text-[var(--black)] shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer ${
+					isOpen && 'bg-[var(--hero-epta)] text-white'
+				}`}
+			>
+				<Bell size={20} />
+				{Notifications?.length !== 0 && (
+					<p
+						className={`h-5 w-5 p-1 flex justify-center items-center ring-1 ring-[var(--white)] rounded-full absolute shadow-[var(--shadow)] -top-[6px] -right-[6px] bg-[var(--hero-epta)] text-white ${
+							Notifications?.length > 9 ? 'text-[9px]' : 'text-[11px]'
+						}`}
+					>
+						<span className='text-center pe-px'>
+							{Notifications?.length > 9 ? '9+' : Notifications?.length}
+						</span>
+					</p>
+				)}
+			</button>
+			{isOpen && (
+				<div className='absolute bg-[var(--white)] top-14 -right-5 shadow-[var(--shadow)] rounded-2xl p-4 h-fit max-h-150  w-125'>
+					<div className='flex flex-col gap-3'>
+						{Notifications?.map(item => (
+							<NotificationCard
+								title={item?.title}
+								description={item?.description}
+							/>
+						))}
+					</div>
+				</div>
+			)}
+		</div>
 	)
 }
 
@@ -110,7 +161,7 @@ const MobileHeaderLink = ({ title, icon: Icon, to }) => {
 	)
 }
 
-export const Header = ({ links, HeaderBtnInfo, UserInfo }) => {
+export const Header = ({ links, UserInfo }) => {
 	return (
 		<>
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
@@ -127,14 +178,8 @@ export const Header = ({ links, HeaderBtnInfo, UserInfo }) => {
 
 				<div className='flex max-md:w-full md:justify-end z-10'>
 					<div className='flex max-md:flex-row-reverse items-center max-md:w-full max-md:justify-between gap-5'>
-						{HeaderBtnInfo.map((item, index) => (
-							<HeaderBtn
-								key={index}
-								icon={item.icon}
-								action={item.action}
-								Notifications={item.Notifications}
-							/>
-						))}
+						<ToggleTheme />
+						<Notification Notifications={1} />
 						{UserInfo.map((user, index) => {
 							const isDashboard = location.pathname === '/dashboard'
 							const isStudent = user.role === 'student'

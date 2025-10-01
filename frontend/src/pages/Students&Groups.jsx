@@ -430,28 +430,34 @@ const StudentsAndGroups = () => {
 	]
 	return (
 		<>
-			<div className='grid grid-cols-12 gap-5 mt-20 select-none'>
-				<div className='col-span-2 flex flex-col gap-5'>
+			<div className='grid grid-cols-12 gap-5 mt-20 select-none h-screen'>
+				<div className='col-span-2 flex flex-col gap-5 h-5/6'>
+					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
+						<p className='text-[var(--middle)] text-sm'>Выберите курс</p>
+						<OptionInput Options={GroupMass} />
+					</div>
 					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
 						<p className='text-[var(--middle)] text-sm'>
 							Выберите группу студентов
 						</p>
 						<OptionInput Options={GroupMass} />
 					</div>
-					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5 h-150 overflow-y-scroll hide-scrollbar'>
-						{students.map((item, index) => (
-							<StudentCard
-								key={item.id || index}
-								onClick={() => setActiveStudent(index)}
-								active={ActiveStudent === index}
-								img_path={item.img}
-								FullName={item.name}
-								score={item.score}
-							/>
-						))}
+					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar max-h-200'>
+						<div className='flex flex-col gap-3 p-5'>
+							{students.map((item, index) => (
+								<StudentCard
+									key={item.id || index}
+									onClick={() => setActiveStudent(index)}
+									active={ActiveStudent === index}
+									img_path={item.img}
+									FullName={item.name}
+									score={item.score}
+								/>
+							))}
+						</div>
 					</div>
 				</div>
-				<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5'>
+				<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5 h-5/6'>
 					<div className='flex flex-col gap-4'>
 						<p className='font-medium text-[var(--black)] text-xl'>
 							Выберите занятие для просмотра
@@ -468,7 +474,7 @@ const StudentsAndGroups = () => {
 						})}
 					</div>
 				</div>
-				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4'>
+				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-5/6'>
 					{(() => {
 						switch (Tasks[ActiveTask].type) {
 							case 'Практика':
