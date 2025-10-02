@@ -18,6 +18,10 @@ import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 const MiniCalendar = () => {
 	const [currentMonth, setCurrentMonth] = useState(new Date())
 
+	const [modalOpen, setModalOpen] = useState(null)
+
+	console.log(modalOpen)
+
 	const monthStart = startOfMonth(currentMonth)
 	const monthEnd = endOfMonth(currentMonth)
 	const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1, locale: ru })
@@ -64,9 +68,14 @@ const MiniCalendar = () => {
 			<div className='grid grid-cols-7 gap-x-4 gap-y-[3px] w-full text-base'>
 				{days.map(day => (
 					<div
+						onClick={() =>
+							setModalOpen(prev =>
+								prev?.getTime() === day.getTime() ? null : day
+							)
+						}
 						key={format(day, 'yyyy-MM-dd')}
 						className={`
-                            flex items-center justify-center aspect-square rounded-lg cursor-pointer
+                            flex items-center justify-center aspect-square rounded-lg cursor-pointer relative
                             ${
 															isToday(day)
 																? 'bg-[var(--hero-epta)] text-white font-medium'
@@ -81,6 +90,12 @@ const MiniCalendar = () => {
                         `}
 					>
 						{format(day, 'd')}
+						<div className='absolute h-2 w-2 rounded-full bg-yellow-400 bottom-1 right-1'></div>
+						{modalOpen?.getTime() === day.getTime() && (
+							<div className='absolute bg-[var(--white)] text-[var(--black)] rounded-xl shadow-[var(--shadow)] p-2 left-8 top-8 z-[1000]'>
+								<p className='whitespace-nowrap'>{format(day, 'd MMM yyyy')}</p>
+							</div>
+						)}
 					</div>
 				))}
 			</div>

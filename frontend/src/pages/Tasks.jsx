@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Button, FilterButton, RadioButton } from '../components/Buttons'
-import { Blocks, FunnelPlus, LayoutGrid, Radio, X } from 'lucide-react'
-import { CourseCard } from '../components/Cards'
+import {
+	Blocks,
+	CalendarDays,
+	FunnelPlus,
+	LayoutGrid,
+	Radio,
+	X,
+	History,
+} from 'lucide-react'
+import { CourseCard, WebinarCard } from '../components/Cards'
 import {
 	FileInput,
 	InputDefault,
@@ -9,16 +17,21 @@ import {
 	TextArea,
 } from '../components/Inputs'
 import { motion } from 'framer-motion'
-import { API } from '../API'
+import { API, FILE_API } from '../API'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 const CatalogS = ({ role }) => {
 	const [selected, setSelected] = useState(0)
+	const [selectedFilters, setSelectedFilters] = useState('open')
 	const [courses, setCourses] = useState([])
 	const [webinars, setWebinars] = useState([])
 	const options = [
 		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
 		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
+	]
+	const filter = [
+		{ value: 'open', title: 'Все', icon: LayoutGrid },
+		{ value: 'pending', title: 'Предстоящие', icon: CalendarDays },
 	]
 
 	const location = useLocation()
@@ -41,22 +54,26 @@ const CatalogS = ({ role }) => {
 		}
 	}, [location.pathname])
 
+	const fetchCourses = async () => {
+		const res = await fetch(`${API}/courses/`)
+		const data = await res.json()
+		console.log('Список курсов:', data)
+		setCourses(data || [])
+	}
+	const fetchWebinars = async () => {
+		const res = await fetch(`${API}/webinar/?webinar_status=${selectedFilters}`)
+		const data = await res.json()
+		console.log('Список вебинаров:', data)
+		setWebinars(data.detail === 'Not Found' ? [] : data)
+	}
 	useEffect(() => {
-		const fetchCourses = async () => {
-			const res = await fetch(`${API}/courses/`)
-			const data = await res.json()
-			console.log('Список курсов:', data)
-			setCourses(data || [])
-		}
-		const fetchWebinars = async () => {
-			const res = await fetch(`${API}/webinar/`)
-			const data = await res.json()
-			console.log('Список вебинаров:', data)
-			setWebinars(data.detail === 'Not Found' ? [] : data)
-		}
-		location.pathname === '/catalogt/courses'
+		fetchWebinars()
+	}, [selectedFilters])
+
+	useEffect(() => {
+		location.pathname === '/catalogs/courses'
 			? fetchCourses()
-			: location.pathname === '/catalogt/webinars' && fetchWebinars()
+			: location.pathname === '/catalogs/webinars' && fetchWebinars()
 	}, [location.pathname])
 
 	return (
@@ -95,37 +112,34 @@ const CatalogS = ({ role }) => {
 							/>
 						</div>
 					</div>
-
-					{location.pathname === '/catalogs/courses' ? (
-						<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
-							{courses.map((course, index) => (
-								<motion.div
-									key={course.id}
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									transition={{
-										duration: 0.3,
-										delay: index * 0.1,
-										ease: 'easeOut',
-									}}
-								>
-									<CourseCard
-										title={course.name}
-										description={course.description}
-										img_path={`${API}/courses/image/${course.id}`}
-										status={course.status}
-										deadline={course.deadline}
-										to={`/course/${course.id}`}
-									/>
-								</motion.div>
+					{location.pathname === '/catalogs/webinars' && (
+						<div className='flex gap-4 max-lg:gap-2 h-12'>
+							{filter?.map(option => (
+								<RadioButton
+									key={option.value}
+									name='filters'
+									value={option.value}
+									title={option.title}
+									icon={option.icon}
+									checked={selectedFilters === option.value}
+									onChange={() => setSelectedFilters(option.value)}
+								/>
 							))}
 						</div>
-					) : (
-						location.pathname === '/catalogs/webinars' && (
+					)}
+
+					{location.pathname === '/catalogs/courses' ? (
+						<div
+							className={`${
+								courses?.length === 0 || courses?.length < 5
+									? 'h-screen'
+									: 'h-full'
+							} flex flex-col gap-4 py-[50px]`}
+						>
 							<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
-								{webinars?.map((web, index) => (
+								{courses.map((course, index) => (
 									<motion.div
-										key={web.id}
+										key={course.id}
 										initial={{ scale: 0.8, opacity: 0 }}
 										animate={{ scale: 1, opacity: 1 }}
 										transition={{
@@ -134,15 +148,50 @@ const CatalogS = ({ role }) => {
 											ease: 'easeOut',
 										}}
 									>
-										<WebinarCard
-											title={web.name}
-											description={web.description}
-											img_path={`${FILE_API}${web.image_url}`}
-											deadline={web.due_date}
-											to={web.link_url}
+										<CourseCard
+											title={course.name}
+											description={course.description}
+											img_path={`${API}/courses/image/${course.id}`}
+											status={course.status}
+											deadline={course.deadline}
+											to={`/course/${course.id}`}
 										/>
 									</motion.div>
 								))}
+							</div>
+						</div>
+					) : (
+						location.pathname === '/catalogs/webinars' && (
+							<div
+								className={`${
+									webinars?.length === 0 || webinars?.length < 5
+										? 'h-screen'
+										: 'h-full'
+								} flex flex-col gap-4 py-[50px]`}
+							>
+								<div className='grid 2xl:grid-cols-5 xl:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4'>
+									{webinars?.map((web, index) => (
+										<motion.div
+											key={web.id}
+											initial={{ scale: 0.8, opacity: 0 }}
+											animate={{ scale: 1, opacity: 1 }}
+											transition={{
+												duration: 0.3,
+												delay: index * 0.1,
+												ease: 'easeOut',
+											}}
+										>
+											<WebinarCard
+												title={web.name}
+												description={web.description}
+												img_path={`${FILE_API}${web.image_url}`}
+												start={web.start_date}
+												end={web.end_date}
+												to={web.link_url}
+											/>
+										</motion.div>
+									))}
+								</div>
 							</div>
 						)
 					)}

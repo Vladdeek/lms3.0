@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { isAfter } from 'date-fns'
 
 export const CourseCard = ({
@@ -49,13 +49,19 @@ export const CourseCard = ({
 	)
 }
 
-export const WebinarCard = ({ img_path, title, deadline, to }) => {
+export const WebinarCard = ({ img_path, title, start, end, to }) => {
 	const now = new Date()
-	const webinarTime = deadline ? new Date(deadline) : null
-	const isAvailable = webinarTime ? isAfter(now, webinarTime) : false
+	const startTime = start ? new Date(start) : null
+	const endTime = end ? new Date(end) : null
+	const isAvailable = startTime ? isAfter(now, startTime) : false
+
+	const location = useLocation()
+
+	console.log(start, startTime)
+	console.log(end, endTime)
 
 	return (
-		<div className='h-129 p-[10px] w-full rounded-xl flex flex-col justify-between shadow-[var(--shadow)] bg-[var(--white)] transition-all cursor-pointer'>
+		<div className='aspect-9/16 w-full p-[10px] rounded-xl flex flex-col justify-between shadow-[var(--shadow)] bg-[var(--white)] transition-all cursor-pointer'>
 			<div className='inline-flex flex-col'>
 				<img
 					className='aspect-square h-auto w-full rounded-md object-cover'
@@ -70,15 +76,34 @@ export const WebinarCard = ({ img_path, title, deadline, to }) => {
 					Начало вэбинара: <br />
 					Дата -{' '}
 					<span className='font-medium'>
-						{deadline
-							? new Date(deadline).toLocaleDateString('ru-RU')
+						{start
+							? new Date(startTime).toLocaleDateString('ru-RU')
 							: 'Не определен'}
 					</span>
 					{'  '}
 					Время -{' '}
 					<span className='font-medium'>
-						{deadline
-							? new Date(deadline).toLocaleTimeString('ru-RU', {
+						{start
+							? new Date(startTime).toLocaleTimeString('ru-RU', {
+									hour: '2-digit',
+									minute: '2-digit',
+							  })
+							: 'Не определен'}
+					</span>
+				</p>
+				<p className='text-[var(--middle)] text-sm font-normal mb-[10px]'>
+					Окончание вэбинара: <br />
+					Дата -{' '}
+					<span className='font-medium'>
+						{end
+							? new Date(endTime).toLocaleDateString('ru-RU')
+							: 'Не определен'}
+					</span>
+					{'  '}
+					Время -{' '}
+					<span className='font-medium'>
+						{end
+							? new Date(endTime).toLocaleTimeString('ru-RU', {
 									hour: '2-digit',
 									minute: '2-digit',
 							  })
@@ -87,19 +112,28 @@ export const WebinarCard = ({ img_path, title, deadline, to }) => {
 				</p>
 			</div>
 
-			<NavLink
-				to={isAvailable ? to : '#'}
-				className={`flex justify-center items-center p-2 rounded-lg transition-all ${
-					isAvailable
-						? 'bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer'
-						: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
-				}`}
-				onClick={e => {
-					if (!isAvailable) e.preventDefault()
-				}}
-			>
-				Присоединиться
-			</NavLink>
+			{location.pathname === '/catalogt/webinars' ? (
+				<button
+					className={`flex justify-center items-center p-2 rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer `}
+					onClick={() => console.log('click')}
+				>
+					Редактировать
+				</button>
+			) : (
+				<NavLink
+					to={isAvailable ? to : '#'}
+					className={`flex justify-center items-center p-2 rounded-lg transition-all ${
+						isAvailable
+							? 'bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer'
+							: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+					}`}
+					onClick={e => {
+						if (!isAvailable) e.preventDefault()
+					}}
+				>
+					Присоединиться
+				</NavLink>
+			)}
 		</div>
 	)
 }

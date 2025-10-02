@@ -1,6 +1,16 @@
 import { useEffect, useReducer, useState } from 'react'
 import { Button, FilterButton, RadioButton } from '../components/Buttons'
-import { Blocks, FunnelPlus, LayoutGrid, Radio, X } from 'lucide-react'
+import {
+	Blocks,
+	CalendarDays,
+	CircleCheck,
+	CircleQuestionMark,
+	FunnelPlus,
+	LayoutGrid,
+	Radio,
+	X,
+	History,
+} from 'lucide-react'
 import { CourseCard, WebinarCard } from '../components/Cards'
 import {
 	FileInput,
@@ -12,11 +22,11 @@ import { API, FILE_API } from '../API'
 import { motion } from 'framer-motion'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
-const CreateBtn = ({ onClick, title, width = 'w-2/3' }) => {
+const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
 		<button
 			onClick={onClick}
-			className={`flex flex-col ${width} max-md:w-full items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer max-md:h-75 max-md:mb-30 h-129`}
+			className={`flex flex-col ${width} max-md:w-full items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer max-md:h-75 max-md:mb-30 ${height}`}
 		>
 			<Blocks size={112} strokeWidth={0.5} />
 			<span className='text-base font-medium px-4 py-3 rounded-lg mt-4 transition-all'>
@@ -50,8 +60,6 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 		)
 		formData.append('image', img)
 
-		console.log(formData)
-
 		const res = await fetch(`${API}/courses`, {
 			method: 'POST',
 			body: formData,
@@ -63,7 +71,6 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 		}
 
 		const data = await res.json()
-		console.log('Ответ сервера:', data)
 
 		onCreate(data)
 		onClose()
@@ -132,17 +139,21 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 
 	const [isNameValid, setIsNameValid] = useState(false)
 	const [isDateValid, setIsDateValid] = useState(false)
-	const [isTimeValid, setIsTimeValid] = useState(false)
+	const [isSTimeValid, setIsSTimeValid] = useState(false)
+	const [isETimeValid, setIsETimeValid] = useState(false)
 	const [isUrlValid, setIsUrlValid] = useState(false)
 	const [title, setTitle] = useState('')
 	const [url, setUrl] = useState('')
-	const [date, setDate] = useState()
-	const [time, setTime] = useState()
+	const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+
+	const [stime, setSTime] = useState()
+	const [etime, setETime] = useState()
 	const [img, setImg] = useState(null)
+	const [hintOpen, setHintOpen] = useState(null)
 
-	console.log(date, time)
+	const isStartDTValid = isDateValid && isSTimeValid
 
-	const isFormValid = isNameValid && isDateValid && isUrlValid && isTimeValid
+	const isFormValid = isNameValid && isUrlValid && isStartDTValid
 
 	const handleSubmit = async e => {
 		e.preventDefault()
@@ -152,17 +163,19 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 		formData.append('name', title)
 		formData.append('link_url', url)
 		formData.append(
-			'due_date',
-			new Date(`${date}T${time}:00Z`).toISOString().slice(0, 19) + 'Z'
+			'start_date',
+			new Date(`${date}T${stime}:00Z`).toISOString().slice(0, 19) + 'Z'
 		)
+
+		const enddate = new Date(`${date}T${etime ? etime : stime}:00Z`)
+		if (!etime) enddate.setHours(enddate.getHours() + 1)
+		formData.append('end_date', enddate.toISOString().slice(0, 19) + 'Z')
 
 		formData.append(
 			'teacher_profile_id',
 			'27f1ca7d-70b5-43b3-b310-ffd251670d62'
 		)
 		formData.append('image', img)
-
-		console.log(formData)
 
 		const res = await fetch(`${API}/webinar`, {
 			method: 'POST',
@@ -175,14 +188,14 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 		}
 
 		const data = await res.json()
-		console.log('Ответ сервера:', data)
 
 		onCreate(data)
 		onClose()
 		setTitle('')
 		setUrl('')
 		setDate('')
-		setTime('')
+		setSTime('')
+		setETime('')
 		setImg(null)
 	}
 
@@ -220,33 +233,97 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 						value={url}
 						onChange={e => setUrl(e.target.value)}
 					/>
-					<div className='flex gap-3 items-center w-full'>
-						<InputDefault
-							type='date'
-							placeholder=''
-							title='Выберите дату'
-							required={true}
-							InputStatus={false}
-							onStatusChange={setIsDateValid}
-							value={date}
-							onChange={e => setDate(e.target.value)}
-						/>
-						<InputDefault
-							type='time'
-							placeholder=''
-							title='Выберите время'
-							required={true}
-							InputStatus={false}
-							onStatusChange={setIsTimeValid}
-							value={time}
-							onChange={e => setTime(e.target.value)}
-						/>
+					<InputDefault
+						type='date'
+						placeholder=''
+						title={'Введите дату проведения вэбинара'}
+						required={true}
+						InputStatus={false}
+						onStatusChange={setIsDateValid}
+						value={date}
+						onChange={e => setDate(e.target.value)}
+					/>
+					<div className='flex flex-col w-full'>
+						<div className='flex gap-3 items-center w-full'>
+							<InputDefault
+								type='time'
+								placeholder=''
+								title={'Время начала'}
+								required={true}
+								InputStatus={false}
+								onStatusChange={setIsSTimeValid}
+								value={stime}
+								onChange={e => setSTime(e.target.value)}
+							/>
+							<div className='flex w-full flex-col'>
+								<div className='inline-flex items-center gap-2'>
+									<p className={`text-[18px] text-[var(--middle)]`}>
+										Время окончания
+									</p>
+									<div className='relative'>
+										<CircleQuestionMark
+											onClick={() =>
+												setHintOpen(prev => (prev === null ? 0 : null))
+											}
+											className='text-blue-500 ml-1 cursor-pointer'
+											size={16}
+										/>
+										<div
+											className={`${
+												hintOpen === 0
+													? 'opacity-100 scale-100'
+													: 'opacity-0 scale-0 -translate-x-1/2'
+											} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 rounded-lg`}
+										>
+											<p>
+												При отсутствии указанной даты окончания система
+												автоматически устанавливает её на час позже времени
+												начала.
+											</p>
+										</div>
+									</div>
+								</div>
+
+								<InputDefault
+									type='time'
+									placeholder=''
+									InputStatus={false}
+									value={etime}
+									onChange={e => setETime(e.target.value)}
+								/>
+							</div>
+						</div>
 					</div>
 
-					<FileInput
-						title='Загрузите превью (не обязательно)'
-						onFileChange={file => setImg(file)}
-					/>
+					<div className='flex flex-col gap-3'>
+						<div className='inline-flex items-center gap-[10px]'>
+							<p className={`text-[18px] text-[var(--middle)]`}>
+								Введите дату и время окончания
+							</p>
+							<div className='relative'>
+								<CircleQuestionMark
+									onClick={() =>
+										setHintOpen(prev => (prev === null ? 1 : null))
+									}
+									className='text-blue-500 ml-1 cursor-pointer'
+									size={16}
+								/>
+								<div
+									className={`${
+										hintOpen === 1
+											? 'opacity-100 scale-100'
+											: 'opacity-0 scale-0 -translate-x-1/2'
+									} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 rounded-lg`}
+								>
+									<p>
+										При отсутствии загруженного изображения система
+										автоматически подставляет случайное фото из базы.
+									</p>
+								</div>
+							</div>
+						</div>
+						<FileInput onFileChange={file => setImg(file)} />
+					</div>
 
 					<input
 						className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
@@ -266,9 +343,15 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 
 const Catalog = ({ role }) => {
 	const [selected, setSelected] = useState(0)
+	const [selectedFilters, setSelectedFilters] = useState('open')
 	const options = [
 		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
 		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
+	]
+	const filter = [
+		{ value: 'open', title: 'Все', icon: LayoutGrid },
+		{ value: 'pending', title: 'Предстоящие', icon: CalendarDays },
+		{ value: 'closed', title: 'Прошедшие', icon: History },
 	]
 
 	const location = useLocation()
@@ -298,26 +381,30 @@ const Catalog = ({ role }) => {
 
 	const [image, setImage] = useState([])
 
-	const handleCreateCourse = newCourse => {
-		setCourses(prev => [...prev, newCourse])
+	const handleCreateCourse = () => {
+		fetchCourses()
 	}
-	const handleCreateWebinar = newCourse => {
-		setCourses(prev => [...prev, newCourse])
+	const handleCreateWebinar = () => {
+		fetchWebinars()
 	}
 
+	const fetchCourses = async () => {
+		const res = await fetch(`${API}/courses/`)
+		const data = await res.json()
+		console.log('Список курсов:', data)
+		setCourses(data || [])
+	}
+	const fetchWebinars = async () => {
+		const res = await fetch(`${API}/webinar/?webinar_status=${selectedFilters}`)
+		const data = await res.json()
+		console.log('Список вебинаров:', data)
+		setWebinars(data.detail === 'Not Found' ? [] : data)
+	}
 	useEffect(() => {
-		const fetchCourses = async () => {
-			const res = await fetch(`${API}/courses/`)
-			const data = await res.json()
-			console.log('Список курсов:', data)
-			setCourses(data || [])
-		}
-		const fetchWebinars = async () => {
-			const res = await fetch(`${API}/webinar/`)
-			const data = await res.json()
-			console.log('Список вебинаров:', data)
-			setWebinars(data.detail === 'Not Found' ? [] : data)
-		}
+		fetchWebinars()
+	}, [selectedFilters])
+
+	useEffect(() => {
 		location.pathname === '/catalogt/courses'
 			? fetchCourses()
 			: location.pathname === '/catalogt/webinars' && fetchWebinars()
@@ -368,53 +455,34 @@ const Catalog = ({ role }) => {
 						/>
 					</div>
 				</div>
-				{location.pathname === '/catalogt/courses' ? (
-					<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
-						{courses.map((course, index) => (
-							<motion.div
-								key={course.id}
-								initial={{ scale: 0.8, opacity: 0 }}
-								animate={{ scale: 1, opacity: 1 }}
-								transition={{
-									duration: 0.3,
-									delay: index * 0.1,
-									ease: 'easeOut',
-								}}
-							>
-								<CourseCard
-									title={course.name}
-									description={course.description}
-									img_path={`${API}/courses/image/${course.id}`}
-									status={course.status}
-									deadline={course.deadline}
-									to={`/constructor/${course.id}`}
-								/>
-							</motion.div>
-						))}
-
-						<motion.div
-							key={courses.length + 1}
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{
-								duration: 0.3,
-								delay: courses.length * 0.1,
-								ease: 'easeOut',
-							}}
-						>
-							<CreateBtn
-								onClick={() => setCreateModalOpen(true)}
-								title='Создать новый курс'
-								icon={LayoutGrid}
+				{location.pathname === '/catalogt/webinars' && (
+					<div className='flex gap-4 max-lg:gap-2 h-12'>
+						{filter?.map(option => (
+							<RadioButton
+								key={option.value}
+								name='filters'
+								value={option.value}
+								title={option.title}
+								icon={option.icon}
+								checked={selectedFilters === option.value}
+								onChange={() => setSelectedFilters(option.value)}
 							/>
-						</motion.div>
+						))}
 					</div>
-				) : (
-					location.pathname === '/catalogt/webinars' && (
-						<div className='grid 2xl:grid-cols-6 xl:grid-cols-5 md:grid-cols-4 gap-4'>
-							{webinars?.map((web, index) => (
+				)}
+
+				{location.pathname === '/catalogt/courses' ? (
+					<div
+						className={`${
+							courses?.length === 0 || courses?.length < 4
+								? 'h-screen'
+								: 'h-full'
+						} flex flex-col gap-4 py-[50px]`}
+					>
+						<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
+							{courses.map((course, index) => (
 								<motion.div
-									key={web.id}
+									key={course.id}
 									initial={{ scale: 0.8, opacity: 0 }}
 									animate={{ scale: 1, opacity: 1 }}
 									transition={{
@@ -423,33 +491,86 @@ const Catalog = ({ role }) => {
 										ease: 'easeOut',
 									}}
 								>
-									<WebinarCard
-										title={web.name}
-										description={web.description}
-										img_path={`${FILE_API}${web.image_url}`}
-										deadline={web.due_date}
-										to={web.link_url}
+									<CourseCard
+										title={course.name}
+										description={course.description}
+										img_path={`${API}/courses/image/${course.id}`}
+										status={course.status}
+										deadline={course.deadline}
+										to={`/constructor/${course.id}`}
 									/>
 								</motion.div>
 							))}
 
 							<motion.div
-								key={webinars.length + 1}
+								key={courses.length + 1}
 								initial={{ scale: 0.8, opacity: 0 }}
 								animate={{ scale: 1, opacity: 1 }}
 								transition={{
 									duration: 0.3,
-									delay: webinars.length * 0.1,
+									delay: courses.length * 0.1,
 									ease: 'easeOut',
 								}}
 							>
 								<CreateBtn
-									onClick={() => setCreateWebinarOpen(true)}
-									title='Добавить вебинар'
+									onClick={() => setCreateModalOpen(true)}
+									title='Создать новый курс'
 									icon={LayoutGrid}
-									width='w-full'
 								/>
 							</motion.div>
+						</div>
+					</div>
+				) : (
+					location.pathname === '/catalogt/webinars' && (
+						<div
+							className={`${
+								webinars?.length === 0 || webinars?.length < 5
+									? 'h-screen'
+									: 'h-full'
+							} flex flex-col gap-4 py-[50px]`}
+						>
+							<div className='grid 2xl:grid-cols-5 xl:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4'>
+								{webinars?.map((web, index) => (
+									<motion.div
+										key={web.id}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: index * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<WebinarCard
+											title={web.name}
+											description={web.description}
+											img_path={`${FILE_API}${web.image_url}`}
+											start={web.start_date}
+											end={web.end_date}
+											to={web.link_url}
+										/>
+									</motion.div>
+								))}
+
+								<motion.div
+									key={webinars.length + 1}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: webinars.length * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<CreateBtn
+										onClick={() => setCreateWebinarOpen(true)}
+										title='Добавить вебинар'
+										icon={LayoutGrid}
+										width='w-full'
+										height='aspect-9/16'
+									/>
+								</motion.div>
+							</div>
 						</div>
 					)
 				)}
