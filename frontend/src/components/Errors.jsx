@@ -2,7 +2,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { X } from 'lucide-react'
 import { Children } from 'react'
 import { createContext, use, useContext, useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export const NotFoundError404 = () => {
 	return (
@@ -28,6 +28,18 @@ export const InternalServerError500 = () => {
 		</div>
 	)
 }
+export const Forbidden403 = () => {
+	return (
+		<div className='md:-mx-10 -mx-2 w-screen flex justify-center items-center '>
+			<DotLottieReact
+				className='w-[75%]'
+				src='/anim/ERROR403.lottie'
+				loop
+				autoplay
+			/>
+		</div>
+	)
+}
 
 const ErrorContext = createContext(null)
 
@@ -47,10 +59,11 @@ export const ErrorProvider = ({ children }) => {
 	}, [error])
 
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const ErrorsDescription = {
 		400: 'Некорректный запрос. Проверьте правильность введённых данных.',
-		401: 'Не авторизован. Необходимо войти в систему.',
+
 		403: 'Доступ запрещён. Недостаточно прав для выполнения действия.',
 		409: 'Конфликт. Данные уже существуют или нарушены ограничения.',
 		422: 'Неверный формат входных данных. Проверьте корректность передаваемых параметров.',
@@ -60,7 +73,11 @@ export const ErrorProvider = ({ children }) => {
 		504: 'Превышено время ожидания ответа от сервера.',
 	}
 
-	//console.log('error: ', error)
+	console.log('error: ', error)
+
+	useEffect(() => {
+		if (error === '401') navigate('/auth')
+	}, [error])
 
 	useEffect(() => {
 		setError(null)
@@ -73,6 +90,8 @@ export const ErrorProvider = ({ children }) => {
 					<NotFoundError404 />
 				) : error === '500' ? (
 					<InternalServerError500 />
+				) : error === '403' ? (
+					<Forbidden403 />
 				) : (
 					<>
 						<div className='relative flex justify-center'>

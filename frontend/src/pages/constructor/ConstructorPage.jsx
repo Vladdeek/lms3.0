@@ -24,7 +24,7 @@ import { API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
-import { useError } from '../../components/Errors'
+import { Forbidden403, useError } from '../../components/Errors'
 
 const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 	const [isOpen, setIsOpen] = useState(true)
@@ -344,12 +344,9 @@ const ConstructorPage = ({ role }) => {
 		console.log('Ответ сервера:', data)
 	}
 
-	return role !== 'student' ? (
+	return role === 'student' ? (
 		<>
-			<div className='h-screen w-full flex justify-center gap-3 items-center text-[var(--middle)] font-medium'>
-				<p>Доступ запрещен</p>
-				<Frown size={32} strokeWidth={1.75} />
-			</div>
+			<Forbidden403 />
 		</>
 	) : (
 		<>

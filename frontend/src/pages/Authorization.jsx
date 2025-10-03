@@ -1,15 +1,22 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { InputAuth, InputDefault } from '../components/Inputs'
 import { Link } from '../components/Links'
 import { Button, SubmitButton } from '../components/Buttons'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { API } from '../API'
+import { AuthContext } from '../context/AuthContext'
+import DecryptedText from '../components/ReactBits/DecryptedText'
+import LiquidEther from '../components/ReactBits/LiquidEther'
 
 const Authorization = ({ isRegister = false }) => {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [isEmailValid, setIsEmailValid] = useState(false)
 	const [isPasswordValid, setIsPasswordValid] = useState(false)
+
+	const navigate = useNavigate()
+
+	const { login } = useContext(AuthContext)
 
 	const emailValidate = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 	const passwordValidate = value =>
@@ -18,45 +25,52 @@ const Authorization = ({ isRegister = false }) => {
 	const isFormValid = isEmailValid && isPasswordValid
 
 	const handleSubmit = async e => {
-		e.preventDefault() // чтобы страница не перезагружалась
+		e.preventDefault()
 
 		const data = { email: email, password: password }
 
-		console.log(data)
-
 		try {
-			if (isRegister) {
-				const response = await fetch(`${API}/auth/register`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(data),
-				})
-				const result = await response.json()
-				console.log('Регистрация:', result)
-			} else {
-				const response = await fetch(`${API}/auth/jwt/login`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(data),
-				})
-				const result = await response.json()
-				console.log('Логин:', result)
-			}
+			const response = await fetch(`${API}/auth/jwt/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			})
+			const result = await response.json()
+			console.log(result)
+			login(result)
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
 	}
 
 	return (
-		<>
-			<div className='mx-40 h-screen'>
-				<div className='h-25 w-25 rounded-[20px] bg-transition mt-10 mb-25'></div>
+		<div className=''>
+			<div className='mx-40 h-screen flex justify-center items-center'>
 				<div className='w-full grid grid-cols-[1fr_auto_2fr] gap-3'>
-					<div className=''>
-						<p className='font-bold text-[var(--hero-epta)]  text-[64px] leading-20 w-full'>
-							{isRegister ? 'Регистрация' : 'Авторизация'} <br /> <br />
-							Твои курсы <br />
-							под рукой
+					<div className='flex flex-col w-full justify-between'>
+						<p className='text-8xl mb-15 text-[var(--hero-epta)] flex gap-3 font-bold w-full'>
+							<DecryptedText
+								text='МелГУ'
+								animateOn='view'
+								revealDirection='center'
+							/>
+							<DecryptedText
+								text='СУО'
+								animateOn='view'
+								revealDirection='center'
+							/>
+						</p>
+						<p className='font-base text-[var(--black)] text-[64px] flex flex-col items-start w-full'>
+							<DecryptedText
+								text='Твои курсы'
+								animateOn='view'
+								revealDirection='center'
+							/>
+							<DecryptedText
+								text='под рукой'
+								animateOn='view'
+								revealDirection='center'
+							/>
 						</p>
 					</div>
 
@@ -67,10 +81,7 @@ const Authorization = ({ isRegister = false }) => {
 					<div className='grid grid-cols-[1fr_7fr] gap-3'>
 						<div></div>
 						<div className=' flex flex-col '>
-							<form
-								className='flex flex-col gap-10 mt-20'
-								onSubmit={handleSubmit}
-							>
+							<div className='flex flex-col gap-10 mt-20'>
 								<InputAuth
 									placeholder={'example@mail.ru'}
 									title={'Почта'}
@@ -91,18 +102,15 @@ const Authorization = ({ isRegister = false }) => {
 									onChange={e => setPassword(e.target.value)}
 								/>
 								<div className='flex gap-5'>
-									<Link
-										to={isRegister ? '/auth/login' : '/auth/register'}
-										title={isRegister ? 'Есть аккаунт?' : 'Создать аккаунт?'}
-									/>
 									<Link to={'#'} title={'Забыли логин или пароль?'} />
 								</div>
 								<SubmitButton
 									disabled={!isFormValid}
 									title={isRegister ? 'Зарегистрироваться' : 'Войти'}
 									style={'black'}
+									onClick={handleSubmit}
 								/>
-							</form>
+							</div>
 							<div className='flex justify-between items-center mt-25'>
 								<div className='flex gap-3'></div>
 							</div>
@@ -110,7 +118,7 @@ const Authorization = ({ isRegister = false }) => {
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }
 export default Authorization

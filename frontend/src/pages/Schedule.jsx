@@ -69,6 +69,8 @@ const Schedule = () => {
 
 	const [scheduleData1, setScheduleData1] = useState()
 
+	const daySchedule = []
+
 	useEffect(() => {
 		const fetchSchedule = async () => {
 			const res = await fetch(`https:///courses/`)

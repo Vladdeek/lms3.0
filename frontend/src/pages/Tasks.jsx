@@ -19,10 +19,13 @@ import {
 import { motion } from 'framer-motion'
 import { API, FILE_API } from '../API'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import TiltedCard from '../components/ReactBits/TiledCard'
+import { Forbidden403, useError } from '../components/Errors'
+import axios from 'axios'
 
 const CatalogS = ({ role }) => {
 	const [selected, setSelected] = useState(0)
-	const [selectedFilters, setSelectedFilters] = useState('open')
+	const [selectedFilters, setSelectedFilters] = useState('all')
 	const [courses, setCourses] = useState([])
 	const [webinars, setWebinars] = useState([])
 	const options = [
@@ -30,12 +33,14 @@ const CatalogS = ({ role }) => {
 		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
 	]
 	const filter = [
-		{ value: 'open', title: 'Все', icon: LayoutGrid },
+		{ value: 'all', title: 'Все', icon: LayoutGrid },
 		{ value: 'pending', title: 'Предстоящие', icon: CalendarDays },
 	]
 
 	const location = useLocation()
 	const navigate = useNavigate()
+
+	const { setError } = useError()
 
 	const NavigateTo = (to, value) => {
 		setSelected(value)
@@ -55,16 +60,59 @@ const CatalogS = ({ role }) => {
 	}, [location.pathname])
 
 	const fetchCourses = async () => {
-		const res = await fetch(`${API}/courses/`)
-		const data = await res.json()
-		console.log('Список курсов:', data)
-		setCourses(data || [])
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(`${API}/courses/`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			console.log('status: ', res.status)
+			console.log('Список курсов:', res.data)
+
+			setError(null)
+			setCourses(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
 	}
 	const fetchWebinars = async () => {
-		const res = await fetch(`${API}/webinar/?webinar_status=${selectedFilters}`)
-		const data = await res.json()
-		console.log('Список вебинаров:', data)
-		setWebinars(data.detail === 'Not Found' ? [] : data)
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(
+				`${API}/webinar${
+					selectedFilters !== 'all' ? `/?webinar_status=${selectedFilters}` : ''
+				}`,
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+
+			console.log('status: ', res.status)
+			console.log('Список курсов:', res.data)
+
+			setError(null)
+			setWebinars(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
 	}
 	useEffect(() => {
 		fetchWebinars()
@@ -76,128 +124,124 @@ const CatalogS = ({ role }) => {
 			: location.pathname === '/catalogs/webinars' && fetchWebinars()
 	}, [location.pathname])
 
-	return (
-		<>
-			{role === 'student' ? (
-				<Navigate to='/catalogt' replace />
-			) : (
-				<div
-					className={`${
-						courses?.length === 0 || courses?.length < 4 ? 'h-screen' : 'h-full'
-					} flex flex-col gap-4 py-[50px]`}
-				>
-					<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
-						<div className='flex gap-4 max-lg:gap-2 h-12'>
-							{options.map(option => (
-								<RadioButton
-									key={option.value}
-									name='example'
-									value={option.value}
-									title={option.title}
-									icon={option.icon}
-									checked={selected === option.value}
-									onChange={() => NavigateTo(option.to, option.value)}
-								/>
-							))}
-						</div>
-						<div className='flex gap-4 max-lg:gap-2 h-12'>
-							<SearchInput />
-							<FilterButton
-								option={[
-									'по статусу',
-									'по алфавиту',
-									'по дате создания',
-									'по хуйне ',
-								]}
-							/>
-						</div>
-					</div>
-					{location.pathname === '/catalogs/webinars' && (
-						<div className='flex gap-4 max-lg:gap-2 h-12'>
-							{filter?.map(option => (
-								<RadioButton
-									key={option.value}
-									name='filters'
-									value={option.value}
-									title={option.title}
-									icon={option.icon}
-									checked={selectedFilters === option.value}
-									onChange={() => setSelectedFilters(option.value)}
-								/>
-							))}
-						</div>
-					)}
+	useEffect(() => {
+		role === 'teacher' && navigate('/catalogt/courses')
+	}, [role])
 
-					{location.pathname === '/catalogs/courses' ? (
-						<div
-							className={`${
-								courses?.length === 0 || courses?.length < 5
-									? 'h-screen'
-									: 'h-full'
-							} flex flex-col gap-4 py-[50px]`}
-						>
-							<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
-								{courses.map((course, index) => (
-									<motion.div
-										key={course.id}
-										initial={{ scale: 0.8, opacity: 0 }}
-										animate={{ scale: 1, opacity: 1 }}
-										transition={{
-											duration: 0.3,
-											delay: index * 0.1,
-											ease: 'easeOut',
-										}}
-									>
-										<CourseCard
-											title={course.name}
-											description={course.description}
-											img_path={`${API}/courses/image/${course.id}`}
-											status={course.status}
-											deadline={course.deadline}
-											to={`/course/${course.id}`}
-										/>
-									</motion.div>
-								))}
-							</div>
-						</div>
-					) : (
-						location.pathname === '/catalogs/webinars' && (
-							<div
-								className={`${
-									webinars?.length === 0 || webinars?.length < 5
-										? 'h-screen'
-										: 'h-full'
-								} flex flex-col gap-4 py-[50px]`}
-							>
-								<div className='grid 2xl:grid-cols-5 xl:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4'>
-									{webinars?.map((web, index) => (
-										<motion.div
-											key={web.id}
-											initial={{ scale: 0.8, opacity: 0 }}
-											animate={{ scale: 1, opacity: 1 }}
-											transition={{
-												duration: 0.3,
-												delay: index * 0.1,
-												ease: 'easeOut',
-											}}
-										>
-											<WebinarCard
-												title={web.name}
-												description={web.description}
-												img_path={`${FILE_API}${web.image_url}`}
-												start={web.start_date}
-												end={web.end_date}
-												to={web.link_url}
-											/>
-										</motion.div>
-									))}
-								</div>
-							</div>
-						)
-					)}
+	return (
+		<div
+			className={`${
+				courses?.length === 0 || courses?.length < 4 ? 'h-screen' : 'h-full'
+			} flex flex-col gap-4 py-[50px]`}
+		>
+			<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
+				<div className='flex gap-4 max-lg:gap-2 h-12'>
+					{options.map(option => (
+						<RadioButton
+							key={option.value}
+							name='example'
+							value={option.value}
+							title={option.title}
+							icon={option.icon}
+							checked={selected === option.value}
+							onChange={() => NavigateTo(option.to, option.value)}
+						/>
+					))}
+				</div>
+				<div className='flex gap-4 max-lg:gap-2 h-12'>
+					<SearchInput />
+					<FilterButton
+						option={[
+							'по статусу',
+							'по алфавиту',
+							'по дате создания',
+							'по хуйне ',
+						]}
+					/>
+				</div>
+			</div>
+			{location.pathname === '/catalogs/webinars' && (
+				<div className='flex gap-4 max-lg:gap-2 h-12'>
+					{filter?.map(option => (
+						<RadioButton
+							key={option.value}
+							name='filters'
+							value={option.value}
+							title={option.title}
+							icon={option.icon}
+							checked={selectedFilters === option.value}
+							onChange={() => setSelectedFilters(option.value)}
+						/>
+					))}
 				</div>
 			)}
-		</>
+
+			{location.pathname === '/catalogs/courses' ? (
+				<div
+					className={`${
+						courses?.length === 0 || courses?.length < 5 ? 'h-screen' : 'h-full'
+					} flex flex-col gap-4 py-[50px]`}
+				>
+					<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
+						{courses.map((course, index) => (
+							<motion.div
+								key={course.id}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: index * 0.1,
+									ease: 'easeOut',
+								}}
+							>
+								<CourseCard
+									title={course.name}
+									description={course.description}
+									img_path={`${API}/courses/image/${course.id}`}
+									status={course.status}
+									deadline={course.deadline}
+									to={`/course/${course.id}`}
+								/>
+							</motion.div>
+						))}
+					</div>
+				</div>
+			) : (
+				location.pathname === '/catalogs/webinars' && (
+					<div
+						className={`${
+							webinars?.length === 0 || webinars?.length < 5
+								? 'h-screen'
+								: 'h-full'
+						} flex flex-col gap-4 py-[50px]`}
+					>
+						<div className='grid 2xl:grid-cols-5 xl:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4'>
+							{webinars?.map((web, index) => (
+								<motion.div
+									key={web.id}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: index * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<WebinarCard
+										title={web.name}
+										description={web.description}
+										img_path={`${FILE_API}${web.image_url}`}
+										start={web.start_date}
+										end={web.end_date}
+										to={web.link_url}
+									/>
+								</motion.div>
+							))}
+						</div>
+					</div>
+				)
+			)}
+		</div>
 	)
 }
 

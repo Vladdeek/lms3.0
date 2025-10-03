@@ -2,7 +2,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import Footer from '../../components/Footer'
 import { Header, MobileMenuBar } from '../../components/Header'
-import { use, useEffect, useState } from 'react'
+import { use, useContext, useEffect, useState } from 'react'
 import {
 	AlignJustify,
 	Bell,
@@ -18,9 +18,12 @@ import {
 } from '../../components/Errors'
 import Loader from '../../components/Loader'
 import { motion } from 'framer-motion'
+import { AuthContext } from '../../context/AuthContext'
+import axios from 'axios'
+import { API } from '../../API'
 
 export default function DashboardLayout({ onChange }) {
-	const [activeUser, setActiveUser] = useState(null)
+	const [userInfo, setUserInfo] = useState()
 	const location = useLocation()
 	const navigate = useNavigate()
 	const HeaderLinkInfo = [
@@ -58,25 +61,9 @@ export default function DashboardLayout({ onChange }) {
 		},
 	]
 
-	const [isTeacher, setIsTeacher] = useState(true)
-	const handleRoleChange = () => {
-		setIsTeacher(prev => !prev)
-		onChange(isTeacher)
-	}
-
-	const UserInfo = [
-		{
-			uuid: 'dsadsadsad',
-			FullName: 'Иванов Иван Иванович',
-			role: isTeacher ? 'student' : 'teacher',
-			img_path:
-				'https://i.pinimg.com/1200x/ed/55/e0/ed55e005e9d504e6a273c19adeee2b49.jpg',
-		},
-	]
-
 	const [openIndex, setOpenIndex] = useState(null)
 
-	const links = HeaderLinkInfo[0][UserInfo[0].role]
+	const links = HeaderLinkInfo[0][userInfo?.current_user_role] || []
 
 	useEffect(() => {
 		if (location.pathname === '/') {
@@ -84,13 +71,61 @@ export default function DashboardLayout({ onChange }) {
 		}
 	}, [location, navigate])
 
+	const { refreshAccessToken } = useContext(AuthContext)
+	const storedAccess = localStorage.getItem('access_token')
+
+	const fetchUser = async () => {
+		if (storedAccess !== null) {
+			try {
+				const res = await axios.get(`${API}/users/me`, {
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${storedAccess}`,
+					},
+				})
+				console.log(res.data)
+				setUserInfo(res.data)
+			} catch (error) {
+				if (error.response?.status === 401) {
+					const newAccessToken = await refreshAccessToken()
+					console.log('new: ', newAccessToken)
+					if (newAccessToken) {
+						try {
+							const retryRes = await axios.get(`${API}/users/me`, {
+								headers: {
+									'Content-Type': 'application/json',
+									Authorization: `Bearer ${newAccessToken}`,
+								},
+							})
+							setUserInfo(retryRes.data)
+						} catch (error) {
+							console.error(error)
+						}
+					}
+				} else {
+					console.error(error)
+				}
+			}
+		} else {
+			navigate('/auth')
+		}
+	}
+
+	useEffect(() => {
+		fetchUser()
+	}, [])
+
+	useEffect(() => {
+		onChange?.({
+			role: userInfo?.current_user_role,
+			teacher_profile_id: userInfo?.id,
+		})
+	}, [userInfo])
+
 	return (
 		<>
-			<div className='fixed bottom-2 right-2'>
-				<ToggleRole onChange={value => handleRoleChange(value)} />
-			</div>
 			<div className='md:mx-10 mx-2'>
-				<Header links={links} UserInfo={UserInfo} />
+				<Header links={links} UserInfo={userInfo} />
 				<div className='h-25'></div>
 
 				{location.pathname === '/' && (

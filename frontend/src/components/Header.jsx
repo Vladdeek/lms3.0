@@ -9,9 +9,12 @@ import {
 	MessagesSquare,
 	AlignJustify,
 	Home,
+	LogOut,
 } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
+import { API, FILE_API } from '../API'
+import axios from 'axios'
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -109,6 +112,42 @@ const Notification = () => {
 	)
 }
 
+const Logout = () => {
+	const logout = async () => {
+		const storedAccess = localStorage.getItem('access_token')
+		const storedRefresh = localStorage.getItem('refresh_token')
+
+		try {
+			const res = await axios.post(
+				`${API}/auth/jwt/logout`,
+				{ refresh_token: storedRefresh },
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${storedAccess}`,
+					},
+				}
+			)
+
+			console.log('Logout success:', res.data)
+
+			localStorage.removeItem('access_token')
+			localStorage.removeItem('refresh_token')
+		} catch (error) {
+			console.log('Logout error:', error.response?.data || error.message)
+		}
+	}
+
+	return (
+		<button
+			onClick={() => logout}
+			className={`relative rounded-lg p-[14px] hover:bg-[var(--hero-epta)] hover:text-white text-[var(--black)] active:scale-98 active:brightness-90 shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer`}
+		>
+			<LogOut size={20} />
+		</button>
+	)
+}
+
 const HeaderLink = ({ title, icon: Icon, to }) => {
 	return (
 		<NavLink
@@ -161,12 +200,23 @@ const MobileHeaderLink = ({ title, icon: Icon, to }) => {
 	)
 }
 
-export const Header = ({ links, UserInfo }) => {
+export const Header = ({ links = [], UserInfo = null }) => {
+	if (!UserInfo) return null
+
+	const isDashboard = location?.pathname === '/dashboard'
+	const isStudent = UserInfo?.current_user_role === 'student'
+	const Wrapper = isStudent ? NavLink : 'div'
+	const toProps = isStudent ? { to: '/dashboard' } : {}
+	const activeClass =
+		isStudent && isDashboard
+			? 'bg-[var(--hero-epta)] text-white'
+			: 'bg-[var(--white)]'
+
 	return (
 		<>
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
 				<div className='flex items-center gap-5 max-md:hidden'>
-					{links.map((item, index) => (
+					{links?.map((item, index) => (
 						<HeaderLink
 							key={index}
 							title={item.title}
@@ -180,56 +230,47 @@ export const Header = ({ links, UserInfo }) => {
 					<div className='flex max-md:flex-row-reverse items-center max-md:w-full max-md:justify-between gap-5'>
 						<ToggleTheme />
 						<Notification Notifications={1} />
-						{UserInfo.map((user, index) => {
-							const isDashboard = location.pathname === '/dashboard'
-							const isStudent = user.role === 'student'
-							const Wrapper = isStudent ? NavLink : 'div'
-							const toProps = isStudent ? { to: '/dashboard' } : {}
-							const activeClass =
-								isStudent && isDashboard
-									? 'bg-[var(--hero-epta)] text-white'
-									: 'bg-[var(--white)]'
 
-							return (
-								<Wrapper
-									key={index}
-									{...toProps}
-									className={`
-                flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px] cursor-pointer transition-all
-                ${activeClass}
-            `}
+						<Wrapper
+							{...toProps}
+							className={`
+								flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px] cursor-pointer transition-all
+								${activeClass}
+							`}
+						>
+							<p
+								className={`text-base font-medium whitespace-nowrap text-end leading-5 ${
+									isStudent && isDashboard
+										? 'text-white'
+										: 'text-[var(--black)]'
+								}`}
+							>
+								{UserInfo?.personal_data?.first_name}{' '}
+								{UserInfo?.personal_data?.last_name}{' '}
+								{UserInfo?.personal_data?.middle_name
+									? UserInfo.personal_data.middle_name[0] + '.'
+									: ''}
+								<span
+									className={`font-normal ${
+										isStudent && isDashboard
+											? 'text-white/80'
+											: 'text-[var(--middle)]'
+									}`}
 								>
-									<p
-										className={`text-base font-medium whitespace-nowrap text-end leading-5 ${
-											isStudent && isDashboard
-												? 'text-white'
-												: 'text-[var(--black)]'
-										}`}
-									>
-										{`${user.FullName.split(' ')[0]} ${
-											user.FullName.split(' ')[1]
-										} ${user.FullName.split(' ')[2][0]}.`}
-										<span
-											className={`font-normal ${
-												isStudent && isDashboard
-													? 'text-white/80'
-													: 'text-[var(--middle)]'
-											}`}
-										>
-											<br />
-											{user.role === 'student'
-												? 'Студент'
-												: user.role === 'teacher' && 'Преподаватель'}
-										</span>
-									</p>
-									<img
-										className='h-10 rounded-full aspect-square'
-										src={user.img_path}
-										alt=''
-									/>
-								</Wrapper>
-							)
-						})}
+									<br />
+									{UserInfo?.current_user_role === 'student'
+										? 'Студент'
+										: UserInfo?.current_user_role === 'teacher' &&
+										  'Преподаватель'}
+								</span>
+							</p>
+							<img
+								className='h-10 rounded-full aspect-square'
+								src={`${FILE_API}${UserInfo?.photo}`}
+								alt=''
+							/>
+						</Wrapper>
+						<Logout />
 					</div>
 				</div>
 			</div>

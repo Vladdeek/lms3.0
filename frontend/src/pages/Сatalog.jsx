@@ -21,6 +21,8 @@ import {
 import { API, FILE_API } from '../API'
 import { motion } from 'framer-motion'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Forbidden403, useError } from '../components/Errors'
+import axios from 'axios'
 
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
@@ -36,7 +38,7 @@ const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	)
 }
 
-const CreateModal = ({ isOpen, onClose, onCreate }) => {
+const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	if (!isOpen) return null
 
 	const [isNameValid, setIsNameValid] = useState(false)
@@ -45,38 +47,45 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 	const [description, setDescription] = useState('')
 	const [img, setImg] = useState(null)
 
-	const isFormValid = isNameValid && isFileValid
+	const [hintOpen, setHintOpen] = useState(null)
+
+	const isFormValid = isNameValid
 
 	const handleSubmit = async e => {
+		const token = localStorage.getItem('access_token')
 		e.preventDefault()
+
 		if (!isFormValid) return
 
-		const formData = new FormData()
-		formData.append('name', title)
-		formData.append('description', description)
-		formData.append(
-			'teacher_profile_id',
-			'27f1ca7d-70b5-43b3-b310-ffd251670d62'
-		)
-		formData.append('image', img)
+		try {
+			const formData = new FormData()
+			formData.append('name', title)
+			formData.append('description', description)
+			formData.append('teacher_profile_id', teacher_profile_id)
+			if (img !== null) formData.append('image', img)
 
-		const res = await fetch(`${API}/courses`, {
-			method: 'POST',
-			body: formData,
-		})
+			const res = await axios.post(`${API}/courses`, formData, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
 
-		if (!res.ok) {
-			console.error('Ошибка сервера:', res.status)
-			return
+			onCreate(res.data)
+			onClose()
+			setTitle('')
+			setDescription('')
+			setImg(null)
+		} catch (error) {
+			if (error.response) {
+				console.error(
+					'Ошибка сервера:',
+					error.response.status,
+					error.response.data
+				)
+			} else {
+				console.error('Ошибка сети:', error.message)
+			}
 		}
-
-		const data = await res.json()
-
-		onCreate(data)
-		onClose()
-		setTitle('')
-		setDescription('')
-		setImg(null)
 	}
 
 	return (
@@ -112,12 +121,36 @@ const CreateModal = ({ isOpen, onClose, onCreate }) => {
 						onChange={e => setDescription(e.target.value)}
 						InputStatus={false}
 					/>
-					<FileInput
-						title='Загрузите превью'
-						required={true}
-						onStatusChange={setIsFileValid}
-						onFileChange={file => setImg(file)}
-					/>
+					<div className='flex flex-col gap-3'>
+						<div className='inline-flex items-center gap-[10px]'>
+							<p className={`text-[18px] text-[var(--middle)]`}>
+								Загрузите превью
+							</p>
+							<div className='relative'>
+								<CircleQuestionMark
+									onClick={() =>
+										setHintOpen(prev => (prev === null ? 1 : null))
+									}
+									className='text-blue-500  cursor-pointer'
+									size={16}
+								/>
+								<div
+									className={`${
+										hintOpen === 1
+											? 'opacity-100 scale-100'
+											: 'opacity-0 scale-0 -translate-x-1/2'
+									} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 rounded-lg`}
+								>
+									<p>
+										При отсутствии загруженного изображения система
+										автоматически сгенерирует превью.
+									</p>
+								</div>
+							</div>
+						</div>
+						<FileInput onFileChange={file => setImg(file)} />
+					</div>
+
 					<input
 						className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
 							isFormValid
@@ -175,7 +208,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 			'teacher_profile_id',
 			'27f1ca7d-70b5-43b3-b310-ffd251670d62'
 		)
-		formData.append('image', img)
+		img !== null && formData.append('image', img)
 
 		const res = await fetch(`${API}/webinar`, {
 			method: 'POST',
@@ -298,7 +331,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 					<div className='flex flex-col gap-3'>
 						<div className='inline-flex items-center gap-[10px]'>
 							<p className={`text-[18px] text-[var(--middle)]`}>
-								Введите дату и время окончания
+								Загрузите превью
 							</p>
 							<div className='relative'>
 								<CircleQuestionMark
@@ -317,7 +350,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 								>
 									<p>
 										При отсутствии загруженного изображения система
-										автоматически подставляет случайное фото из базы.
+										автоматически сгенерирует превью.
 									</p>
 								</div>
 							</div>
@@ -341,15 +374,15 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 	)
 }
 
-const Catalog = ({ role }) => {
+const Catalog = ({ role, teacher_profile_id }) => {
 	const [selected, setSelected] = useState(0)
-	const [selectedFilters, setSelectedFilters] = useState('open')
+	const [selectedFilters, setSelectedFilters] = useState('all')
 	const options = [
 		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
 		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
 	]
 	const filter = [
-		{ value: 'open', title: 'Все', icon: LayoutGrid },
+		{ value: 'all', title: 'Все', icon: LayoutGrid },
 		{ value: 'pending', title: 'Предстоящие', icon: CalendarDays },
 		{ value: 'closed', title: 'Прошедшие', icon: History },
 	]
@@ -381,6 +414,8 @@ const Catalog = ({ role }) => {
 
 	const [image, setImage] = useState([])
 
+	const { setError } = useError()
+
 	const handleCreateCourse = () => {
 		fetchCourses()
 	}
@@ -389,17 +424,61 @@ const Catalog = ({ role }) => {
 	}
 
 	const fetchCourses = async () => {
-		const res = await fetch(`${API}/courses/`)
-		const data = await res.json()
-		console.log('Список курсов:', data)
-		setCourses(data || [])
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(`${API}/courses/`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			console.log('status: ', res.status)
+			console.log('Список курсов:', res.data)
+
+			setError(null)
+			setCourses(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
 	}
 	const fetchWebinars = async () => {
-		const res = await fetch(`${API}/webinar/?webinar_status=${selectedFilters}`)
-		const data = await res.json()
-		console.log('Список вебинаров:', data)
-		setWebinars(data.detail === 'Not Found' ? [] : data)
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(
+				`${API}/webinar${
+					selectedFilters !== 'all' ? `/?webinar_status=${selectedFilters}` : ''
+				}`,
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+
+			console.log('status: ', res.status)
+			console.log('Список курсов:', res.data)
+
+			setError(null)
+			setWebinars(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
 	}
+
 	useEffect(() => {
 		fetchWebinars()
 	}, [selectedFilters])
@@ -410,14 +489,19 @@ const Catalog = ({ role }) => {
 			: location.pathname === '/catalogt/webinars' && fetchWebinars()
 	}, [location.pathname])
 
-	return role !== 'student' ? (
-		<Navigate to='/catalogs' replace />
-	) : (
+	console.log('role: ', role)
+
+	useEffect(() => {
+		role === 'student' && navigate('/catalogs/courses')
+	}, [role])
+
+	return (
 		<>
 			<CreateModal
 				isOpen={createModalOpen}
 				onClose={() => setCreateModalOpen(false)}
 				onCreate={handleCreateCourse}
+				teacher_profile_id={teacher_profile_id}
 			/>
 			<CreateWebinar
 				isOpen={createWebinarOpen}

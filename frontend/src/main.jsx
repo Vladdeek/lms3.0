@@ -6,7 +6,14 @@ import {
 	Navigate,
 	useNavigate,
 } from 'react-router-dom'
-import { StrictMode, Suspense, use, useEffect, useState } from 'react'
+import {
+	StrictMode,
+	Suspense,
+	use,
+	useContext,
+	useEffect,
+	useState,
+} from 'react'
 import './index.css'
 import './themes.css'
 import DashboardLayout from './pages/layout/DashboardLayout'
@@ -22,17 +29,14 @@ import CoursePage from './pages/CoursePage'
 import CatalogS from './pages/Tasks'
 import { useScroll } from 'framer-motion'
 import Authorization from './pages/Authorization'
+import { AuthProvider, AuthContext } from './context/AuthContext'
+import axios from 'axios'
+import { API } from './API'
 
 function MainApp() {
-	const navigate = useNavigate()
-	const [isTeacher, setIsTeacher] = useState()
-
 	const [role, setRole] = useState()
-
-	useEffect(() => {
-		setRole(!isTeacher ? 'teacher' : 'student')
-	}, [isTeacher])
-
+	const [teacherProfileId, setTeacherProfileId] = useState()
+	console.log('main: ', role)
 	return (
 		<Suspense
 			fallback={
@@ -42,19 +46,33 @@ function MainApp() {
 			}
 		>
 			<Routes>
-				<Route path='/auth'>
-					<Route path='login' element={<Authorization isRegister={false} />} />
+				<Route path='/auth' element={<Authorization isRegister={false} />} />
+				<Route
+					path='/'
+					element={
+						<DashboardLayout
+							onChange={data => {
+								setRole(data.role)
+								setTeacherProfileId(data.teacher_profile_id)
+							}}
+						/>
+					}
+				>
 					<Route
-						path='register'
-						element={<Authorization isRegister={true} />}
-					/>
-				</Route>
-				<Route path='/' element={<DashboardLayout onChange={setIsTeacher} />}>
-					<Route path='/catalogt' element={<Catalog role={role} />}>
+						path='/catalogt'
+						element={
+							<Catalog role={role} teacher_profile_id={teacherProfileId} />
+						}
+					>
 						<Route path='courses' element={<CatalogS role={role} />} />
 						<Route path='webinars' element={<CatalogS role={role} />} />
 					</Route>
-					<Route path='/catalogs' element={<CatalogS role={role} />}>
+					<Route
+						path='/catalogs'
+						element={
+							<CatalogS role={role} teacher_profile_id={teacherProfileId} />
+						}
+					>
 						<Route path='courses' element={<CatalogS role={role} />} />
 						<Route path='webinars' element={<CatalogS role={role} />} />
 					</Route>
@@ -78,6 +96,8 @@ function MainApp() {
 
 createRoot(document.getElementById('root')).render(
 	<Router>
-		<MainApp />
+		<AuthProvider>
+			<MainApp />
+		</AuthProvider>
 	</Router>
 )

@@ -12,13 +12,19 @@
 	"dependencies": {
 		"@lottiefiles/dotlottie-react": "^0.17.1",
 		"@material-tailwind/react": "^2.1.10",
+		"@react-three/drei": "^10.7.6",
+		"@react-three/fiber": "^9.3.0",
 		"@tailwindcss/vite": "^4.1.11",
 		"@tinymce/tinymce-react": "^6.3.0",
 		"apexcharts": "^5.3.2",
+		"axios": "^1.12.2",
 		"better-react-mathjax": "^2.3.0",
 		"date-fns": "^4.1.0",
 		"framer-motion": "^12.23.12",
+		"gsap": "^3.13.0",
 		"lucide-react": "^0.536.0",
+		"maath": "^0.10.8",
+		"motion": "^12.23.22",
 		"qr-code-styling": "^1.9.2",
 		"react": "^19.1.0",
 		"react-apexcharts": "^1.7.0",
@@ -31,7 +37,8 @@
 		"slate": "^0.118.0",
 		"slate-history": "^0.113.1",
 		"slate-react": "^0.117.4",
-		"tailwindcss": "^4.1.11"
+		"tailwindcss": "^4.1.11",
+		"three": "^0.180.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.30.1",
