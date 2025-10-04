@@ -28,10 +28,6 @@ export const FileView = ({ onStatusChange, Files }) => {
 		validateFiles(newFiles)
 	}
 
-	const handleFormat = ({ files }) => {
-		console.log('handleFormat - ' + files)
-	}
-
 	const validateFiles = newFiles => {
 		// Проверка на превышение лимита файлов
 		if (files.length + newFiles.length > maxFiles) {

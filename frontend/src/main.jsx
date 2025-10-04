@@ -36,7 +36,6 @@ import { API } from './API'
 function MainApp() {
 	const [role, setRole] = useState()
 	const [teacherProfileId, setTeacherProfileId] = useState()
-	console.log('main: ', role)
 	return (
 		<Suspense
 			fallback={

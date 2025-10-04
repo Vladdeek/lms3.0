@@ -79,15 +79,12 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 		formData.append('description', description)
 		formData.append('image', img || null)
 
-		console.log(formData)
-
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',
 			body: formData,
 		})
 
 		const data = await res.json()
-		console.log('Ответ сервера:', data)
 
 		if (!res.ok) {
 			console.error('Ошибка сервера:', res.status)
@@ -319,29 +316,65 @@ const ConstructorPage = ({ role }) => {
 			})),
 		}))
 	}
+
 	const [selected, setSelected] = useState(0)
 	const [blocks, setBlocks] = useState()
 	const [selectedContentId, setSelectedContentId] = useState(null)
 	const [isLoading, setIsLoading] = useState(false)
+	const [accessedGroups, setAccessedGroups] = useState([])
 
-	const handleSubmit = async (content, sectionId) => {
-		//console.log('Отправка контента: ', content, '\nКуда: ', selectedContentId)
+	console.log(accessedGroups)
 
-		const res = await fetch(`${API}/sections/${sectionId}/content`, {
-			method: 'PUT',
-			body: JSON.stringify(content),
-			headers: { 'Content-Type': 'application/json' },
-		})
+	const handleSubmit = async (e, content, sectionId, accessedGroups) => {
+		// Отменяем любое стандартное поведение кнопки или формы
+		if (e && e.preventDefault) e.preventDefault()
 
-		if (!res.ok) {
-			console.error('Ошибка сервера:', res.status)
-			setIsLoading(false)
-			return
+		const token = localStorage.getItem('access_token')
+
+		if (selected === 0) {
+			const res = await fetch(`${API}/sections/${sectionId}/content`, {
+				method: 'PUT',
+				body: JSON.stringify(content),
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (!res.ok) {
+				console.error('Ошибка сервера:', res.status)
+				setError(res.status)
+				setIsLoading(false)
+				return
+			}
+
+			const data = await res.json()
+			console.log('Сохранено:', data)
+		} else if (selected === 1) {
+			const addStudents = false
+
+			const res = await fetch(
+				`${API}/courses/students/${courseId}?add_student=${addStudents}`,
+				{
+					method: 'PUT',
+					body: JSON.stringify({ groups: accessedGroups }),
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+
+			if (!res.ok) {
+				console.error('Ошибка сервера:', res.status)
+				setError(res.status)
+				setIsLoading(false)
+				return
+			}
+
+			const data = await res.json()
+			console.log('Студенты обновлены:', data)
 		}
-
-		const data = await res.json()
-
-		console.log('Ответ сервера:', data)
 	}
 
 	return role === 'student' ? (
@@ -398,10 +431,14 @@ const ConstructorPage = ({ role }) => {
 							descriptionValue={courseContent?.description}
 						/>
 						<Button
-							title={'Сохранить'}
+							title='Сохранить'
 							style='outline'
-							onClick={() => handleSubmit(blocks, selectedContentId)}
+							type='button'
+							onClick={e =>
+								handleSubmit(e, blocks, selectedContentId, accessedGroups)
+							}
 						/>
+
 						<Button
 							title={'Опубликовать курс'}
 							style='black'
@@ -426,7 +463,7 @@ const ConstructorPage = ({ role }) => {
 						isLoading={isLoading}
 					/>
 				) : (
-					selected === 1 && <AccessManagement />
+					selected === 1 && <AccessManagement onChange={setAccessedGroups} />
 				)}
 			</div>
 		</>

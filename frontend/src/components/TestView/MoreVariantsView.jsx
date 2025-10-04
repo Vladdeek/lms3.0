@@ -76,8 +76,6 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
-	console.log('selected: ', selected)
-
 	const handleChange = (optionCode, checked) => {
 		let newSelected
 		if (checked) {

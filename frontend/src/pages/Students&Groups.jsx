@@ -1,7 +1,6 @@
 import { act, useState } from 'react'
 import { OptionInput } from '../components/Inputs'
-import { groups } from '../data/groups'
-import { students } from '../data/students'
+
 import {
 	ArrowBigDownDash,
 	CalendarDays,

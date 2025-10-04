@@ -75,7 +75,7 @@ const Schedule = () => {
 		const fetchSchedule = async () => {
 			const res = await fetch(`https:///courses/`)
 			const data = await res.json()
-			console.log('Список курсов:', data)
+
 			setScheduleData1(data)
 		}
 	}, [])

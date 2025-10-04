@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { Children } from 'react'
 import { createContext, use, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext'
 
 export const NotFoundError404 = () => {
 	return (
@@ -18,7 +19,7 @@ export const NotFoundError404 = () => {
 }
 export const InternalServerError500 = () => {
 	return (
-		<div className='md:-mx-10 -mx-2 w-screen flex justify-center items-center '>
+		<div className='md:-mx-10 -mx-2 w-screen h-screen flex justify-center items-center '>
 			<DotLottieReact
 				className='w-[75%]'
 				src='/anim/ERROR500.lottie'
@@ -30,7 +31,7 @@ export const InternalServerError500 = () => {
 }
 export const Forbidden403 = () => {
 	return (
-		<div className='md:-mx-10 -mx-2 w-screen flex justify-center items-center '>
+		<div className='md:-mx-10 -mx-2 w-screen h-screen flex justify-center items-center '>
 			<DotLottieReact
 				className='w-[75%]'
 				src='/anim/ERROR403.lottie'
@@ -52,10 +53,20 @@ export const ErrorProvider = ({ children }) => {
 	const [showError, setShowError] = useState(false)
 
 	useEffect(() => {
-		error !== null && error !== '500' && error !== '403' && setShowError(true)
-		setTimeout(() => {
-			setShowError(false)
-		}, 30000)
+		if (
+			error !== null &&
+			error !== '500' &&
+			error !== '403' &&
+			error !== '404'
+		) {
+			setShowError(true)
+			const timer = setTimeout(() => {
+				setShowError(false)
+				setError(null)
+			}, 30000)
+
+			return () => clearTimeout(timer)
+		}
 	}, [error])
 
 	const location = useLocation()
@@ -63,7 +74,7 @@ export const ErrorProvider = ({ children }) => {
 
 	const ErrorsDescription = {
 		400: 'Некорректный запрос. Проверьте правильность введённых данных.',
-
+		401: 'Не удалось сделать запрос, попробуйте еще раз.',
 		403: 'Доступ запрещён. Недостаточно прав для выполнения действия.',
 		409: 'Конфликт. Данные уже существуют или нарушены ограничения.',
 		422: 'Неверный формат входных данных. Проверьте корректность передаваемых параметров.',
@@ -75,18 +86,24 @@ export const ErrorProvider = ({ children }) => {
 
 	console.log('error: ', error)
 
-	useEffect(() => {
-		if (error === '401') navigate('/auth')
-	}, [error])
+	const { refreshAccessToken } = useContext(AuthContext)
 
 	useEffect(() => {
-		setError(null)
-	}, [location])
+		if (error === '401') {
+			const newAccessToken = refreshAccessToken()
+		}
+	}, [error])
+	useEffect(() => {
+		if (error) {
+			setError(null)
+			return () => clearTimeout(timer)
+		}
+	}, [false])
 
 	return (
 		<ErrorContext.Provider value={{ error, setError }}>
-			{error ? (
-				error === '404' ? (
+			<div className='relative'>
+				{error === '404' ? (
 					<NotFoundError404 />
 				) : error === '500' ? (
 					<InternalServerError500 />
@@ -94,15 +111,20 @@ export const ErrorProvider = ({ children }) => {
 					<Forbidden403 />
 				) : (
 					<>
-						<div className='relative flex justify-center'>
+						{children}
+
+						{error && (
 							<div
-								className={`absolute bg-[var(--red-status-bg)] p-2 rounded-xl  shadow-[var(--shadow)] transition-all duration-300 ${
+								className={`absolute left-1/2 transform -translate-x-1/2 bg-[var(--red-status-bg)] p-2 rounded-xl shadow-[var(--shadow)] transition-all duration-300 z-1000 ${
 									showError ? 'opacity-100 top-5' : 'opacity-0 -top-50'
 								}`}
 							>
 								<div className='relative flex flex-col gap-2'>
 									<X
-										onClick={() => setShowError(false)}
+										onClick={() => {
+											setShowError(false)
+											setError(null)
+										}}
 										size={20}
 										className='absolute right-0 top-0 cursor-pointer text-[var(--red-status-text)]'
 									/>
@@ -114,13 +136,10 @@ export const ErrorProvider = ({ children }) => {
 									</p>
 								</div>
 							</div>
-						</div>
-						<>{children}</>
+						)}
 					</>
-				)
-			) : (
-				children
-			)}
+				)}
+			</div>
 		</ErrorContext.Provider>
 	)
 }

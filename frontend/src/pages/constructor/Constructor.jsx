@@ -345,7 +345,6 @@ const ModuleTitle = ({
 	]
 
 	const deleteModule = async id => {
-		console.log('url API - ', `${API}/modules/${id}`)
 		try {
 			const response = await fetch(`${API}/modules/${id}`, {
 				method: 'DELETE',

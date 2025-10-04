@@ -20,8 +20,6 @@ const MiniCalendar = () => {
 
 	const [modalOpen, setModalOpen] = useState(null)
 
-	console.log(modalOpen)
-
 	const monthStart = startOfMonth(currentMonth)
 	const monthEnd = endOfMonth(currentMonth)
 	const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1, locale: ru })

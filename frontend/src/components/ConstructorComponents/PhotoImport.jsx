@@ -16,8 +16,6 @@ export const ConstructorPhotoInput = ({
 	const [previews, setPreviews] = useState([])
 	const [imgUrl, setImgUrl] = useState(takeValues || [])
 
-	console.log(imgUrl)
-
 	useEffect(() => {
 		const data = imgUrl
 		onChange?.(data)
@@ -28,7 +26,6 @@ export const ConstructorPhotoInput = ({
 	const maxFiles = 4
 
 	const uploadFileToAPI = async fileToUpload => {
-		console.log(fileToUpload)
 		try {
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
@@ -43,7 +40,6 @@ export const ConstructorPhotoInput = ({
 			}
 
 			const result = await response.json()
-			console.log('res: ', result)
 
 			setImgUrl(prevUrls => [
 				...prevUrls,

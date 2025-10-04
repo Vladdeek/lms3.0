@@ -10,11 +10,13 @@ import {
 	AlignJustify,
 	Home,
 	LogOut,
+	ImageOff,
 } from 'lucide-react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
 import { API, FILE_API } from '../API'
 import axios from 'axios'
+import { BlockLoader } from './Loader'
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -113,34 +115,44 @@ const Notification = () => {
 }
 
 const Logout = () => {
+	const navigate = useNavigate()
 	const logout = async () => {
 		const storedAccess = localStorage.getItem('access_token')
 		const storedRefresh = localStorage.getItem('refresh_token')
 
 		try {
-			const res = await axios.post(
-				`${API}/auth/jwt/logout`,
-				{ refresh_token: storedRefresh },
-				{
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${storedAccess}`,
-					},
-				}
-			)
+			const res = await fetch(`${API}/auth/jwt/logout`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${storedAccess}`,
+				},
+				body: JSON.stringify({ refresh_token: storedRefresh }),
+			})
 
-			console.log('Logout success:', res.data)
+			if (!res.ok) {
+				const errorData = await res.json()
+				throw new Error(errorData?.detail || `Error ${res.status}`)
+			}
+
+			const data = await res.json()
+			console.log('Logout success:', data)
 
 			localStorage.removeItem('access_token')
 			localStorage.removeItem('refresh_token')
+
+			navigate('/auth')
 		} catch (error) {
-			console.log('Logout error:', error.response?.data || error.message)
+			console.log('Logout error:', error.message)
+			localStorage.removeItem('access_token')
+			localStorage.removeItem('refresh_token')
+			navigate('/auth')
 		}
 	}
 
 	return (
 		<button
-			onClick={() => logout}
+			onClick={logout}
 			className={`relative rounded-lg p-[14px] hover:bg-[var(--hero-epta)] hover:text-white text-[var(--black)] active:scale-98 active:brightness-90 shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer`}
 		>
 			<LogOut size={20} />
@@ -201,8 +213,6 @@ const MobileHeaderLink = ({ title, icon: Icon, to }) => {
 }
 
 export const Header = ({ links = [], UserInfo = null }) => {
-	if (!UserInfo) return null
-
 	const isDashboard = location?.pathname === '/dashboard'
 	const isStudent = UserInfo?.current_user_role === 'student'
 	const Wrapper = isStudent ? NavLink : 'div'
@@ -216,14 +226,24 @@ export const Header = ({ links = [], UserInfo = null }) => {
 		<>
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
 				<div className='flex items-center gap-5 max-md:hidden'>
-					{links?.map((item, index) => (
-						<HeaderLink
-							key={index}
-							title={item.title}
-							icon={item.icon}
-							to={item.to}
-						/>
-					))}
+					{UserInfo ? (
+						<>
+							{links?.map((item, index) => (
+								<HeaderLink
+									key={index}
+									title={item.title}
+									icon={item.icon}
+									to={item.to}
+								/>
+							))}
+						</>
+					) : (
+						<>
+							<BlockLoader width={135} height={45} />
+							<BlockLoader width={135} height={45} />
+							<BlockLoader width={135} height={45} />
+						</>
+					)}
 				</div>
 
 				<div className='flex max-md:w-full md:justify-end z-10'>
@@ -238,37 +258,52 @@ export const Header = ({ links = [], UserInfo = null }) => {
 								${activeClass}
 							`}
 						>
-							<p
-								className={`text-base font-medium whitespace-nowrap text-end leading-5 ${
-									isStudent && isDashboard
-										? 'text-white'
-										: 'text-[var(--black)]'
-								}`}
-							>
-								{UserInfo?.personal_data?.first_name}{' '}
-								{UserInfo?.personal_data?.last_name}{' '}
-								{UserInfo?.personal_data?.middle_name
-									? UserInfo.personal_data.middle_name[0] + '.'
-									: ''}
-								<span
-									className={`font-normal ${
-										isStudent && isDashboard
-											? 'text-white/80'
-											: 'text-[var(--middle)]'
-									}`}
-								>
-									<br />
-									{UserInfo?.current_user_role === 'student'
-										? 'Студент'
-										: UserInfo?.current_user_role === 'teacher' &&
-										  'Преподаватель'}
-								</span>
-							</p>
-							<img
-								className='h-10 rounded-full aspect-square'
-								src={`${FILE_API}${UserInfo?.photo}`}
-								alt=''
-							/>
+							{UserInfo ? (
+								<>
+									<p
+										className={`text-base font-medium whitespace-nowrap text-end leading-5 ${
+											isStudent && isDashboard
+												? 'text-white'
+												: 'text-[var(--black)]'
+										}`}
+									>
+										{UserInfo?.personal_data?.first_name}{' '}
+										{UserInfo?.personal_data?.last_name}{' '}
+										{UserInfo?.personal_data?.middle_name
+											? `${UserInfo.personal_data.middle_name[0]}.`
+											: ''}
+										<span
+											className={`font-normal ${
+												isStudent && isDashboard
+													? 'text-white/80'
+													: 'text-[var(--middle)]'
+											}`}
+										>
+											<br />
+
+											{UserInfo?.current_user_role === 'student'
+												? 'Студент'
+												: UserInfo?.current_user_role === 'teacher' &&
+												  'Преподаватель'}
+										</span>
+									</p>
+								</>
+							) : (
+								<div className='w-32 flex flex-col items-end gap-1.5'>
+									<BlockLoader height={20} width={135} />
+									<BlockLoader height={20} width={128} />
+								</div>
+							)}
+
+							{UserInfo ? (
+								<img
+									className='h-10 rounded-full aspect-square'
+									src={`${FILE_API}${UserInfo?.photo}`}
+									alt=''
+								/>
+							) : (
+								<ImageOff className='h-10 w-10 p-1.75 text-[var(--middle)] rounded-full aspect-square shimmer' />
+							)}
 						</Wrapper>
 						<Logout />
 					</div>

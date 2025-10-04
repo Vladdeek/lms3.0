@@ -97,3 +97,23 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
 	display: none; /* Chrome, Safari, Opera */
 }
+
+@keyframes shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+.shimmer {
+	background: linear-gradient(
+		90deg,
+		var(--light-middle) 0%,
+		var(--light-gray) 50%,
+		var(--light-middle) 100%
+	);
+	background-size: 200% 100%;
+	animation: shimmer 1.8s infinite linear;
+}

@@ -103,6 +103,7 @@ export default function DashboardLayout({ onChange }) {
 						}
 					}
 				} else {
+					navigate('/auth')
 					console.error(error)
 				}
 			}

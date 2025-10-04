@@ -19,14 +19,13 @@ const OpenQuestion = ({ sectionId, testId }) => {
 		const res = await fetch(`${API}/questions/${id}`)
 		const data = await res.json()
 		if (data) setIsLoading(false)
-		console.log('get: ', data)
+
 		setQuestion(data?.title)
 		setScore(data?.score)
 		setMedia(data?.media)
 	}
 
 	const handleCreate = async () => {
-		console.log('POST create')
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
@@ -42,8 +41,6 @@ const OpenQuestion = ({ sectionId, testId }) => {
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
 
-			console.log('open Ответ сервера: ', data)
-
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
@@ -51,7 +48,6 @@ const OpenQuestion = ({ sectionId, testId }) => {
 	}
 
 	const handleEdit = async () => {
-		console.log('PUT edit')
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
 				method: 'PUT',
@@ -66,8 +62,6 @@ const OpenQuestion = ({ sectionId, testId }) => {
 
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
-
-			console.log('open Ответ сервера: ', data)
 
 			fetchTest(data?.id)
 		} catch (error) {

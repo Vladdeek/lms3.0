@@ -36,7 +36,7 @@ const Authorization = ({ isRegister = false }) => {
 				body: JSON.stringify(data),
 			})
 			const result = await response.json()
-			console.log(result)
+
 			login(result)
 		} catch (error) {
 			console.error('Ошибка:', error)

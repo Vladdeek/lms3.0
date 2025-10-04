@@ -433,9 +433,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				},
 			})
 
-			console.log('status: ', res.status)
-			console.log('Список курсов:', res.data)
-
 			setError(null)
 			setCourses(res.data)
 		} catch (err) {
@@ -463,9 +460,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				}
 			)
 
-			console.log('status: ', res.status)
-			console.log('Список курсов:', res.data)
-
 			setError(null)
 			setWebinars(res.data)
 		} catch (err) {
@@ -488,8 +482,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			? fetchCourses()
 			: location.pathname === '/catalogt/webinars' && fetchWebinars()
 	}, [location.pathname])
-
-	console.log('role: ', role)
 
 	useEffect(() => {
 		role === 'student' && navigate('/catalogs/courses')

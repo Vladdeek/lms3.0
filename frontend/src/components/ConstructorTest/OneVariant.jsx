@@ -193,7 +193,7 @@ const OneVariant = ({ sectionId, testId }) => {
 	const fetchTest = async id => {
 		const res = await fetch(`${API}/questions/${id}`)
 		const data = await res.json()
-		console.log('get: ', data)
+
 		if (data) setIsLoading(false)
 		setQuestion(data?.title)
 		setScore(data?.score)

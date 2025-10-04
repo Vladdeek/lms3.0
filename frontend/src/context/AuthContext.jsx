@@ -38,28 +38,42 @@ export const AuthProvider = ({ children }) => {
 	const refreshAccessToken = async () => {
 		const storedRefresh = localStorage.getItem('refresh_token')
 		console.log('Access token expired, refreshing... \n', storedRefresh)
-		if (!storedRefresh) return null
 
-		const res = await fetch(`${API}/auth/jwt/refresh`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${storedRefresh}`,
-			},
-		})
-
-		if (!res.ok) {
-			console.log('Access token not refreshed.')
-			logout()
+		if (!storedRefresh) {
+			navigate('/auth')
 			return null
 		}
 
-		const data = await res.json()
-		console.log('refresh in context: ', data)
-		setAccessToken(data.access_token)
-		localStorage.setItem('access_token', data.access_token)
-		console.log('Access token refreshed!')
-		return data.access_token
+		try {
+			const res = await fetch(`${API}/auth/jwt/refresh`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${storedRefresh}`,
+				},
+			})
+
+			if (!res.ok) {
+				console.log('Access token not refreshed.')
+				logout()
+				navigate('/auth')
+				return null
+			}
+
+			const data = await res.json()
+			console.log('refresh in context: ', data)
+
+			setAccessToken(data.access_token)
+			localStorage.setItem('access_token', data.access_token)
+			console.log('Access token refreshed!')
+
+			return data.access_token
+		} catch (error) {
+			console.log('Error while refreshing token:', error.message)
+			logout()
+			navigate('/auth')
+			return null
+		}
 	}
 
 	return (

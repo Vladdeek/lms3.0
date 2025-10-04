@@ -1,16 +1,19 @@
 import { Ban, ChevronsRight, GripVertical } from 'lucide-react'
 import { FilterButton } from '../../components/Buttons'
 import { SearchInput } from '../../components/Inputs'
-import { useState } from 'react'
-import { groups } from '../../data/groups'
-import { students } from '../../data/students'
+import { useEffect, useState } from 'react'
+import { useError } from '../../components/Errors'
+import axios from 'axios'
+import { API } from '../../API'
+import { useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 const GroupComponent = ({
+	id,
 	number,
 	lvl,
 	course,
 	studentsLength,
-	performance,
 	onRemove,
 	onAdd,
 	dragged,
@@ -20,7 +23,7 @@ const GroupComponent = ({
 }) => {
 	return (
 		<div
-			className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-12 rounded-lg py-[10px]'
+			className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'
 			draggable
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
@@ -29,7 +32,7 @@ const GroupComponent = ({
 			<p className='col-span-2 text-center'>{lvl}</p>
 			<p className='col-span-2 text-center'>{course}</p>
 			<p className='col-span-2 text-center'>{studentsLength}</p>
-			<p className='col-span-3 text-center'>{performance}</p>
+
 			<p className='col-span-1 text-center flex justify-center gap-3'>
 				<GripVertical
 					className={dragged === number ? 'cursor-grabbing' : 'cursor-grab'}
@@ -37,12 +40,12 @@ const GroupComponent = ({
 				{Accessed ? (
 					<Ban
 						className='cursor-pointer'
-						onClick={() => onRemove && onRemove(number)}
+						onClick={() => onRemove && onRemove(id)}
 					/>
 				) : (
 					<ChevronsRight
 						className='cursor-pointer'
-						onClick={() => onAdd && onAdd(number)}
+						onClick={() => onAdd && onAdd(id)}
 					/>
 				)}
 			</p>
@@ -75,52 +78,95 @@ const AccessBlock = ({
 				e.preventDefault()
 			}}
 		>
-			<p className='font-medium'>{title}</p>
+			<p className='font-medium text-[var(--black)]'>{title}</p>
 			<div className='flex gap-3 w-full pr-4'>
 				<SearchInput width={'100%'} height={48} />
 				<FilterButton option={[]} />
 			</div>
 
-			<div className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-12 rounded-lg py-[10px]'>
+			<div className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'>
 				<p className='col-span-2 text-center'>Номер группы</p>
 				<p className='col-span-2 text-center'>Уровень обр.</p>
 				<p className='col-span-2 text-center'>Курс</p>
 				<p className='col-span-2 text-center'>Кол-во студентов</p>
-				<p className='col-span-3 text-center'>Успеваемость</p>
+
 				<p className='col-span-1 text-center'></p>
 			</div>
 			<div className='flex flex-col gap-3 overflow-y-scroll hide-scrollbar p-2'>
-				{mass.map(item => (
-					<GroupComponent
-						number={item.number}
-						lvl={item.lvl}
-						course={item.course}
-						performance={item.Performance}
-						studentsLength={item.students.length}
-						onAdd={onAdd}
-						onRemove={onRemove}
-						dragged={dragged}
-						Accessed={Accessed}
-						onDragStart={e => {
-							e.dataTransfer.setData('groupNumber', number)
-							setDragged(number)
+				{mass.map((item, index) => (
+					<motion.div
+						key={index}
+						initial={{ scale: 0.8, opacity: 0 }}
+						animate={{ scale: 1, opacity: 1 }}
+						transition={{
+							duration: 0.3,
+							delay: index * 0.1,
+							ease: 'easeOut',
 						}}
-						onDragEnd={() => setDragged(null)}
-					/>
+					>
+						<GroupComponent
+							id={item?.id}
+							number={item?.name}
+							lvl={item?.educational_level}
+							course={item?.course_level}
+							studentsLength={item?.count_students}
+							onAdd={onAdd}
+							onRemove={onRemove}
+							dragged={dragged}
+							Accessed={Accessed}
+							onDragStart={e => {
+								e.dataTransfer.setData('groupNumber', item?.id)
+								setDragged(item?.id)
+							}}
+							onDragEnd={() => setDragged(null)}
+						/>
+					</motion.div>
 				))}
 			</div>
 		</div>
 	)
 }
 
-const AccessManagement = () => {
+const AccessManagement = ({ onChange }) => {
 	const [accessedGroups, setAccessedGroups] = useState([])
+	const [groups, setGroups] = useState([])
+	const { courseId } = useParams()
+
+	const { setError } = useError()
+
+	const fetchGroups = async () => {
+		try {
+			const res = await axios.get(`${API}/student-group/?course_id=${courseId}`)
+
+			setError(null)
+
+			setGroups(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
+
+	useEffect(() => {
+		fetchGroups()
+	}, [])
+
+	useEffect(() => {
+		onChange?.(accessedGroups)
+	}, [accessedGroups])
 
 	const availableGroups = groups.filter(
-		group => !accessedGroups.includes(group.number)
+		group =>
+			!accessedGroups.includes(group.id) && group.enrolled_on_course === false
 	)
-	const allowedGroups = groups.filter(group =>
-		accessedGroups.includes(group.number)
+	const allowedGroups = groups.filter(
+		group =>
+			accessedGroups.includes(group.id) || group.enrolled_on_course === true
 	)
 
 	const handleAdd = number => {

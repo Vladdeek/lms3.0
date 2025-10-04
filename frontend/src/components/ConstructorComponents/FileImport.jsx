@@ -40,12 +40,7 @@ export const ConstructorFileInput = ({
 		uploadFileToAPI(newFiles[0])
 	}
 
-	const handleFormat = ({ files }) => {
-		console.log('handleFormat - ' + files)
-	}
-
 	const uploadFileToAPI = async fileToUpload => {
-		console.log(fileToUpload)
 		try {
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
@@ -60,7 +55,6 @@ export const ConstructorFileInput = ({
 			}
 
 			const result = await response.json()
-			console.log('res: ', result)
 
 			setFiles(prevUrls => [
 				...prevUrls,
@@ -235,8 +229,6 @@ export const ConstructorFileInput = ({
 			<FileQuestionMark size={24} color='var(--black)' strokeWidth={1.75} />
 		)
 	}
-
-	console.log(files?.length)
 
 	return (
 		<div className='flex gap-2'>

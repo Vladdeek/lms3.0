@@ -173,7 +173,6 @@ const MoreVariant = ({
 		const res = await fetch(`${API}/questions/${id}`)
 		const data = await res.json()
 		if (data) setIsLoading(false)
-		console.log('get: ', data)
 		setQuestion(data?.title)
 		setScore(data?.score)
 		setMedia(data?.media)
@@ -181,7 +180,6 @@ const MoreVariant = ({
 	}
 
 	const handleCreate = async () => {
-		console.log('POST create')
 		const correctAnswers = getCorrectAnswers()
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
@@ -205,7 +203,6 @@ const MoreVariant = ({
 
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
-			console.log('multiple Ответ сервера: ', data)
 
 			fetchTest(data?.id)
 		} catch (error) {
@@ -214,7 +211,6 @@ const MoreVariant = ({
 	}
 
 	const handleEdit = async () => {
-		console.log('PUT edit')
 		const correctAnswers = getCorrectAnswers()
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
@@ -238,7 +234,6 @@ const MoreVariant = ({
 
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
-			console.log('multiple Ответ сервера: ', data)
 
 			fetchTest(data?.id)
 		} catch (error) {

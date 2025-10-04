@@ -65,8 +65,6 @@ const OneVariantView = ({ onAnswerSelect, testId, shuffle = true }) => {
 	const [selectedId, setSelectedId] = useState(null)
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
-	console.log('selected: ', answers[selectedId]?.name)
-
 	const handleSelect = id => {
 		setSelectedId(id)
 		if (onAnswerSelect) onAnswerSelect(id)

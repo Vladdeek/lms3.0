@@ -69,9 +69,6 @@ const CatalogS = ({ role }) => {
 				},
 			})
 
-			console.log('status: ', res.status)
-			console.log('Список курсов:', res.data)
-
 			setError(null)
 			setCourses(res.data)
 		} catch (err) {
@@ -98,9 +95,6 @@ const CatalogS = ({ role }) => {
 					},
 				}
 			)
-
-			console.log('status: ', res.status)
-			console.log('Список курсов:', res.data)
 
 			setError(null)
 			setWebinars(res.data)
