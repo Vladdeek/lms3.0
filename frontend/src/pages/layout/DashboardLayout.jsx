@@ -15,6 +15,7 @@ import {
 	ErrorProvider,
 	InternalServerError500,
 	NotFoundError404,
+	useError,
 } from '../../components/Errors'
 import Loader from '../../components/Loader'
 import { motion } from 'framer-motion'

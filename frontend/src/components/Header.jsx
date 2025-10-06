@@ -17,6 +17,7 @@ import { isWithinInterval } from 'date-fns'
 import { API, FILE_API } from '../API'
 import axios from 'axios'
 import { BlockLoader } from './Loader'
+import { useError } from './Errors'
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -161,9 +162,14 @@ const Logout = () => {
 }
 
 const HeaderLink = ({ title, icon: Icon, to }) => {
+	const clearError = () => {
+		setError(null)
+	}
+
 	return (
 		<NavLink
 			to={to}
+			onClick={clearError}
 			className={({ isActive }) =>
 				`inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 cursor-pointer shadow-[var(--shadow)] text-[var(--black)] transition-all select-none ${
 					!isActive ? 'bg-[var(--white)]' : 'bg-[var(--hero-epta)] text-white'

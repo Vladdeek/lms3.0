@@ -64,7 +64,9 @@ export const AuthProvider = ({ children }) => {
 			console.log('refresh in context: ', data)
 
 			setAccessToken(data.access_token)
+			setAccessToken(data.refresh_token)
 			localStorage.setItem('access_token', data.access_token)
+			localStorage.setItem('refresh_token', data.refresh_token)
 			console.log('Access token refreshed!')
 
 			return data.access_token

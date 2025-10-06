@@ -1,7 +1,7 @@
 import { Ban, ChevronsRight, GripVertical } from 'lucide-react'
 import { FilterButton } from '../../components/Buttons'
 import { SearchInput } from '../../components/Inputs'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useError } from '../../components/Errors'
 import axios from 'axios'
 import { API } from '../../API'
@@ -60,6 +60,8 @@ const AccessBlock = ({
 	onAdd,
 	onRemove,
 	onDropGroup,
+	onSearchChange,
+	searchValue,
 }) => {
 	const [dragged, setDragged] = useState(null)
 
@@ -80,7 +82,12 @@ const AccessBlock = ({
 		>
 			<p className='font-medium text-[var(--black)]'>{title}</p>
 			<div className='flex gap-3 w-full pr-4'>
-				<SearchInput width={'100%'} height={48} />
+				<SearchInput
+					width={'100%'}
+					height={48}
+					onChange={onSearchChange}
+					value={searchValue}
+				/>
 				<FilterButton option={[]} />
 			</div>
 
@@ -128,19 +135,69 @@ const AccessBlock = ({
 }
 
 const AccessManagement = ({ onChange }) => {
-	const [accessedGroups, setAccessedGroups] = useState([])
-	const [groups, setGroups] = useState([])
+	const [linkedGroups, setLinkedGroups] = useState([])
+	const [unlinkedGroups, setUnlinkedGroups] = useState([])
 	const { courseId } = useParams()
+	const debounceTimeout = useRef(null)
+
+	const [searchLinkedGroups, setSearchLinkedGroups] = useState()
+	const [searchUnlinkedGroups, setSearchUnlinkedGroups] = useState()
 
 	const { setError } = useError()
 
-	const fetchGroups = async () => {
+	useEffect(() => {
+		// если оба поля пустые — ничего не делать
+		if (searchLinkedGroups === '' && searchUnlinkedGroups === '') return
+
+		// сбрасываем предыдущий таймер
+		if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+
+		// ставим новый таймер
+		debounceTimeout.current = setTimeout(() => {
+			if (searchLinkedGroups !== '') fetchLinkedGroups(searchLinkedGroups)
+			if (searchUnlinkedGroups !== '') fetchUnlinkedGroups(searchUnlinkedGroups)
+		}, 2000) // задержка 2 секунды
+
+		// очистка при размонтировании или при новом вводе
+		return () => clearTimeout(debounceTimeout.current)
+	}, [searchLinkedGroups, searchUnlinkedGroups])
+
+	const fetchUnlinkedGroups = async term => {
 		try {
-			const res = await axios.get(`${API}/student-group/?course_id=${courseId}`)
+			const res = await axios.get(
+				`${API}/courses/student-group/unlinked/?course_id=${courseId}${
+					term?.length ? `&term=${term}` : ''
+				}`
+			)
+
+			console.log(res)
 
 			setError(null)
 
-			setGroups(res.data)
+			setUnlinkedGroups(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
+	const fetchLinkedGroups = async term => {
+		try {
+			const res = await axios.get(
+				`${API}/courses/student-group/linked/?course_id=${courseId}${
+					term?.length ? `&term=${term}` : ''
+				}`
+			)
+
+			console.log(res)
+
+			setError(null)
+
+			setLinkedGroups(res.data)
 		} catch (err) {
 			console.log(err)
 			if (err.response) {
@@ -153,29 +210,62 @@ const AccessManagement = ({ onChange }) => {
 	}
 
 	useEffect(() => {
-		fetchGroups()
+		fetchUnlinkedGroups()
+		fetchLinkedGroups()
 	}, [])
 
 	useEffect(() => {
-		onChange?.(accessedGroups)
-	}, [accessedGroups])
+		onChange?.(linkedGroups)
+	}, [linkedGroups])
 
-	const availableGroups = groups.filter(
-		group =>
-			!accessedGroups.includes(group.id) && group.enrolled_on_course === false
-	)
-	const allowedGroups = groups.filter(
-		group =>
-			accessedGroups.includes(group.id) || group.enrolled_on_course === true
-	)
+	const handleAdd = async number => {
+		try {
+			await axios.post(`${API}/courses/students/${courseId}`, {
+				student_group_id: number,
 
-	const handleAdd = number => {
-		setAccessedGroups(prev =>
-			prev.includes(number) ? prev : [...prev, number]
-		)
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+				},
+			})
+
+			fetchUnlinkedGroups()
+			fetchLinkedGroups()
+
+			setError(null)
+		} catch (err) {
+			console.error(err)
+			if (err.response) {
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
 	}
-	const handleRemove = number => {
-		setAccessedGroups(prev => prev.filter(n => n !== number))
+	const handleRemove = async number => {
+		try {
+			await axios.delete(`${API}/courses/students/${courseId}`, {
+				data: {
+					student_group_id: number,
+				},
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+				},
+			})
+
+			fetchUnlinkedGroups()
+			fetchLinkedGroups()
+
+			setError(null)
+		} catch (err) {
+			console.error(err)
+			if (err.response) {
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
 	}
 
 	const handleDropToAllowed = number => {
@@ -189,17 +279,21 @@ const AccessManagement = ({ onChange }) => {
 		<div className='grid grid-cols-2 gap-5'>
 			<AccessBlock
 				title={'Список групп'}
-				mass={availableGroups}
+				mass={unlinkedGroups}
 				Accessed={false}
 				onAdd={handleAdd}
 				onDropGroup={handleDropToAvailable}
+				onSearchChange={e => setSearchUnlinkedGroups(e.target.value)}
+				searchValue={searchUnlinkedGroups}
 			/>
 			<AccessBlock
 				title={'Допущены к прохождению курса'}
-				mass={allowedGroups}
+				mass={linkedGroups}
 				Accessed={true}
 				onRemove={handleRemove}
 				onDropGroup={handleDropToAllowed}
+				onSearchChange={e => setSearchLinkedGroups(e.target.value)}
+				searchValue={searchLinkedGroups}
 			/>
 		</div>
 	)

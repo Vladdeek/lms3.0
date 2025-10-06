@@ -7,7 +7,7 @@ import { AuthContext } from '../context/AuthContext'
 
 export const NotFoundError404 = () => {
 	return (
-		<div className='h-181 overflow-hidden md:-mx-10 -mx-2'>
+		<div className='h-181 overflow-hidden md:-mx-10 -mx-2 '>
 			<DotLottieReact
 				className='w-screen '
 				src='/anim/ERROR404.lottie'
@@ -104,7 +104,9 @@ export const ErrorProvider = ({ children }) => {
 		<ErrorContext.Provider value={{ error, setError }}>
 			<div className='relative'>
 				{error === '404' ? (
-					<NotFoundError404 />
+					<div className='h-screen'>
+						<NotFoundError404 />
+					</div>
 				) : error === '500' ? (
 					<InternalServerError500 />
 				) : error === '403' ? (
