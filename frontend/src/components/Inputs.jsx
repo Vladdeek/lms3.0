@@ -10,6 +10,7 @@ import {
 	Search,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { AltLoader } from './Loader'
 
 export const InputDefault = ({
 	type,
@@ -348,7 +349,20 @@ export const FileInput = ({
 	)
 }
 
-export const SearchInput = ({ width, height = 'auto', onChange, value }) => {
+export const SearchInput = ({
+	width,
+	height = 'auto',
+	onChange,
+	value,
+	loading,
+}) => {
+	const [isLoading, setIsLoading] = useState()
+
+	useEffect(() => {
+		setIsLoading(loading)
+	}, [loading])
+
+	console.log(loading, isLoading)
 	return (
 		<div
 			className='w-[383px] max-md:w-full inline-flex group rounded-lg p-[6px] bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)] gap-3 outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition'
@@ -362,6 +376,7 @@ export const SearchInput = ({ width, height = 'auto', onChange, value }) => {
 				onChange={onChange}
 				value={value}
 			/>
+			{isLoading && <AltLoader />}
 		</div>
 	)
 }

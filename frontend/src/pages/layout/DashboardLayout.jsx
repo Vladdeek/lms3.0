@@ -6,8 +6,10 @@ import { use, useContext, useEffect, useState } from 'react'
 import {
 	AlignJustify,
 	Bell,
+	BookOpen,
 	CalendarDays,
 	CopyCheck,
+	GraduationCap,
 	UsersRound,
 } from 'lucide-react'
 import ToggleRole from '../../components/ToggleRole'
@@ -31,8 +33,13 @@ export default function DashboardLayout({ onChange }) {
 		{
 			teacher: [
 				{
-					title: 'Каталог',
+					title: 'Каталог курсов',
 					icon: AlignJustify,
+					to: '/catalog/all',
+				},
+				{
+					title: 'Мои курсы',
+					icon: GraduationCap,
 					to: '/catalogt',
 				},
 				{
@@ -43,8 +50,8 @@ export default function DashboardLayout({ onChange }) {
 			],
 			student: [
 				{
-					title: 'Каталог',
-					icon: AlignJustify,
+					title: 'Курсы',
+					icon: GraduationCap,
 					to: '/catalogs',
 				},
 				{
@@ -84,8 +91,8 @@ export default function DashboardLayout({ onChange }) {
 						Authorization: `Bearer ${storedAccess}`,
 					},
 				})
-				console.log(res.data)
 				setUserInfo(res.data)
+				localStorage.setItem('role', res.data.current_user_role)
 			} catch (error) {
 				if (error.response?.status === 401) {
 					const newAccessToken = await refreshAccessToken()
@@ -99,6 +106,7 @@ export default function DashboardLayout({ onChange }) {
 								},
 							})
 							setUserInfo(retryRes.data)
+							localStorage.setItem('role', retryRes.data.current_user_role)
 						} catch (error) {
 							console.error(error)
 						}

@@ -7,6 +7,7 @@ import axios from 'axios'
 import { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import Loader, { AltLoader } from '../../components/Loader'
 
 const GroupComponent = ({
 	id,
@@ -62,12 +63,21 @@ const AccessBlock = ({
 	onDropGroup,
 	onSearchChange,
 	searchValue,
+	loading = false,
+	searchLoading = false,
 }) => {
 	const [dragged, setDragged] = useState(null)
+	const [isLoading, setIsLoading] = useState()
+
+	useEffect(() => {
+		setIsLoading(loading)
+	}, [loading])
+
+	console.log(searchLoading)
 
 	return (
 		<div
-			className='w-full bg-[var(--white)] h-200 rounded-xl shadow-[var(--shadow)] p-5 flex flex-col gap-5'
+			className='w-full bg-[var(--white)] h-250 rounded-xl shadow-[var(--shadow)] p-5 flex flex-col gap-5'
 			onDrop={e => {
 				e.preventDefault()
 				const groupNumber = e.dataTransfer.getData('groupNumber')
@@ -87,6 +97,7 @@ const AccessBlock = ({
 					height={48}
 					onChange={onSearchChange}
 					value={searchValue}
+					loading={searchLoading}
 				/>
 				<FilterButton option={[]} />
 			</div>
@@ -99,37 +110,41 @@ const AccessBlock = ({
 
 				<p className='col-span-1 text-center'></p>
 			</div>
-			<div className='flex flex-col gap-3 overflow-y-scroll hide-scrollbar p-2'>
-				{mass.map((item, index) => (
-					<motion.div
-						key={index}
-						initial={{ scale: 0.8, opacity: 0 }}
-						animate={{ scale: 1, opacity: 1 }}
-						transition={{
-							duration: 0.3,
-							delay: index * 0.1,
-							ease: 'easeOut',
-						}}
-					>
-						<GroupComponent
-							id={item?.id}
-							number={item?.name}
-							lvl={item?.educational_level}
-							course={item?.course_level}
-							studentsLength={item?.count_students}
-							onAdd={onAdd}
-							onRemove={onRemove}
-							dragged={dragged}
-							Accessed={Accessed}
-							onDragStart={e => {
-								e.dataTransfer.setData('groupNumber', item?.id)
-								setDragged(item?.id)
+			{isLoading === true ? (
+				<Loader />
+			) : (
+				<div className='flex flex-col gap-3 overflow-y-scroll hide-scrollbar p-2'>
+					{mass.map((item, index) => (
+						<motion.div
+							key={index}
+							initial={{ scale: 0.8, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							transition={{
+								duration: 0.3,
+								delay: index * 0.1,
+								ease: 'easeOut',
 							}}
-							onDragEnd={() => setDragged(null)}
-						/>
-					</motion.div>
-				))}
-			</div>
+						>
+							<GroupComponent
+								id={item?.id}
+								number={item?.name}
+								lvl={item?.educational_level}
+								course={item?.course_level}
+								studentsLength={item?.count_students}
+								onAdd={onAdd}
+								onRemove={onRemove}
+								dragged={dragged}
+								Accessed={Accessed}
+								onDragStart={e => {
+									e.dataTransfer.setData('groupNumber', item?.id)
+									setDragged(item?.id)
+								}}
+								onDragEnd={() => setDragged(null)}
+							/>
+						</motion.div>
+					))}
+				</div>
+			)}
 		</div>
 	)
 }
@@ -138,32 +153,50 @@ const AccessManagement = ({ onChange }) => {
 	const [linkedGroups, setLinkedGroups] = useState([])
 	const [unlinkedGroups, setUnlinkedGroups] = useState([])
 	const { courseId } = useParams()
-	const debounceTimeout = useRef(null)
 
-	const [searchLinkedGroups, setSearchLinkedGroups] = useState()
-	const [searchUnlinkedGroups, setSearchUnlinkedGroups] = useState()
+	const [searchLinkedGroups, setSearchLinkedGroups] = useState('')
+	const [searchUnlinkedGroups, setSearchUnlinkedGroups] = useState('')
 
 	const { setError } = useError()
 
+	const linkedDebounce = useRef(null)
+	const unlinkedDebounce = useRef(null)
+
+	const [isLoading, setIsLoading] = useState(3)
+	const [isSearchLoading, setIsSearchLoading] = useState(null)
+
 	useEffect(() => {
-		// если оба поля пустые — ничего не делать
-		if (searchLinkedGroups === '' && searchUnlinkedGroups === '') return
+		setIsSearchLoading(searchUnlinkedGroups === '' ? null : 0)
+		if (searchUnlinkedGroups === '') {
+			fetchUnlinkedGroups()
+			return
+		}
 
-		// сбрасываем предыдущий таймер
-		if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+		if (unlinkedDebounce.current) clearTimeout(unlinkedDebounce.current)
+		unlinkedDebounce.current = setTimeout(() => {
+			fetchUnlinkedGroups(searchUnlinkedGroups)
+		}, 500)
 
-		// ставим новый таймер
-		debounceTimeout.current = setTimeout(() => {
-			if (searchLinkedGroups !== '') fetchLinkedGroups(searchLinkedGroups)
-			if (searchUnlinkedGroups !== '') fetchUnlinkedGroups(searchUnlinkedGroups)
-		}, 2000) // задержка 2 секунды
+		return () => clearTimeout(unlinkedDebounce.current)
+	}, [searchUnlinkedGroups])
+	useEffect(() => {
+		setIsSearchLoading(searchLinkedGroups === '' ? null : 1)
+		if (searchLinkedGroups === '') {
+			fetchLinkedGroups()
+			return
+		}
 
-		// очистка при размонтировании или при новом вводе
-		return () => clearTimeout(debounceTimeout.current)
-	}, [searchLinkedGroups, searchUnlinkedGroups])
+		if (linkedDebounce.current) clearTimeout(linkedDebounce.current)
+		linkedDebounce.current = setTimeout(() => {
+			fetchLinkedGroups(searchLinkedGroups)
+		}, 500)
+
+		return () => clearTimeout(linkedDebounce.current)
+	}, [searchLinkedGroups])
 
 	const fetchUnlinkedGroups = async term => {
 		try {
+			setIsLoading(isSearchLoading !== null ? null : 0)
 			const res = await axios.get(
 				`${API}/courses/student-group/unlinked/?course_id=${courseId}${
 					term?.length ? `&term=${term}` : ''
@@ -175,6 +208,8 @@ const AccessManagement = ({ onChange }) => {
 			setError(null)
 
 			setUnlinkedGroups(res.data)
+			setIsLoading(null)
+			setIsSearchLoading(null)
 		} catch (err) {
 			console.log(err)
 			if (err.response) {
@@ -187,6 +222,7 @@ const AccessManagement = ({ onChange }) => {
 	}
 	const fetchLinkedGroups = async term => {
 		try {
+			setIsLoading(isSearchLoading !== null ? null : 1)
 			const res = await axios.get(
 				`${API}/courses/student-group/linked/?course_id=${courseId}${
 					term?.length ? `&term=${term}` : ''
@@ -198,6 +234,8 @@ const AccessManagement = ({ onChange }) => {
 			setError(null)
 
 			setLinkedGroups(res.data)
+			setIsLoading(null)
+			setIsSearchLoading(null)
 		} catch (err) {
 			console.log(err)
 			if (err.response) {
@@ -208,11 +246,6 @@ const AccessManagement = ({ onChange }) => {
 			}
 		}
 	}
-
-	useEffect(() => {
-		fetchUnlinkedGroups()
-		fetchLinkedGroups()
-	}, [])
 
 	useEffect(() => {
 		onChange?.(linkedGroups)
@@ -285,6 +318,8 @@ const AccessManagement = ({ onChange }) => {
 				onDropGroup={handleDropToAvailable}
 				onSearchChange={e => setSearchUnlinkedGroups(e.target.value)}
 				searchValue={searchUnlinkedGroups}
+				loading={isLoading === 3 ? true : isLoading === 0}
+				searchLoading={isSearchLoading === 0}
 			/>
 			<AccessBlock
 				title={'Допущены к прохождению курса'}
@@ -294,6 +329,8 @@ const AccessManagement = ({ onChange }) => {
 				onDropGroup={handleDropToAllowed}
 				onSearchChange={e => setSearchLinkedGroups(e.target.value)}
 				searchValue={searchLinkedGroups}
+				loading={isLoading === 3 ? true : isLoading === 1}
+				searchLoading={isSearchLoading === 1}
 			/>
 		</div>
 	)

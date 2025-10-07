@@ -5,6 +5,8 @@ export const TableConstructor = ({ DelComponent, onChange, takeValues }) => {
 	const [rows, setRows] = useState(takeValues?.rows || 2)
 	const [cols, setCols] = useState(takeValues?.cols || 2)
 
+	const limits = { maxCols: 5, maxRows: 25 }
+
 	const reshapeTo2D = (flat, rows, cols) => {
 		return Array.from({ length: rows }, (_, rowIndex) =>
 			flat.slice(rowIndex * cols, rowIndex * cols + cols)
@@ -92,7 +94,12 @@ export const TableConstructor = ({ DelComponent, onChange, takeValues }) => {
 
 					<div className='flex flex-col gap-1'>
 						<button
-							className='w-10 h-full rounded-lg flex items-center justify-center bg-[var(--light-middle)] hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+							disabled={cols >= limits?.maxCols}
+							className={`w-10 h-full rounded-lg flex items-center justify-center bg-[var(--light-middle)] transition-all ${
+								cols >= limits?.maxCols
+									? 'opacity-50 cursor-not-allowed'
+									: 'hover:brightness-95 active:brightness-90 cursor-pointer'
+							}`}
 							onClick={addCol}
 						>
 							<Plus color='var(--middle)' />
@@ -109,8 +116,13 @@ export const TableConstructor = ({ DelComponent, onChange, takeValues }) => {
 				<div className='flex mt-2'>
 					<div className='w-full flex gap-1'>
 						<button
-							className='w-full h-10 rounded-lg flex items-center gap-3 justify-center bg-[var(--light-middle)] text-[var(--middle)] hover:brightness-95 active:brightness-90 cursor-pointer transition-all'
+							className={`w-full h-10 rounded-lg flex items-center gap-3 justify-center bg-[var(--light-middle)] text-[var(--middle)]  transition-all ${
+								rows >= limits?.maxRows
+									? 'opacity-50 cursor-not-allowed'
+									: 'hover:brightness-95 active:brightness-90 cursor-pointer'
+							}`}
 							onClick={addRow}
+							disabled={rows >= limits?.maxRows}
 						>
 							<Plus color='var(--middle)' />
 							Добавить строку

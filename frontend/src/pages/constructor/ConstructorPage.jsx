@@ -44,11 +44,13 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 	}, [titleValue, descriptionValue])
 
 	async function deleteCourse() {
+		const token = localStorage.getItem('access_token')
 		try {
 			const response = await fetch(`${API}/courses/delete/${courseId}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
 				},
 			})
 
@@ -79,9 +81,15 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 		formData.append('description', description)
 		formData.append('image', img || null)
 
+		const token = localStorage.getItem('access_token')
+
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',
 			body: formData,
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
 		})
 
 		const data = await res.json()
@@ -323,10 +331,18 @@ const ConstructorPage = ({ role }) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [accessedGroups, setAccessedGroups] = useState([])
 
-	console.log(accessedGroups)
+	const [showMassage, setShowMassage] = useState(null)
+
+	const showMassageFunc = status => {
+		setShowMassage(status)
+		const timer = setTimeout(() => {
+			setShowMassage(null)
+		}, 5000)
+
+		return () => clearTimeout(timer)
+	}
 
 	const handleSubmit = async (e, content, sectionId, accessedGroups) => {
-		// Отменяем любое стандартное поведение кнопки или формы
 		if (e && e.preventDefault) e.preventDefault()
 
 		const token = localStorage.getItem('access_token')
@@ -349,7 +365,8 @@ const ConstructorPage = ({ role }) => {
 			}
 
 			const data = await res.json()
-			console.log('Сохранено:', data)
+			console.log(data)
+			showMassageFunc('good')
 		} else if (selected === 1) {
 			const addStudents = false
 
@@ -382,7 +399,21 @@ const ConstructorPage = ({ role }) => {
 			<Forbidden403 />
 		</>
 	) : (
-		<>
+		<div className='relative'>
+			<p
+				className={`absolute transition-all ${
+					showMassage === 'bad'
+						? 'bg-[var(--red-status-bg)] text-[var(--red-status-text)]'
+						: showMassage === 'good' &&
+						  'bg-[var(--green-status-bg)] text-[var(--green-status-text)]'
+				}  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
+					showMassage ? 'top-5 opacity-100' : '-top-25 opacity-50'
+				} `}
+			>
+				{showMassage === 'bad'
+					? 'Ошибка сохранения'
+					: showMassage === 'good' && 'Изменения сохранены'}
+			</p>
 			<div className='flex flex-col gap-5 h-screen'>
 				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center max-[1366px]:mt-5 mt-10'>
 					<div className='flex gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
@@ -466,7 +497,7 @@ const ConstructorPage = ({ role }) => {
 					selected === 1 && <AccessManagement onChange={setAccessedGroups} />
 				)}
 			</div>
-		</>
+		</div>
 	)
 }
 export default ConstructorPage

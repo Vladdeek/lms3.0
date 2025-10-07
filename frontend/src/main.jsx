@@ -57,14 +57,15 @@ function MainApp() {
 						/>
 					}
 				>
+					<Route path='/catalog/all' element={<Catalog role={role} />} />
 					<Route
 						path='/catalogt'
 						element={
 							<Catalog role={role} teacher_profile_id={teacherProfileId} />
 						}
 					>
-						<Route path='courses' element={<CatalogS role={role} />} />
-						<Route path='webinars' element={<CatalogS role={role} />} />
+						<Route path='courses' element={<Catalog role={role} />} />
+						<Route path='webinars' element={<Catalog role={role} />} />
 					</Route>
 					<Route
 						path='/catalogs'
@@ -75,6 +76,7 @@ function MainApp() {
 						<Route path='courses' element={<CatalogS role={role} />} />
 						<Route path='webinars' element={<CatalogS role={role} />} />
 					</Route>
+
 					<Route path='/students' element={<StudentsAndGroups />} />
 					<Route
 						path='/constructor/:courseId?'

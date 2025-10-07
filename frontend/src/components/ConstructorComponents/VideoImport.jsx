@@ -17,9 +17,13 @@ export const ConstructorVideoInput = ({
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [uploading, setUploading] = useState(false)
 
+	console.log(takeValues)
+
 	useEffect(() => {
 		if (takeValues && !videoUrl) {
-			setPreviews([{ fileUrl: takeValues[0]?.fileUrl }])
+			takeValues[0]?.isUrl
+				? setPreviews([{ fileUrl: takeValues[0]?.videoUrl }])
+				: setPreviews([{ fileUrl: takeValues[0]?.fileUrl }])
 		}
 	}, [])
 

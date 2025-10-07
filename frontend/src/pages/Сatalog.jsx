@@ -445,6 +445,31 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			}
 		}
 	}
+
+	const fetchAllCourses = async () => {
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(`${API}/courses/all`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			setError(null)
+
+			setCourses(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
+
 	const fetchWebinars = async () => {
 		const token = localStorage.getItem('access_token')
 		try {
@@ -480,7 +505,9 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	useEffect(() => {
 		location.pathname === '/catalogt/courses'
 			? fetchCourses()
-			: location.pathname === '/catalogt/webinars' && fetchWebinars()
+			: location.pathname === '/catalogt/webinars'
+			? fetchWebinars()
+			: location.pathname === '/catalog/all' && fetchAllCourses()
 	}, [location.pathname])
 
 	useEffect(() => {
@@ -507,18 +534,20 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			>
 				<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
 					<div className='flex gap-4 max-lg:gap-2 h-12'>
-						{options.map(option => (
-							<RadioButton
-								key={option.value}
-								name='example'
-								value={option.value}
-								title={option.title}
-								icon={option.icon}
-								checked={selected === option.value}
-								onChange={() => NavigateTo(option.to, option.value)}
-							/>
-						))}
+						{location.pathname !== '/catalog/all' &&
+							options?.map(option => (
+								<RadioButton
+									key={option.value}
+									name='example'
+									value={option.value}
+									title={option.title}
+									icon={option.icon}
+									checked={selected === option.value}
+									onChange={() => NavigateTo(option.to, option.value)}
+								/>
+							))}
 					</div>
+
 					<div className='flex gap-4 max-lg:gap-2 h-12'>
 						<SearchInput />
 						<FilterButton
@@ -547,7 +576,8 @@ const Catalog = ({ role, teacher_profile_id }) => {
 					</div>
 				)}
 
-				{location.pathname === '/catalogt/courses' ? (
+				{location.pathname === '/catalogt/courses' ||
+				location.pathname === '/catalog/all' ? (
 					<div
 						className={`${
 							courses?.length === 0 || courses?.length < 4
@@ -556,7 +586,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 						} flex flex-col gap-4 py-[50px]`}
 					>
 						<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
-							{courses.map((course, index) => (
+							{courses?.map((course, index) => (
 								<motion.div
 									key={course.id}
 									initial={{ scale: 0.8, opacity: 0 }}
@@ -573,27 +603,33 @@ const Catalog = ({ role, teacher_profile_id }) => {
 										img_path={`${API}/courses/image/${course.id}`}
 										status={course.status}
 										deadline={course.deadline}
-										to={`/constructor/${course.id}`}
+										to={
+											location.pathname === '/catalog/all'
+												? `/constructor/${course.id}`
+												: `/constructor/${course.id}`
+										}
 									/>
 								</motion.div>
 							))}
 
-							<motion.div
-								key={courses.length + 1}
-								initial={{ scale: 0.8, opacity: 0 }}
-								animate={{ scale: 1, opacity: 1 }}
-								transition={{
-									duration: 0.3,
-									delay: courses.length * 0.1,
-									ease: 'easeOut',
-								}}
-							>
-								<CreateBtn
-									onClick={() => setCreateModalOpen(true)}
-									title='Создать новый курс'
-									icon={LayoutGrid}
-								/>
-							</motion.div>
+							{location.pathname === '/catalogt/courses' && (
+								<motion.div
+									key={courses.length + 1}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: courses.length * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<CreateBtn
+										onClick={() => setCreateModalOpen(true)}
+										title='Создать новый курс'
+										icon={LayoutGrid}
+									/>
+								</motion.div>
+							)}
 						</div>
 					</div>
 				) : (
@@ -628,24 +664,26 @@ const Catalog = ({ role, teacher_profile_id }) => {
 									</motion.div>
 								))}
 
-								<motion.div
-									key={webinars.length + 1}
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									transition={{
-										duration: 0.3,
-										delay: webinars.length * 0.1,
-										ease: 'easeOut',
-									}}
-								>
-									<CreateBtn
-										onClick={() => setCreateWebinarOpen(true)}
-										title='Добавить вебинар'
-										icon={LayoutGrid}
-										width='w-full'
-										height='aspect-9/16'
-									/>
-								</motion.div>
+								{location.pathname === '/catalogt/webinars' && (
+									<motion.div
+										key={webinars.length + 1}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: webinars.length * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<CreateBtn
+											onClick={() => setCreateWebinarOpen(true)}
+											title='Добавить вебинар'
+											icon={LayoutGrid}
+											width='w-full'
+											height='aspect-9/16'
+										/>
+									</motion.div>
+								)}
 							</div>
 						</div>
 					)
