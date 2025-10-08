@@ -2,6 +2,7 @@ import { ImagePlus, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { motion } from 'framer-motion'
+import { maxPhotoSizeInMB } from './Constants'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
@@ -16,16 +17,103 @@ export const ConstructorPhotoInput = ({
 	const [previews, setPreviews] = useState([])
 	const [imgUrl, setImgUrl] = useState(takeValues || [])
 
+	const [isFileValid, setIsFileValid] = useState(true)
+
 	useEffect(() => {
 		const data = imgUrl
 		onChange?.(data)
 	}, [imgUrl])
 
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
-	const maxSize = 20 * 1024 * 1024
+
+	const maxFileSizeInMB = maxPhotoSizeInMB // <--- максимальный размер файла в MБ
+	const maxSize = maxFileSizeInMB * 1024 * 1024
+
 	const maxFiles = 4
 
+	const validateFile = async file => {
+		// Валидация формата
+		if (!validFormats.includes(file.type)) {
+			return {
+				isValid: false,
+				error: `Недопустимый формат файла. Допустимые форматы: ${validFormats.join(
+					', '
+				)}`,
+			}
+		}
+
+		// Валидация размера
+		if (file.size > maxSize) {
+			return {
+				isValid: false,
+				error: `Файл слишком большой. Максимальный размер: ${
+					maxSize / 1024 / 1024
+				}MB`,
+			}
+		}
+
+		// Валидация разрешения для изображений
+		if (file.type.startsWith('image/')) {
+			try {
+				const dimensions = await getImageDimensions(file)
+				console.log(dimensions)
+
+				if (dimensions.width > 4000 || dimensions.height > 4000) {
+					return {
+						isValid: false,
+						error: `Изображение слишком большое. Максимальное разрешение: 4000x4000px. Текущее: ${dimensions.width}x${dimensions.height}px`,
+					}
+				}
+			} catch (error) {
+				console.error('Ошибка при проверке разрешения:', error)
+				return {
+					isValid: false,
+					error: 'Не удалось проверить разрешение изображения',
+				}
+			}
+		}
+
+		return {
+			isValid: true,
+			error: null,
+		}
+	}
+
+	const getImageDimensions = file => {
+		return new Promise((resolve, reject) => {
+			const img = new Image()
+			const url = URL.createObjectURL(file)
+
+			img.onload = function () {
+				const dimensions = {
+					width: this.width,
+					height: this.height,
+				}
+				URL.revokeObjectURL(url)
+				resolve(dimensions)
+			}
+
+			img.onerror = function () {
+				URL.revokeObjectURL(url)
+				reject(new Error('Не удалось загрузить изображение'))
+			}
+
+			img.src = url
+		})
+	}
+
 	const uploadFileToAPI = async fileToUpload => {
+		const validation = await validateFile(fileToUpload)
+
+		if (!validation.isValid) {
+			setIsFileValid(false)
+			setTimeout(() => {
+				setIsFileValid(true)
+			}, 1000)
+
+			throw new Error(validation.error)
+		}
+
 		try {
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
@@ -51,7 +139,6 @@ export const ConstructorPhotoInput = ({
 			return result
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
-
 			throw error
 		}
 	}
@@ -168,18 +255,24 @@ export const ConstructorPhotoInput = ({
 							}   ${
 								isDragActive
 									? 'border-[var(--hero-epta)]'
+									: !isFileValid
+									? 'border-[var(--hard-lvl-text)]'
 									: 'border-[var(--middle)]'
 							} ${
 								isDragActive
 									? 'bg-[var(--hero-pale)]'
+									: !isFileValid
+									? 'bg-[var(--hard-lvl-bg)]'
 									: 'bg-[var(--light-gray)]'
-							} rounded-lg transition-all`}
+							} rounded-xl transition-all`}
 						>
 							<label
 								htmlFor='dropzone-file'
 								className={`rounded-lg p-[10px] gap-[10px] transition border-3 w-full h-full border-dashed ${
 									isDragActive
 										? 'bg-[var(--hero-pale)] border-[var(--hero-epta)]'
+										: !isFileValid
+										? 'bg-[var(--hard-lvl-bg)] border-[var(--hard-lvl-text)]'
 										: 'bg-[var(--light-gray)] border-[var(--middle)]'
 								}`}
 								onDragOver={handleDragOver}
@@ -193,6 +286,8 @@ export const ConstructorPhotoInput = ({
 										className={`transition-all ${
 											isDragActive
 												? 'text-[var(--hero-epta)]'
+												: !isFileValid
+												? 'text-[var(--hard-lvl-text)]'
 												: 'text-[var(--middle)]'
 										}`}
 									/>
@@ -201,10 +296,12 @@ export const ConstructorPhotoInput = ({
 											className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
 												isDragActive
 													? 'bg-[var(--hero-epta)] text-[var(--white)]'
+													: !isFileValid
+													? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
 													: 'bg-[var(--light-middle)] text-[var(--black)]'
 											} `}
 										>
-											до 20 мб
+											до {maxFileSizeInMB} мб
 										</p>
 										{['.png', '.jpg', '.webp', '.gif'].map(ext => (
 											<p
@@ -212,6 +309,8 @@ export const ConstructorPhotoInput = ({
 												className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
 													isDragActive
 														? 'bg-[var(--hero-epta)] text-[var(--white)]'
+														: !isFileValid
+														? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
 														: 'bg-[var(--light-middle)] text-[var(--black)]'
 												} `}
 											>

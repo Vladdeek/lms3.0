@@ -55,7 +55,7 @@ const MatchPair = ({
 	)
 }
 
-const SortVariants = ({ sectionId, testId }) => {
+const SortVariants = ({ sectionId, testId, onChange }) => {
 	const [pairs, setPairs] = useState([])
 	const [left_option, setLeft_option] = useState(['', ''])
 	const [right_option, setRight_option] = useState(['', ''])
@@ -131,6 +131,8 @@ const SortVariants = ({ sectionId, testId }) => {
 
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
+
+			onChange?.(data?.id)
 
 			fetchTest(data?.id)
 		} catch (error) {

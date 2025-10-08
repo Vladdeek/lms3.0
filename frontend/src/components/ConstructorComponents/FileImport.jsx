@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
+import { maxFilesSizeInMB } from './Constants'
 
 export const ConstructorFileInput = ({
 	onStatusChange,
@@ -26,8 +27,11 @@ export const ConstructorFileInput = ({
 		takeValues && takeValues.length > 0 ? takeValues : []
 	)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const maxSize = 100 * 1024 * 1024 // 100 MB
+	const maxFileSizeInMB = maxFilesSizeInMB
+	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
+
+	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
 		const data = files
@@ -37,7 +41,6 @@ export const ConstructorFileInput = ({
 	const handleFileChange = e => {
 		const newFiles = Array.from(e.target.files)
 		validateFiles(newFiles)
-		uploadFileToAPI(newFiles[0])
 	}
 
 	const uploadFileToAPI = async fileToUpload => {
@@ -72,28 +75,37 @@ export const ConstructorFileInput = ({
 	}
 
 	const validateFiles = async newFiles => {
-		if (files.length + newFiles.length > maxFiles) {
-			alert(`Можно загрузить не более ${maxFiles} файлов`)
+		const currentTotalSize = files.reduce((total, file) => total + file.size, 0)
+
+		const availableSize = maxSize - currentTotalSize
+
+		if (availableSize <= 0) {
+			setIsFileValid(false)
+			setTimeout(() => {
+				setIsFileValid(true)
+			}, 1000)
 			return
 		}
 
 		const validFiles = []
 		const uploadPromises = []
+		let remainingSize = availableSize
 
 		newFiles.forEach(file => {
-			const isValidSize = file.size <= maxSize
-
-			if (isValidSize) {
+			if (file.size <= remainingSize) {
 				validFiles.push(file)
+				remainingSize -= file.size
 			} else {
-				alert(`Файл ${file.name} превышает максимальный размер 100MB`)
+				setIsFileValid(false)
+				setTimeout(() => {
+					setIsFileValid(true)
+				}, 1000)
+				return
 			}
 		})
 
 		if (validFiles.length > 0) {
-			const updatedFiles = [...files, ...validFiles]
-
-			const newStatus = updatedFiles.length > 0
+			const newStatus = files.length + validFiles.length > 0
 			setInputStatus(newStatus)
 			onStatusChange?.(newStatus)
 
@@ -278,7 +290,11 @@ export const ConstructorFileInput = ({
 				{files?.length < maxFiles && (
 					<div
 						className={`p-2 ${
-							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
+							isDragActive
+								? 'bg-[var(--hero-pale)]'
+								: !isFileValid
+								? 'bg-[var(--hard-lvl-bg)]'
+								: 'bg-[var(--light-gray)]'
 						} rounded-lg transition-all`}
 					>
 						<label
@@ -286,6 +302,8 @@ export const ConstructorFileInput = ({
 							className={`cursor-pointer rounded-lg p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
 								isDragActive
 									? 'border-[var(--hero-epta)]'
+									: !isFileValid
+									? 'border-[var(--hard-lvl-text)]'
 									: 'border-[var(--middle)]'
 							}`}
 							onDragOver={handleDragOver}
@@ -299,6 +317,8 @@ export const ConstructorFileInput = ({
 									className={`transition-all ${
 										isDragActive
 											? 'text-[var(--hero-epta)]'
+											: !isFileValid
+											? 'text-[var(--hard-lvl-text)]'
 											: 'text-[var(--middle)]'
 									}`}
 								/>
@@ -308,10 +328,12 @@ export const ConstructorFileInput = ({
 										className={`rounded-lg text-sm font-normal py-1 whitespace-nowrap transition-all px-3 ${
 											isDragActive
 												? 'bg-[var(--hero-epta)] text-[var(--white)]'
+												: !isFileValid
+												? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
 												: 'bg-[var(--light-middle)] text-[var(--black)]'
 										} `}
 									>
-										до 100 МБ, максимум {maxFiles} файлов
+										максимум {maxFileSizeInMB} МБ файлов в сумме
 									</p>
 								</div>
 
@@ -322,7 +344,12 @@ export const ConstructorFileInput = ({
 										type='button'
 									>
 										<Upload strokeWidth={3} />
-										Загрузить файл{files?.length > 0 ? ' ещё' : ''}
+										Загрузить файл
+										{files?.length > 0 &&
+										files.reduce((total, file) => total + file.size, 0) <
+											maxSize
+											? ' ещё'
+											: ''}
 									</button>
 								</div>
 							</div>
@@ -339,7 +366,10 @@ export const ConstructorFileInput = ({
 
 				{files?.length > 0 && (
 					<p className='text-sm text-[var(--middle)]'>
-						Загружено {files?.length} из {maxFiles} файлов
+						{formatFileSize(
+							files.reduce((total, file) => total + file.size, 0)
+						)}{' '}
+						из {formatFileSize(maxSize)}
 					</p>
 				)}
 			</div>

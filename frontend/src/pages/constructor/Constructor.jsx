@@ -716,13 +716,25 @@ const ContentView = ({
 	SectionName,
 	isLoading,
 	sectionId,
+	onSectionTypeChange,
 }) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 
+	const giveId = (index, id) => {
+		setQuestions(prev => {
+			const updated = [...prev]
+
+			updated[index] = { ...updated[index], id }
+
+			return updated
+		})
+	}
+
 	useEffect(() => {
 		SectionType === 'test' ? setQuestions(content?.content) : setBlocks(content)
+		onSectionTypeChange(SectionType)
 	}, [content])
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
@@ -785,24 +797,28 @@ const ContentView = ({
 										<OneVariant
 											sectionId={sectionId}
 											testId={questions[activeIndex]?.id}
+											onChange={data => giveId(activeIndex, data)}
 										/>
 									)}
 									{questions[activeIndex]?.type === 'multiple' && (
 										<MoreVariant
 											sectionId={sectionId}
 											testId={questions[activeIndex]?.id}
+											onChange={data => giveId(activeIndex, data)}
 										/>
 									)}
 									{questions[activeIndex]?.type === 'matching' && (
 										<SortVariants
 											sectionId={sectionId}
 											testId={questions[activeIndex]?.id}
+											onChange={data => giveId(activeIndex, data)}
 										/>
 									)}
 									{questions[activeIndex]?.type === 'open' && (
 										<OpenQuestion
 											sectionId={sectionId}
 											testId={questions[activeIndex]?.id}
+											onChange={data => giveId(activeIndex, data)}
 										/>
 									)}
 								</>
@@ -1039,6 +1055,7 @@ const Constructor = ({
 	onBlocksChange,
 	onSelectedContentChange,
 	isLoading,
+	onSectionTypeChange,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
@@ -1060,8 +1077,6 @@ const Constructor = ({
 				const res = await fetch(`${API}/sections/${section?.id}/content`)
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
 				const data = await res.json()
-
-				console.log(data)
 
 				setSelectedContent(data)
 			} catch (err) {
@@ -1139,6 +1154,7 @@ const Constructor = ({
 							onBlocksChange={onBlocksChange}
 							isLoading={isLoading}
 							sectionId={section?.id}
+							onSectionTypeChange={onSectionTypeChange}
 						/>
 					</div>
 				</div>

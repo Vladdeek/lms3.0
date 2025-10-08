@@ -1,7 +1,8 @@
 import { FileCode2, Upload, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 
 import CustomCodeBlock from '../CustomCodeBlock'
+import { maxCodeSizeInMB } from './Constants'
 
 export const CodeFileInput = ({
 	onStatusChange,
@@ -13,8 +14,53 @@ export const CodeFileInput = ({
 	const [inputStatus, setInputStatus] = useState(false)
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const [codeInfo, setCodeInfo] = useState(takeValues || null)
-	const maxSize = 10 * 1024 * 1024
+	const [codeInfo, setCodeInfo] = useState(null)
+
+	const maxFileSizeInMB = maxCodeSizeInMB // <--- максимальный размер файла в MБ
+
+	const maxSize = maxFileSizeInMB * 1024 * 1024
+
+	useEffect(() => {
+		takeValues && setCodeInfo(takeValues)
+	}, [takeValues])
+
+	const [isFileValid, setIsFileValid] = useState(true)
+
+	const validateFile = newFile => {
+		if (!newFile) return
+
+		const isValidSize = newFile.size <= maxSize
+		if (!isValidSize) {
+			setIsFileValid(false)
+
+			setTimeout(() => {
+				setIsFileValid(true)
+			}, 1000)
+
+			return
+		}
+
+		const isValidFormat =
+			getLanguageFromExtension(newFile.name) !==
+			newFile.name.split('.').pop().toLowerCase()
+		if (!isValidFormat) {
+			setIsFileValid(false)
+
+			setTimeout(() => {
+				setIsFileValid(true)
+			}, 1000)
+
+			return
+		}
+
+		readFile(newFile)
+		setFile(newFile)
+
+		const newStatus = true
+		setInputStatus(newStatus)
+		onStatusChange?.(newStatus)
+		onFileChange?.(newFile)
+	}
 
 	const getLanguageFromExtension = filename => {
 		const extension = filename.split('.').pop().toLowerCase()
@@ -47,6 +93,7 @@ export const CodeFileInput = ({
 			sh: 'shell',
 			bat: 'batch',
 			ps1: 'powershell',
+			php: 'php',
 		}
 
 		return languageMap[extension] || extension
@@ -55,23 +102,6 @@ export const CodeFileInput = ({
 	const handleFileChange = e => {
 		const newFile = e.target.files[0]
 		validateFile(newFile)
-	}
-
-	const validateFile = newFile => {
-		if (!newFile) return
-		const isValidSize = newFile.size <= maxSize
-		if (!isValidSize) {
-			alert(`Файл ${newFile.name} превышает максимальный размер 10MB`)
-			return
-		}
-
-		readFile(newFile)
-		setFile(newFile)
-
-		const newStatus = true
-		setInputStatus(newStatus)
-		onStatusChange?.(newStatus)
-		onFileChange?.(newFile)
 	}
 
 	const readFile = newFile => {
@@ -128,21 +158,27 @@ export const CodeFileInput = ({
 					<CustomCodeBlock
 						editMode={true}
 						width='w-full'
-						codeInfo={codeInfo}
+						codeInfo={takeValues ? codeInfo : codeInfo[0]}
 						onClick={removeFile}
 						view={takeValues}
 					/>
 				) : (
 					<div
 						className={`p-2 ${
-							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-						} rounded-lg transition-all w-full`}
+							isDragActive
+								? 'bg-[var(--hero-pale)]'
+								: !isFileValid
+								? 'bg-[var(--hard-lvl-bg)]'
+								: 'bg-[var(--light-gray)]'
+						} rounded-xl transition-all w-full`}
 					>
 						<label
 							htmlFor={inputId}
 							className={`cursor-pointer rounded-md p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
 								isDragActive
 									? 'border-[var(--hero-epta)]'
+									: !isFileValid
+									? 'border-[var(--hard-lvl-text)]'
 									: 'border-[var(--middle)]'
 							}`}
 							onDragOver={handleDragOver}
@@ -156,6 +192,8 @@ export const CodeFileInput = ({
 									className={`transition-all ${
 										isDragActive
 											? 'text-[var(--hero-epta)]'
+											: !isFileValid
+											? 'text-[var(--hard-lvl-text)]'
 											: 'text-[var(--middle)]'
 									}`}
 								/>
@@ -164,10 +202,12 @@ export const CodeFileInput = ({
 									className={`rounded-lg text-sm font-normal py-1 px-3 whitespace-nowrap transition-all ${
 										isDragActive
 											? 'bg-[var(--hero-epta)] text-[var(--white)]'
+											: !isFileValid
+											? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
 											: 'bg-[var(--light-middle)] text-[var(--black)]'
 									} `}
 								>
-									до 10 МБ, только файлы кода
+									до {maxFileSizeInMB} МБ, только файлы кода
 								</p>
 
 								<button

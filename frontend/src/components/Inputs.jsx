@@ -199,6 +199,7 @@ export const TextArea = ({
 				onChange={handleInputChange}
 				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] placeholder:text-[var(--middle)] text-[var(--black)] transition min-h-25 mt-3 resize-none'
 				placeholder={placeholder}
+				maxLength={300}
 			/>
 		</div>
 	)
@@ -362,7 +363,6 @@ export const SearchInput = ({
 		setIsLoading(loading)
 	}, [loading])
 
-	console.log(loading, isLoading)
 	return (
 		<div
 			className='w-[383px] max-md:w-full inline-flex group rounded-lg p-[6px] bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)] gap-3 outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition'

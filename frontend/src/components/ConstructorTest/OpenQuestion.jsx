@@ -5,7 +5,7 @@ import { ScoreInput1, ScoreInput2 } from './ScoreInput'
 import Loader from '../Loader'
 import { API } from '../../API'
 
-const OpenQuestion = ({ sectionId, testId }) => {
+const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	const [question, setQuestion] = useState('')
 	const [score, setScore] = useState(1)
 	const [media, setMedia] = useState()
@@ -41,6 +41,7 @@ const OpenQuestion = ({ sectionId, testId }) => {
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
 
+			onChange?.(data?.id)
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)

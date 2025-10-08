@@ -2,6 +2,7 @@ import { FileAudio, Trash2, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 import { API, FILE_API } from '../../API'
+import { maxAudioSizeInMB } from './Constants'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -14,7 +15,12 @@ export const AudioInput = ({
 	const [file, setFile] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [audioUrl, setAudioUrl] = useState(null)
-	const maxSize = 50 * 1024 * 1024
+
+	const maxFileSizeInMB = maxAudioSizeInMB // <--- максимальный размер файла в MБ
+
+	const maxSize = maxFileSizeInMB * 1024 * 1024
+
+	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
 		const data = file
@@ -66,13 +72,19 @@ export const AudioInput = ({
 
 		const isValidType = newFile.type.startsWith('audio/')
 		if (!isValidType) {
-			alert(`Файл ${newFile.name} не является аудиофайлом`)
+			setIsFileValid(false)
+			setTimeout(() => {
+				setIsFileValid(true)
+			}, 1000)
 			return
 		}
 
 		const isValidSize = newFile.size <= maxSize
 		if (!isValidSize) {
-			alert(`Файл ${newFile.name} превышает максимальный размер 10MB`)
+			setIsFileValid(false)
+			setTimeout(() => {
+				setIsFileValid(true)
+			}, 1000)
 			return
 		}
 
@@ -151,14 +163,20 @@ export const AudioInput = ({
 					// Зона загрузки
 					<div
 						className={`p-2 ${
-							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-						} rounded-lg transition-all w-full`}
+							isDragActive
+								? 'bg-[var(--hero-pale)]'
+								: !isFileValid
+								? 'bg-[var(--hard-lvl-bg)]'
+								: 'bg-[var(--light-gray)]'
+						} rounded-xl transition-all w-full`}
 					>
 						<label
 							htmlFor={inputId}
 							className={`cursor-pointer rounded-md p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
 								isDragActive
 									? 'border-[var(--hero-epta)]'
+									: !isFileValid
+									? 'border-[var(--hard-lvl-text)]'
 									: 'border-[var(--middle)]'
 							}`}
 							onDragOver={handleDragOver}
@@ -172,6 +190,8 @@ export const AudioInput = ({
 									className={`transition-all ${
 										isDragActive
 											? 'text-[var(--hero-epta)]'
+											: !isFileValid
+											? 'text-[var(--hard-lvl-text)]'
 											: 'text-[var(--middle)]'
 									}`}
 								/>
@@ -180,10 +200,12 @@ export const AudioInput = ({
 									className={`rounded-lg text-sm font-normal py-1 px-3 whitespace-nowrap transition-all ${
 										isDragActive
 											? 'bg-[var(--hero-epta)] text-[var(--white)]'
+											: !isFileValid
+											? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
 											: 'bg-[var(--light-middle)] text-[var(--black)]'
 									} `}
 								>
-									до 50 МБ, только аудиофайлы
+									до {maxFileSizeInMB} МБ, только аудиофайлы
 								</p>
 
 								<button

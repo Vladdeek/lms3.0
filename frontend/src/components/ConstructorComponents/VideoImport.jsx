@@ -3,6 +3,7 @@ import { useEffect, useId, useState } from 'react'
 import { InputDefault } from '../Inputs'
 import VideoPlayer from '../VideoPlayer'
 import { API, FILE_API } from '../../API'
+import { maxVideoSizeInMB } from './Constants'
 
 export const ConstructorVideoInput = ({
 	onStatusChange,
@@ -38,8 +39,6 @@ export const ConstructorVideoInput = ({
 		}
 	}, [takeValues, videoUrl, setPreviews])
 
-	console.log('take: ', takeValues, '\nprew: ', previews)
-
 	const validFormats = [
 		'video/mp4',
 		'video/webm',
@@ -52,7 +51,9 @@ export const ConstructorVideoInput = ({
 		'video/3gpp2',
 		'video/mpeg',
 	]
-	const maxSize = 100 * 1024 * 1024
+
+	const maxFileSizeInMB = maxVideoSizeInMB // <--- максимальный размер файла в MБ
+	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 1
 
 	const isValidUrl = url => {
@@ -270,7 +271,7 @@ export const ConstructorVideoInput = ({
 												: 'bg-[var(--light-middle)] text-[var(--black)]'
 										} rounded-lg text-sm font-normal py-1 whitespace-nowrap px-3`}
 									>
-										до 100 мб
+										до {maxFileSizeInMB} мб
 									</p>
 									{['.mp4', '.webm', '.mov', '.avi'].map(ext => (
 										<p

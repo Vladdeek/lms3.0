@@ -191,7 +191,7 @@ const CatalogS = ({ role }) => {
 								<CourseCard
 									title={course.name}
 									description={course.description}
-									img_path={`${API}/courses/image/${course.id}`}
+									img_path={`${FILE_API}${course.image_url}`}
 									status={course.status}
 									deadline={course.deadline}
 									to={`/course/${course.id}`}

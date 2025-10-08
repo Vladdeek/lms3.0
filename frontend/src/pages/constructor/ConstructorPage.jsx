@@ -20,19 +20,31 @@ import {
 } from '../../components/Inputs'
 import QRCode from '../../components/QrCode'
 import { useParams } from 'react-router-dom'
-import { API } from '../../API'
+import { API, FILE_API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
 import { Forbidden403, useError } from '../../components/Errors'
 
-const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
+const SettingsButton = ({
+	courseId,
+	titleValue,
+	descriptionValue,
+	imageUrl,
+	onChange,
+}) => {
 	const [isOpen, setIsOpen] = useState(true)
 	const navigate = useNavigate()
+
+	const { setError } = useError()
 
 	const [Title, setTitle] = useState(titleValue || '')
 	const [Description, setDescription] = useState(descriptionValue || '')
 	const [image, setImage] = useState()
+
+	useEffect(() => {
+		imageUrl && setImage(imageUrl)
+	}, [imageUrl])
 
 	useEffect(() => {
 		if (titleValue !== undefined) {
@@ -79,7 +91,9 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 		const formData = new FormData()
 		formData.append('name', title)
 		formData.append('description', description)
-		formData.append('image', img || null)
+		formData.append('image', img)
+
+		console.log('formdata: ', [...formData.entries()])
 
 		const token = localStorage.getItem('access_token')
 
@@ -87,15 +101,17 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 			method: 'PUT',
 			body: formData,
 			headers: {
-				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
 			},
 		})
 
 		const data = await res.json()
 
+		onChange?.('good')
+
 		if (!res.ok) {
 			console.error('Ошибка сервера:', res.status)
+			setError(res.status)
 			return
 		}
 	}
@@ -127,7 +143,7 @@ const SettingsButton = ({ courseId, titleValue, descriptionValue }) => {
 					/>
 					<FileInput
 						title={'Загрузить превью'}
-						photoUrl={`${API}/courses/image/${courseId}`}
+						photoUrl={`${FILE_API}${image}`}
 						onFileChange={file => setImage(file)}
 					/>
 					<div className='flex gap-3 w-full'>
@@ -224,6 +240,7 @@ const ConstructorPage = ({ role }) => {
 		{ value: 0, title: 'Конструктор', icon: BrickWall },
 		{ value: 1, title: 'Управление доступом', icon: UsersRound },
 	]
+	const [sectionType, setSectionType] = useState('text')
 
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
@@ -241,6 +258,7 @@ const ConstructorPage = ({ role }) => {
 				} else {
 					setError(null)
 					setCourseContent(data)
+					console.log(data)
 				}
 			} catch (err) {
 				setError('500')
@@ -390,7 +408,6 @@ const ConstructorPage = ({ role }) => {
 			}
 
 			const data = await res.json()
-			console.log('Студенты обновлены:', data)
 		}
 	}
 
@@ -401,17 +418,12 @@ const ConstructorPage = ({ role }) => {
 	) : (
 		<div className='relative'>
 			<p
-				className={`absolute transition-all ${
-					showMassage === 'bad'
-						? 'bg-[var(--red-status-bg)] text-[var(--red-status-text)]'
-						: showMassage === 'good' &&
-						  'bg-[var(--green-status-bg)] text-[var(--green-status-text)]'
-				}  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
+				className={`absolute transition-all bg-[var(--green-status-bg)] text-[var(--green-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
 					showMassage ? 'top-5 opacity-100' : '-top-25 opacity-50'
 				} `}
 			>
-				{showMassage === 'bad'
-					? 'Ошибка сохранения'
+				{showMassage === 'public'
+					? 'Опубликован'
 					: showMassage === 'good' && 'Изменения сохранены'}
 			</p>
 			<div className='flex flex-col gap-5 h-screen'>
@@ -460,20 +472,25 @@ const ConstructorPage = ({ role }) => {
 							courseId={courseId}
 							titleValue={courseContent?.name}
 							descriptionValue={courseContent?.description}
+							imageUrl={courseContent?.image_path}
+							onChange={showMassageFunc}
 						/>
-						<Button
-							title='Сохранить'
-							style='outline'
-							type='button'
-							onClick={e =>
-								handleSubmit(e, blocks, selectedContentId, accessedGroups)
-							}
-						/>
+						{sectionType !== 'test' && (
+							<Button
+								title='Сохранить'
+								style='outline'
+								type='button'
+								onClick={e =>
+									handleSubmit(e, blocks, selectedContentId, accessedGroups)
+								}
+							/>
+						)}
 
 						<Button
 							title={'Опубликовать курс'}
 							style='black'
 							className='truncate text-ellipsis'
+							onClick={() => showMassageFunc('public')}
 						/>
 					</div>
 				</div>
@@ -492,6 +509,7 @@ const ConstructorPage = ({ role }) => {
 						onBlocksChange={setBlocks}
 						onSelectedContentChange={setSelectedContentId}
 						isLoading={isLoading}
+						onSectionTypeChange={setSectionType}
 					/>
 				) : (
 					selected === 1 && <AccessManagement onChange={setAccessedGroups} />

@@ -42,13 +42,13 @@ export const PhotoView = ({ photos }) => {
 					url={Photos[fullScreenPhoto]?.photoUrl}
 					close={() => setFullScreenPhoto(null)}
 					nextImg={() =>
-						fullScreenPhoto >= 3
+						fullScreenPhoto >= photos?.length - 1
 							? setFullScreenPhoto(0)
 							: setFullScreenPhoto(prev => prev + 1)
 					}
 					prevImg={() =>
 						fullScreenPhoto <= 0
-							? setFullScreenPhoto(3)
+							? setFullScreenPhoto(photos?.length - 1)
 							: setFullScreenPhoto(prev => prev - 1)
 					}
 				/>

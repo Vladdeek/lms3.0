@@ -128,7 +128,7 @@ const CheckboxCreate = ({
 	)
 }
 
-const OneVariant = ({ sectionId, testId }) => {
+const OneVariant = ({ sectionId, testId, onChange }) => {
 	const [question, setQuestion] = useState('')
 	const [score, setScore] = useState(1)
 	const [answers, setAnswers] = useState([
@@ -136,6 +136,16 @@ const OneVariant = ({ sectionId, testId }) => {
 		{ option_code: '2', name: '', correct: false },
 	])
 	const [media, setMedia] = useState()
+
+	const [showMassage, setShowMassage] = useState(false)
+
+	const showMessageFunc = () => {
+		setShowMassage(true)
+		setTimeout(() => {
+			setShowMassage(false)
+		}, 5000)
+		return
+	}
 
 	const [isLoading, setIsLoading] = useState(false)
 
@@ -201,7 +211,17 @@ const OneVariant = ({ sectionId, testId }) => {
 		setAnswers(data?.question_options)
 	}
 
+	const hasDuplicateAnswers = answers => {
+		const names = answers.map(a => a.name.trim())
+		const unique = new Set(names)
+		return unique.size !== names.length
+	}
+
 	const handleCreate = async () => {
+		if (hasDuplicateAnswers(answers)) {
+			showMessageFunc()
+			return
+		}
 		const correctAnswer = answers.find(answer => answer.correct)
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
@@ -226,12 +246,19 @@ const OneVariant = ({ sectionId, testId }) => {
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
 
+			onChange?.(data?.id)
+
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
 		}
 	}
 	const handleEdit = async () => {
+		if (hasDuplicateAnswers(answers)) {
+			console.log('дубликаты')
+			showMessageFunc()
+			return
+		}
 		const correctAnswer = answers.find(answer => answer.correct)
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
@@ -286,6 +313,18 @@ const OneVariant = ({ sectionId, testId }) => {
 		<Loader />
 	) : (
 		<>
+			<div
+				className={`relative h-full w-full flex justify-center items-center transition-all  ${
+					showMassage ? '-top-15 opacity-100' : '-top-40 opacity-0'
+				}`}
+			>
+				<div className='absolute text-[var(--red-status-text)] bg-[var(--red-status-bg)] rounded-xl p-2'>
+					<p className='text-center mb-1 font-medium'>Дубликаты!</p>
+					<p className='text-[var(--red-status-text)] px-3 py-2 bg-[var(--hard-lvl-bg)] rounded-lg'>
+						В вопросах находятся дубликаты
+					</p>
+				</div>
+			</div>
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 w-2/3 mb-5'>
