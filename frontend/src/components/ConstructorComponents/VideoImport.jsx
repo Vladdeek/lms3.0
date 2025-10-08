@@ -17,15 +17,28 @@ export const ConstructorVideoInput = ({
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [uploading, setUploading] = useState(false)
 
-	console.log(takeValues)
+	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
-		if (takeValues && !videoUrl) {
-			takeValues[0]?.isUrl
-				? setPreviews([{ fileUrl: takeValues[0]?.videoUrl }])
-				: setPreviews([{ fileUrl: takeValues[0]?.fileUrl }])
+		if (!takeValues) return
+
+		if (takeValues.length === 0) {
+			setPreviews([])
+			return
 		}
-	}, [])
+
+		if (!videoUrl && takeValues[0]) {
+			const fileUrl = takeValues[0]?.isUrl
+				? takeValues[0]?.videoUrl
+				: takeValues[0]?.fileUrl
+
+			if (fileUrl) {
+				setPreviews([{ fileUrl }])
+			}
+		}
+	}, [takeValues, videoUrl, setPreviews])
+
+	console.log('take: ', takeValues, '\nprew: ', previews)
 
 	const validFormats = [
 		'video/mp4',
@@ -129,23 +142,34 @@ export const ConstructorVideoInput = ({
 		handleFiles(files)
 	}
 
+	const validStyleFunc = () => {
+		setIsFileValid(false)
+		const timer = setTimeout(() => {
+			setIsFileValid(true)
+		}, 1000)
+
+		return () => clearTimeout(timer)
+	}
+
 	const handleFiles = async files => {
 		if (!files.length) return
 		setVideoUrl('')
 
 		const file = files[0]
-		if (!validFormats.includes(file.type) || file.size > maxSize) return
+		if (!validFormats.includes(file.type) || file.size > maxSize) {
+			validStyleFunc()
+			return
+		} else
+			try {
+				const uploadedFile = await uploadFileToAPI(file)
 
-		try {
-			const uploadedFile = await uploadFileToAPI(file)
-
-			setPreviews([uploadedFile])
-			setInputStatus(true)
-			onStatusChange?.(true)
-			onChange?.([uploadedFile])
-		} catch (error) {
-			console.error('Ошибка обработки файла:', error)
-		}
+				setPreviews([uploadedFile])
+				setInputStatus(true)
+				onStatusChange?.(true)
+				onChange?.([uploadedFile])
+			} catch (error) {
+				console.error('Ошибка обработки файла:', error)
+			}
 	}
 
 	const removePreview = index => {
@@ -204,8 +228,12 @@ export const ConstructorVideoInput = ({
 				{previews.length < maxFiles && (
 					<div
 						className={`p-2 w-full h-full flex  ${
-							isDragActive ? 'bg-[var(--hero-pale)]' : 'bg-[var(--light-gray)]'
-						} rounded-lg transition-all`}
+							isDragActive
+								? 'bg-[var(--hero-pale)]'
+								: !isFileValid
+								? 'bg-[var(--hard-lvl-bg)]'
+								: 'bg-[var(--light-gray)]'
+						} rounded-xl transition-all`}
 					>
 						<label
 							htmlFor={inputId}
@@ -215,6 +243,8 @@ export const ConstructorVideoInput = ({
 							className={`rounded-lg p-[10px] transition border-3 w-full border-dashed ${
 								isDragActive
 									? 'border-[var(--hero-epta)]'
+									: !isFileValid
+									? 'border-[var(--hard-lvl-text)]'
 									: 'border-[var(--middle)]'
 							}`}
 						>
@@ -225,6 +255,8 @@ export const ConstructorVideoInput = ({
 									className={`${
 										isDragActive
 											? 'text-[var(--hero-epta)]'
+											: !isFileValid
+											? 'text-[var(--hard-lvl-text)]'
 											: 'text-[var(--middle)]'
 									}`}
 								/>
@@ -233,6 +265,8 @@ export const ConstructorVideoInput = ({
 										className={`${
 											isDragActive
 												? 'bg-[var(--hero-epta)] text-[var(--white)]'
+												: !isFileValid
+												? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
 												: 'bg-[var(--light-middle)] text-[var(--black)]'
 										} rounded-lg text-sm font-normal py-1 whitespace-nowrap px-3`}
 									>
@@ -244,6 +278,8 @@ export const ConstructorVideoInput = ({
 											className={`${
 												isDragActive
 													? 'bg-[var(--hero-epta)] text-[var(--white)]'
+													: !isFileValid
+													? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
 													: 'bg-[var(--light-middle)] text-[var(--black)]'
 											} rounded-lg text-sm font-normal py-1 whitespace-nowrap px-3`}
 										>
