@@ -31,6 +31,8 @@ export const ConstructorFileInput = ({
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
 
+	console.log('files: ', files)
+
 	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
@@ -47,6 +49,7 @@ export const ConstructorFileInput = ({
 		try {
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
+			console.log('formdata: ', formData)
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
 				body: formData,
@@ -58,6 +61,8 @@ export const ConstructorFileInput = ({
 			}
 
 			const result = await response.json()
+
+			console.log('respose: ', result)
 
 			setFiles(prevUrls => [
 				...prevUrls,

@@ -897,7 +897,8 @@ const ContentView = ({
 										<AudioInput
 											key={i}
 											DelComponent={del}
-											onChange={data => handleBlockChange(i, data)}
+											onFileChange={data => handleBlockChange(i, data)}
+											takeValues={block?.content}
 										/>
 									)
 									break

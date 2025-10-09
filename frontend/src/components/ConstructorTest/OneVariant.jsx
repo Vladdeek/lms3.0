@@ -204,6 +204,8 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		const res = await fetch(`${API}/questions/${id}`)
 		const data = await res.json()
 
+		console.log(data)
+
 		if (data) setIsLoading(false)
 		setQuestion(data?.title)
 		setScore(data?.score)

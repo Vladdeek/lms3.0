@@ -23,6 +23,8 @@ export const FileView = ({ onStatusChange, Files }) => {
 	const maxSize = 100 * 1024 * 1024 // 100 MB
 	const maxFiles = 10
 
+	console.log(files)
+
 	const handleFileChange = e => {
 		const newFiles = Array.from(e.target.files)
 		validateFiles(newFiles)
@@ -91,8 +93,11 @@ export const FileView = ({ onStatusChange, Files }) => {
 
 			// Скачиваем файл
 			const blob = await response.blob()
+
 			const url = window.URL.createObjectURL(blob)
+
 			const a = document.createElement('a')
+
 			a.style.display = 'none'
 			a.href = url
 
@@ -108,6 +113,8 @@ export const FileView = ({ onStatusChange, Files }) => {
 			}
 
 			a.download = filename
+			console.log('Filename from header:', filename)
+
 			document.body.appendChild(a)
 			a.click()
 			window.URL.revokeObjectURL(url)

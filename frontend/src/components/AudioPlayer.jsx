@@ -10,7 +10,7 @@ import {
 	Shuffle,
 } from 'lucide-react'
 
-const CustomAudioPlayer = ({ audioUrl, volumeOn, course = false }) => {
+const CustomAudioPlayer = ({ audioUrl = null, volumeOn, course = false }) => {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const [currentTime, setCurrentTime] = useState(0)
 	const [duration, setDuration] = useState(0)
@@ -18,6 +18,8 @@ const CustomAudioPlayer = ({ audioUrl, volumeOn, course = false }) => {
 	const [isMuted, setIsMuted] = useState(false)
 	const [isLooping, setIsLooping] = useState(false)
 	const [isShuffled, setIsShuffled] = useState(false)
+
+	console.log('rl:', audioUrl)
 
 	const audioRef = useRef(null)
 	const progressBarRef = useRef(null)

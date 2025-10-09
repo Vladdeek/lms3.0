@@ -3,12 +3,13 @@ import { useEffect, useId, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 import { API, FILE_API } from '../../API'
 import { maxAudioSizeInMB } from './Constants'
+import Loader, { AltLoader } from '../Loader'
 
 export const AudioInput = ({
 	onStatusChange,
 	onFileChange,
 	DelComponent,
-	onChange,
+	takeValues,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
@@ -16,51 +17,54 @@ export const AudioInput = ({
 	const [isDragActive, setIsDragActive] = useState(false)
 	const [audioUrl, setAudioUrl] = useState(null)
 
+	useEffect(() => {
+		setFile(takeValues?.file[0])
+		setAudioUrl(takeValues?.fileUrl)
+	}, [takeValues])
+
 	const maxFileSizeInMB = maxAudioSizeInMB // <--- максимальный размер файла в MБ
 
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 
 	const [isFileValid, setIsFileValid] = useState(true)
 
-	useEffect(() => {
-		const data = file
-		onChange?.(data)
+	const uploadFileToAPI = async fileToUpload => {
+		const file = fileToUpload
+		try {
+			const formData = new FormData()
+			formData.append('file', file)
+			const response = await fetch(`${API}/files/`, {
+				method: 'POST',
+				body: formData,
+			})
 
-		const uploadFileToAPI = async fileToUpload => {
-			try {
-				const formData = new FormData()
-				formData.append('file', file)
-				const response = await fetch(`${API}/files/`, {
-					method: 'POST',
-					body: formData,
-				})
-
-				if (!response.ok) {
-					const errorText = await response.text()
-					throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
-				}
-
-				const result = await response.json()
-				setAudioUrl(`${FILE_API}${result?.file_path}`)
-
-				onFileChange?.({
-					file: fileToUpload,
-					fileId: result.id,
-					fileUrl: result.url,
-				})
-
-				return result
-			} catch (error) {
-				console.error('Ошибка загрузки файла:', error)
-
-				throw error
-			} finally {
+			if (!response.ok) {
+				const errorText = await response.text()
+				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
 			}
+
+			const result = await response.json()
+
+			onFileChange?.({
+				file: [
+					{
+						name: fileToUpload?.name,
+						size: fileToUpload?.size,
+						type: fileToUpload?.type,
+					},
+				],
+				fileId: result?.id,
+				fileUrl: `${FILE_API}${result?.file_path}`,
+			})
+
+			return result
+		} catch (error) {
+			console.error('Ошибка загрузки файла:', error)
+
+			throw error
+		} finally {
 		}
-		if (data) {
-			uploadFileToAPI(data)
-		}
-	}, [file])
+	}
 
 	const handleFileChange = e => {
 		const newFile = e.target.files[0]
@@ -87,14 +91,7 @@ export const AudioInput = ({
 			}, 1000)
 			return
 		}
-
-		setFile(newFile)
-		setAudioUrl(URL.createObjectURL(newFile))
-
-		const newStatus = true
-		setInputStatus(newStatus)
-		onStatusChange?.(newStatus)
-		onFileChange?.(newFile)
+		uploadFileToAPI(newFile)
 	}
 
 	const handleDragOver = e => {
@@ -144,7 +141,11 @@ export const AudioInput = ({
 
 						<div className='flex items-center w-full gap-3'>
 							<div className='w-full'>
-								<CustomAudioPlayer audioUrl={audioUrl} />
+								{audioUrl === null ? (
+									<AltLoader />
+								) : (
+									<CustomAudioPlayer audioUrl={audioUrl} />
+								)}
 							</div>
 
 							<button
