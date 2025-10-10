@@ -12,7 +12,7 @@ const VideoPlayer = ({ url, course = false }) => {
 
 	const getEmbedUrl = url => {
 		if (course === true) {
-			url = url[0]?.fileUrl
+			url = url[0]?.fileUrl || url[0]?.videoUrl
 		}
 
 		try {
@@ -40,7 +40,7 @@ const VideoPlayer = ({ url, course = false }) => {
 
 	const source = getEmbedUrl(url)
 
-	console.log(source)
+	console.log('source: ', source)
 
 	const togglePlay = () => {
 		if (source?.type === 'video') {

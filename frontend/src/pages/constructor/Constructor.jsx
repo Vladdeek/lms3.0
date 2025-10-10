@@ -896,7 +896,7 @@ const ContentView = ({
 											takeValues={block?.content}
 										/>
 									) : (
-										<VideoPlayer url={block?.content} course={true} />
+										<VideoPlayer url={block?.content} is course={true} />
 									)
 									break
 								case 'files':
