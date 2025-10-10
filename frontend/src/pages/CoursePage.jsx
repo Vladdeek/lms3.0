@@ -20,7 +20,7 @@ import {
 	Plus,
 	Trash,
 } from 'lucide-react'
-import { Button, EllipsisButton } from '../components/Buttons'
+import { Button, EllipsisButton, SubmitButton } from '../components/Buttons'
 import { InputDefault, SearchInput } from '../components/Inputs'
 import CustomCodeBlock from '../components/CustomCodeBlock'
 import CustomAudioPlayer from '../components/AudioPlayer'
@@ -39,6 +39,8 @@ import { TextViewer } from '../components/Viewer/TextViewer'
 import { useParams } from 'react-router-dom'
 import { API } from '../API'
 import { useError } from '../components/Errors'
+import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
+import { motion } from 'framer-motion'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -213,6 +215,18 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 
 	const [activeIndex, setActiveIndex] = useState(0)
 
+	const [studentWork, setStudentWork] = useState()
+
+	const handleStudentsWorks = data => {
+		setStudentWork(prev => {
+			const base =
+				Array.isArray(prev) && prev.length > 0 ? prev[0] : { content: '' }
+			const updated = [{ ...base, content: data }]
+
+			return updated
+		})
+	}
+
 	if (!content) {
 		return (
 			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
@@ -229,61 +243,118 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 			<div className='flex flex-col gap-5'>
 				{content.length !== 0 ? (
 					contentType !== 'test' ? (
-						content?.map((item, i) => {
-							switch (item.type) {
-								case 'text':
-									return <TextViewer key={i} content={item?.content?.content} />
-								case 'code':
-									return (
-										<CustomCodeBlock
-											view={true}
-											key={i}
-											codeInfo={item?.content}
-										/>
-									)
-								case 'image':
-									return <PhotoView photos={item?.content} />
-								case 'video':
-									return <VideoPlayer url={item?.content} course={true} />
-								case 'files':
-									return <FileView Files={item?.content} />
-								case 'table':
-									return (
-										<TableView
-											key={i}
-											cols={item?.content?.cols}
-											rows={item?.content?.rows}
-											values={item?.content?.data}
-										/>
-									)
-								case 'audio':
-									return <p>блок {item.type}</p>
+						<>
+							{content.map((item, i) => {
+								let element
+								switch (item?.type) {
+									case 'text':
+										element = (
+											<TextViewer key={i} content={item?.content?.content} />
+										)
+										break
+									case 'code':
+										element = (
+											<CustomCodeBlock
+												view={true}
+												key={i}
+												codeInfo={item?.content}
+											/>
+										)
+										break
+									case 'image':
+										element = <PhotoView photos={item?.content} />
+										break
+									case 'video':
+										console.log(item)
+										element = <VideoPlayer url={item?.content} course={true} />
+										break
+									case 'files':
+										element = <FileView Files={item?.content} />
+										break
+									case 'table':
+										element = (
+											<TableView
+												key={i}
+												cols={item?.content?.cols}
+												rows={item?.content?.rows}
+												values={item?.content?.data}
+											/>
+										)
+										break
+									case 'audio':
+										element = (
+											<CustomAudioPlayer audioUrl={item?.content?.fileUrl} />
+										)
+										break
+									case 'callout':
+										element = (
+											<CalloutView
+												key={i}
+												title={item?.content?.title}
+												description={item?.content?.description}
+												IconName={item?.content?.icon}
+											/>
+										)
+										break
+									case 'formula':
+										element = (
+											<FormulaView key={i} Formula={item?.content?.formula} />
+										)
+										break
+									case 'button':
+										element = (
+											<ButtonView
+												key={i}
+												title={item?.content?.buttonTitle}
+												to={item?.content?.buttonUrl}
+											/>
+										)
+										break
+									default:
+										element = null
+								}
 
-								case 'callout':
-									return (
-										<CalloutView
-											key={i}
-											title={item?.content?.title}
-											description={item?.content?.description}
-											IconName={item?.content?.icon}
+								return (
+									<motion.div
+										key={i}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: i * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										{element}
+									</motion.div>
+								)
+							})}
+
+							{contentType === 'practice' && (
+								<motion.div
+									key={content?.length}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: content?.length * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<div className='w-full flex flex-col justify-center gap-3'>
+										<p className='text-center font-medium text-xl'>
+											Прикрепить файл для проверки
+										</p>
+										<ConstructorFileInput
+											onChange={data => handleStudentsWorks(1, data)}
+											takeValues={studentWork?.content}
 										/>
-									)
-								case 'formula':
-									return (
-										<FormulaView key={i} Formula={item?.content?.formula} />
-									)
-								case 'button':
-									return (
-										<ButtonView
-											key={i}
-											title={item?.content?.buttonTitle}
-											to={item?.content?.buttonUrl}
-										/>
-									)
-								default:
-									return null
-							}
-						})
+
+										<SubmitButton title={'Отправить на проверку'} />
+									</div>
+								</motion.div>
+							)}
+						</>
 					) : (
 						<>
 							<LevelsBar

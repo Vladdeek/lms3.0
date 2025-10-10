@@ -8,6 +8,7 @@ import {
 	FileQuestionMark,
 	FileSpreadsheet,
 	FileText,
+	Trash2,
 	Upload,
 	X,
 } from 'lucide-react'
@@ -249,12 +250,15 @@ export const ConstructorFileInput = ({
 
 	return (
 		<div className='flex gap-2'>
-			<button
-				className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
-				onClick={DelComponent}
-			>
-				<X />
-			</button>
+			{DelComponent && (
+				<button
+					className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
+					onClick={DelComponent}
+				>
+					<X />
+				</button>
+			)}
+
 			<div
 				className={`${
 					files?.length > 0 && 'shadow-[var(--shadow)] p-4 rounded-xl'
@@ -282,11 +286,19 @@ export const ConstructorFileInput = ({
 										</p>
 									</div>
 								</div>
-								<X
-									size={20}
-									onClick={() => removeFile(index)}
-									className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-								/>
+								{DelComponent ? (
+									<X
+										size={20}
+										onClick={() => removeFile(index)}
+										className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+									/>
+								) : (
+									<Trash2
+										size={20}
+										onClick={() => removeFile(index)}
+										className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+									/>
+								)}
 							</div>
 						))}
 					</div>

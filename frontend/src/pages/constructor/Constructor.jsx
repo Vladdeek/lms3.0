@@ -34,7 +34,7 @@ import {
 	Trash,
 	X,
 } from 'lucide-react'
-import { Button, EllipsisButton } from '../../components/Buttons'
+import { Button, EllipsisButton, SubmitButton } from '../../components/Buttons'
 import { useEffect, useState } from 'react'
 import { InputDefault, SearchInput } from '../../components/Inputs'
 import { ConstructorEditor } from '../../components/ConstructorComponents/TextEditor'
@@ -55,6 +55,16 @@ import { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Loader from '../../components/Loader'
+import { ButtonView } from '../../components/Viewer/ButtonView'
+import FormulaView from '../../components/Viewer/FormulaView'
+import { CalloutView } from '../../components/Viewer/CalloutView'
+import TableView from '../../components/Viewer/TableView'
+import { FileView } from '../../components/Viewer/FileView'
+import VideoPlayer from '../../components/VideoPlayer'
+import { PhotoView } from '../../components/Viewer/PhotoView'
+import CustomCodeBlock from '../../components/CustomCodeBlock'
+import { TextViewer } from '../../components/Viewer/TextViewer'
+import CustomAudioPlayer from '../../components/AudioPlayer'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -691,7 +701,7 @@ const ConstructorLevels = ({
                             ${
 															activeIndex === idx
 																? 'bg-[var(--hero-epta)] text-white'
-																: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+																: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-white'
 														}
                             active:scale-90`}
 					>
@@ -717,10 +727,13 @@ const ContentView = ({
 	isLoading,
 	sectionId,
 	onSectionTypeChange,
+	isEdit,
 }) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
+
+	console.log('blocks: ', blocks)
 
 	const giveId = (index, id) => {
 		setQuestions(prev => {
@@ -748,6 +761,7 @@ const ContentView = ({
 	}
 
 	const handleBlockChange = (index, data) => {
+		console.log('handleBlockChange: ', data)
 		setBlocks(prev => {
 			const updated = prev.map((b, i) =>
 				i === index ? { ...b, content: data } : b
@@ -833,102 +847,142 @@ const ContentView = ({
 							let content
 							switch (block.type) {
 								case 'text':
-									content = (
+									content = isEdit ? (
 										<ConstructorEditor
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValue={block?.content?.content}
 										/>
+									) : (
+										<TextViewer key={i} content={block?.content?.content} />
 									)
 									break
 								case 'code':
-									content = (
+									content = isEdit ? (
 										<CodeFileInput
 											key={i}
 											DelComponent={del}
 											onFileChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<CustomCodeBlock
+											view={true}
+											key={i}
+											codeInfo={block?.content}
+										/>
 									)
 									break
 								case 'image':
-									content = (
+									content = isEdit ? (
 										<ConstructorPhotoInput
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<PhotoView photos={block?.content} />
 									)
 									break
 								case 'video':
-									content = (
+									console.log('video: ', block)
+									content = isEdit ? (
 										<ConstructorVideoInput
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<VideoPlayer url={block?.content} course={true} />
 									)
 									break
 								case 'files':
-									content = (
+									content = isEdit ? (
 										<ConstructorFileInput
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<FileView Files={block?.content} />
 									)
 									break
 								case 'table':
-									content = (
+									content = isEdit ? (
 										<TableConstructor
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<TableView
+											key={i}
+											cols={block?.content?.cols}
+											rows={block?.content?.rows}
+											values={block?.content?.data}
+										/>
 									)
 									break
 								case 'audio':
-									content = (
+									console.log('audio: ', block)
+									content = isEdit ? (
 										<AudioInput
 											key={i}
 											DelComponent={del}
 											onFileChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<CustomAudioPlayer audioUrl={block?.content?.fileUrl} />
 									)
 									break
 								case 'callout':
-									content = (
+									content = isEdit ? (
 										<CalloutConstructor
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<CalloutView
+											key={i}
+											title={block?.content?.title}
+											description={block?.content?.description}
+											IconName={block?.content?.icon}
+										/>
 									)
 									break
 								case 'formula':
-									content = (
+									content = isEdit ? (
 										<FormulaConstructor
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
 										/>
+									) : (
+										<FormulaView key={i} Formula={block?.content?.formula} />
 									)
 									break
 								case 'button':
-									content = (
+									content = isEdit ? (
 										<ButtonConstructor
 											key={i}
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
+										/>
+									) : (
+										<ButtonView
+											key={i}
+											title={block?.content?.buttonTitle}
+											to={block?.content?.buttonUrl}
 										/>
 									)
 									break
@@ -951,18 +1005,42 @@ const ContentView = ({
 								</motion.div>
 							)
 						})}
-						<motion.div
-							key={blocks?.length}
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{
-								duration: 0.3,
-								delay: blocks?.length * 0.1,
-								ease: 'easeOut',
-							}}
-						>
-							<ConstructorMenu onAdd={addBlock} />
-						</motion.div>
+						{isEdit ? (
+							<motion.div
+								key={blocks?.length}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: blocks?.length * 0.1,
+									ease: 'easeOut',
+								}}
+							>
+								<ConstructorMenu onAdd={addBlock} />
+							</motion.div>
+						) : (
+							SectionType === 'practice' && (
+								<motion.div
+									key={content?.length}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: content?.length * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<div className='w-full flex flex-col justify-center gap-3'>
+										<p className='text-center font-medium text-xl'>
+											Прикрепить файл для проверки (отображение у студента)
+										</p>
+										<ConstructorFileInput />
+
+										<SubmitButton title={'Отправить на проверку'} />
+									</div>
+								</motion.div>
+							)
+						)}
 					</>
 				)}
 			</div>
@@ -1057,6 +1135,7 @@ const Constructor = ({
 	onSelectedContentChange,
 	isLoading,
 	onSectionTypeChange,
+	isEdit,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
@@ -1156,6 +1235,7 @@ const Constructor = ({
 							isLoading={isLoading}
 							sectionId={section?.id}
 							onSectionTypeChange={onSectionTypeChange}
+							isEdit={isEdit}
 						/>
 					</div>
 				</div>

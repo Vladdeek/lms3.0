@@ -137,6 +137,12 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 	])
 	const [media, setMedia] = useState()
 
+	const [questionId, setQuestionId] = useState()
+
+	useEffect(() => {
+		testId && setQuestionId(testId)
+	}, [])
+
 	const [showMassage, setShowMassage] = useState(false)
 
 	const showMessageFunc = () => {
@@ -250,20 +256,23 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 
 			onChange?.(data?.id)
 
-			fetchTest(data?.id)
+			console.log('questionId: ', questionId)
+
+			fetchTest(questionId)
 		} catch (error) {
 			console.error(error)
 		}
 	}
 	const handleEdit = async () => {
 		if (hasDuplicateAnswers(answers)) {
-			console.log('дубликаты')
 			showMessageFunc()
 			return
 		}
+
 		const correctAnswer = answers.find(answer => answer.correct)
+
 		try {
-			const res = await fetch(`${API}/questions/${testId}`, {
+			const res = await fetch(`${API}/questions/${questionId}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -285,7 +294,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
 
-			fetchTest(data?.id)
+			fetchTest(questionId)
 		} catch (error) {
 			console.error(error)
 		}
@@ -293,8 +302,8 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 
 	useEffect(() => {
 		setIsLoading(true)
-		if (testId) {
-			fetchTest(testId)
+		if (questionId) {
+			fetchTest(questionId)
 		} else {
 			setQuestion('')
 			setScore(1)
@@ -305,7 +314,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			])
 			setIsLoading(false)
 		}
-	}, [testId])
+	}, [questionId])
 
 	const handleSave = () => {
 		testId ? handleEdit() : handleCreate()

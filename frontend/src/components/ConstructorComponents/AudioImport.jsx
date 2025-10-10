@@ -18,7 +18,8 @@ export const AudioInput = ({
 	const [audioUrl, setAudioUrl] = useState(null)
 
 	useEffect(() => {
-		setFile(takeValues?.file[0])
+		console.log('audio: ', takeValues?.file)
+		setFile(takeValues?.file)
 		setAudioUrl(takeValues?.fileUrl)
 	}, [takeValues])
 

@@ -137,7 +137,7 @@ export const SubmitButton = ({
 			onClick={onClick}
 			className={`${
 				!disabled
-					? 'active:scale-99 active:brightness-90 hover:bg-[var(--hero-epta)] bg-[var(--black)] text-[var(--white)] cursor-pointer'
+					? 'active:scale-99 active:brightness-90 hover:bg-[var(--hero-epta)] hover:text-white bg-[var(--black)] text-[var(--white)] cursor-pointer'
 					: 'bg-[var(--light-gray)] text-[var(--middle)] cursor-not-allowed'
 			} rounded-xl h-full flex gap-4 items-center justify-center transition-all py-4`}
 		>

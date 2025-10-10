@@ -181,6 +181,7 @@ const MoreVariant = ({
 	}
 
 	const fetchTest = async id => {
+		console.log(id)
 		const res = await fetch(`${API}/questions/${id}`)
 		const data = await res.json()
 		if (data) setIsLoading(false)
@@ -201,7 +202,24 @@ const MoreVariant = ({
 			showMessageFunc()
 			return
 		}
+
 		const correctAnswers = getCorrectAnswers()
+		console.log([
+			{
+				question_type: 'multiple',
+				title: question,
+				score: Number(score),
+				answer_data: {
+					type: 'multiple',
+					correct_answer: correctAnswers.map(answer => answer.name) || [],
+				},
+				question_options: answers.map(answer => ({
+					name: answer?.name,
+					option_code: answer?.option_code,
+				})),
+				media: media || {},
+			},
+		])
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
@@ -235,6 +253,7 @@ const MoreVariant = ({
 
 	const handleEdit = async () => {
 		const correctAnswers = getCorrectAnswers()
+
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
 				method: 'PUT',

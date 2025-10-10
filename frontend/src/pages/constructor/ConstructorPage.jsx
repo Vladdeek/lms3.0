@@ -242,6 +242,8 @@ const ConstructorPage = ({ role }) => {
 	]
 	const [sectionType, setSectionType] = useState('text')
 
+	const [isEdit, setIsEdit] = useState(false)
+
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
@@ -383,7 +385,8 @@ const ConstructorPage = ({ role }) => {
 			}
 
 			const data = await res.json()
-			console.log(data)
+			setIsEdit(prev => !prev)
+			console.log('save: ', data)
 			showMassageFunc('good')
 		} else if (selected === 1) {
 			const addStudents = false
@@ -475,16 +478,25 @@ const ConstructorPage = ({ role }) => {
 							imageUrl={courseContent?.image_path}
 							onChange={showMassageFunc}
 						/>
-						{sectionType !== 'test' && (
-							<Button
-								title='Сохранить'
-								style='outline'
-								type='button'
-								onClick={e =>
-									handleSubmit(e, blocks, selectedContentId, accessedGroups)
-								}
-							/>
-						)}
+						{selected === 0 &&
+							sectionType !== 'test' &&
+							(isEdit ? (
+								<Button
+									title='Сохранить'
+									style='outline'
+									type='button'
+									onClick={e =>
+										handleSubmit(e, blocks, selectedContentId, accessedGroups)
+									}
+								/>
+							) : (
+								<Button
+									title='Редактировать'
+									style='outline'
+									type='button'
+									onClick={() => setIsEdit(prev => !prev)}
+								/>
+							))}
 
 						<Button
 							title={'Опубликовать курс'}
@@ -510,6 +522,7 @@ const ConstructorPage = ({ role }) => {
 						onSelectedContentChange={setSelectedContentId}
 						isLoading={isLoading}
 						onSectionTypeChange={setSectionType}
+						isEdit={isEdit}
 					/>
 				) : (
 					selected === 1 && <AccessManagement onChange={setAccessedGroups} />
