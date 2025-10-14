@@ -7,9 +7,12 @@ import {
 	QrCode,
 	Blocks,
 	Frown,
+	CircleCheck,
+	Lock,
+	LockOpen,
 } from 'lucide-react'
 import { AltRadioButton, Button } from '../../components/Buttons'
-import { useEffect, useState } from 'react'
+import { isValidElement, useEffect, useState } from 'react'
 import Constructor from './Constructor'
 import AccessManagement from './AccessManagement'
 import {
@@ -23,7 +26,7 @@ import { useParams } from 'react-router-dom'
 import { API, FILE_API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { is } from 'date-fns/locale'
+import { is, se } from 'date-fns/locale'
 import { Forbidden403, useError } from '../../components/Errors'
 
 const SettingsButton = ({
@@ -194,13 +197,8 @@ const QrCodeButton = ({ url }) => {
 	)
 }
 
-const DateButton = () => {
+const DateButton = ({ locked, access, sectionId }) => {
 	const [isOpen, setIsOpen] = useState(true)
-	const Inputs = [
-		{ label: 'Дата создания курса', input: '27.09.2005' },
-		{ label: 'Дата активации курса', input: '27.09.2005' },
-		{ label: 'Дата окончания курса', input: '27.09.2005' },
-	]
 	const [checked, setChecked] = useState([false, false, false])
 	const handleCheckboxChange = idx => {
 		const newChecked = [...checked]
@@ -208,27 +206,153 @@ const DateButton = () => {
 		setChecked(newChecked)
 	}
 
+	const [Locked, setLocked] = useState()
+
+	useEffect(() => {
+		locked && setLocked(locked)
+	}, [locked])
+
+	const { setError } = useError()
+
+	const putLocked = async () => {
+		setLocked(prev => !prev)
+		const token = localStorage.getItem('access_token')
+		const res = await fetch(`${API}/sections/${sectionId}/is-locked`, {
+			method: 'PUT',
+			body: JSON.stringify({ locked: Locked }),
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+		})
+		const data = await res.json()
+		console.log('locked: ', Locked)
+		console.log('put locked: ', data)
+
+		if (!res.ok) {
+			console.error('Ошибка сервера:', res.status)
+			setError(res.status)
+			return
+		}
+	}
+
+	const [StartData, setStartData] = useState()
+	const [StartTime, setStartTime] = useState()
+	const [EndData, setEndData] = useState()
+	const [EndTime, setEndTime] = useState()
+
+	const validateStart = StartData && StartTime
+	const validateEnd = EndData && EndTime
+	const validateAll = validateEnd && validateStart
+
 	return (
 		<div className='relative z-10'>
 			<button
-				onClick={() => setIsOpen(prev => !prev)}
-				className='rounded-lg h-full flex gap-4 aspect-square justify-center items-center hover:scale-102 transition-all cursor-pointer text-[var(--black)] p-[12px] bg-[var(--white)] shadow-[var(--shadow)]'
+				disabled={!access && locked === null}
+				onClick={() => putLocked()}
+				className={`rounded-lg h-full flex ga}p-4 aspect-square justify-center items-center  transition-all  ${
+					access && locked !== null
+						? !Locked
+							? 'text-[var(--red-status-text)] cursor-pointer hover:scale-102 bg-[var(--white)]'
+							: 'text-[var(--green-status-text)] cursor-pointer hover:scale-102 bg-[var(--white)]'
+						: 'bg-[var(--light-gray)] text-[var(--middle)] cursor-not-allowed'
+				}  p-[12px]  shadow-[var(--shadow)]`}
 			>
-				<CalendarClock size={24} />
+				{access && locked !== null ? (
+					!Locked ? (
+						<Lock size={24} />
+					) : (
+						<LockOpen size={24} />
+					)
+				) : (
+					<Lock size={24} />
+				)}
 			</button>
 			{!isOpen && (
-				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-4 p-4 top-14 right-0 min-w-[320px]'>
-					{Inputs.map((item, idx) => (
-						<div key={idx} className='flex flex-col gap-1 mb-2'>
-							<Checkbox
-								checked={checked[idx]}
-								onChange={() => handleCheckboxChange(idx)}
-								label={<span className='cursor-pointer'>{item.label}</span>}
-							/>
+				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-4 p-4 top-14 right-0  min-w-[320px]'>
+					<div className='flex flex-col gap-5'>
+						<div className='flex flex-col'>
+							<div className='flex items-center gap-3 '>
+								<p className='text-[var(--middle)]'>Дата начала</p>
+								<CircleCheck
+									className={
+										!validateStart
+											? 'text-[var(--middle)]'
+											: 'text-[var(--hero-epta)]'
+									}
+									size={16}
+								/>
+							</div>
 
-							<InputDefault type='date' value={item.input} />
+							<div className='grid grid-cols-7 gap-2'>
+								<div className='col-span-5'>
+									<InputDefault
+										type='date'
+										value={StartData}
+										onChange={e => setStartData(e.target.value)}
+									/>
+								</div>
+								<div className='col-span-2 text-center'>
+									<InputDefault
+										type='time'
+										value={StartTime}
+										onChange={e => setStartTime(e.target.value)}
+									/>
+								</div>
+							</div>
 						</div>
-					))}
+						<div className='flex flex-col'>
+							<div className='flex items-center gap-3 '>
+								<p className='text-[var(--middle)]'>Дата окончания</p>
+								<CircleCheck
+									className={
+										!validateEnd
+											? 'text-[var(--middle)]'
+											: 'text-[var(--hero-epta)]'
+									}
+									size={16}
+								/>
+							</div>
+							<div className='grid grid-cols-7 gap-2'>
+								<div className='col-span-5'>
+									<InputDefault
+										type='date'
+										value={EndData}
+										onChange={e => setEndData(e.target.value)}
+									/>
+								</div>
+								<div className='col-span-2'>
+									<InputDefault
+										type='time'
+										value={EndTime}
+										onChange={e => setEndTime(e.target.value)}
+									/>
+								</div>
+							</div>
+						</div>
+
+						<button
+							onClick={() => setLocked(prev => !prev)}
+							disabled={Locked && !validateAll}
+							className={`${
+								Locked
+									? !validateAll
+										? 'bg-[var(--light-gray)] text-[var(--middle)] cursor-not-allowed'
+										: ' bg-[var(--black)] text-[var(--white)] hover:bg-[var(--green-status-text)] hover:text-[var(--easy-lvl-bg)] cursor-pointer'
+									: 'bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hard-lvl-text)] hover:text-[var(--hard-lvl-bg)] cursor-pointer'
+							} flex gap-3 justify-center py-2 rounded-xl font-medium  transition-all`}
+						>
+							{Locked ? (
+								<>
+									<p>Открыть доступ</p> <LockOpen strokeWidth={2.5} />
+								</>
+							) : (
+								<>
+									<p>Закрыть доступ</p> <Lock strokeWidth={2.5} />
+								</>
+							)}
+						</button>
+					</div>
 				</div>
 			)}
 		</div>
@@ -254,6 +378,7 @@ const ConstructorPage = ({ role }) => {
 			try {
 				const res = await fetch(`${API}/courses/${courseId}`)
 				const data = await res.json()
+				console.log('get: ', data)
 
 				if (!res.ok) {
 					setError(res.status.toString())
@@ -350,6 +475,33 @@ const ConstructorPage = ({ role }) => {
 	const [selectedContentId, setSelectedContentId] = useState(null)
 	const [isLoading, setIsLoading] = useState(false)
 	const [accessedGroups, setAccessedGroups] = useState([])
+
+	const [isLocked, setIsLocked] = useState(null)
+
+	useEffect(() => {
+		const fetchIsLocked = async () => {
+			if (sectionType === 'lecture') {
+				setIsLocked(null)
+			} else {
+				try {
+					const res = await fetch(
+						`${API}/sections/${selectedContentId}/is-locked`
+					)
+					const data = await res.json()
+
+					if (!res.ok) {
+						setError(res.status.toString())
+					} else {
+						setError(null)
+						setIsLocked(data?.locked)
+					}
+				} catch (err) {
+					setError('500')
+				}
+			}
+		}
+		selectedContentId && fetchIsLocked()
+	}, [selectedContentId])
 
 	const [showMassage, setShowMassage] = useState(null)
 
@@ -468,7 +620,11 @@ const ConstructorPage = ({ role }) => {
 								url={'https://www.npmjs.com/package/qr-code-styling'}
 							/>
 						) : (
-							<DateButton />
+							<DateButton
+								access={selectedContentId && sectionType !== 'lecture'}
+								locked={isLocked}
+								sectionId={selectedContentId}
+							/>
 						)}
 
 						<SettingsButton

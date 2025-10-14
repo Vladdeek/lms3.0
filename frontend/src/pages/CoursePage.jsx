@@ -41,6 +41,7 @@ import { API } from '../API'
 import { useError } from '../components/Errors'
 import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
 import { motion } from 'framer-motion'
+import { is } from 'date-fns/locale'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -81,12 +82,14 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	)
 }
 
-const ModuleContent = ({ type, index, title, bg, onClick }) => {
+const ModuleContent = ({ type, index, title, bg, onClick, isLocked }) => {
 	return (
 		<div
-			onClick={onClick}
+			onClick={!isLocked && onClick}
 			className={`flex justify-between items-center ${
-				!bg && 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
+				!bg && isLocked
+					? 'px-3 opacity-50 cursor-not-allowed'
+					: 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
 			} rounded-lg cursor-default  transition-all  `}
 		>
 			<div className='flex gap-3 text-[var(--middle)] items-center'>
@@ -150,17 +153,18 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 										{item?.module_sections?.map((lesson, lessonIndex) => {
 											return (
 												<ModuleContent
-													key={lesson.id}
-													title={lesson.title}
-													type={lesson.type}
+													key={lesson?.id}
+													title={lesson?.title}
+													type={lesson?.type}
 													onClick={() =>
 														onContentSelect(
-															lesson.id,
-															lesson.type,
-															lesson.title
+															lesson?.id,
+															lesson?.type,
+															lesson?.title
 														)
 													}
-													isSelected={selectedContent?.id === lesson.id}
+													isSelected={selectedContent?.id === lesson?.id}
+													isLocked={lesson?.locked}
 												/>
 											)
 										})}
@@ -526,6 +530,7 @@ const CoursePage = ({}) => {
 				} else {
 					setError(null)
 					setCourseContent(data)
+					console.log('!!!!!!!!!!!!!!!курсы:', data)
 				}
 			} catch (err) {
 				setError('500')
