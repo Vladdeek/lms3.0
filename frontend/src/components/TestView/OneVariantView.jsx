@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Check, X } from 'lucide-react'
+import { Check, CoinsIcon, X } from 'lucide-react'
 import CustomAudioPlayer from '../AudioPlayer'
 import FormulaView from '../Viewer/FormulaView'
 import { API } from '../../API'
@@ -57,7 +57,12 @@ const StudentRadio = ({ id, answer, selectedId, onChange }) => {
 	)
 }
 
-const OneVariantView = ({ onAnswerSelect, testId, shuffle = true }) => {
+const OneVariantView = ({
+	onAnswerSelect,
+	testId,
+	shuffle = true,
+	onChange,
+}) => {
 	const [isLoading, setIsLoading] = useState(true)
 	const [question, setQuestion] = useState('')
 	const [answers, setAnswers] = useState([])

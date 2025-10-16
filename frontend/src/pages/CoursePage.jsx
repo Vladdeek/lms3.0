@@ -20,7 +20,12 @@ import {
 	Plus,
 	Trash,
 } from 'lucide-react'
-import { Button, EllipsisButton, SubmitButton } from '../components/Buttons'
+import {
+	Button,
+	EllipsisButton,
+	StartButton,
+	SubmitButton,
+} from '../components/Buttons'
 import { InputDefault, SearchInput } from '../components/Inputs'
 import CustomCodeBlock from '../components/CustomCodeBlock'
 import CustomAudioPlayer from '../components/AudioPlayer'
@@ -42,6 +47,7 @@ import { useError } from '../components/Errors'
 import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
+import axios from 'axios'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -208,18 +214,51 @@ const LevelsBar = ({
 	)
 }
 
-const ContentView = ({ content, contentType, contentTitle }) => {
+const ContentView = ({ content, contentType, contentTitle, testId }) => {
 	const [answers, setAnswers] = useState({})
-	const [singleAnswers, setSingleAnswers] = useState({})
 	const [questions, setQuestions] = useState([])
+	const token = localStorage.getItem('access_token')
+
+	const [session, setSession] = useState(null)
+
+	const { setError } = useError()
+
+	const fetchSession = async () => {
+		try {
+			const res = await axios.get(`${API}/tests/is-active/${testId}`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			console.log('res: ', res.data)
+
+			setSession(res.data.is_active)
+
+			setError(null)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
 
 	useEffect(() => {
 		contentType === 'test' && setQuestions(content?.content)
+		if (contentType === 'test') {
+			fetchSession()
+		}
 	}, [content])
 
 	const [activeIndex, setActiveIndex] = useState(0)
 
 	const [studentWork, setStudentWork] = useState()
+	const [studentAnswers, setStudentAnswers] = useState([])
 
 	const handleStudentsWorks = data => {
 		setStudentWork(prev => {
@@ -230,6 +269,54 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 			return updated
 		})
 	}
+
+	const handleStudentAnswer = () => {
+		setActiveIndex(prev => prev + 1)
+		const q = content.content[activeIndex]
+		const data = { question_id: q?.id, answers_data: answers }
+
+		setStudentAnswers(oldArray => {
+			const existingIndex = oldArray.findIndex(
+				item => item.question_id === q?.id
+			)
+
+			if (existingIndex !== -1) {
+				const newArray = [...oldArray]
+				newArray[existingIndex] = {
+					...newArray[existingIndex],
+					answers_data: answers,
+				}
+				return newArray
+			} else {
+				return [...oldArray, data]
+			}
+		})
+	}
+
+	useEffect(() => {
+		const PUT = async () => {
+			try {
+				const response = await fetch(
+					`${API}/tests/student-answers/update/${testId}`,
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${token}`,
+						},
+						body: JSON.stringify(studentAnswers),
+					}
+				)
+				const result = await response.json()
+
+				console.log('результат: ', result)
+			} catch (error) {
+				console.error('Ошибка:', error)
+			}
+		}
+
+		PUT()
+	}, [studentAnswers])
 
 	if (!content) {
 		return (
@@ -361,65 +448,81 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 						</>
 					) : (
 						<>
-							<LevelsBar
-								questions={questions}
-								activeIndex={activeIndex}
-								setActiveIndex={setActiveIndex}
-							/>
-							<div className='w-full flex justify-center'>
-								{(() => {
-									const q = content.content[activeIndex]
+							{session === false ? (
+								<div className='w-full h-225 flex items-center justify-center'>
+									<div className='h-12'>
+										<StartButton title={'Начать тест'} onClick={fetchSession} />
+									</div>
+								</div>
+							) : (
+								<>
+									<LevelsBar
+										questions={questions}
+										activeIndex={activeIndex}
+										setActiveIndex={setActiveIndex}
+									/>
+									<div className='w-full flex justify-center'>
+										{(() => {
+											const q = content.content[activeIndex]
 
-									if (q.type === 'multiple') {
-										return (
-											<MoreVariantView testId={questions[activeIndex]?.id} />
-										)
-									} else if (q.type === 'single') {
-										return (
-											<OneVariantView testId={questions[activeIndex]?.id} />
-										)
-									} else if (q.type === 'matching') {
-										return (
-											<SortVariantView testId={questions[activeIndex]?.id} />
-										)
-									} else if (q.type === 'open') {
-										return (
-											<OpenQuestionView testId={questions[activeIndex]?.id} />
-										)
-									}
+											if (q.type === 'multiple') {
+												return (
+													<MoreVariantView
+														testId={questions[activeIndex]?.id}
+														onAnswerSelect={data =>
+															console.log('ответ: ', data)
+														}
+													/>
+												)
+											} else if (q.type === 'single') {
+												return (
+													<OneVariantView
+														testId={questions[activeIndex]?.id}
+														onAnswerSelect={setAnswers}
+													/>
+												)
+											} else if (q.type === 'matching') {
+												return (
+													<SortVariantView
+														testId={questions[activeIndex]?.id}
+														onAnswerSelect={data =>
+															console.log('ответ: ', data)
+														}
+													/>
+												)
+											} else if (q.type === 'open') {
+												return (
+													<OpenQuestionView
+														testId={questions[activeIndex]?.id}
+														onAnswerSelect={data =>
+															console.log('ответ: ', data)
+														}
+													/>
+												)
+											}
 
-									return null
-								})()}
-							</div>
-							<div className='flex justify-center gap-3'>
-								{activeIndex !== 0 ? (
-									<button
-										onClick={() => setActiveIndex(prev => prev - 1)}
-										className={` justify-center items-center pr-4 pl-1 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex`}
-									>
-										<ChevronLeft />
-										<p>Назад</p>
-									</button>
-								) : (
-									<div></div>
-								)}
-								{activeIndex + 1 !== questions.length ? (
-									<button
-										onClick={() => setActiveIndex(prev => prev + 1)}
-										className=' justify-center items-center pl-4 pr-1 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
-									>
-										<p>Далее</p>
-										<ChevronRight />
-									</button>
-								) : (
-									<button
-										onClick={() => console.log('')}
-										className=' justify-center items-center px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
-									>
-										<p>Завершить тест</p>
-									</button>
-								)}
-							</div>
+											return null
+										})()}
+									</div>
+									<div className='flex justify-center gap-3'>
+										{activeIndex + 1 !== questions.length ? (
+											<button
+												onClick={handleStudentAnswer}
+												className=' justify-center items-center px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
+											>
+												<p>Ответить</p>
+											</button>
+										) : (
+											<button
+												onClick={() => console.log('')}
+												className=' justify-center items-center px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
+											>
+												<p>Завершить тест</p>
+											</button>
+										)}
+									</div>
+								</>
+							)}
 						</>
 					)
 				) : (
@@ -507,6 +610,7 @@ const CourseOverview = ({ content }) => {
 					content={selectedContent}
 					contentType={selectedType}
 					contentTitle={selectedName}
+					testId={selectedContent?.id}
 				/>
 			</div>
 		</>

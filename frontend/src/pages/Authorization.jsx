@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { InputAuth, InputDefault } from '../components/Inputs'
 import { Link } from '../components/Links'
 import { Button, SubmitButton } from '../components/Buttons'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { API } from '../API'
 import { AuthContext } from '../context/AuthContext'
 import DecryptedText from '../components/ReactBits/DecryptedText'
@@ -13,6 +13,9 @@ const Authorization = ({ isRegister = false }) => {
 	const [password, setPassword] = useState('')
 	const [isEmailValid, setIsEmailValid] = useState(false)
 	const [isPasswordValid, setIsPasswordValid] = useState(false)
+
+	const storedAccess = localStorage.getItem('access_token')
+	const storedRefresh = localStorage.getItem('refresh_token')
 
 	const navigate = useNavigate()
 
