@@ -62,6 +62,7 @@ const OneVariantView = ({
 	testId,
 	shuffle = true,
 	onChange,
+	select,
 }) => {
 	const [isLoading, setIsLoading] = useState(true)
 	const [question, setQuestion] = useState('')

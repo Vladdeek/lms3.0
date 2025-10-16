@@ -248,6 +248,34 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 		}
 	}
 
+	const startSession = async () => {
+		try {
+			const res = await axios.post(
+				`${API}/tests/start/${testId}`,
+				{},
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+
+			console.log('res: ', res.data)
+			setSession(res.data.is_active)
+			setError(null)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+
+		fetchSession()
+	}
+
 	useEffect(() => {
 		contentType === 'test' && setQuestions(content?.content)
 		if (contentType === 'test') {
@@ -272,7 +300,8 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 
 	const handleStudentAnswer = () => {
 		setActiveIndex(prev => prev + 1)
-		const q = content.content[activeIndex]
+
+		const q = content?.content[activeIndex]
 		const data = { question_id: q?.id, answers_data: answers }
 
 		setStudentAnswers(oldArray => {
@@ -332,10 +361,10 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll'>
 			<ModuleContent bg={true} type={contentType} title={contentTitle} />
 			<div className='flex flex-col gap-5'>
-				{content.length !== 0 ? (
+				{content?.length !== 0 ? (
 					contentType !== 'test' ? (
 						<>
-							{content.map((item, i) => {
+							{content?.map((item, i) => {
 								let element
 								switch (item?.type) {
 									case 'text':
@@ -451,7 +480,7 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 							{session === false ? (
 								<div className='w-full h-225 flex items-center justify-center'>
 									<div className='h-12'>
-										<StartButton title={'Начать тест'} onClick={fetchSession} />
+										<StartButton title={'Начать тест'} onClick={startSession} />
 									</div>
 								</div>
 							) : (
@@ -463,7 +492,7 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 									/>
 									<div className='w-full flex justify-center'>
 										{(() => {
-											const q = content.content[activeIndex]
+											const q = content?.content[activeIndex]
 
 											if (q.type === 'multiple') {
 												return (
