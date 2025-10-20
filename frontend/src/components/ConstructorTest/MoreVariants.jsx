@@ -182,7 +182,12 @@ const MoreVariant = ({
 
 	const fetchTest = async id => {
 		console.log(id)
-		const res = await fetch(`${API}/questions/${id}`)
+		const token = localStorage.getItem('access_token')
+		const res = await fetch(`${API}/questions/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
 		const data = await res.json()
 		if (data) setIsLoading(false)
 		setQuestion(data?.title)

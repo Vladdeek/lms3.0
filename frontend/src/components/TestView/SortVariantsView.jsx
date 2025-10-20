@@ -107,7 +107,12 @@ const SortVariantView = ({ onChange, testId }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
-			const res = await fetch(`${API}/questions/${id}`)
+			const token = localStorage.getItem('access_token')
+			const res = await fetch(`${API}/questions/${id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
 			const data = await res.json()
 			setQuestion(data?.title)
 			setMedia(data?.media)

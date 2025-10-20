@@ -90,7 +90,12 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 	useEffect(() => {
 		setIsLoading(true)
 		const fetchTest = async id => {
-			const res = await fetch(`${API}/questions/${id}`)
+			const token = localStorage.getItem('access_token')
+			const res = await fetch(`${API}/questions/${id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
 			const data = await res.json()
 			if (data) setIsLoading(false)
 			console.log('get: ', data)

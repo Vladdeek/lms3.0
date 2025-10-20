@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, use } from 'react'
 import { Check, CoinsIcon, X } from 'lucide-react'
 import CustomAudioPlayer from '../AudioPlayer'
 import FormulaView from '../Viewer/FormulaView'
 import { API } from '../../API'
 import Loader from '../Loader'
+import { se } from 'date-fns/locale'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -25,11 +26,11 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 }
 
 // Радиокнопка без correct
-const StudentRadio = ({ id, answer, selectedId, onChange }) => {
-	const isSelected = selectedId === id
+const StudentRadio = ({ answer, selectedName, onChange }) => {
+	const isSelected = selectedName === answer?.name
 
 	const handleChange = () => {
-		onChange(id)
+		onChange(answer?.name)
 	}
 
 	return (
@@ -40,11 +41,11 @@ const StudentRadio = ({ id, answer, selectedId, onChange }) => {
 					: 'bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)]'
 			}`}
 		>
-			{answer && <span>{answer.name || answer}</span>}
+			{answer && <span>{answer?.name || answer}</span>}
 
 			<span className='relative w-5 h-5 flex items-center justify-center rounded bg-transparent transition'>
 				<input
-					id={`student-answer-${id}`}
+					id={`student-answer-${selectedName}`}
 					type='radio'
 					name='student-question'
 					checked={isSelected}
@@ -68,12 +69,19 @@ const OneVariantView = ({
 	const [question, setQuestion] = useState('')
 	const [answers, setAnswers] = useState([])
 	const [media, setMedia] = useState()
-	const [selectedId, setSelectedId] = useState(null)
+	const [selectedName, setSelectedName] = useState(null)
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
+	useEffect(() => {
+		selectedName !== null &&
+			onAnswerSelect({
+				question_id: testId,
+				student_answer: selectedName,
+			})
+	}, [selectedName])
+
 	const handleSelect = id => {
-		setSelectedId(id)
-		if (onAnswerSelect) onAnswerSelect(id)
+		setSelectedName(id)
 	}
 
 	const shuffleAnswers = useMemo(() => {
@@ -84,12 +92,23 @@ const OneVariantView = ({
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
-			const res = await fetch(`${API}/questions/${id}`)
+			const token = localStorage.getItem('access_token')
+			const res = await fetch(`${API}/questions/${id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
 			const data = await res.json()
+
+			console.log('get student answer: ', data?.student_answer)
+
 			setIsLoading(false)
 			setQuestion(data?.title)
 			setAnswers(data?.question_options || [])
 			setMedia(data?.media)
+			setSelectedName(
+				data?.student_answer === null ? null : data?.student_answer
+			)
 		}
 		if (testId) fetchTest(testId)
 	}, [testId])
@@ -137,7 +156,7 @@ const OneVariantView = ({
 							key={index}
 							id={index}
 							answer={answer}
-							selectedId={selectedId}
+							selectedName={selectedName}
 							onChange={handleSelect}
 						/>
 					))}

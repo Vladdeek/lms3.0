@@ -73,6 +73,10 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 		setPairs(combinedPairs)
 	}, [left_option, right_option])
 
+	useEffect(() => {
+		fetchTest(testId)
+	}, [testId])
+
 	const handleLeftChange = (index, value) => {
 		setLeft_option(prev => {
 			const updated = [...prev]
@@ -101,7 +105,12 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const res = await fetch(`${API}/questions/${id}`)
+		const token = localStorage.getItem('access_token')
+		const res = await fetch(`${API}/questions/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
 		const data = await res.json()
 		if (data) setIsLoading(false)
 		setQuestion(data?.title)

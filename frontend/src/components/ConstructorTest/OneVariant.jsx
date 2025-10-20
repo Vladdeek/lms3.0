@@ -207,7 +207,12 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const res = await fetch(`${API}/questions/${id}`)
+		const token = localStorage.getItem('access_token')
+		const res = await fetch(`${API}/questions/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
 		const data = await res.json()
 
 		console.log(data)
@@ -302,8 +307,8 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 
 	useEffect(() => {
 		setIsLoading(true)
-		if (questionId) {
-			fetchTest(questionId)
+		if (testId) {
+			fetchTest(testId)
 		} else {
 			setQuestion('')
 			setScore(1)
@@ -314,7 +319,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			])
 			setIsLoading(false)
 		}
-	}, [questionId])
+	}, [testId])
 
 	const handleSave = () => {
 		testId ? handleEdit() : handleCreate()

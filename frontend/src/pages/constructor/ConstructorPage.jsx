@@ -94,7 +94,7 @@ const SettingsButton = ({
 		const formData = new FormData()
 		formData.append('name', title)
 		formData.append('description', description)
-		!imageUrl && formData.append('image', img)
+		formData.append('image', img)
 
 		console.log('formdata: ', [...formData.entries()])
 

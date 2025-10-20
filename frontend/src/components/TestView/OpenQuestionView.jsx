@@ -33,7 +33,12 @@ const OpenQuestionView = ({ value, testId }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
-			const res = await fetch(`${API}/questions/${id}`)
+			const token = localStorage.getItem('access_token')
+			const res = await fetch(`${API}/questions/${id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
 			const data = await res.json()
 			console.log(data)
 			setIsLoading(false)

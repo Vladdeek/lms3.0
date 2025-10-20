@@ -1158,8 +1158,6 @@ const Constructor = ({
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
 				const data = await res.json()
 
-				console.log('get: ', data)
-
 				setSelectedContent(data)
 			} catch (err) {
 				setSelectedContent(null)

@@ -48,6 +48,7 @@ import { ConstructorFileInput } from '../components/ConstructorComponents/FileIm
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
 import axios from 'axios'
+import { set } from 'date-fns'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -217,7 +218,11 @@ const LevelsBar = ({
 const ContentView = ({ content, contentType, contentTitle, testId }) => {
 	const [answers, setAnswers] = useState({})
 	const [questions, setQuestions] = useState([])
+	const [score, setScore] = useState(null)
+	const [gradeStatus, setGradeStatus] = useState(null)
 	const token = localStorage.getItem('access_token')
+
+	console.log('ответы студента: ', answers)
 
 	const [session, setSession] = useState(null)
 
@@ -235,6 +240,8 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 			console.log('res: ', res.data)
 
 			setSession(res.data.is_active)
+			setGradeStatus(res.data.grade_status)
+			setScore(res.data.score)
 
 			setError(null)
 		} catch (err) {
@@ -322,28 +329,52 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 		})
 	}
 
-	useEffect(() => {
-		const PUT = async () => {
-			try {
-				const response = await fetch(
-					`${API}/tests/student-answers/update/${testId}`,
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
-						body: JSON.stringify(studentAnswers),
-					}
-				)
-				const result = await response.json()
+	const PUT = async () => {
+		try {
+			const response = await fetch(
+				`${API}/tests/student-answers/update/${testId}`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify(answers),
+				}
+			)
+			const result = await response.json()
 
-				console.log('результат: ', result)
-			} catch (error) {
-				console.error('Ошибка:', error)
-			}
+			setAnswers(null)
+
+			console.log('результат: ', result)
+		} catch (error) {
+			console.error('Ошибка:', error)
 		}
+	}
 
+	const testEnd = async () => {
+		try {
+			const response = await fetch(`${API}/tests/end/${testId}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			const result = await response.json()
+
+			console.log('результат теста: ', result)
+		} catch (error) {
+			console.error('Ошибка:', error)
+		}
+	}
+
+	const handleFinish = () => {
+		handleStudentAnswer()
+		testEnd()
+	}
+
+	useEffect(() => {
 		PUT()
 	}, [studentAnswers])
 
@@ -477,80 +508,97 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 						</>
 					) : (
 						<>
-							{session === false ? (
-								<div className='w-full h-225 flex items-center justify-center'>
-									<div className='h-12'>
-										<StartButton title={'Начать тест'} onClick={startSession} />
-									</div>
-								</div>
-							) : (
+							{gradeStatus === 'assessed' ? (
 								<>
-									<LevelsBar
-										questions={questions}
-										activeIndex={activeIndex}
-										setActiveIndex={setActiveIndex}
-									/>
-									<div className='w-full flex justify-center'>
-										{(() => {
-											const q = content?.content[activeIndex]
-
-											if (q.type === 'multiple') {
-												return (
-													<MoreVariantView
-														testId={questions[activeIndex]?.id}
-														onAnswerSelect={data =>
-															console.log('ответ: ', data)
-														}
-													/>
-												)
-											} else if (q.type === 'single') {
-												return (
-													<OneVariantView
-														testId={questions[activeIndex]?.id}
-														onAnswerSelect={setAnswers}
-													/>
-												)
-											} else if (q.type === 'matching') {
-												return (
-													<SortVariantView
-														testId={questions[activeIndex]?.id}
-														onAnswerSelect={data =>
-															console.log('ответ: ', data)
-														}
-													/>
-												)
-											} else if (q.type === 'open') {
-												return (
-													<OpenQuestionView
-														testId={questions[activeIndex]?.id}
-														onAnswerSelect={data =>
-															console.log('ответ: ', data)
-														}
-													/>
-												)
-											}
-
-											return null
-										})()}
-									</div>
-									<div className='flex justify-center gap-3'>
-										{activeIndex + 1 !== questions.length ? (
-											<button
-												onClick={handleStudentAnswer}
-												className=' justify-center items-center px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
-											>
-												<p>Ответить</p>
-											</button>
-										) : (
-											<button
-												onClick={() => console.log('')}
-												className=' justify-center items-center px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
-											>
-												<p>Завершить тест</p>
-											</button>
-										)}
-									</div>
+									<p>{score}</p>
 								</>
+							) : gradeStatus === 'pending' ? (
+								<>
+									<p>на рассмотрении</p>
+								</>
+							) : (
+								gradeStatus === 'not_attempted' && (
+									<>
+										{session === false ? (
+											<div className='w-full h-225 flex items-center justify-center'>
+												<div className='h-12'>
+													<StartButton
+														title={'Начать тест'}
+														onClick={startSession}
+													/>
+												</div>
+											</div>
+										) : (
+											<>
+												<LevelsBar
+													questions={questions}
+													activeIndex={activeIndex}
+													setActiveIndex={setActiveIndex}
+												/>
+												<div className='w-full flex justify-center'>
+													{(() => {
+														const q = content?.content[activeIndex]
+
+														if (q?.type === 'multiple') {
+															return (
+																<MoreVariantView
+																	testId={questions[activeIndex]?.id}
+																	onAnswerSelect={data =>
+																		console.log('ответ: ', data)
+																	}
+																/>
+															)
+														} else if (q?.type === 'single') {
+															return (
+																<OneVariantView
+																	testId={questions[activeIndex]?.id}
+																	onAnswerSelect={setAnswers}
+																/>
+															)
+														} else if (q?.type === 'matching') {
+															return (
+																<SortVariantView
+																	testId={questions[activeIndex]?.id}
+																	onAnswerSelect={data =>
+																		console.log('ответ: ', data)
+																	}
+																/>
+															)
+														} else if (q?.type === 'open') {
+															return (
+																<OpenQuestionView
+																	testId={questions[activeIndex]?.id}
+																	onAnswerSelect={data =>
+																		console.log('ответ: ', data)
+																	}
+																/>
+															)
+														}
+
+														return null
+													})()}
+												</div>
+												<div className='flex justify-center gap-3'>
+													{activeIndex + 1 !== questions.length ? (
+														<button
+															onClick={handleStudentAnswer}
+															className=' justify-center items-center px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
+														>
+															<p>Ответить</p>
+														</button>
+													) : (
+														<button
+															onClick={() => handleFinish()}
+															className=' justify-center items-center px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
+														>
+															<p>Завершить тест</p>
+														</button>
+													)}
+												</div>
+											</>
+										)}
+									</>
+								)
 							)}
 						</>
 					)
