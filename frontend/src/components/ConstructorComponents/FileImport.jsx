@@ -275,7 +275,7 @@ export const ConstructorFileInput = ({
 										: 'bg-[var(--light-gray)]'
 								} w-full`}
 							>
-								<div className='flex items-center gap-2'>
+								<div className='flex items-center gap-2 text-[var(--black)]'>
 									{getFileIcon(file?.name)}
 									<div>
 										<p className='text-sm font-medium truncate w-full'>
@@ -312,11 +312,11 @@ export const ConstructorFileInput = ({
 								: !isFileValid
 								? 'bg-[var(--hard-lvl-bg)]'
 								: 'bg-[var(--light-gray)]'
-						} rounded-lg transition-all`}
+						} rounded-2xl transition-all`}
 					>
 						<label
 							htmlFor='dropzone-file'
-							className={`cursor-pointer rounded-lg p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
+							className={`cursor-pointer rounded-xl p-[10px] flex gap-[10px] items-center w-full transition border-3 border-dashed ${
 								isDragActive
 									? 'border-[var(--hero-epta)]'
 									: !isFileValid

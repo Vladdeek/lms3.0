@@ -1,4 +1,4 @@
-import { act, useState } from 'react'
+import { act, useEffect, useState } from 'react'
 import { OptionInput } from '../components/Inputs'
 
 import {
@@ -13,6 +13,12 @@ import MoreVariantView from '../components/TestView/MoreVariantsView'
 import OneVariantView from '../components/TestView/OneVariantView'
 import SortVariantView from '../components/TestView/SortVariantsView'
 import OpenQuestionView from '../components/TestView/OpenQuestionView'
+import { setSelection } from 'slate'
+import { se } from 'date-fns/locale'
+import { useError } from '../components/Errors'
+import axios from 'axios'
+import { API } from '../API'
+import Loader from '../components/Loader'
 
 const StudentCard = ({ img_path, FullName, score, onClick, active }) => {
 	return (
@@ -31,12 +37,9 @@ const StudentCard = ({ img_path, FullName, score, onClick, active }) => {
 						active && 'text-[var(--hero-epta)]'
 					}`}
 				>
-					{`${FullName.split(' ')[0]} 
-					${FullName.split(' ')[1]} 
-					${FullName.split(' ')[2]?.[0]}.`}
-				</p>
-				<p className='text-[var(--middle)] whitespace-nowrap text-sm'>
-					Оценка: {score}
+					{`${FullName?.split(' ')[0]} 
+					${FullName?.split(' ')[1]} 
+					${FullName?.split(' ')[2]?.[0]}.`}
 				</p>
 			</div>
 		</div>
@@ -370,23 +373,11 @@ const TestView = ({ content }) => {
 }
 
 const StudentsAndGroups = () => {
+	const { setError } = useError()
+
 	const [ActiveStudent, setActiveStudent] = useState(0)
 	const [ActiveTask, setActiveTask] = useState(0)
 	const [ActiveType, setActiveType] = useState(0)
-	const GroupMass = [
-		'2211-0101.1',
-		'2324-0121.2',
-		'2232-0101.5',
-		'2211-0131.7',
-		'2321-0101.3',
-		'2211-0211.1',
-		'4211-0101.2',
-		'2211-0101.1',
-		'2211-0141.1',
-		'2421-0101.1',
-		'2211-4201.1',
-		'2211-0101.2',
-	]
 	const Type = ['Оценка', 'Комментарий']
 	const Score = [1, 2, 3, 4, 5]
 	const Tasks = [
@@ -427,30 +418,124 @@ const StudentsAndGroups = () => {
 			],
 		},
 	]
+
+	const [courses, setCourses] = useState()
+	const [groups, setGroups] = useState()
+	const [students, setStudents] = useState()
+	const [selectedCourse, setSelectedCourse] = useState(0)
+	const [selectedGroupe, setSelectedGroupe] = useState(0)
+	const [selectedStudent, setSelectedStudent] = useState(0)
+
+	const fetchCourses = async () => {
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(`${API}/courses/`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			console.log('courses res: ', res.data)
+			console.log('courses res: ', res.data[selectedCourse]?.id)
+			setCourses(res.data)
+			setError(null)
+		} catch (err) {
+			console.log('error: ', err.response.status)
+			setError(err.response.status.toString())
+		}
+	}
+
+	const fetchGroups = async () => {
+		console.log('id:', courses)
+		try {
+			const res = await axios.get(
+				`${API}/courses/student-group/linked/?course_id=${courses[selectedCourse]?.id}`
+			)
+			console.log('groups res: ', res)
+			setError(null)
+			setGroups(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
+
+	const fetchStudents = async () => {
+		try {
+			const res = await axios.get(
+				`${API}/student-group/${groups[selectedGroupe]?.id}/students`
+			)
+
+			console.log('students res: ', res)
+			setError(null)
+			setStudents(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
+
+	useEffect(() => {
+		fetchCourses()
+	}, [])
+
+	useEffect(() => {
+		if (courses) fetchGroups()
+	}, [courses])
+
+	useEffect(() => {
+		if (groups) fetchStudents()
+	}, [groups])
+
+	if (!courses) {
+		return (
+			<div className=' flex items-center justify-center h-full'>
+				<Loader />
+			</div>
+		)
+	}
 	return (
 		<>
 			<div className='grid grid-cols-12 gap-5 mt-20 select-none h-screen'>
 				<div className='col-span-2 flex flex-col gap-5 h-5/6'>
 					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
 						<p className='text-[var(--middle)] text-sm'>Выберите курс</p>
-						<OptionInput Options={GroupMass} />
+						<OptionInput
+							Options={courses}
+							labelKey='name'
+							onChange={setSelectedCourse}
+						/>
 					</div>
 					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
 						<p className='text-[var(--middle)] text-sm'>
 							Выберите группу студентов
 						</p>
-						<OptionInput Options={GroupMass} />
+						<OptionInput
+							Options={groups}
+							labelKey='name'
+							onChange={setSelectedGroupe}
+						/>
 					</div>
 					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar max-h-200'>
 						<div className='flex flex-col gap-3 p-5'>
-							{students.map((item, index) => (
+							{students?.map((item, index) => (
 								<StudentCard
 									key={item.id || index}
 									onClick={() => setActiveStudent(index)}
 									active={ActiveStudent === index}
 									img_path={item.img}
 									FullName={item.name}
-									score={item.score}
 								/>
 							))}
 						</div>

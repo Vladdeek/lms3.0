@@ -215,14 +215,20 @@ const LevelsBar = ({
 	)
 }
 
-const ContentView = ({ content, contentType, contentTitle, testId }) => {
+const ContentView = ({
+	content,
+	sectionId,
+	contentType,
+	contentTitle,
+	testId,
+}) => {
 	const [answers, setAnswers] = useState({})
 	const [questions, setQuestions] = useState([])
 	const [score, setScore] = useState(null)
 	const [gradeStatus, setGradeStatus] = useState(null)
 	const token = localStorage.getItem('access_token')
 
-	console.log('ответ студента: ', answers)
+	console.log('sectionId: ', sectionId)
 
 	const [session, setSession] = useState(null)
 
@@ -236,8 +242,6 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 					Authorization: `Bearer ${token}`,
 				},
 			})
-
-			console.log('res: ', res.data)
 
 			setSession(res.data.is_active)
 			setGradeStatus(res.data.grade_status)
@@ -295,16 +299,29 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 	const [studentWork, setStudentWork] = useState()
 	const [studentAnswers, setStudentAnswers] = useState([])
 
+	console.log('studentWork: ', studentWork)
+
 	const [lastQuestion, setLastQuestion] = useState(false)
 
-	const handleStudentsWorks = data => {
-		setStudentWork(prev => {
-			const base =
-				Array.isArray(prev) && prev.length > 0 ? prev[0] : { content: '' }
-			const updated = [{ ...base, content: data }]
+	const sendResultOfWork = async () => {
+		try {
+			const payload = [studentWork?.map(f => f.file_path)]
 
-			return updated
-		})
+			const res = await axios.post(
+				`${API}/sections/${sectionId}/upload/assignment`,
+				payload[0],
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				}
+			)
+
+			console.log('✅ Результат отправки:', res.data)
+		} catch (error) {
+			console.error('❌ Ошибка при отправке:', error)
+		}
 	}
 
 	const handleStudentAnswer = () => {
@@ -347,7 +364,6 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 				}
 			)
 			const result = await response.json()
-			console.log('результат: ', result)
 			setAnswers(null)
 		} catch (error) {
 			console.error('Ошибка:', error)
@@ -364,8 +380,6 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 				},
 			})
 			const result = await response.json()
-
-			console.log('результат теста: ', result)
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
@@ -495,15 +509,18 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 									}}
 								>
 									<div className='w-full flex flex-col justify-center gap-3'>
-										<p className='text-center font-medium text-xl'>
+										<p className='text-center font-medium text-xl text-[var(--black)]'>
 											Прикрепить файл для проверки
 										</p>
 										<ConstructorFileInput
-											onChange={data => handleStudentsWorks(1, data)}
+											onChange={setStudentWork}
 											takeValues={studentWork?.content}
 										/>
 
-										<SubmitButton title={'Отправить на проверку'} />
+										<SubmitButton
+											title={'Отправить на проверку'}
+											onClick={sendResultOfWork}
+										/>
 									</div>
 								</motion.div>
 							)}
@@ -684,6 +701,7 @@ const CourseOverview = ({ content }) => {
 					contentType={selectedType}
 					contentTitle={selectedName}
 					testId={selectedContent?.id}
+					sectionId={sectionId}
 				/>
 			</div>
 		</>
