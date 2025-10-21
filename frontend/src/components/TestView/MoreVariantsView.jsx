@@ -24,19 +24,10 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	)
 }
 
-const StudentCheckbox = ({
-	id,
-	disabled = false,
-	onChange,
-	answer,
-	checked = false,
-	correctAnswers = [],
-}) => {
-	const isCorrect = correctAnswers.includes(id)
-
+const StudentCheckbox = ({ disabled = false, onChange, answer, checked }) => {
 	const handleChange = () => {
 		const newChecked = !checked
-		if (onChange) onChange(id, newChecked)
+		if (onChange) onChange(answer.name, newChecked)
 	}
 
 	return (
@@ -52,7 +43,7 @@ const StudentCheckbox = ({
 			<span className='relative w-5 h-5 flex items-center justify-center rounded bg-transparent transition'>
 				{checked && <Check size={24} strokeWidth={3} />}
 				<input
-					id={`student-answer-${id}`}
+					id={`student-answer-${answer.name}`}
 					type='checkbox'
 					checked={checked}
 					disabled={disabled}
@@ -76,6 +67,17 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
+	useEffect(() => {
+		console.log(
+			JSON.stringify({ question_id: testId, student_answer: selected })
+		)
+		selected !== null &&
+			onAnswerSelect({
+				question_id: testId,
+				student_answer: selected,
+			})
+	}, [selected])
+
 	const handleChange = (optionCode, checked) => {
 		let newSelected
 		if (checked) {
@@ -84,12 +86,11 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 			newSelected = selected.filter(code => code !== optionCode) // убрать
 		}
 		setSelected(newSelected)
-		if (onAnswerSelect) onAnswerSelect(optionCode, checked)
 	}
 
 	useEffect(() => {
-		setIsLoading(true)
 		const fetchTest = async id => {
+			setIsLoading(true)
 			const token = localStorage.getItem('access_token')
 			const res = await fetch(`${API}/questions/${id}`, {
 				headers: {
@@ -97,14 +98,16 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 				},
 			})
 			const data = await res.json()
-			if (data) setIsLoading(false)
-			console.log('get: ', data)
+
+			console.log('question data:', data)
+
+			setIsLoading(false)
 			setQuestion(data?.title)
-			setScore(data?.score)
+			setAnswers(data?.question_options || [])
 			setMedia(data?.media)
-			setAnswers(data?.question_options)
+			setSelected(data?.student_answer === null ? [] : data?.student_answer)
 		}
-		fetchTest(testId)
+		if (testId) fetchTest(testId)
 	}, [testId])
 
 	if (isLoading) return <Loader />
@@ -143,12 +146,11 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 				</div>
 
 				<div className='flex flex-col items-center gap-3 w-full'>
-					{answers?.map((answer, index) => (
+					{answers?.map(answer => (
 						<StudentCheckbox
 							key={answer.option_code}
-							id={answer.option_code} // используем уникальный option_code
-							answer={answer} // объект
-							checked={selected.includes(answer.option_code)}
+							answer={answer}
+							checked={selected?.includes(answer.name)}
 							onChange={handleChange}
 						/>
 					))}

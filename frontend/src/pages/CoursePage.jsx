@@ -222,7 +222,7 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 	const [gradeStatus, setGradeStatus] = useState(null)
 	const token = localStorage.getItem('access_token')
 
-	console.log('ответы студента: ', answers)
+	console.log('ответ студента: ', answers)
 
 	const [session, setSession] = useState(null)
 
@@ -295,6 +295,8 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 	const [studentWork, setStudentWork] = useState()
 	const [studentAnswers, setStudentAnswers] = useState([])
 
+	const [lastQuestion, setLastQuestion] = useState(false)
+
 	const handleStudentsWorks = data => {
 		setStudentWork(prev => {
 			const base =
@@ -306,7 +308,9 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 	}
 
 	const handleStudentAnswer = () => {
-		setActiveIndex(prev => prev + 1)
+		activeIndex + 1 !== questions?.length
+			? setActiveIndex(prev => prev + 1)
+			: setLastQuestion(true)
 
 		const q = content?.content[activeIndex]
 		const data = { question_id: q?.id, answers_data: answers }
@@ -343,10 +347,8 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 				}
 			)
 			const result = await response.json()
-
-			setAnswers(null)
-
 			console.log('результат: ', result)
+			setAnswers(null)
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
@@ -367,10 +369,10 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
+		fetchSession()
 	}
 
 	const handleFinish = () => {
-		handleStudentAnswer()
 		testEnd()
 	}
 
@@ -543,9 +545,7 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 															return (
 																<MoreVariantView
 																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={data =>
-																		console.log('ответ: ', data)
-																	}
+																	onAnswerSelect={setAnswers}
 																/>
 															)
 														} else if (q?.type === 'single') {
@@ -559,18 +559,14 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 															return (
 																<SortVariantView
 																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={data =>
-																		console.log('ответ: ', data)
-																	}
+																	onAnswerSelect={setAnswers}
 																/>
 															)
 														} else if (q?.type === 'open') {
 															return (
 																<OpenQuestionView
 																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={data =>
-																		console.log('ответ: ', data)
-																	}
+																	onChange={setAnswers}
 																/>
 															)
 														}
@@ -579,7 +575,7 @@ const ContentView = ({ content, contentType, contentTitle, testId }) => {
 													})()}
 												</div>
 												<div className='flex justify-center gap-3'>
-													{activeIndex + 1 !== questions.length ? (
+													{!lastQuestion ? (
 														<button
 															onClick={handleStudentAnswer}
 															className=' justify-center items-center px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'

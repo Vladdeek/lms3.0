@@ -98,9 +98,8 @@ const OneVariantView = ({
 					Authorization: `Bearer ${token}`,
 				},
 			})
-			const data = await res.json()
 
-			console.log('get student answer: ', data?.student_answer)
+			const data = await res.json()
 
 			setIsLoading(false)
 			setQuestion(data?.title)
@@ -132,26 +131,26 @@ const OneVariantView = ({
 
 				<div className='w-full flex justify-center'>
 					{media &&
-						(media.type === 'audio' ? (
+						(media?.type === 'audio' ? (
 							<CustomAudioPlayer
-								audioUrl={JSON.parse(media?.info)?.audioUrl || media.info}
+								audioUrl={JSON.parse(media?.info)?.audioUrl || media?.info}
 							/>
-						) : media.type === 'photo' ? (
+						) : media?.type === 'photo' ? (
 							<div className='aspect-video h-100 flex justify-center'>
 								<img
 									className='w-auto h-full rounded-xl hover:shadow-[var(--shadow)] hover:scale-101 transition'
-									src={media.info}
+									src={media?.info}
 									alt=''
-									onClick={() => setFullScreenPhoto(media.info)}
+									onClick={() => setFullScreenPhoto(media?.info)}
 								/>
 							</div>
-						) : media.type === 'formula' ? (
-							<FormulaView Formula={media.info} />
+						) : media?.type === 'formula' ? (
+							<FormulaView Formula={media?.info} />
 						) : null)}
 				</div>
 
 				<div className='flex flex-col items-center gap-3 w-full'>
-					{shuffleAnswers.map((answer, index) => (
+					{shuffleAnswers?.map((answer, index) => (
 						<StudentRadio
 							key={index}
 							id={index}

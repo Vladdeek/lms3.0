@@ -24,11 +24,20 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	)
 }
 
-const OpenQuestionView = ({ value, testId }) => {
+const OpenQuestionView = ({ value, testId, onChange }) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [question, setQuestion] = useState('')
 	const [media, setMedia] = useState()
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
+
+	const [answer, setAnswer] = useState('')
+
+	useEffect(() => {
+		onChange?.({
+			question_id: testId,
+			student_answer: answer,
+		})
+	}, [answer])
 
 	useEffect(() => {
 		const fetchTest = async id => {
@@ -97,6 +106,7 @@ const OpenQuestionView = ({ value, testId }) => {
 						placeholder={'Введите свой вариант ответа...'}
 						value={value}
 						readOnly={value}
+						onChange={e => setAnswer(e.target.value)}
 					/>
 					{value && (
 						<div className='flex justify-center gap-5 w-full'>

@@ -93,7 +93,7 @@ const PairItem = forwardRef(
 	}
 )
 
-const SortVariantView = ({ onChange, testId }) => {
+const SortVariantView = ({ testId, onAnswerSelect }) => {
 	const [heights, setHeights] = useState([])
 	const rightRefs = useRef([])
 	const [isLoading, setIsLoading] = useState(false)
@@ -105,6 +105,16 @@ const SortVariantView = ({ onChange, testId }) => {
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
 	useEffect(() => {
+		onAnswerSelect?.({
+			question_id: testId,
+			student_answer: {
+				left_options: left_option,
+				right_options: right_option,
+			},
+		})
+	}, [right_option, left_option])
+
+	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
 			const token = localStorage.getItem('access_token')
@@ -114,6 +124,7 @@ const SortVariantView = ({ onChange, testId }) => {
 				},
 			})
 			const data = await res.json()
+			console.log('sort data:', data)
 			setQuestion(data?.title)
 			setMedia(data?.media)
 			setScore(data?.score)
@@ -165,17 +176,6 @@ const SortVariantView = ({ onChange, testId }) => {
 			return newArr
 		})
 	}
-
-	// передаем изменения наверх
-	useEffect(() => {
-		if (onChange) {
-			const answers = left_option.map((left, idx) => [
-				left,
-				right_option[idx] || '',
-			])
-			onChange(answers)
-		}
-	}, [left_option, right_option, onChange])
 
 	if (isLoading) return <Loader />
 
