@@ -5,6 +5,7 @@ import {
 	ArrowBigDownDash,
 	CalendarDays,
 	Filter,
+	ImageOff,
 	LaptopMinimalCheck,
 	NotebookPen,
 } from 'lucide-react'
@@ -17,29 +18,43 @@ import { setSelection } from 'slate'
 import { se } from 'date-fns/locale'
 import { useError } from '../components/Errors'
 import axios from 'axios'
-import { API } from '../API'
+import { API, FILE_API } from '../API'
 import Loader from '../components/Loader'
 
-const StudentCard = ({ img_path, FullName, score, onClick, active }) => {
+const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
+	console.log('img_path:', img_path)
 	return (
 		<div
 			onClick={onClick}
-			className={`bg-[var(--white)]  flex gap-3 rounded-md px-3 py-[10px] ${
+			className={`bg-[var(--white)]  flex gap-3 rounded-md px-3 py-[10px] cursor-pointer ${
 				active
 					? 'ring-1 ring-[var(--hero-epta)] shadow-[var(--hero-shadow)]'
 					: 'shadow-[var(--shadow)] '
 			}`}
 		>
-			<img className='aspect-square rounded-full h-10 ' src={img_path} alt='' />
+			{img_path !== null ? (
+				<img
+					className='aspect-square rounded-full h-10 '
+					src={FILE_API + img_path}
+					alt=''
+				/>
+			) : (
+				<ImageOff className='h-10 w-10 p-1 text-[var(--black)] opacity-50 aspect-square rounded-full' />
+			)}
+
 			<div className='flex flex-col justify-between'>
 				<p
 					className={`text-[var(--black)] whitespace-nowrap font-medium text-sm ${
 						active && 'text-[var(--hero-epta)]'
 					}`}
 				>
-					{`${FullName?.split(' ')[0]} 
-					${FullName?.split(' ')[1]} 
-					${FullName?.split(' ')[2]?.[0]}.`}
+					{PersonalData?.last_name ||
+					PersonalData?.first_name ||
+					PersonalData?.middle_name
+						? `${PersonalData?.last_name} 
+					${PersonalData?.first_name} 
+					${PersonalData?.middle_name}`
+						: 'Данные не указаны'}
 				</p>
 			</div>
 		</div>
@@ -534,8 +549,8 @@ const StudentsAndGroups = () => {
 									key={item.id || index}
 									onClick={() => setActiveStudent(index)}
 									active={ActiveStudent === index}
-									img_path={item.img}
-									FullName={item.name}
+									PersonalData={item?.personal_data}
+									img_path={item?.image_path}
 								/>
 							))}
 						</div>
