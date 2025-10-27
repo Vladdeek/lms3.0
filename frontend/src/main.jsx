@@ -32,6 +32,7 @@ import Authorization from './pages/Authorization'
 import { AuthProvider, AuthContext } from './context/AuthContext'
 import axios from 'axios'
 import { API } from './API'
+import Moderation from './pages/Moderation'
 
 function MainApp() {
 	const [role, setRole] = useState()
@@ -78,6 +79,7 @@ function MainApp() {
 					</Route>
 
 					<Route path='/students' element={<StudentsAndGroups />} />
+					<Route path='/moderation' element={<Moderation role={role} />} />
 					<Route
 						path='/constructor/:courseId?'
 						element={<ConstructorPage role={role} />}

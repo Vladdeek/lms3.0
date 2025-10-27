@@ -139,7 +139,7 @@ export default function DashboardLayout({ onChange }) {
 				<div className='h-25'></div>
 
 				{location.pathname === '/' && (
-					<div className='h-screen flex justify-center items-center'>
+					<div className='h-[85vh] flex justify-center items-center'>
 						<div className='w-2/3'>
 							<Loader />
 						</div>

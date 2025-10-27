@@ -255,7 +255,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				<div className='flex max-md:w-full md:justify-end z-10'>
 					<div className='flex max-md:flex-row-reverse items-center max-md:w-full max-md:justify-between gap-5'>
 						<ToggleTheme />
-						<Notification Notifications={1} />
+						{/* <Notification Notifications={1} /> TO-DO Уведомления */}
 
 						<Wrapper
 							{...toProps}

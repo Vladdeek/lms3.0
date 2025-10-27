@@ -581,7 +581,7 @@ const ConstructorPage = ({ role }) => {
 					? 'Опубликован'
 					: showMassage === 'good' && 'Изменения сохранены'}
 			</p>
-			<div className='flex flex-col gap-5 h-screen'>
+			<div className='flex flex-col gap-5 h-[73vh]'>
 				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center max-[1366px]:mt-5 mt-10'>
 					<div className='flex gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
 						{options.map((option, index) => (

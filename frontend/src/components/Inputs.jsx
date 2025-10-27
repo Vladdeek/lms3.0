@@ -479,7 +479,7 @@ export const OptionInput = ({
 			{isOpen && (
 				<div
 					className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
-					max-h-50 overflow-scroll w-full top-14 z-100 text-[var(--black)]'
+					max-h-50 overflow-y-scroll hide-scrollbar hide-scrollbar w-full top-14 z-10 text-[var(--black)]'
 				>
 					{Options.map((item, index) => (
 						<p

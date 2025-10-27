@@ -20,9 +20,11 @@ import { useError } from '../components/Errors'
 import axios from 'axios'
 import { API, FILE_API } from '../API'
 import Loader from '../components/Loader'
+import MoreVariantCheckView from '../components/TestCheckView/VariantsCheckView'
+import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
+import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
 
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
-	console.log('img_path:', img_path)
 	return (
 		<div
 			onClick={onClick}
@@ -212,6 +214,7 @@ const StudentCard4Table = ({ num, FullName, scores }) => {
 }
 
 const TaskCard = ({ title, type, isActive, onClick }) => {
+	console.log('type: ', type)
 	return (
 		<div
 			onClick={onClick}
@@ -222,25 +225,17 @@ const TaskCard = ({ title, type, isActive, onClick }) => {
 			} transition-all cursor-pointer`}
 		>
 			<div className='flex gap-3 text-[var(--black)]'>
-				{(() => {
-					switch (type) {
-						case 'Практика':
-							return (
-								<>
-									<NotebookPen size={24} />
-								</>
-							)
-						case 'Тест':
-							return (
-								<>
-									<LaptopMinimalCheck size={24} />
-								</>
-							)
-						default:
-							return null
-					}
-				})()}
-				<p className='font-medium '>{type}</p>
+				{type === 'practice' ? (
+					<>
+						<NotebookPen size={24} />
+						<p className='font-medium '>Практика</p>
+					</>
+				) : (
+					<>
+						<LaptopMinimalCheck size={24} />
+						<p className='font-medium '>Тест</p>
+					</>
+				)}
 			</div>
 			<p className='font-medium text-[var(--middle)]'>/</p>
 			<p className='text-[var(--middle)]'>{title}</p>
@@ -251,9 +246,9 @@ const TaskCard = ({ title, type, isActive, onClick }) => {
 const PracticeView = ({ content }) => {
 	return (
 		<div className='flex flex-col w-full gap-3'>
-			<TaskCard title={content.title} type={content.type} isActive={false} />
+			<TaskCard title={content?.title} type={content?.type} isActive={false} />
 			<p className='font-medium'>Предоставлены материалы для оценки</p>
-			{content.material.map(item => {
+			{content?.material.map(item => {
 				return <MaterialCard title={item} />
 			})}
 			<div className='flex flex-col gap-3 w-1/4'>
@@ -269,32 +264,14 @@ const LevelsBar = ({
 	setQuestions,
 	activeIndex,
 	setActiveIndex,
+	studentAnswers,
 }) => {
+	console.log('questions: ', studentAnswers)
 	return (
 		<>
 			<div className='flex gap-3'>
 				{questions.map((q, idx) => {
-					// Определяем статус ответа
-					let answerStatus = 'incorrect' // по умолчанию
-
-					if (Array.isArray(q.selectedId) && Array.isArray(q.correct)) {
-						// Для массива ответов
-						const correctCount = q.selectedId.filter(id =>
-							q.correct.includes(id)
-						).length
-						const totalCorrect = q.correct.length
-
-						if (
-							correctCount === totalCorrect &&
-							q.selectedId.length === totalCorrect
-						) {
-							answerStatus = 'correct'
-						} else if (correctCount > 0) {
-							answerStatus = 'partial'
-						}
-					} else {
-						answerStatus = q.selectedId === q.correct ? 'correct' : 'incorrect'
-					}
+					const answerStatus = studentAnswers[idx]?.correctness_status
 
 					return (
 						<div
@@ -306,7 +283,9 @@ const LevelsBar = ({
 										? 'border-b-[3px] border-[var(--correct-lvl)] shadow-[var(--correct-glow)]'
 										: answerStatus === 'partial'
 										? 'border-b-[3px] border-[var(--middle-correct-lvl)] shadow-[var(--middle-correct-glow)]'
-										: 'border-b-[3px] border-[var(--not-correct-lvl)] shadow-[var(--not-correct-glow)]'
+										: answerStatus === 'not-correct'
+										? 'border-b-[3px] border-[var(--not-correct-lvl)] shadow-[var(--not-correct-glow)]'
+										: 'border-b-[3px] border-[var(--middle)]'
 								}
                 ${
 									activeIndex === idx
@@ -314,12 +293,16 @@ const LevelsBar = ({
 											? 'bg-[var(--correct-lvl)] text-white'
 											: answerStatus === 'partial'
 											? 'bg-[var(--middle-correct-lvl)] text-white'
-											: 'bg-[var(--not-correct-lvl)] text-white'
+											: answerStatus === 'not-correct'
+											? 'bg-[var(--not-correct-lvl)] text-white'
+											: 'bg-[var(--middle)] text-[var(--white)]'
 										: answerStatus === 'correct'
 										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--correct-lvl)] hover:text-[var(--white)]'
 										: answerStatus === 'partial'
 										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle-correct-lvl)] hover:text-[var(--white)]'
-										: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--not-correct-lvl)] hover:text-[var(--white)]'
+										: answerStatus === 'not-correct'
+										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--not-correct-lvl)] hover:text-[var(--white)]'
+										: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle)] hover:text-[var(--white)]'
 								}
                 active:scale-90`}
 						>
@@ -335,49 +318,54 @@ const LevelsBar = ({
 const TestView = ({ content }) => {
 	const [activeIndex, setActiveIndex] = useState(0)
 
+	console.log('content: ', content)
+
 	return (
 		<div className='w-full flex flex-col  gap-3'>
-			<TaskCard title={content.title} type={content.type} isActive={false} />
+			<TaskCard
+				title={content?.assignment_name}
+				type={content?.assignment_type}
+				isActive={false}
+			/>
 			<LevelsBar
-				questions={content.material}
+				questions={content?.questions}
 				activeIndex={activeIndex}
 				setActiveIndex={setActiveIndex}
+				studentAnswers={content?.student_answer}
 			/>
 			<div className='flex justify-center'>
 				{(() => {
-					const q = content.material[activeIndex]
+					const q = content?.questions
 
-					if (q.type === 'more') {
+					console.log('q: ', q)
+
+					if (
+						q[activeIndex]?.question_type === 'multiple' ||
+						q[activeIndex]?.question_type === 'single'
+					) {
 						return (
-							<MoreVariantView
-								question={q.question}
-								Answers={q.answers}
-								selected={q.selectedId}
-								shuffle={false}
-								correctAnswers={q.correct}
-								showCorrect={true}
+							<VariantCheckView
+								answers={q[activeIndex]?.student_answer_options[0]?.answers}
+								media={q[activeIndex]?.media}
+								question={q[activeIndex]?.title}
+								type={q[activeIndex]?.question_type}
 							/>
 						)
-					} else if (q.type === 'single') {
-						return (
-							<OneVariantView
-								question={q.question}
-								Answers={q.answers}
-								selectedId={q.selectedId}
-								shuffle={false}
-								CorrectAnswer={q.correct}
-							/>
-						)
-					} else if (q.type === 'sort') {
+					} else if (q[activeIndex]?.question_type === 'sort') {
 						return (
 							<SortVariantView
-								question={q.question}
-								initialPairs={q.answers}
-								shuffle={false}
+								question={q[activeIndex]?.student_answer}
+								initialPairs={q?.answers}
 							/>
 						)
-					} else if (q.type === 'open') {
-						return <OpenQuestionView question={q.question} value={q.answer} />
+					} else if (q[activeIndex]?.question_type === 'open') {
+						return (
+							<OpenQuestionCheckView
+								value={q[activeIndex]?.student_answer_options[0]?.answers}
+								media={q[activeIndex]?.media}
+								question={q[activeIndex]?.title}
+							/>
+						)
 					}
 
 					return null
@@ -390,56 +378,20 @@ const TestView = ({ content }) => {
 const StudentsAndGroups = () => {
 	const { setError } = useError()
 
-	const [ActiveStudent, setActiveStudent] = useState(0)
 	const [ActiveTask, setActiveTask] = useState(0)
 	const [ActiveType, setActiveType] = useState(0)
 	const Type = ['Оценка', 'Комментарий']
 	const Score = [1, 2, 3, 4, 5]
-	const Tasks = [
-		{ title: 'Практика1', type: 'Практика', material: ['1', '2', '3'] },
-		{
-			title: 'Тест1',
-			type: 'Тест',
-			material: [
-				{
-					type: 'more',
-					question: '2',
-					answers: ['1', '2', '3', '4'],
-					selectedId: [1, 3],
-					correct: [1, 2],
-				},
 
-				{
-					type: 'single',
-					question: '4',
-					answers: ['1', '2', '3', '4'],
-					selectedId: 2,
-					correct: 1,
-				},
-				{
-					type: 'sort',
-					question: 'Расположи шаги написания программы в правильном порядке',
-					answers: [
-						{ id: '1', left: '1', right: 'Написать код' },
-						{ id: '2', left: '2', right: 'Запустить программу' },
-						{ id: '3', left: '3', right: 'Увидеть результат' },
-					],
-				},
-				{
-					type: 'open',
-					question: 'Почему?',
-					answer: 'Потому что',
-				},
-			],
-		},
-	]
-
-	const [courses, setCourses] = useState()
-	const [groups, setGroups] = useState()
-	const [students, setStudents] = useState()
+	const [courses, setCourses] = useState([])
+	const [groups, setGroups] = useState([])
+	const [students, setStudents] = useState([])
+	const [tasks, setTasks] = useState([])
+	const [lessons, setLessons] = useState([])
 	const [selectedCourse, setSelectedCourse] = useState(0)
 	const [selectedGroupe, setSelectedGroupe] = useState(0)
 	const [selectedStudent, setSelectedStudent] = useState(0)
+	const [selectedTask, setSelectedTask] = useState(null)
 
 	const fetchCourses = async () => {
 		const token = localStorage.getItem('access_token')
@@ -451,8 +403,6 @@ const StudentsAndGroups = () => {
 				},
 			})
 
-			console.log('courses res: ', res.data)
-			console.log('courses res: ', res.data[selectedCourse]?.id)
 			setCourses(res.data)
 			setError(null)
 		} catch (err) {
@@ -462,12 +412,12 @@ const StudentsAndGroups = () => {
 	}
 
 	const fetchGroups = async () => {
-		console.log('id:', courses)
+		const id = courses[selectedCourse]?.id
 		try {
 			const res = await axios.get(
-				`${API}/courses/student-group/linked/?course_id=${courses[selectedCourse]?.id}`
+				`${API}/courses/student-group/linked/?course_id=${id}`
 			)
-			console.log('groups res: ', res)
+
 			setError(null)
 			setGroups(res.data)
 		} catch (err) {
@@ -482,14 +432,67 @@ const StudentsAndGroups = () => {
 	}
 
 	const fetchStudents = async () => {
+		const id = groups[selectedGroupe].id
 		try {
-			const res = await axios.get(
-				`${API}/student-group/${groups[selectedGroupe]?.id}/students`
-			)
+			const res = await axios.get(`${API}/student-group/${id}/students`)
 
-			console.log('students res: ', res)
 			setError(null)
 			setStudents(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
+
+	const fetchStudentLessons = async () => {
+		const token = localStorage.getItem('access_token')
+		const studentId = students[selectedStudent]?.id
+		const courseId = courses[selectedCourse]?.id
+		try {
+			const res = await axios.get(
+				`${API}/student-profile/${studentId}/assignments/?course_id=${courseId}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+
+			setError(null)
+			setTasks(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
+			}
+		}
+	}
+
+	const fetchLesson = async () => {
+		const token = localStorage.getItem('access_token')
+		const studentId = students[selectedStudent]?.id
+		const assignmentId = tasks[selectedTask]?.assignment_id
+
+		try {
+			const res = await axios.get(
+				`${API}/student-profile/${studentId}/assignment/result?assignment_id=${assignmentId}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+
+			setError(null)
+			setLessons(res.data)
 		} catch (err) {
 			console.log(err)
 			if (err.response) {
@@ -507,11 +510,19 @@ const StudentsAndGroups = () => {
 
 	useEffect(() => {
 		if (courses) fetchGroups()
-	}, [courses])
+	}, [courses, selectedCourse])
 
 	useEffect(() => {
 		if (groups) fetchStudents()
-	}, [groups])
+	}, [groups, selectedGroupe])
+
+	useEffect(() => {
+		if (students) fetchStudentLessons()
+	}, [students, selectedStudent])
+
+	useEffect(() => {
+		if (tasks) fetchLesson()
+	}, [selectedTask])
 
 	if (!courses) {
 		return (
@@ -547,8 +558,8 @@ const StudentsAndGroups = () => {
 							{students?.map((item, index) => (
 								<StudentCard
 									key={item.id || index}
-									onClick={() => setActiveStudent(index)}
-									active={ActiveStudent === index}
+									onClick={() => setSelectedStudent(index)}
+									active={selectedStudent === index}
 									PersonalData={item?.personal_data}
 									img_path={item?.image_path}
 								/>
@@ -561,25 +572,30 @@ const StudentsAndGroups = () => {
 						<p className='font-medium text-[var(--black)] text-xl'>
 							Выберите занятие для просмотра
 						</p>
-						{Tasks.map((item, index) => {
-							return (
-								<TaskCard
-									title={item.title}
-									type={item.type}
-									onClick={() => setActiveTask(index)}
-									isActive={ActiveTask === index}
-								/>
-							)
-						})}
+						{tasks?.length === 0 ? (
+							<p className='font-normal text-[var(--black)] text-xl'>пусто</p>
+						) : (
+							tasks?.map((item, index) => {
+								console.log('in type: ', index, item)
+								return (
+									<TaskCard
+										title={item?.assignment_name}
+										type={item?.assignment_type}
+										onClick={() => setSelectedTask(index)}
+										isActive={selectedTask === index}
+									/>
+								)
+							})
+						)}
 					</div>
 				</div>
 				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-5/6'>
 					{(() => {
-						switch (Tasks[ActiveTask].type) {
-							case 'Практика':
-								return <PracticeView content={Tasks[ActiveTask]} />
-							case 'Тест':
-								return <TestView content={Tasks[ActiveTask]} />
+						switch (lessons?.assignment_type) {
+							case 'practice':
+								return <PracticeView content={lessons} />
+							case 'test':
+								return <TestView content={lessons} />
 							default:
 								return <p>Выберите занятие</p>
 						}

@@ -192,20 +192,23 @@ const LevelsBar = ({
 	activeIndex,
 	setActiveIndex,
 }) => {
+	console.log('questions: ', questions)
 	return (
 		<>
 			<div className='flex flex-wrap gap-3'>
 				{questions.map((q, idx) => (
 					<div
 						key={q.id}
+						disabled={q.filled}
 						onClick={() => setActiveIndex(idx)}
-						className={`w-10 h-10 flex justify-center items-center rounded-md shadow-[var(--shadow)] cursor-pointer transition-all
-                            ${
-															activeIndex === idx
-																? 'bg-[var(--hero-epta)] text-[var(--white)]'
-																: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
-														}
-                            active:scale-90`}
+						className={`w-10 h-10 flex justify-center items-center rounded-md shadow-[var(--shadow)]  transition-all
+							${
+								activeIndex === idx
+									? 'bg-[var(--hero-epta)] text-[var(--white)]'
+									: q.filled
+									? 'bg-[var(--white)] text-[var(--black)] border-b-[3px] border-[var(--hero-epta)] shadow-[var(--glow-hero-epta)]'
+									: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+							} active:scale-90 cursor-pointer`}
 					>
 						{idx + 1}
 					</div>
@@ -228,7 +231,14 @@ const ContentView = ({
 	const [gradeStatus, setGradeStatus] = useState(null)
 	const token = localStorage.getItem('access_token')
 
-	console.log('sectionId: ', sectionId)
+	console.log('ocntent: ', content)
+
+	const [activeIndex, setActiveIndex] = useState(0)
+
+	const [studentWork, setStudentWork] = useState()
+	const [studentAnswers, setStudentAnswers] = useState([])
+
+	const [lastQuestion, setLastQuestion] = useState(false)
 
 	const [session, setSession] = useState(null)
 
@@ -260,6 +270,8 @@ const ContentView = ({
 	}
 
 	const startSession = async () => {
+		setActiveIndex(0)
+		setLastQuestion(false)
 		try {
 			const res = await axios.post(
 				`${API}/tests/start/${testId}`,
@@ -293,15 +305,6 @@ const ContentView = ({
 			fetchSession()
 		}
 	}, [content])
-
-	const [activeIndex, setActiveIndex] = useState(0)
-
-	const [studentWork, setStudentWork] = useState()
-	const [studentAnswers, setStudentAnswers] = useState([])
-
-	console.log('studentWork: ', studentWork)
-
-	const [lastQuestion, setLastQuestion] = useState(false)
 
 	const sendResultOfWork = async () => {
 		try {
@@ -348,6 +351,11 @@ const ContentView = ({
 				return [...oldArray, data]
 			}
 		})
+		setQuestions(prevQuestions =>
+			prevQuestions.map(item =>
+				item.id === q?.id ? { ...item, filled: true } : item
+			)
+		)
 	}
 
 	const PUT = async () => {
@@ -528,13 +536,20 @@ const ContentView = ({
 					) : (
 						<>
 							{gradeStatus === 'assessed' ? (
-								<>
-									<p>{score}</p>
-								</>
+								<div className='w-full relative flex justify-center items-center'>
+									<p className='px-4 absolute top-100 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
+										{score} / 5
+									</p>
+								</div>
 							) : gradeStatus === 'pending' ? (
-								<>
-									<p>на рассмотрении</p>
-								</>
+								<div className='w-full h-full flex justify-center items-center'>
+									<p className=' font-normal text-[var(--black)] text-xl'>
+										На рассмотрении
+									</p>
+									<p className='px-4 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
+										? / 5
+									</p>
+								</div>
 							) : (
 								gradeStatus === 'not_attempted' && (
 									<>
@@ -553,6 +568,7 @@ const ContentView = ({
 													questions={questions}
 													activeIndex={activeIndex}
 													setActiveIndex={setActiveIndex}
+													filled={studentAnswers}
 												/>
 												<div className='w-full flex justify-center'>
 													{(() => {
@@ -593,12 +609,22 @@ const ContentView = ({
 												</div>
 												<div className='flex justify-center gap-3'>
 													{!lastQuestion ? (
-														<button
-															onClick={handleStudentAnswer}
-															className=' justify-center items-center px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
-														>
-															<p>Ответить</p>
-														</button>
+														<div className='flex flex-col gap-3 items-center'>
+															<button
+																onClick={handleStudentAnswer}
+																className={` justify-center items-center w-fit px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium  flex ${
+																	questions[activeIndex].filled
+																		? 'opacity-25 cursor-not-allowed'
+																		: 'hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer'
+																}`}
+															>
+																<p>Ответить</p>
+															</button>
+															<p className='text-[var(--middle)] font-light'>
+																Внимание: после отправки вы не сможете изменить
+																свой ответ. Убедитесь, что всё верно!
+															</p>
+														</div>
 													) : (
 														<button
 															onClick={() => handleFinish()}
@@ -645,7 +671,11 @@ const CourseOverview = ({ content }) => {
 
 		const fetchContent = async () => {
 			try {
-				const res = await fetch(`${API}/sections/${sectionId}/content`)
+				const res = await fetch(`${API}/sections/${sectionId}/content`, {
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+					},
+				})
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
 				const data = await res.json()
 
@@ -662,7 +692,7 @@ const CourseOverview = ({ content }) => {
 
 	return (
 		<>
-			<div className='grid grid-cols-[1fr_3fr] gap-5 h-5/6 '>
+			<div className='grid grid-cols-[1fr_3fr] gap-5 h-full '>
 				<div className='flex flex-col gap-3 '>
 					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
@@ -737,7 +767,7 @@ const CoursePage = ({}) => {
 
 	return (
 		<>
-			<div className='flex flex-col gap-5 h-screen'>
+			<div className='flex flex-col gap-5 h-[73vh]'>
 				<div className='flex justify-between items-center mt-10'></div>
 
 				<CourseOverview content={courseContent} />
