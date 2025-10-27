@@ -160,6 +160,7 @@ export const TextArea = ({
 	value, // Принимаем value извне
 	onChange, // Принимаем onChange извне
 	InputStatus, // Принимаем статус извне (если нужно)
+	readOnly = false,
 }) => {
 	const [internalInputStatus, setInternalInputStatus] = useState(false)
 
@@ -176,7 +177,11 @@ export const TextArea = ({
 	}
 
 	return (
-		<div className='w-full inline-flex flex-col group'>
+		<div
+			className={`w-full inline-flex flex-col group transition-all duration-500 ${
+				readOnly && 'opacity-35'
+			}`}
+		>
 			{title && (
 				<div className='inline-flex items-center gap-[10px]'>
 					<p className='text-[18px] text-[var(--middle)]'>{title}</p>
@@ -197,9 +202,12 @@ export const TextArea = ({
 				type={type}
 				value={value} // Используем внешнее значение
 				onChange={handleInputChange}
-				className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] placeholder:text-[var(--middle)] text-[var(--black)] transition min-h-25 mt-3 resize-none'
+				className={`rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 ${
+					!readOnly && 'focus:ring-1 focus:ring-[var(--hero-epta)]'
+				}  placeholder:text-[var(--middle)] text-[var(--black)] transition-all min-h-25 mt-3 resize-none`}
 				placeholder={placeholder}
 				maxLength={300}
+				readOnly={readOnly}
 			/>
 		</div>
 	)

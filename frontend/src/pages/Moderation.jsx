@@ -1,5 +1,12 @@
-import { ImageOff } from 'lucide-react'
-import { useState } from 'react'
+import axios from 'axios'
+import { CircleQuestionMark, FileInput, ImageOff, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { API, FILE_API } from '../API'
+import { useError } from '../components/Errors'
+import CoursePage from './CoursePage'
+import { motion } from 'framer-motion'
+import Loader from '../components/Loader'
+import { InputDefault, TextArea } from '../components/Inputs'
 
 const ModerationCourseCard = ({
 	img,
@@ -13,41 +20,57 @@ const ModerationCourseCard = ({
 		<>
 			<div
 				onClick={onClick}
-				className={`w-full h-fit rounded-xl  flex items-center gap-3 p-4 text-[var(--black)] border-1 cursor-pointer transition-all active:scale-99 select-none ${
+				className={`w-full h-fit rounded-xl items-center gap-3 p-4 text-[var(--black)] border-1 cursor-pointer transition-all active:scale-99 select-none flex ${
 					active
 						? 'border-[var(--hero-epta)] shadow-[var(--shadow-hero)]'
 						: 'border-transparent shadow-[var(--shadow)]'
 				}`}
 			>
 				<div
-					className={`h-15 w-15 rounded-md ${
-						!img && 'border-1 border-[var(--middle)] opacity-50 p-3'
+					className={`h-15 w-15 rounded-md overflow-hidden ${
+						!img && 'border-1 border-[var(--middle)] opacity-50 p-3 '
 					}`}
 				>
 					{img ? (
-						<img src='' alt='' />
+						<img
+							src={`${FILE_API}${img}`}
+							alt=''
+							className='object-cover aspect-square w-full h-full'
+						/>
 					) : (
 						<ImageOff strokeWidth={1.125} className='w-full h-full' />
 					)}
 				</div>
 
-				<div className='flex flex-col gap-1'>
+				<div className='flex flex-col gap-1 w-3/5'>
 					<p className='font-medium text-xl'>{title || 'Название курса'}</p>
-					<div className='flex gap-3 items-center '>
+					<div className='flex gap-3 items-center w-full'>
 						<div
-							className={`h-6 w-6 rounded-full ${
+							className={`h-6 w-6 rounded-full overflow-hidden ${
 								!user_img && 'border-1 border-[var(--middle)] opacity-50 p-1'
 							}`}
 						>
 							{user_img ? (
-								<img src='' alt='' />
+								<img
+									src={`${FILE_API}${user_img}`}
+									alt=''
+									className='object-cover aspect-square w-full h-full'
+								/>
 							) : (
 								<ImageOff strokeWidth={1.125} className='w-full h-full' />
 							)}
 						</div>
-						<p className='font-light text-sm'>
-							{`${fullname?.last_name} ${fullname?.first_name} ${fullname?.middle_name}` ||
-								'ФИО автора курса'}
+						<p
+							className={`font-light text-sm w-full overflow-hidden text-ellipsis whitespace-nowrap ${
+								!fullname &&
+								'text-[var(--red-status-text)] bg-[var(--red-status-bg)] rounded-md px-2 py-1'
+							}`}
+						>
+							{fullname
+								? `${fullname?.last_name || ''} ${fullname?.first_name || ''} ${
+										fullname?.middle_name || ''
+								  }`
+								: 'ФИО автора не определено'}
 						</p>
 					</div>
 				</div>
@@ -55,51 +78,162 @@ const ModerationCourseCard = ({
 		</>
 	)
 }
+
+const AnswerModal = ({ isOpen, onClose }) => {
+	if (!isOpen) return null
+
+	const [description, setDescription] = useState('')
+
+	const [access, setAccess] = useState(true)
+
+	const handleSubmit = () => {
+		console.log(
+			'handleSubmit!\naccess: ',
+			access,
+			description && '\ndescription: ',
+			description
+		)
+	}
+
+	return (
+		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
+			<div className='bg-[var(--white)] relative p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001'>
+				<X
+					onClick={onClose}
+					className='absolute top-1 right-1 text-[var(--middle)] hover:text-red-500 transition-all cursor-pointer'
+				/>
+				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
+					Создание курса
+				</h2>
+				<div className='w-[482px] inline-flex flex-col items-center gap-5'>
+					<div className='flex gap-3 w-full'>
+						<button
+							onClick={() => setAccess(true)}
+							className={`rounded-lg text-center ${
+								access
+									? 'bg-[var(--correct-lvl)] text-white'
+									: 'bg-[var(--black)] text-[var(--white)]'
+							} w-full  py-4 hover:bg-[var(--correct-lvl)] hover:text-white cursor-pointer transition-all active:scale-97 duration-250 font-medium`}
+						>
+							Допустить к публикации
+						</button>
+						<button
+							onClick={() => setAccess(false)}
+							className={`rounded-lg text-center ${
+								!access
+									? 'bg-[var(--not-correct-lvl)] text-white'
+									: 'bg-[var(--black)] text-[var(--white)]'
+							}  w-full py-4 hover:bg-[var(--not-correct-lvl)] hover:text-white cursor-pointer transition-all duration-250 active:scale-97 font-medium`}
+						>
+							Отклонить курс
+						</button>
+					</div>
+
+					<TextArea
+						type='text'
+						placeholder='Введите комментарий почему вы отклонили этот курс...'
+						title='Комментарий автору'
+						value={description}
+						onChange={e => setDescription(e.target.value)}
+						InputStatus={false}
+						readOnly={access}
+					/>
+
+					<button
+						className={`px-4 py-3 font-normal text-xl rounded-lg w-fit transition-all bg-[var(--black)] text-[var(--white)] cursor-pointer hover:bg-[var(--hero-epta)] active:scale-97`}
+						onClick={handleSubmit}
+					>
+						Подтвердить
+					</button>
+				</div>
+			</div>
+		</div>
+	)
+}
+
 const Moderation = ({ role }) => {
-	const course = [
-		{
-			title: 'Курс номер 1',
-			fullname: {
-				first_name: 'Имя',
-				last_name: 'Фамилия',
-				middle_name: 'Отчество',
-			},
-		},
-		{
-			title: 'Курс номер 2',
-			fullname: {
-				first_name: 'Имя',
-				last_name: 'Фамилия',
-				middle_name: 'Отчество',
-			},
-		},
-		{
-			title: 'Курс номер 3',
-			fullname: {
-				first_name: 'Имя',
-				last_name: 'Фамилия',
-				middle_name: 'Отчество',
-			},
-		},
-	]
+	const [courses, setCourses] = useState([])
+
+	const { setError } = useError()
+
+	useEffect(() => {
+		const fetchAllCourses = async () => {
+			const token = localStorage.getItem('access_token')
+			try {
+				const res = await axios.get(`${API}/courses/all/pending`, {
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				})
+
+				setError(null)
+
+				console.log('courses: ', res)
+
+				setCourses(res.data)
+			} catch (err) {
+				console.log(err)
+				if (err.response) {
+					console.log('error: ', err.response.status)
+					setError(err.response.status.toString())
+				} else {
+					setError('500')
+				}
+			}
+		}
+		fetchAllCourses()
+	}, [])
 
 	const [active, setActive] = useState(null)
+	const [ModalOpen, setModalOpen] = useState(false)
 
 	return (
 		<>
-			<div className='w-full h-[80vh] grid grid-cols-6 gap-5 mt-10'>
-				<div className='col-span-1 bg-[var(--white)] rounded-2xl flex flex-col items-center gap-3 overflow-y-scroll hide-scrollbar p-4'>
+			<AnswerModal isOpen={ModalOpen} onClose={() => setModalOpen(false)} />
+			<div className='w-full h-[80vh] grid grid-cols-[1fr_4fr]  gap-5 mt-10'>
+				<div className='w-full bg-[var(--white)] rounded-2xl flex flex-col items-center gap-3 overflow-y-scroll hide-scrollbar p-4'>
 					<p className='font-medium text-xl text-[var(--black)]'>Новые курсы</p>
-					{course?.map((item, index) => (
-						<ModerationCourseCard
-							title={item?.title}
-							fullname={item?.fullname}
-							onClick={() => setActive(index)}
-							active={active === index}
-						/>
+					{courses?.map((item, index) => (
+						<motion.div
+							key={index}
+							initial={{ scale: 0.8, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							transition={{
+								duration: 0.3,
+								delay: index * 0.1,
+								ease: 'easeOut',
+							}}
+							className='w-full'
+						>
+							<ModerationCourseCard
+								title={item?.name}
+								fullname={item?.teacher_profile_personal_data?.personal_data}
+								img={item?.image_url}
+								user_img={item?.teacher_profile_personal_data?.photo}
+								onClick={() => setActive(index)}
+								active={active === index}
+							/>
+						</motion.div>
 					))}
 				</div>
-				<div className='col-span-5 bg-[var(--white)] rounded-2xl'></div>
+				<div className='w-full h-full flex items-center justify-center bg-[var(--white)] rounded-2xl'>
+					{active === null ? (
+						<p className='text-xl text-[var(--middle)]'>Выберите курс</p>
+					) : (
+						<div className='relative w-full h-full mx-5 flex flex-col gap-5 '>
+							<button
+								onClick={() => setModalOpen(true)}
+								className='absolute font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] cursor-pointer transition-all active:scale-97 top-4 right-0'
+							>
+								Вынести вердикт
+							</button>
+							<div className='mt-1'>
+								<CoursePage moderationCourseId={courses[active]?.id} />
+							</div>
+						</div>
+					)}
+				</div>
 			</div>
 		</>
 	)

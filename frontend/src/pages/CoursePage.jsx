@@ -49,6 +49,7 @@ import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
 import axios from 'axios'
 import { set } from 'date-fns'
+import Loader from '../components/Loader'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -231,8 +232,6 @@ const ContentView = ({
 	const [gradeStatus, setGradeStatus] = useState(null)
 	const token = localStorage.getItem('access_token')
 
-	console.log('ocntent: ', content)
-
 	const [activeIndex, setActiveIndex] = useState(0)
 
 	const [studentWork, setStudentWork] = useState()
@@ -413,7 +412,7 @@ const ContentView = ({
 	}
 
 	return (
-		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-scroll'>
+		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-scroll hide-scrollbar'>
 			<ModuleContent bg={true} type={contentType} title={contentTitle} />
 			<div className='flex flex-col gap-5'>
 				{content?.length !== 0 ? (
@@ -738,16 +737,21 @@ const CourseOverview = ({ content }) => {
 	)
 }
 
-const CoursePage = ({}) => {
+const CoursePage = ({ moderationCourseId }) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
 	const { setError } = useError()
 
+	const [loading, setLoading] = useState(false)
+
 	useEffect(() => {
+		setLoading(true)
 		const fetchCourses = async () => {
 			try {
-				const res = await fetch(`${API}/courses/${courseId}`)
+				const res = await fetch(
+					`${API}/courses/${moderationCourseId || courseId}`
+				)
 				const data = await res.json()
 
 				if (!res.ok) {
@@ -755,7 +759,7 @@ const CoursePage = ({}) => {
 				} else {
 					setError(null)
 					setCourseContent(data)
-					console.log('!!!!!!!!!!!!!!!курсы:', data)
+					setLoading(false)
 				}
 			} catch (err) {
 				setError('500')
@@ -763,7 +767,15 @@ const CoursePage = ({}) => {
 		}
 
 		fetchCourses()
-	}, [courseId])
+	}, [courseId, moderationCourseId])
+
+	if (moderationCourseId && loading) {
+		return (
+			<div className=' flex items-center justify-center h-full'>
+				<Loader />
+			</div>
+		)
+	}
 
 	return (
 		<>
