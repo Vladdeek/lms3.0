@@ -226,7 +226,7 @@ const Moderation = ({ role }) => {
 								onClick={() => setModalOpen(true)}
 								className='absolute font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] cursor-pointer transition-all active:scale-97 top-4 right-0'
 							>
-								Вынести вердикт
+								Рецензировать
 							</button>
 							<div className='mt-1'>
 								<CoursePage moderationCourseId={courses[active]?.id} />
