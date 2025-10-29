@@ -375,20 +375,20 @@ const ConstructorPage = ({ role }) => {
 
 	useEffect(() => {
 		const fetchCourses = async () => {
+			const token = localStorage.getItem('access_token')
 			try {
-				const res = await fetch(`${API}/courses/${courseId}`)
+				const res = await fetch(`${API}/courses/${courseId}`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				})
 				const data = await res.json()
 				console.log('get: ', data)
 
-				if (!res.ok) {
-					setError(res.status.toString())
-				} else {
-					setError(null)
-					setCourseContent(data)
-					console.log(data)
-				}
+				setError(null)
+				setCourseContent(data)
 			} catch (err) {
-				setError('500')
+				setError(err)
 			}
 		}
 
@@ -566,6 +566,33 @@ const ConstructorPage = ({ role }) => {
 		}
 	}
 
+	const handleStatus = async () => {
+		const formData = new FormData()
+		formData.append('course_status', 'pending')
+
+		const token = localStorage.getItem('access_token')
+
+		const res = await fetch(`${API}/courses/${courseId}`, {
+			method: 'PUT',
+			body: formData,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+
+		const data = await res.json()
+
+		showMassageFunc('public')
+
+		console.log(data)
+
+		if (!res.ok) {
+			console.error('Ошибка сервера:', res.status)
+			setError(res.status)
+			return
+		}
+	}
+
 	return role === 'student' ? (
 		<>
 			<Forbidden403 />
@@ -578,7 +605,7 @@ const ConstructorPage = ({ role }) => {
 				} `}
 			>
 				{showMassage === 'public'
-					? 'Опубликован'
+					? 'Отправлено на рассмотрение'
 					: showMassage === 'good' && 'Изменения сохранены'}
 			</p>
 			<div className='flex flex-col gap-5 h-[73vh]'>
@@ -654,12 +681,22 @@ const ConstructorPage = ({ role }) => {
 								/>
 							))}
 
-						<Button
-							title={'Опубликовать курс'}
-							style='black'
-							className='truncate text-ellipsis'
-							onClick={() => showMassageFunc('public')}
-						/>
+						{courseContent?.course_status === 'pending' ? (
+							<p className='bg-[var(--middle)] text-[var(--light-gray)] font-medium py-3 px-5  rounded-lg'>
+								На рассмотрении
+							</p>
+						) : courseContent?.course_status === 'approved' ? (
+							<p className='bg-[var(--green-status-text)] text-[var(--green-status-bg)] font-medium py-3 px-5  rounded-lg'>
+								Опубликован
+							</p>
+						) : (
+							<Button
+								title={'Опубликовать курс'}
+								style='black'
+								className='truncate text-ellipsis'
+								onClick={() => handleStatus()}
+							/>
+						)}
 					</div>
 				</div>
 				{selected === 0 ? (

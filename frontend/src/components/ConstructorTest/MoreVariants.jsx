@@ -225,10 +225,14 @@ const MoreVariant = ({
 				media: media || {},
 			},
 		])
+		const token = localStorage.getItem('access_token')
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({
 					question_type: 'multiple',
 					title: question,

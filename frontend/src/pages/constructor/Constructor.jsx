@@ -1152,9 +1152,14 @@ const Constructor = ({
 		}
 
 		const fetchContent = async () => {
+			const token = localStorage.getItem('access_token')
 			try {
 				setSelectedContent(null)
-				const res = await fetch(`${API}/sections/${section?.id}/content`)
+				const res = await fetch(`${API}/sections/${section?.id}/content`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				})
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
 				const data = await res.json()
 

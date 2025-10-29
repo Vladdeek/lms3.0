@@ -83,9 +83,7 @@ export const ConstructorVideoInput = ({
 
 			const result = await response.json()
 
-			const uploadedUrl = `${FILE_API}${
-				result?.file_path?.match(/static\\.*$/)?.[0]
-			}`
+			const uploadedUrl = `${FILE_API}${result?.file_path}`
 
 			return {
 				file: fileToUpload,

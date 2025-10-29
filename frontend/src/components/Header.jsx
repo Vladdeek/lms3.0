@@ -289,8 +289,10 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 											{UserInfo?.current_user_role === 'student'
 												? 'Студент'
-												: UserInfo?.current_user_role === 'teacher' &&
-												  'Преподаватель'}
+												: UserInfo?.current_user_role === 'teacher'
+												? 'Преподаватель'
+												: UserInfo?.current_user_role === 'moderator' &&
+												  'Модератор'}
 										</span>
 									</p>
 								</>

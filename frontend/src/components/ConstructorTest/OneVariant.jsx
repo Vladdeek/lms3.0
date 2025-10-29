@@ -275,11 +275,15 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		}
 
 		const correctAnswer = answers.find(answer => answer.correct)
+		const token = localStorage.getItem('access_token')
 
 		try {
 			const res = await fetch(`${API}/questions/${questionId}`, {
 				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({
 					question_type: 'single',
 					title: question,

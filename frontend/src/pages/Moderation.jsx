@@ -7,6 +7,7 @@ import CoursePage from './CoursePage'
 import { motion } from 'framer-motion'
 import Loader from '../components/Loader'
 import { InputDefault, TextArea } from '../components/Inputs'
+import ModerationComponent from './ModerationView'
 
 const ModerationCourseCard = ({
 	img,
@@ -79,20 +80,40 @@ const ModerationCourseCard = ({
 	)
 }
 
-const AnswerModal = ({ isOpen, onClose }) => {
+const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 	if (!isOpen) return null
 
 	const [description, setDescription] = useState('')
 
 	const [access, setAccess] = useState(true)
 
-	const handleSubmit = () => {
-		console.log(
-			'handleSubmit!\naccess: ',
-			access,
-			description && '\ndescription: ',
-			description
-		)
+	const handleSubmit = async () => {
+		const formData = new FormData()
+		formData.append('course_status', access ? 'approved' : 'pending')
+
+		const token = localStorage.getItem('access_token')
+
+		const res = await fetch(`${API}/courses/${courseId}`, {
+			method: 'PUT',
+			body: formData,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+
+		const data = await res.json()
+
+		onClose?.()
+
+		onChange?.('good')
+
+		console.log(data)
+
+		if (!res.ok) {
+			console.error('Ошибка сервера:', res.status)
+			setError(res.status)
+			return
+		}
 	}
 
 	return (
@@ -154,68 +175,83 @@ const AnswerModal = ({ isOpen, onClose }) => {
 const Moderation = ({ role }) => {
 	const [courses, setCourses] = useState([])
 
+	const [status, setStatus] = useState(null)
+
 	const { setError } = useError()
 
-	useEffect(() => {
-		const fetchAllCourses = async () => {
-			const token = localStorage.getItem('access_token')
-			try {
-				const res = await axios.get(`${API}/courses/all/pending`, {
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
-				})
+	const fetchAllCourses = async () => {
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(`${API}/courses/all/pending`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
 
-				setError(null)
+			setError(null)
 
-				console.log('courses: ', res)
+			console.log('courses: ', res)
 
-				setCourses(res.data)
-			} catch (err) {
-				console.log(err)
-				if (err.response) {
-					console.log('error: ', err.response.status)
-					setError(err.response.status.toString())
-				} else {
-					setError('500')
-				}
+			setCourses(res.data)
+		} catch (err) {
+			console.log(err)
+			if (err.response) {
+				console.log('error: ', err.response.status)
+				setError(err.response.status.toString())
+			} else {
+				setError('500')
 			}
 		}
+	}
+
+	useEffect(() => {
 		fetchAllCourses()
-	}, [])
+	}, []) //при загрузке страницы
+
+	useEffect(() => {
+		status !== null && fetchAllCourses()
+		setStatus(null)
+	}, [status]) //при изменении статуса курса
 
 	const [active, setActive] = useState(null)
 	const [ModalOpen, setModalOpen] = useState(false)
 
 	return (
 		<>
-			<AnswerModal isOpen={ModalOpen} onClose={() => setModalOpen(false)} />
+			<AnswerModal
+				courseId={courses[active]?.id}
+				isOpen={ModalOpen}
+				onClose={() => setModalOpen(false)}
+				onChange={() => setStatus()}
+			/>
 			<div className='w-full h-[80vh] grid grid-cols-[1fr_4fr]  gap-5 mt-10'>
 				<div className='w-full bg-[var(--white)] rounded-2xl flex flex-col items-center gap-3 overflow-y-scroll hide-scrollbar p-4'>
 					<p className='font-medium text-xl text-[var(--black)]'>Новые курсы</p>
-					{courses?.map((item, index) => (
-						<motion.div
-							key={index}
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{
-								duration: 0.3,
-								delay: index * 0.1,
-								ease: 'easeOut',
-							}}
-							className='w-full'
-						>
-							<ModerationCourseCard
-								title={item?.name}
-								fullname={item?.teacher_profile_personal_data?.personal_data}
-								img={item?.image_url}
-								user_img={item?.teacher_profile_personal_data?.photo}
-								onClick={() => setActive(index)}
-								active={active === index}
-							/>
-						</motion.div>
-					))}
+					<div className='flex flex-col-reverse gap-3 w-full items-center'>
+						{courses?.map((item, index) => (
+							<motion.div
+								key={index}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: index * 0.1,
+									ease: 'easeOut',
+								}}
+								className='w-full'
+							>
+								<ModerationCourseCard
+									title={item?.name}
+									fullname={item?.teacher_profile_personal_data?.personal_data}
+									img={item?.image_url}
+									user_img={item?.teacher_profile_personal_data?.photo}
+									onClick={() => setActive(index)}
+									active={active === index}
+								/>
+							</motion.div>
+						))}
+					</div>
 				</div>
 				<div className='w-full h-full flex items-center justify-center bg-[var(--white)] rounded-2xl'>
 					{active === null ? (
@@ -224,12 +260,12 @@ const Moderation = ({ role }) => {
 						<div className='relative w-full h-full mx-5 flex flex-col gap-5 '>
 							<button
 								onClick={() => setModalOpen(true)}
-								className='absolute font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] cursor-pointer transition-all active:scale-97 top-4 right-0'
+								className='absolute font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97 top-4 right-0'
 							>
 								Рецензировать
 							</button>
 							<div className='mt-1'>
-								<CoursePage moderationCourseId={courses[active]?.id} />
+								<ModerationComponent moderationCourseId={courses[active]?.id} />
 							</div>
 						</div>
 					)}

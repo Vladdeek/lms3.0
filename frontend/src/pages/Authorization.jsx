@@ -7,6 +7,7 @@ import { API } from '../API'
 import { AuthContext } from '../context/AuthContext'
 import DecryptedText from '../components/ReactBits/DecryptedText'
 import LiquidEther from '../components/ReactBits/LiquidEther'
+import TextType from '../components/ReactBits/TextType'
 
 const Authorization = ({ isRegister = false }) => {
 	const [email, setEmail] = useState('')
@@ -27,6 +28,17 @@ const Authorization = ({ isRegister = false }) => {
 
 	const isFormValid = isEmailValid && isPasswordValid
 
+	const [showMessage, setShowMessage] = useState(null)
+
+	const showMessageFunc = message => {
+		setShowMessage(message)
+		const timer = setTimeout(() => {
+			setShowMessage(null)
+		}, 5000)
+
+		return () => clearTimeout(timer)
+	}
+
 	const handleSubmit = async e => {
 		e.preventDefault()
 
@@ -40,17 +52,26 @@ const Authorization = ({ isRegister = false }) => {
 			})
 			const result = await response.json()
 
-			login(result)
+			if (result?.detail === 'Пользователь не найден')
+				showMessageFunc(result?.detail)
+			else login(result)
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
 	}
 
 	return (
-		<div className=''>
+		<div className='relative'>
+			<p
+				className={`absolute transition-all bg-[var(--red-status-bg)] text-[var(--red-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
+					showMessage ? 'top-5 opacity-100' : '-top-25 opacity-50'
+				} `}
+			>
+				{showMessage}
+			</p>
 			<div className='mx-40 h-screen flex justify-center items-center'>
 				<div className='w-full grid grid-cols-[1fr_auto_2fr] gap-3'>
-					<div className='flex flex-col w-full justify-between'>
+					<div className='flex flex-col w-150 justify-between'>
 						<p className='text-8xl mb-15 text-[var(--hero-epta)] flex gap-3 font-bold w-full'>
 							<DecryptedText
 								text='МелГУ'
@@ -63,16 +84,13 @@ const Authorization = ({ isRegister = false }) => {
 								revealDirection='center'
 							/>
 						</p>
-						<p className='font-base text-[var(--black)] text-[64px] flex flex-col items-start w-full'>
-							<DecryptedText
-								text='Твои курсы'
-								animateOn='view'
-								revealDirection='center'
-							/>
-							<DecryptedText
-								text='под рукой'
-								animateOn='view'
-								revealDirection='center'
+						<p className='font-base text-[var(--black)] text-[64px] flex flex-col items-start w-full h-50'>
+							<TextType
+								text={'Твои курсы \nпод рукой'}
+								typingSpeed={100}
+								pauseDuration={1500}
+								showCursor={true}
+								cursorCharacter='|'
 							/>
 						</p>
 					</div>

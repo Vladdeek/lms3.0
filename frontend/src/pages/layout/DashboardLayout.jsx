@@ -10,6 +10,7 @@ import {
 	CalendarDays,
 	CopyCheck,
 	GraduationCap,
+	ShieldAlert,
 	UsersRound,
 } from 'lucide-react'
 import ToggleRole from '../../components/ToggleRole'
@@ -66,6 +67,13 @@ export default function DashboardLayout({ onChange }) {
 					to: '/score',
 				},
 			],
+			moderator: [
+				{
+					title: 'Проверка курсов',
+					icon: ShieldAlert,
+					to: '/moderation',
+				},
+			],
 		},
 	]
 
@@ -75,7 +83,10 @@ export default function DashboardLayout({ onChange }) {
 
 	useEffect(() => {
 		if (location.pathname === '/') {
-			navigate('/catalogs')
+			if (userInfo?.current_user_role === 'student') navigate('/catalogs')
+			else if (userInfo?.current_user_role === 'teacher') navigate('/catalogt')
+			else if (userInfo?.current_user_role === 'moderator')
+				navigate('/moderation')
 		}
 	}, [location, navigate])
 

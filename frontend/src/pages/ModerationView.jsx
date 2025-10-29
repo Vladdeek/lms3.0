@@ -50,6 +50,7 @@ import { is } from 'date-fns/locale'
 import axios from 'axios'
 import { set } from 'date-fns'
 import Loader from '../components/Loader'
+import VariantModerationView from '../components/TestModerationView/VariantsModertionView'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -187,12 +188,7 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 	)
 }
 
-const LevelsBar = ({
-	questions,
-	setQuestions,
-	activeIndex,
-	setActiveIndex,
-}) => {
+const LevelsBar = ({ questions, activeIndex, setActiveIndex }) => {
 	console.log('questions: ', questions)
 	return (
 		<>
@@ -200,15 +196,12 @@ const LevelsBar = ({
 				{questions.map((q, idx) => (
 					<div
 						key={q.id}
-						disabled={q.filled}
 						onClick={() => setActiveIndex(idx)}
 						className={`w-10 h-10 flex justify-center items-center rounded-md shadow-[var(--shadow)]  transition-all
 							${
 								activeIndex === idx
-									? 'bg-[var(--hero-epta)] text-[var(--white)]'
-									: q.filled
-									? 'bg-[var(--white)] text-[var(--black)] border-b-[3px] border-[var(--hero-epta)] shadow-[var(--glow-hero-epta)]'
-									: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+									? 'bg-[var(--hero-epta)] text-white'
+									: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-white'
 							} active:scale-90 cursor-pointer`}
 					>
 						{idx + 1}
@@ -219,187 +212,14 @@ const LevelsBar = ({
 	)
 }
 
-const ContentView = ({
-	content,
-	sectionId,
-	contentType,
-	contentTitle,
-	testId,
-}) => {
-	const [answers, setAnswers] = useState({})
+const ContentView = ({ content, contentType, contentTitle }) => {
 	const [questions, setQuestions] = useState([])
-	const [score, setScore] = useState(null)
-	const [gradeStatus, setGradeStatus] = useState(null)
-	const token = localStorage.getItem('access_token')
 
 	const [activeIndex, setActiveIndex] = useState(0)
 
-	const [studentWork, setStudentWork] = useState()
-	const [studentAnswers, setStudentAnswers] = useState([])
-
-	const [lastQuestion, setLastQuestion] = useState(false)
-
-	const [session, setSession] = useState(null)
-
-	const { setError } = useError()
-
-	const fetchSession = async () => {
-		try {
-			const res = await axios.get(`${API}/tests/is-active/${testId}`, {
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-			})
-
-			setSession(res.data.is_active)
-			setGradeStatus(res.data.grade_status)
-			setScore(res.data.score)
-
-			setError(null)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
-		}
-	}
-
-	const startSession = async () => {
-		setActiveIndex(0)
-		setLastQuestion(false)
-		try {
-			const res = await axios.post(
-				`${API}/tests/start/${testId}`,
-				{},
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			)
-
-			console.log('res: ', res.data)
-			setSession(res.data.is_active)
-			setError(null)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
-		}
-
-		fetchSession()
-	}
-
 	useEffect(() => {
 		contentType === 'test' && setQuestions(content?.content)
-		if (contentType === 'test') {
-			fetchSession()
-		}
 	}, [content])
-
-	const sendResultOfWork = async () => {
-		try {
-			const payload = [studentWork?.map(f => f.file_path)]
-
-			const res = await axios.post(
-				`${API}/sections/${sectionId}/upload/assignment`,
-				payload[0],
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-						'Content-Type': 'application/json',
-					},
-				}
-			)
-
-			console.log('✅ Результат отправки:', res.data)
-		} catch (error) {
-			console.error('❌ Ошибка при отправке:', error)
-		}
-	}
-
-	const handleStudentAnswer = () => {
-		activeIndex + 1 !== questions?.length
-			? setActiveIndex(prev => prev + 1)
-			: setLastQuestion(true)
-
-		const q = content?.content[activeIndex]
-		const data = { question_id: q?.id, answers_data: answers }
-
-		setStudentAnswers(oldArray => {
-			const existingIndex = oldArray.findIndex(
-				item => item.question_id === q?.id
-			)
-
-			if (existingIndex !== -1) {
-				const newArray = [...oldArray]
-				newArray[existingIndex] = {
-					...newArray[existingIndex],
-					answers_data: answers,
-				}
-				return newArray
-			} else {
-				return [...oldArray, data]
-			}
-		})
-		setQuestions(prevQuestions =>
-			prevQuestions.map(item =>
-				item.id === q?.id ? { ...item, filled: true } : item
-			)
-		)
-	}
-
-	const PUT = async () => {
-		try {
-			const response = await fetch(
-				`${API}/tests/student-answers/update/${testId}`,
-				{
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
-					body: JSON.stringify(answers),
-				}
-			)
-			const result = await response.json()
-			setAnswers(null)
-		} catch (error) {
-			console.error('Ошибка:', error)
-		}
-	}
-
-	const testEnd = async () => {
-		try {
-			const response = await fetch(`${API}/tests/end/${testId}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-			})
-			const result = await response.json()
-		} catch (error) {
-			console.error('Ошибка:', error)
-		}
-		fetchSession()
-	}
-
-	const handleFinish = () => {
-		testEnd()
-	}
-
-	useEffect(() => {
-		PUT()
-	}, [studentAnswers])
 
 	if (!content) {
 		return (
@@ -503,141 +323,41 @@ const ContentView = ({
 									</motion.div>
 								)
 							})}
-
-							{contentType === 'practice' && (
-								<motion.div
-									key={content?.length}
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									transition={{
-										duration: 0.3,
-										delay: content?.length * 0.1,
-										ease: 'easeOut',
-									}}
-								>
-									<div className='w-full flex flex-col justify-center gap-3'>
-										<p className='text-center font-medium text-xl text-[var(--black)]'>
-											Прикрепить файл для проверки
-										</p>
-										<ConstructorFileInput
-											onChange={setStudentWork}
-											takeValues={studentWork?.content}
-										/>
-
-										<SubmitButton
-											title={'Отправить на проверку'}
-											onClick={sendResultOfWork}
-										/>
-									</div>
-								</motion.div>
-							)}
 						</>
 					) : (
 						<>
-							{gradeStatus === 'assessed' ? (
-								<div className='w-full relative flex justify-center items-center'>
-									<p className='px-4 absolute top-100 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
-										{score} / 5
-									</p>
-								</div>
-							) : gradeStatus === 'pending' ? (
-								<div className='w-full h-full flex justify-center items-center'>
-									<p className=' font-normal text-[var(--black)] text-xl'>
-										На рассмотрении
-									</p>
-									<p className='px-4 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
-										? / 5
-									</p>
-								</div>
-							) : (
-								gradeStatus === 'not_attempted' && (
-									<>
-										{session === false ? (
-											<div className='w-full h-225 flex items-center justify-center'>
-												<div className='h-12'>
-													<StartButton
-														title={'Начать тест'}
-														onClick={startSession}
-													/>
-												</div>
-											</div>
-										) : (
-											<>
-												<LevelsBar
-													questions={questions}
-													activeIndex={activeIndex}
-													setActiveIndex={setActiveIndex}
-													filled={studentAnswers}
-												/>
-												<div className='w-full flex justify-center'>
-													{(() => {
-														const q = content?.content[activeIndex]
+							<LevelsBar
+								questions={questions}
+								activeIndex={activeIndex}
+								setActiveIndex={setActiveIndex}
+							/>
+							<div className='w-full flex justify-center'>
+								{(() => {
+									const q = content?.content[activeIndex]
 
-														if (q?.type === 'multiple') {
-															return (
-																<MoreVariantView
-																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={setAnswers}
-																/>
-															)
-														} else if (q?.type === 'single') {
-															return (
-																<OneVariantView
-																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={setAnswers}
-																/>
-															)
-														} else if (q?.type === 'matching') {
-															return (
-																<SortVariantView
-																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={setAnswers}
-																/>
-															)
-														} else if (q?.type === 'open') {
-															return (
-																<OpenQuestionView
-																	testId={questions[activeIndex]?.id}
-																	onChange={setAnswers}
-																/>
-															)
-														}
+									if (q?.type === 'multiple' || q?.type === 'single') {
+										return (
+											<VariantModerationView
+												testId={questions[activeIndex]?.id}
+											/>
+										)
+									} else if (q?.type === 'matching') {
+										return (
+											<SortVariantModerationView
+												testId={questions[activeIndex]?.id}
+											/>
+										)
+									} else if (q?.type === 'open') {
+										return (
+											<OpenQuestionModerationView
+												testId={questions[activeIndex]?.id}
+											/>
+										)
+									}
 
-														return null
-													})()}
-												</div>
-												<div className='flex justify-center gap-3'>
-													{!lastQuestion ? (
-														<div className='flex flex-col gap-3 items-center'>
-															<button
-																onClick={handleStudentAnswer}
-																className={` justify-center items-center w-fit px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium  flex ${
-																	questions[activeIndex].filled
-																		? 'opacity-25 cursor-not-allowed'
-																		: 'hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer'
-																}`}
-															>
-																<p>Ответить</p>
-															</button>
-															<p className='text-[var(--middle)] font-light'>
-																Внимание: после отправки вы не сможете изменить
-																свой ответ. Убедитесь, что всё верно!
-															</p>
-														</div>
-													) : (
-														<button
-															onClick={() => handleFinish()}
-															className=' justify-center items-center px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
-														>
-															<p>Завершить тест</p>
-														</button>
-													)}
-												</div>
-											</>
-										)}
-									</>
-								)
-							)}
+									return null
+								})()}
+							</div>
 						</>
 					)
 				) : (
@@ -737,7 +457,7 @@ const CourseOverview = ({ content }) => {
 	)
 }
 
-const CoursePage = ({ moderationCourseId }) => {
+const ModerationComponent = ({ moderationCourseId }) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
@@ -793,4 +513,4 @@ const CoursePage = ({ moderationCourseId }) => {
 		</>
 	)
 }
-export default CoursePage
+export default ModerationComponent
