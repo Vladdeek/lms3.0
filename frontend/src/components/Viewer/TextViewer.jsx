@@ -64,7 +64,7 @@ export const TextViewer = ({ content }) => {
 	}, [content])
 
 	return (
-		<div className='text-[var(--black)]'>
+		<div className='text-[var(--black)] w-full'>
 			{parsed.map((el, idx) => renderElement(el, idx))}
 		</div>
 	)

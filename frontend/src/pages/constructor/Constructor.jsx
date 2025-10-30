@@ -1,5 +1,6 @@
 import {
 	ArrowDownUp,
+	ArrowLeftFromLine,
 	ArrowRightFromLine,
 	AudioLines,
 	BookMarked,
@@ -728,6 +729,7 @@ const ContentView = ({
 	sectionId,
 	onSectionTypeChange,
 	isEdit,
+	clearSelection,
 }) => {
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
@@ -792,7 +794,18 @@ const ContentView = ({
 	return (
 		<div className='h-fit overflow-y-scroll hide-scrollbar hide-scrollbar'>
 			<div className=' flex flex-col gap-3 rounded-xl p-2'>
-				<ModuleContent bg={true} type={SectionType} title={SectionName} />
+				<div className='flex gap-3 items-center'>
+					<div className='[1200px]:hidden'>
+						<Button
+							icon={ArrowLeftFromLine}
+							style='white'
+							size={40}
+							onClick={clearSelection}
+						/>
+					</div>
+
+					<ModuleContent bg={true} type={SectionType} title={SectionName} />
+				</div>
 
 				{SectionType === 'test' ? (
 					<>
@@ -1176,16 +1189,19 @@ const Constructor = ({
 	return (
 		<>
 			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] gap-3 2xl:gap-5 h-full'>
-				<div className='bg-[var(--white)] shadow-[var(--shadow)] max-[1200px]:w-full rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between'>
+				<div
+					className={`${
+						selectedContent && 'max-[1200px]:hidden'
+					} bg-[var(--white)] shadow-[var(--shadow)] max-[1200px]:w-full rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between`}
+				>
 					<div className='flex flex-col gap-3'>
 						<div className='flex flex-col gap-3 px-2'>
 							<div className='flex justify-between w-full'>
 								<p className='font-medium text-[20px] text-[var(--black)]'>
 									Содержимое
 								</p>
-								<Button icon={ArrowRightFromLine} style='white' size={32} />
 							</div>
-							<div className='flex gap-[10px]'>
+							{/* <div className='flex gap-[10px]'>
 								<SearchInput />
 								<Button icon={ListRestart} style='white' size={40} />
 								<Button
@@ -1194,7 +1210,7 @@ const Constructor = ({
 									size={40}
 									IconColor={'var(--green-status-text)'}
 								/>
-							</div>
+							</div> */}
 						</div>
 
 						<div className='flex flex-col gap-3 rounded-xl p-2'>
@@ -1230,7 +1246,11 @@ const Constructor = ({
 						</div>
 					</div>
 				</div>
-				<div className='max-[1200px]:hidden bg-[var(--white)] shadow-[var(--shadow)] rounded-xl overflow-y-auto hide-scrollbar'>
+				<div
+					className={`${
+						!selectedContent && 'max-[1200px]:hidden'
+					} bg-[var(--white)] shadow-[var(--shadow)] rounded-xl overflow-y-auto hide-scrollbar`}
+				>
 					<div className='flex flex-col gap-3 rounded-xl p-5'>
 						<ContentView
 							content={selectedContent}
@@ -1241,6 +1261,9 @@ const Constructor = ({
 							sectionId={section?.id}
 							onSectionTypeChange={onSectionTypeChange}
 							isEdit={isEdit}
+							clearSelection={() => {
+								setSelectedContent(null)
+							}}
 						/>
 					</div>
 				</div>

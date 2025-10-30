@@ -100,7 +100,7 @@ const CustomAudioPlayer = ({ audioUrl = null, volumeOn, course = false }) => {
 
 	return (
 		<div className='w-full flex justify-center'>
-			<div className={course ? 'w-2/3' : 'w-full'}>
+			<div className={course ? 'w-2/3' : 'w-full max-lg:w-4/5'}>
 				<div
 					className={`bg-[var(--white)] rounded-lg p-4 shadow-[var(--shadow)]`}
 				>

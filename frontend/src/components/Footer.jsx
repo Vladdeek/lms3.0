@@ -7,7 +7,7 @@ const FooterLink = ({ to, title, index }) => {
 	return (
 		<NavLink
 			to={to}
-			className={`group text-base w-fit ${
+			className={`group text-base max-lg:text-sm max-[913px]:text-xs w-fit ${
 				index === 0
 					? 'font-medium text-[var(--black)]'
 					: index > 0 && index < 10
@@ -61,12 +61,12 @@ const Footer = () => {
 	]
 	return (
 		<footer className='flex flex-col bottom-0 bg-[var(--white)] -mx-10 pt-7 pb-5 px-10 mt-10'>
-			<div className=' grid grid-cols-[1fr_3fr]  gap-5  w-full border-b-1 border-[var(--middle)] mb-3'>
+			<div className=' grid grid-cols-[1fr_3fr]  gap-5  w-full border-b-1 border-[var(--middle)] mb-3 pb-3'>
 				<div className='flex flex-col gap-5'>
-					<p className='uppercase text-4xl font-bold text-[var(--black)]'>
+					<p className='uppercase text-4xl max-xl:text-2xl font-bold text-[var(--black)]'>
 						МелГУ СУО
 					</p>
-					<p className='text-sm font-normal text-[var(--middle)]'>
+					<p className='text-sm max-xl:text-xs font-normal text-[var(--middle)]'>
 						Учись, общайся и достигай целей без границ. Доступ к лекциям,
 						расписанию и заданиям — всегда под рукой.
 					</p>
@@ -79,7 +79,8 @@ const Footer = () => {
 							))}
 						</div>
 					))}
-					<div className='flex flex-col gap-4 items-end'>
+
+					<div className='flex flex-col gap-4 items-end max-xl:hidden'>
 						<div className='p-3 w-fit rounded-lg bg-[var(--hero-epta)] text-white'>
 							<MessageCircleQuestionMark size={24} />
 						</div>
@@ -88,12 +89,15 @@ const Footer = () => {
 					</div>
 				</div>
 			</div>
-			<div className='flex justify-between'>
+			<div className='flex justify-between items-center'>
 				<div className='flex gap-5'>
 					<p className='font-medium text-[var(--black)]'>МелГУ СУО</p>
 					<FooterLink title={`Все права защищены`} index={10} />
 				</div>
-				<FooterLink title={`Политика конфиденциальности`} index={10} />
+				<div className='flex gap-5 max-xl:flex-row-reverse items-center'>
+					<FooterLink title={`Техническая поддержка`} index={10} />
+					<FooterLink title={`Политика конфиденциальности`} index={10} />
+				</div>
 			</div>
 		</footer>
 	)

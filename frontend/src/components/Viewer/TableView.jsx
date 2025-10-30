@@ -2,14 +2,17 @@ import React from 'react'
 
 const TableView = ({ rows = 2, cols = 2, values = [] }) => {
 	return (
-		<div className='flex gap-2'>
-			<div className='flex flex-col bg-[var(--white)] shadow-[var(--shadow)] rounded-lg p-4 w-full'>
+		<div className='flex gap-2 justify-center'>
+			<div className='flex flex-col bg-[var(--white)] shadow-[var(--shadow)] max-xl:w-4/5 rounded-lg p-4 w-full'>
 				<p className='text-[var(--middle)] font-medium mb-2'>Таблица</p>
-				<div className='w-full flex justify-between'>
+
+				{/* Обертка со скроллом */}
+				<div className='w-full overflow-x-auto max-xl:overflow-x-auto'>
+					{/* Таблица */}
 					<div
-						className='grid w-full mb-1 mr-1 rounded-lg overflow-hidden border border-[var(--light-middle)]'
+						className='grid min-w-[700px] mb-1 mr-1 rounded-lg overflow-hidden border border-[var(--light-middle)]'
 						style={{
-							gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+							gridTemplateColumns: `repeat(${cols}, minmax(100px, 1fr))`,
 							gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
 						}}
 					>

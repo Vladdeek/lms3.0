@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import {
+	ArrowLeftFromLine,
 	ArrowRightFromLine,
 	BookMarked,
 	ChevronDown,
@@ -225,6 +226,7 @@ const ContentView = ({
 	contentType,
 	contentTitle,
 	testId,
+	clearSelection,
 }) => {
 	const [answers, setAnswers] = useState({})
 	const [questions, setQuestions] = useState([])
@@ -412,8 +414,19 @@ const ContentView = ({
 	}
 
 	return (
-		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-scroll hide-scrollbar'>
-			<ModuleContent bg={true} type={contentType} title={contentTitle} />
+		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-scroll hide-scrollbar max-h-[70vh] '>
+			<div className='flex gap-3 items-center'>
+				<div className='min-[1200px]:hidden'>
+					<Button
+						icon={ArrowLeftFromLine}
+						style='white'
+						size={40}
+						onClick={clearSelection}
+					/>
+				</div>
+				<ModuleContent bg={true} type={contentType} title={contentTitle} />
+			</div>
+
 			<div className='flex flex-col gap-5'>
 				{content?.length !== 0 ? (
 					contentType !== 'test' ? (
@@ -691,30 +704,34 @@ const CourseOverview = ({ content }) => {
 
 	return (
 		<>
-			<div className='grid grid-cols-[1fr_3fr] gap-5 h-full '>
-				<div className='flex flex-col gap-3 '>
+			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] max-h-[70vh] gap-5 '>
+				<div
+					className={`flex flex-col gap-3 ${
+						selectedContent && 'max-[1200px]:hidden'
+					}`}
+				>
 					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
 						<p className='font-medium text-2xl text-[var(--black)]'>
 							{content?.name}
 						</p>
 					</div>
-					<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between h-full'>
+					<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-0 px-3 pt-5 flex flex-col justify-between h-full '>
 						<div className='flex flex-col gap-3'>
 							<div className='flex flex-col gap-3 px-2'>
 								<div className='flex justify-between w-full'>
 									<p className='font-medium text-[20px] text-[var(--black)]'>
 										Содержимое
 									</p>
-									<Button icon={ArrowRightFromLine} style='white' size={32} />
+									{/* <Button icon={ArrowRightFromLine} style='white' size={32} /> */}
 								</div>
-								<div className='flex gap-[10px]'>
+								{/* <div className='flex gap-[10px]'>
 									<SearchInput width={'100%'} />
 									<Button icon={ListRestart} style='white' size={40} />
-								</div>
+								</div> */}
 							</div>
 
-							<div className='flex flex-col gap-3 rounded-xl p-2'>
+							<div className='flex flex-col gap-3 rounded-xl max-h-[55vh] overflow-y-scroll  p-2'>
 								<ModuleBlock
 									ModuleInfo={content?.modules}
 									onContentSelect={handleContentSelect}
@@ -724,14 +741,22 @@ const CourseOverview = ({ content }) => {
 						</div>
 					</div>
 				</div>
-
-				<ContentView
-					content={selectedContent}
-					contentType={selectedType}
-					contentTitle={selectedName}
-					testId={selectedContent?.id}
-					sectionId={sectionId}
-				/>
+				<div
+					className={`${
+						!selectedContent && 'max-[1200px]:hidden max-[1200px]:-ml-10'
+					}`}
+				>
+					<ContentView
+						content={selectedContent}
+						contentType={selectedType}
+						contentTitle={selectedName}
+						testId={selectedContent?.id}
+						sectionId={sectionId}
+						clearSelection={() => {
+							setSelectedContent(null)
+						}}
+					/>
+				</div>
 			</div>
 		</>
 	)

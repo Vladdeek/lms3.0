@@ -166,6 +166,7 @@ export default function DashboardLayout({ onChange }) {
 					initial={{ opacity: 0, y: 30 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.5, ease: 'easeOut' }}
+					className='max-md:hidden'
 				>
 					<Footer />
 				</motion.div>

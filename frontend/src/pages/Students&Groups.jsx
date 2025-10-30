@@ -46,7 +46,7 @@ const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 
 			<div className='flex flex-col justify-between'>
 				<p
-					className={`text-[var(--black)] whitespace-nowrap font-medium text-sm ${
+					className={`text-[var(--black)] font-medium text-sm ${
 						active && 'text-[var(--hero-epta)]'
 					}`}
 				>
@@ -509,19 +509,19 @@ const StudentsAndGroups = () => {
 	}, [])
 
 	useEffect(() => {
-		if (courses) fetchGroups()
+		if (courses?.length !== 0) fetchGroups()
 	}, [courses, selectedCourse])
 
 	useEffect(() => {
-		if (groups) fetchStudents()
+		if (groups?.length !== 0) fetchStudents()
 	}, [groups, selectedGroupe])
 
 	useEffect(() => {
-		if (students) fetchStudentLessons()
+		if (students?.length !== 0) fetchStudentLessons()
 	}, [students, selectedStudent])
 
 	useEffect(() => {
-		if (tasks) fetchLesson()
+		if (tasks?.length !== 0) fetchLesson()
 	}, [selectedTask])
 
 	if (!courses) {
@@ -533,8 +533,8 @@ const StudentsAndGroups = () => {
 	}
 	return (
 		<>
-			<div className='grid grid-cols-12 gap-5 mt-20 select-none h-screen'>
-				<div className='col-span-2 flex flex-col gap-5 h-5/6'>
+			<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-20 select-none h-[70vh]'>
+				<div className='col-span-2 flex flex-col gap-5 h-full'>
 					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
 						<p className='text-[var(--middle)] text-sm'>Выберите курс</p>
 						<OptionInput
@@ -567,13 +567,17 @@ const StudentsAndGroups = () => {
 						</div>
 					</div>
 				</div>
-				<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5 h-5/6'>
+				<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5 h-full'>
 					<div className='flex flex-col gap-4'>
 						<p className='font-medium text-[var(--black)] text-xl'>
 							Выберите занятие для просмотра
 						</p>
 						{tasks?.length === 0 ? (
-							<p className='font-normal text-[var(--black)] text-xl'>пусто</p>
+							<div className='h-135 w-full flex justify-center items-center'>
+								<p className='font-normal text-center text-[var(--middle)] text-xl'>
+									пусто
+								</p>
+							</div>
 						) : (
 							tasks?.map((item, index) => {
 								console.log('in type: ', index, item)
@@ -589,7 +593,7 @@ const StudentsAndGroups = () => {
 						)}
 					</div>
 				</div>
-				<div className='col-span-7 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-5/6'>
+				<div className='min-[1440px]:col-span-7 max-[1440px]:hidden bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-full'>
 					{(() => {
 						switch (lessons?.assignment_type) {
 							case 'practice':
@@ -597,7 +601,11 @@ const StudentsAndGroups = () => {
 							case 'test':
 								return <TestView content={lessons} />
 							default:
-								return <p>Выберите занятие</p>
+								return (
+									<div className='w-full h-full flex justify-center items-center font-normal text-center text-[var(--middle)] text-xl'>
+										<p>Выберите занятие</p>
+									</div>
+								)
 						}
 					})()}
 				</div>

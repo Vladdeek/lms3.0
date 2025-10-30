@@ -115,52 +115,6 @@ const Notification = () => {
 	)
 }
 
-const Logout = () => {
-	const navigate = useNavigate()
-	const logout = async () => {
-		const storedAccess = localStorage.getItem('access_token')
-		const storedRefresh = localStorage.getItem('refresh_token')
-
-		try {
-			const res = await fetch(`${API}/auth/jwt/logout`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${storedAccess}`,
-				},
-				body: JSON.stringify({ refresh_token: storedRefresh }),
-			})
-
-			if (!res.ok) {
-				const errorData = await res.json()
-				throw new Error(errorData?.detail || `Error ${res.status}`)
-			}
-
-			const data = await res.json()
-			console.log('Logout success:', data)
-
-			localStorage.removeItem('access_token')
-			localStorage.removeItem('refresh_token')
-
-			navigate('/auth')
-		} catch (error) {
-			console.log('Logout error:', error.message)
-			localStorage.removeItem('access_token')
-			localStorage.removeItem('refresh_token')
-			navigate('/auth')
-		}
-	}
-
-	return (
-		<button
-			onClick={logout}
-			className={`relative rounded-lg p-[14px] hover:bg-[var(--hero-epta)] hover:text-white text-[var(--black)] active:scale-98 active:brightness-90 shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer`}
-		>
-			<LogOut size={20} />
-		</button>
-	)
-}
-
 const HeaderLink = ({ title, icon: Icon, to }) => {
 	const clearError = () => {
 		setError(null)
@@ -180,7 +134,7 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 				<>
 					<Icon size={24} />
 					<p
-						className={`font-medium text-base transition-all ${
+						className={`font-medium text-base whitespace-nowrap transition-all ${
 							isActive ? 'text-white' : 'hover:text-[var(--black)]'
 						}`}
 					>
@@ -228,8 +182,89 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			? 'bg-[var(--hero-epta)] text-white'
 			: 'bg-[var(--white)]'
 
+	const navigate = useNavigate()
+
+	function useLockBodyScroll(lock) {
+		useEffect(() => {
+			if (lock) {
+				document.body.style.overflow = 'hidden'
+			} else {
+				document.body.style.overflow = ''
+			}
+
+			return () => {
+				document.body.style.overflow = ''
+			}
+		}, [lock])
+	}
+
+	const [showOptions, setShowOptions] = useState(false)
+	const [showMessage, setShowMessage] = useState(false)
+
+	useLockBodyScroll(showMessage)
+
+	const logout = async () => {
+		const storedAccess = localStorage.getItem('access_token')
+		const storedRefresh = localStorage.getItem('refresh_token')
+
+		try {
+			const res = await fetch(`${API}/auth/jwt/logout`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${storedAccess}`,
+				},
+				body: JSON.stringify({ refresh_token: storedRefresh }),
+			})
+
+			if (!res.ok) {
+				const errorData = await res.json()
+				throw new Error(errorData?.detail || `Error ${res.status}`)
+			}
+
+			const data = await res.json()
+			console.log('Logout success:', data)
+
+			localStorage.removeItem('access_token')
+			localStorage.removeItem('refresh_token')
+
+			navigate('/auth')
+		} catch (error) {
+			console.log('Logout error:', error.message)
+			localStorage.removeItem('access_token')
+			localStorage.removeItem('refresh_token')
+			navigate('/auth')
+		}
+	}
+
 	return (
-		<>
+		<div className='relative'>
+			{showMessage && (
+				<div
+					className={`absolute z-1000 h-screen w-screen -left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
+				>
+					<div className='p-4 h-30 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
+						<p>Вы уверены что хотите выйти?</p>
+						<div className='flex gap-3'>
+							<button
+								onClick={logout}
+								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
+							>
+								Выйти
+							</button>
+							<button
+								onClick={() => {
+									setShowMessage(false)
+								}}
+								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-[var(--black)] hover:bg-[var(--white)] border-1 border-transparent hover:border-[var(--middle)] shadow-[var(--shadow)] transition-all cursor-pointer'
+							>
+								Отмена
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
 				<div className='flex items-center gap-5 max-md:hidden'>
 					{UserInfo ? (
@@ -257,11 +292,58 @@ export const Header = ({ links = [], UserInfo = null }) => {
 						<ToggleTheme />
 						{/* <Notification Notifications={1} /> TO-DO Уведомления */}
 
-						<Wrapper
+						{/* <Wrapper
 							{...toProps}
 							className={`
 								flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px] cursor-pointer transition-all
 								${activeClass}
+							`}
+						>
+							{UserInfo ? (
+								<>
+									<p
+										className={`text-base font-medium whitespace-nowrap text-end leading-5 ${
+											isStudent && isDashboard
+												? 'text-white'
+												: 'text-[var(--black)]'
+										}`}
+									>
+										{UserInfo?.personal_data?.first_name}{' '}
+										{UserInfo?.personal_data?.last_name}{' '}
+										{UserInfo?.personal_data?.middle_name
+											? `${UserInfo.personal_data.middle_name[0]}.`
+											: ''}
+										<span
+											className={`font-normal ${
+												isStudent && isDashboard
+													? 'text-white/80'
+													: 'text-[var(--middle)]'
+											}`}
+										>
+											<br />
+
+											{UserInfo?.current_user_role === 'student'
+												? 'Студент'
+												: UserInfo?.current_user_role === 'teacher'
+												? 'Преподаватель'
+												: UserInfo?.current_user_role === 'moderator' &&
+												  'Модератор'}
+										</span>
+									</p>
+								</>
+							) : (
+								<div className='w-32 flex flex-col items-end gap-1.5'>
+									<BlockLoader height={20} width={135} />
+									<BlockLoader height={20} width={128} />
+								</div>
+							)} */}
+
+						<div
+							onClick={() => {
+								setShowOptions(prev => !prev)
+							}}
+							className={`
+								flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px] cursor-pointer transition-all relative
 							`}
 						>
 							{UserInfo ? (
@@ -312,12 +394,24 @@ export const Header = ({ links = [], UserInfo = null }) => {
 							) : (
 								<ImageOff className='h-10 w-10 p-1.75 text-[var(--middle)] rounded-full aspect-square shimmer' />
 							)}
-						</Wrapper>
-						<Logout />
+							{showOptions && (
+								<div className='absolute top-20 left-0 md:right-0 shadow-[var(--shadow)] bg-[var(--white)] rounded-xl flex flex-col p-2'>
+									<div
+										onClick={() => {
+											setShowMessage(true)
+										}}
+										className='rounded-md items-center justify-end hover:bg-[var(--light-gray)] flex gap-3 px-4 py-2 text-[var(--black)]'
+									>
+										<p>Выйти</p>
+										<LogOut size={20} />
+									</div>
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }
 

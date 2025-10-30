@@ -211,7 +211,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 
 	return (
 		<div className='flex gap-2 justify-center'>
-			<div className='w-1/2 flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
+			<div className='w-4/5 lg:w-2/3 flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
 				{files?.map((file, index) => (
 					<div
 						key={index}

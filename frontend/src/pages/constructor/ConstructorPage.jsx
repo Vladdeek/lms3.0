@@ -608,7 +608,7 @@ const ConstructorPage = ({ role }) => {
 					? 'Отправлено на рассмотрение'
 					: showMassage === 'good' && 'Изменения сохранены'}
 			</p>
-			<div className='flex flex-col gap-5 h-[73vh]'>
+			<div className='flex flex-col gap-5 h-[73vh] max-md:mb-65 mb-45'>
 				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center max-[1366px]:mt-5 mt-10'>
 					<div className='flex gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
 						{options.map((option, index) => (
@@ -641,7 +641,7 @@ const ConstructorPage = ({ role }) => {
 							</p>
 						</div>
 					</motion.div>
-					<div className='flex gap-5 max-[1366px]:hidden  max-[1366px]:gap-2  max-[1366px]:order-3 items-center'>
+					<div className='flex gap-5 max-[1200px]:hidden  max-[1366px]:gap-2  max-[1366px]:order-3 items-center'>
 						{selected === 1 ? (
 							<QrCodeButton
 								url={'https://www.npmjs.com/package/qr-code-styling'}

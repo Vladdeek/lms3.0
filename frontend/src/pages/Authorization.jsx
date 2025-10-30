@@ -51,7 +51,6 @@ const Authorization = ({ isRegister = false }) => {
 				body: JSON.stringify(data),
 			})
 			const result = await response.json()
-
 			if (result?.detail === 'Пользователь не найден')
 				showMessageFunc(result?.detail)
 			else login(result)
@@ -59,6 +58,17 @@ const Authorization = ({ isRegister = false }) => {
 			console.error('Ошибка:', error)
 		}
 	}
+
+	useEffect(() => {
+		const access_token = localStorage.getItem('access_token')
+		const refresh_token = localStorage.getItem('refresh_token')
+		const info = {
+			access_token: access_token,
+			refresh_token: refresh_token,
+			token_type: 'bearer',
+		}
+		if (access_token !== null && refresh_token !== refresh_token) login(info)
+	}, [])
 
 	return (
 		<div className='relative'>
@@ -69,10 +79,10 @@ const Authorization = ({ isRegister = false }) => {
 			>
 				{showMessage}
 			</p>
-			<div className='mx-40 h-screen flex justify-center items-center'>
-				<div className='w-full grid grid-cols-[1fr_auto_2fr] gap-3'>
-					<div className='flex flex-col w-150 justify-between'>
-						<p className='text-8xl mb-15 text-[var(--hero-epta)] flex gap-3 font-bold w-full'>
+			<div className='mx-4 sm:mx-10 md:mx-20 lg:mx-40 h-screen flex justify-center items-center'>
+				<div className='w-full xl:grid grid-cols-[1fr_auto_2fr] gap-3'>
+					<div className='flex flex-col w-150 max-2xl:w-120 xl:justify-between'>
+						<p className='text-8xl max-2xl:text-7xl max-sm:text-6xl mb-15 text-[var(--hero-epta)] flex gap-3 font-bold w-full'>
 							<DecryptedText
 								text='МелГУ'
 								animateOn='view'
@@ -84,7 +94,7 @@ const Authorization = ({ isRegister = false }) => {
 								revealDirection='center'
 							/>
 						</p>
-						<p className='font-base text-[var(--black)] text-[64px] flex flex-col items-start w-full h-50'>
+						<p className='font-base text-[var(--black)] text-[64px] max-2xl:text-6xl max-md:text-4xl flex flex-col items-start w-full h-50'>
 							<TextType
 								text={'Твои курсы \nпод рукой'}
 								typingSpeed={100}
@@ -95,14 +105,14 @@ const Authorization = ({ isRegister = false }) => {
 						</p>
 					</div>
 
-					<div className='flex items-center'>
+					<div className='max-xl:hidden flex items-center'>
 						<div className='border-[1px] border-[var(--hero-epta)] h-full'></div>
 					</div>
 
-					<div className='grid grid-cols-[1fr_7fr] gap-3'>
+					<div className='xl:grid grid-cols-[1fr_7fr] gap-3'>
 						<div></div>
 						<div className=' flex flex-col '>
-							<div className='flex flex-col gap-10 mt-20'>
+							<div className='flex flex-col gap-10 xl:mt-20'>
 								<InputAuth
 									placeholder={'example@mail.ru'}
 									title={'Почта'}
@@ -122,7 +132,7 @@ const Authorization = ({ isRegister = false }) => {
 									value={password}
 									onChange={e => setPassword(e.target.value)}
 								/>
-								<div className='flex gap-5'>
+								<div className='flex gap-5 hidden'>
 									<Link to={'#'} title={'Забыли логин или пароль?'} />
 								</div>
 								<SubmitButton
