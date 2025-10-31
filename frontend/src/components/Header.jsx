@@ -14,6 +14,7 @@ import {
 	UserPen,
 	ChevronUp,
 	ChevronDown,
+	X,
 } from 'lucide-react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
@@ -299,7 +300,11 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				<div
 					className={`absolute z-1000 h-screen w-screen -left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
 				>
-					<div className='p-4 h-fit w-1/4 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
+					<div className='relative p-4 h-fit w-1/4 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
+						<X
+							onClick={() => setShowSelectRoleMOdal(false)}
+							className='absolute top-2 right-2 text-[var(--black)] hover:text-red-500 cursor-pointer'
+						/>
 						<p className='text-[var(--black)] font-medium text-2xl'>
 							Смена роли
 						</p>
@@ -307,7 +312,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 							{roleMass.map((item, index) => (
 								<div key={index} className='w-full'>
 									{item.type === 'student' && item.directions.length > 1 ? (
-										<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)]  '>
+										<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] relative'>
 											<div
 												onClick={() =>
 													setOpenIndex(openIndex === index ? null : index)
