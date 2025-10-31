@@ -307,12 +307,12 @@ export const Header = ({ links = [], UserInfo = null }) => {
 							{roleMass.map((item, index) => (
 								<div key={index} className='w-full'>
 									{item.type === 'student' && item.directions.length > 1 ? (
-										<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] overflow-hidden'>
-											<button
+										<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)]  '>
+											<div
 												onClick={() =>
 													setOpenIndex(openIndex === index ? null : index)
 												}
-												className='w-full flex justify-center items-center px-4 py-3 font-medium cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all '
+												className='relative w-full flex justify-center items-center px-4 py-3 font-medium cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all rounded-lg'
 											>
 												<span>{item.name}</span>
 
@@ -321,20 +321,19 @@ export const Header = ({ links = [], UserInfo = null }) => {
 													strokeWidth={2.5}
 													className={openIndex === index && 'rotate-180'}
 												/>
-											</button>
-
-											{openIndex === index && (
-												<div className='flex flex-col border-t border-gray-200'>
-													{item.directions.map((dir, i) => (
-														<p
-															key={i}
-															className='py-2 text-center cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all'
-														>
-															{dir}
-														</p>
-													))}
-												</div>
-											)}
+												{openIndex === index && (
+													<div className='flex flex-col absolute top-15 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-lg w-full overflow-hidden'>
+														{item.directions.map((dir, i) => (
+															<p
+																key={i}
+																className='py-2 text-center cursor-pointer hover:bg-[var(--light-gray)] text-[var(--black)] transition-all'
+															>
+																{dir}
+															</p>
+														))}
+													</div>
+												)}
+											</div>
 										</div>
 									) : (
 										<p className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-center hover:bg-[var(--hero-epta)] hover:text-white transition-all py-3 font-medium cursor-pointer'>
