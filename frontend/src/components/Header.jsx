@@ -11,6 +11,9 @@ import {
 	Home,
 	LogOut,
 	ImageOff,
+	UserPen,
+	ChevronUp,
+	ChevronDown,
 } from 'lucide-react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
@@ -18,6 +21,7 @@ import { API, FILE_API } from '../API'
 import axios from 'axios'
 import { BlockLoader } from './Loader'
 import { useError } from './Errors'
+import Moderation from '../pages/Moderation'
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -200,6 +204,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 	const [showOptions, setShowOptions] = useState(false)
 	const [showMessage, setShowMessage] = useState(false)
+	const [showSelectRoleMOdal, setShowSelectRoleMOdal] = useState(false)
 
 	useLockBodyScroll(showMessage)
 
@@ -237,6 +242,32 @@ export const Header = ({ links = [], UserInfo = null }) => {
 		}
 	}
 
+	const user = {
+		roles: ['moderator', 'teacher', 'student'],
+		directions: ['Frontend', 'Backend'],
+	}
+
+	const roleMass = user.roles
+		.map(role => {
+			if (role === 'student') {
+				return {
+					name: 'Студент',
+					type: 'student',
+					directions: user.directions,
+				}
+			}
+			if (role === 'teacher') {
+				return { name: 'Преподаватель', type: 'teacher' }
+			}
+			if (role === 'moderator') {
+				return { name: 'Модератор', type: 'moderator' }
+			}
+			return null
+		})
+		.filter(Boolean)
+
+	const [openIndex, setOpenIndex] = useState(null)
+
 	return (
 		<div className='relative'>
 			{showMessage && (
@@ -260,6 +291,60 @@ export const Header = ({ links = [], UserInfo = null }) => {
 							>
 								Отмена
 							</button>
+						</div>
+					</div>
+				</div>
+			)}
+			{showSelectRoleMOdal && (
+				<div
+					className={`absolute z-1000 h-screen w-screen -left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
+				>
+					<div className='p-4 h-fit w-1/4 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
+						<p className='text-[var(--black)] font-medium text-2xl'>
+							Смена роли
+						</p>
+						<div className='flex flex-col items-center gap-3 w-full'>
+							{roleMass.map((item, index) => (
+								<div key={index} className='w-full'>
+									{item.type === 'student' && item.directions.length > 1 ? (
+										<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] overflow-hidden'>
+											<button
+												onClick={() =>
+													setOpenIndex(openIndex === index ? null : index)
+												}
+												className='w-full flex justify-center items-center px-4 py-3 font-medium cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all '
+											>
+												<span>{item.name}</span>
+
+												<ChevronDown
+													size={20}
+													strokeWidth={2.5}
+													className={openIndex === index && 'rotate-180'}
+												/>
+											</button>
+
+											{openIndex === index && (
+												<div className='flex flex-col border-t border-gray-200'>
+													{item.directions.map((dir, i) => (
+														<p
+															key={i}
+															className='py-2 text-center cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all'
+														>
+															{dir}
+														</p>
+													))}
+												</div>
+											)}
+										</div>
+									) : (
+										<p className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-center hover:bg-[var(--hero-epta)] hover:text-white transition-all py-3 font-medium cursor-pointer'>
+											{item.directions?.length === 1
+												? `${item.name} (${item.directions[0]})`
+												: item.name}
+										</p>
+									)}
+								</div>
+							))}
 						</div>
 					</div>
 				</div>
@@ -395,12 +480,21 @@ export const Header = ({ links = [], UserInfo = null }) => {
 								<ImageOff className='h-10 w-10 p-1.75 text-[var(--middle)] rounded-full aspect-square shimmer' />
 							)}
 							{showOptions && (
-								<div className='absolute top-20 left-0 md:right-0 shadow-[var(--shadow)] bg-[var(--white)] rounded-xl flex flex-col p-2'>
+								<div className='absolute top-20 -left-10 md:right-0 shadow-[var(--shadow)] bg-[var(--white)] rounded-xl flex flex-col w-50 p-2'>
+									<div
+										onClick={() => {
+											setShowSelectRoleMOdal(true)
+										}}
+										className='rounded-md items-center justify-end hover:bg-[var(--light-gray)] flex gap-3 px-4 py-2 text-[var(--black)]  transition-all'
+									>
+										<p>Смена роли</p>
+										<UserPen size={20} />
+									</div>
 									<div
 										onClick={() => {
 											setShowMessage(true)
 										}}
-										className='rounded-md items-center justify-end hover:bg-[var(--light-gray)] flex gap-3 px-4 py-2 text-[var(--black)]'
+										className='rounded-md items-center justify-end hover:bg-[var(--light-gray)] hover:text-red-500 flex gap-3 px-4 py-2 text-[var(--black)] transition-all'
 									>
 										<p>Выйти</p>
 										<LogOut size={20} />

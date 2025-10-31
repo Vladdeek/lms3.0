@@ -144,14 +144,14 @@ const CatalogS = ({ role }) => {
 				</div>
 				<div className='flex gap-4 max-lg:gap-2 h-12'>
 					<SearchInput />
-					<FilterButton
+					{/* <FilterButton
 						option={[
 							'по статусу',
 							'по алфавиту',
 							'по дате создания',
 							'по хуйне ',
 						]}
-					/>
+					/> */}
 				</div>
 			</div>
 			{location.pathname === '/catalogs/webinars' && (
