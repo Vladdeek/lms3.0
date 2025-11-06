@@ -198,9 +198,13 @@ const CreateLessonButton = ({
 		onAddLesson(moduleId, tempLesson)
 
 		try {
+			const token = localStorage.getItem('access_token')
 			const res = await fetch(`${API}/sections/modules/${moduleId}`, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({
 					title: lesson.title,
 					type: lesson.type,

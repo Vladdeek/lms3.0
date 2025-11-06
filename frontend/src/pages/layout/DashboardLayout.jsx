@@ -144,7 +144,7 @@ export default function DashboardLayout({ onChange }) {
 	}, [userInfo])
 
 	return (
-		<>
+		<ErrorProvider>
 			<div className='md:mx-10 mx-2'>
 				<Header links={links} UserInfo={userInfo} />
 				<div className='h-25'></div>
@@ -157,9 +157,7 @@ export default function DashboardLayout({ onChange }) {
 					</div>
 				)}
 
-				<ErrorProvider>
-					<Outlet />
-				</ErrorProvider>
+				<Outlet />
 
 				<motion.div
 					key={location.pathname}
@@ -174,6 +172,6 @@ export default function DashboardLayout({ onChange }) {
 			<div className='md:hidden'>
 				<MobileMenuBar links={links} />
 			</div>
-		</>
+		</ErrorProvider>
 	)
 }

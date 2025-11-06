@@ -20,7 +20,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
 import { API, FILE_API } from '../API'
 import axios from 'axios'
-import { BlockLoader } from './Loader'
+import Loader, { BlockLoader } from './Loader'
 import { useError } from './Errors'
 import Moderation from '../pages/Moderation'
 
@@ -121,6 +121,7 @@ const Notification = () => {
 }
 
 const HeaderLink = ({ title, icon: Icon, to }) => {
+	const { setError } = useError()
 	const clearError = () => {
 		setError(null)
 	}
@@ -178,6 +179,7 @@ const MobileHeaderLink = ({ title, icon: Icon, to }) => {
 }
 
 export const Header = ({ links = [], UserInfo = null }) => {
+	const { setError } = useError()
 	const isDashboard = location?.pathname === '/dashboard'
 	const isStudent = UserInfo?.current_user_role === 'student'
 	const Wrapper = isStudent ? NavLink : 'div'
@@ -205,7 +207,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 	const [showOptions, setShowOptions] = useState(false)
 	const [showMessage, setShowMessage] = useState(false)
-	const [showSelectRoleMOdal, setShowSelectRoleMOdal] = useState(false)
+	const [showSelectRoleModal, setShowSelectRoleModal] = useState(false)
 
 	useLockBodyScroll(showMessage)
 
@@ -243,25 +245,79 @@ export const Header = ({ links = [], UserInfo = null }) => {
 		}
 	}
 
-	const user = {
-		roles: ['moderator', 'teacher', 'student'],
-		directions: ['Frontend', 'Backend'],
+	const [userRolesLoading, setUserRolesLoading] = useState(false)
+	const [userRoles, setUserRoles] = useState({
+		roles: [],
+		directions: [],
+	})
+
+	const fetchUserRoles = async () => {
+		setUserRolesLoading(true)
+		setShowSelectRoleModal(true)
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.get(`${API}/user/active-profiles`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			setUserRolesLoading(false)
+			setUserRoles(res.data)
+		} catch (err) {
+			console.log('err: ', err)
+		}
 	}
 
-	const roleMass = user.roles
+	const putUserActiveRoles = async (name, id) => {
+		setShowSelectRoleModal(false)
+		const token = localStorage.getItem('access_token')
+		try {
+			const res = await axios.put(
+				`${API}/user/active-profile`,
+				{ profile_name: name, profile_id: id },
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+			res && window.location.reload()
+		} catch (err) {
+			console.log('err: ', err)
+		}
+	}
+
+	const roleMass = userRoles.roles
 		.map(role => {
-			if (role === 'student') {
+			if (role.profile_name === 'student') {
+				const directions = userRoles.directions.map(dir => ({
+					name: dir.group_name,
+					id: dir.student_profile_id,
+				}))
+
 				return {
 					name: 'Студент',
 					type: 'student',
-					directions: user.directions,
+					id: directions.length === 1 ? directions[0].id : null, // если одно направление — подставляем id напрямую
+					directions,
 				}
 			}
-			if (role === 'teacher') {
-				return { name: 'Преподаватель', type: 'teacher' }
+			if (role.profile_name === 'teacher') {
+				return {
+					name: 'Преподаватель',
+					type: 'teacher',
+					id: role.profile_id,
+				}
 			}
-			if (role === 'moderator') {
-				return { name: 'Модератор', type: 'moderator' }
+			if (role.profile_name === 'moderator') {
+				return {
+					name: 'Модератор',
+					type: 'moderator',
+					id: role.profile_id,
+				}
 			}
 			return null
 		})
@@ -296,60 +352,72 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					</div>
 				</div>
 			)}
-			{showSelectRoleMOdal && (
+			{showSelectRoleModal && (
 				<div
 					className={`absolute z-1000 h-screen w-screen -left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
 				>
 					<div className='relative p-4 h-fit w-1/4 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
 						<X
-							onClick={() => setShowSelectRoleMOdal(false)}
+							onClick={() => setShowSelectRoleModal(false)}
 							className='absolute top-2 right-2 text-[var(--black)] hover:text-red-500 cursor-pointer'
 						/>
 						<p className='text-[var(--black)] font-medium text-2xl'>
 							Смена роли
 						</p>
-						<div className='flex flex-col items-center gap-3 w-full'>
-							{roleMass.map((item, index) => (
-								<div key={index} className='w-full'>
-									{item.type === 'student' && item.directions.length > 1 ? (
-										<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] relative'>
-											<div
-												onClick={() =>
-													setOpenIndex(openIndex === index ? null : index)
-												}
-												className='relative w-full flex justify-center items-center px-4 py-3 font-medium cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all rounded-lg'
-											>
-												<span>{item.name}</span>
+						{userRolesLoading ? (
+							<Loader />
+						) : (
+							<div className='flex flex-col items-center gap-3 w-full'>
+								{roleMass.map((item, index) => (
+									<div key={index} className='w-full'>
+										{item.type === 'student' && item.directions.length > 1 ? (
+											<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] relative'>
+												<div
+													onClick={() =>
+														setOpenIndex(openIndex === index ? null : index)
+													}
+													className='relative w-full flex justify-center items-center px-4 py-3 font-medium cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all rounded-lg'
+												>
+													<span>{item.name}</span>
 
-												<ChevronDown
-													size={20}
-													strokeWidth={2.5}
-													className={openIndex === index && 'rotate-180'}
-												/>
-												{openIndex === index && (
-													<div className='flex flex-col absolute top-15 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-lg w-full overflow-hidden'>
-														{item.directions.map((dir, i) => (
-															<p
-																key={i}
-																className='py-2 text-center cursor-pointer hover:bg-[var(--light-gray)] text-[var(--black)] transition-all'
-															>
-																{dir}
-															</p>
-														))}
-													</div>
-												)}
+													<ChevronDown
+														size={20}
+														strokeWidth={2.5}
+														className={openIndex === index && 'rotate-180'}
+													/>
+													{openIndex === index && (
+														<div className='flex flex-col absolute top-15 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-lg w-full overflow-hidden'>
+															{item.directions.map((dir, i) => (
+																<p
+																	key={i}
+																	onClick={() => {
+																		putUserActiveRoles(item.type, item.id)
+																	}}
+																	className='py-2 text-center cursor-pointer hover:bg-[var(--light-gray)] text-[var(--black)] transition-all'
+																>
+																	{dir.name}
+																</p>
+															))}
+														</div>
+													)}
+												</div>
 											</div>
-										</div>
-									) : (
-										<p className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-center hover:bg-[var(--hero-epta)] hover:text-white transition-all py-3 font-medium cursor-pointer'>
-											{item.directions?.length === 1
-												? `${item.name} (${item.directions[0]})`
-												: item.name}
-										</p>
-									)}
-								</div>
-							))}
-						</div>
+										) : (
+											<p
+												onClick={() => {
+													putUserActiveRoles(item.type, item.id)
+												}}
+												className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-center hover:bg-[var(--hero-epta)] hover:text-white transition-all py-3 font-medium cursor-pointer'
+											>
+												{item.directions?.length === 1
+													? `${item.name} (${item.directions[0].name})`
+													: item.name}
+											</p>
+										)}
+									</div>
+								))}
+							</div>
+						)}
 					</div>
 				</div>
 			)}
@@ -487,7 +555,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 								<div className='absolute top-20 -left-10 md:right-0 shadow-[var(--shadow)] bg-[var(--white)] rounded-xl flex flex-col w-50 p-2'>
 									<div
 										onClick={() => {
-											setShowSelectRoleMOdal(true)
+											fetchUserRoles()
 										}}
 										className='rounded-md items-center justify-end hover:bg-[var(--light-gray)] flex gap-3 px-4 py-2 text-[var(--black)]  transition-all'
 									>

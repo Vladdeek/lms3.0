@@ -24,7 +24,7 @@ const Authorization = ({ isRegister = false }) => {
 
 	const emailValidate = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 	const passwordValidate = value =>
-		/^(?=.*[A-Za-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value)
+		/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value)
 
 	const isFormValid = isEmailValid && isPasswordValid
 

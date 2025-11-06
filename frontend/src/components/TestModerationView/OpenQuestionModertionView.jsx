@@ -24,14 +24,37 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	)
 }
 
-const OpenQuestionCheckView = ({ value, question, media }) => {
+const OpenQuestionCheckView = ({ testId }) => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
-	if (isLoading) return <Loader />
+	const [question, setQuestion] = useState('')
+	const [media, setMedia] = useState(null)
 
-	console.log(`value: ${value},\nquestion: ${question},\nmedia: ${media}`)
+	useEffect(() => {
+		const fetchTest = async id => {
+			setIsLoading(true)
+			const token = localStorage.getItem('access_token')
+			const res = await fetch(`${API}/questions/${id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			const data = await res.json()
+
+			console.log('data')
+
+			setQuestion(data?.title)
+			setMedia(data?.media)
+
+			setIsLoading(false)
+		}
+		if (testId) fetchTest(testId)
+	}, [testId])
+
+	if (isLoading) return <Loader />
 
 	return (
 		<>
