@@ -51,6 +51,7 @@ import axios from 'axios'
 import { set } from 'date-fns'
 import Loader from '../components/Loader'
 import VariantModerationView from '../components/TestModerationView/VariantsModertionView'
+import { token } from '../TOKEN'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -468,7 +469,6 @@ const ModerationComponent = ({ moderationCourseId }) => {
 	useEffect(() => {
 		setLoading(true)
 		const fetchCourses = async () => {
-			const token = localStorage.getItem('access_token')
 			try {
 				const res = await fetch(
 					`${API}/courses/${moderationCourseId || courseId}`,

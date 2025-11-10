@@ -22,6 +22,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import TiltedCard from '../components/ReactBits/TiledCard'
 import { Forbidden403, useError } from '../components/Errors'
 import axios from 'axios'
+import { token } from '../TOKEN'
 
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
@@ -74,7 +75,6 @@ const CatalogS = ({ role }) => {
 	}, [location.pathname])
 
 	const fetchCourses = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await axios.get(`${API}/courses/`, {
 				headers: {
@@ -96,7 +96,6 @@ const CatalogS = ({ role }) => {
 		}
 	}
 	const fetchWebinars = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await axios.get(
 				`${API}/webinar${

@@ -23,6 +23,7 @@ import axios from 'axios'
 import Loader, { BlockLoader } from './Loader'
 import { useError } from './Errors'
 import Moderation from '../pages/Moderation'
+import { token } from '../TOKEN'
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -179,6 +180,7 @@ const MobileHeaderLink = ({ title, icon: Icon, to }) => {
 }
 
 export const Header = ({ links = [], UserInfo = null }) => {
+	console.log('userInfo: ', UserInfo)
 	const { setError } = useError()
 	const isDashboard = location?.pathname === '/dashboard'
 	const isStudent = UserInfo?.current_user_role === 'student'
@@ -254,7 +256,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 	const fetchUserRoles = async () => {
 		setUserRolesLoading(true)
 		setShowSelectRoleModal(true)
-		const token = localStorage.getItem('access_token')
+
 		try {
 			const res = await axios.get(`${API}/user/active-profiles`, {
 				headers: {
@@ -262,6 +264,8 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					Authorization: `Bearer ${token}`,
 				},
 			})
+
+			console.log('res: ', res.data)
 
 			setUserRolesLoading(false)
 			setUserRoles(res.data)
@@ -271,8 +275,15 @@ export const Header = ({ links = [], UserInfo = null }) => {
 	}
 
 	const putUserActiveRoles = async (name, id) => {
+		console.log(
+			'input data!!! ',
+			'\nprofile_name: ',
+			name,
+			'\nprofile_id: ',
+			id
+		)
 		setShowSelectRoleModal(false)
-		const token = localStorage.getItem('access_token')
+
 		try {
 			const res = await axios.put(
 				`${API}/user/active-profile`,
@@ -284,7 +295,13 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					},
 				}
 			)
-			res && window.location.reload()
+			console.log('res data: ', res.data)
+			name === 'moderator'
+				? navigate('/moderation')
+				: name === 'student'
+				? navigate('/catalogs/courses')
+				: name === 'teacher' && navigate('/catalogt/courses')
+			res.data && window.location.reload()
 		} catch (err) {
 			console.log('err: ', err)
 		}
@@ -368,54 +385,56 @@ export const Header = ({ links = [], UserInfo = null }) => {
 							<Loader />
 						) : (
 							<div className='flex flex-col items-center gap-3 w-full'>
-								{roleMass.map((item, index) => (
-									<div key={index} className='w-full'>
-										{item.type === 'student' && item.directions.length > 1 ? (
-											<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] relative'>
-												<div
-													onClick={() =>
-														setOpenIndex(openIndex === index ? null : index)
-													}
-													className='relative w-full flex justify-center items-center px-4 py-3 font-medium cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all rounded-lg'
-												>
-													<span>{item.name}</span>
+								{roleMass.map((item, index) => {
+									return (
+										<div key={index} className='w-full'>
+											{item.type === 'student' && item.directions.length > 1 ? (
+												<div className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] relative'>
+													<div
+														onClick={() =>
+															setOpenIndex(openIndex === index ? null : index)
+														}
+														className='relative w-full flex justify-center items-center px-4 py-3 font-medium cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all rounded-lg'
+													>
+														<span>{item.name}</span>
 
-													<ChevronDown
-														size={20}
-														strokeWidth={2.5}
-														className={openIndex === index && 'rotate-180'}
-													/>
-													{openIndex === index && (
-														<div className='flex flex-col absolute top-15 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-lg w-full overflow-hidden'>
-															{item.directions.map((dir, i) => (
-																<p
-																	key={i}
-																	onClick={() => {
-																		putUserActiveRoles(item.type, item.id)
-																	}}
-																	className='py-2 text-center cursor-pointer hover:bg-[var(--light-gray)] text-[var(--black)] transition-all'
-																>
-																	{dir.name}
-																</p>
-															))}
-														</div>
-													)}
+														<ChevronDown
+															size={20}
+															strokeWidth={2.5}
+															className={openIndex === index && 'rotate-180'}
+														/>
+														{openIndex === index && (
+															<div className='flex flex-col absolute top-15 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-lg w-full overflow-hidden'>
+																{item.directions.map((dir, i) => (
+																	<p
+																		key={i}
+																		onClick={() => {
+																			putUserActiveRoles(item?.type, dir.id)
+																		}}
+																		className='py-2 text-center cursor-pointer hover:bg-[var(--light-gray)] text-[var(--black)] transition-all'
+																	>
+																		{dir.name}
+																	</p>
+																))}
+															</div>
+														)}
+													</div>
 												</div>
-											</div>
-										) : (
-											<p
-												onClick={() => {
-													putUserActiveRoles(item.type, item.id)
-												}}
-												className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-center hover:bg-[var(--hero-epta)] hover:text-white transition-all py-3 font-medium cursor-pointer'
-											>
-												{item.directions?.length === 1
-													? `${item.name} (${item.directions[0].name})`
-													: item.name}
-											</p>
-										)}
-									</div>
-								))}
+											) : (
+												<p
+													onClick={() => {
+														putUserActiveRoles(item.type, item.id)
+													}}
+													className='w-full rounded-lg bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-center hover:bg-[var(--hero-epta)] hover:text-white transition-all py-3 font-medium cursor-pointer'
+												>
+													{item.directions?.length === 1
+														? `${item.name} (${item.directions[0].name})`
+														: item.name}
+												</p>
+											)}
+										</div>
+									)
+								})}
 							</div>
 						)}
 					</div>
@@ -527,7 +546,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 											<br />
 
 											{UserInfo?.current_user_role === 'student'
-												? 'Студент'
+												? `Студент (${UserInfo?.student_group_name})`
 												: UserInfo?.current_user_role === 'teacher'
 												? 'Преподаватель'
 												: UserInfo?.current_user_role === 'moderator' &&

@@ -3,6 +3,7 @@ import { ChevronsUp, ChevronsDown, GripHorizontal, X } from 'lucide-react'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { set } from 'date-fns'
+import { token } from '../../TOKEN'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -117,7 +118,7 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
-			const token = localStorage.getItem('access_token')
+
 			const res = await fetch(`${API}/questions/${id}`, {
 				headers: {
 					Authorization: `Bearer ${token}`,

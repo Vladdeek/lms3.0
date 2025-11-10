@@ -5,6 +5,7 @@ import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
 import { API } from '../../API'
 import Loader from '../Loader'
+import { token } from '../../TOKEN'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -207,7 +208,6 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const token = localStorage.getItem('access_token')
 		const res = await fetch(`${API}/questions/${id}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -236,10 +236,14 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			return
 		}
 		const correctAnswer = answers.find(answer => answer.correct)
+
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({
 					question_type: 'single',
 					title: question,
@@ -275,7 +279,6 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		}
 
 		const correctAnswer = answers.find(answer => answer.correct)
-		const token = localStorage.getItem('access_token')
 
 		try {
 			const res = await fetch(`${API}/questions/${questionId}`, {

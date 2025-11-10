@@ -66,6 +66,7 @@ import { PhotoView } from '../../components/Viewer/PhotoView'
 import CustomCodeBlock from '../../components/CustomCodeBlock'
 import { TextViewer } from '../../components/Viewer/TextViewer'
 import CustomAudioPlayer from '../../components/AudioPlayer'
+import { token } from '../../TOKEN'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -198,7 +199,6 @@ const CreateLessonButton = ({
 		onAddLesson(moduleId, tempLesson)
 
 		try {
-			const token = localStorage.getItem('access_token')
 			const res = await fetch(`${API}/sections/modules/${moduleId}`, {
 				method: 'POST',
 				headers: {
@@ -537,7 +537,7 @@ const ModuleBlock = ({
 									/>
 									{isExpanded && module.module_sections && (
 										<div>
-											<div>
+											<div className='mb-2'>
 												{module.module_sections.map((section, sectionIndex) => {
 													return (
 														<motion.div
@@ -1169,7 +1169,6 @@ const Constructor = ({
 		}
 
 		const fetchContent = async () => {
-			const token = localStorage.getItem('access_token')
 			try {
 				setSelectedContent(null)
 				const res = await fetch(`${API}/sections/${section?.id}/content`, {

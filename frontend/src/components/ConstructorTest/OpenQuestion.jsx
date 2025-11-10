@@ -4,6 +4,7 @@ import { AddMediaButton } from './AddMedia'
 import { ScoreInput1, ScoreInput2 } from './ScoreInput'
 import Loader from '../Loader'
 import { API } from '../../API'
+import { token } from '../../TOKEN'
 
 const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	const [question, setQuestion] = useState('')
@@ -16,7 +17,6 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const token = localStorage.getItem('access_token')
 		const res = await fetch(`${API}/questions/${id}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -31,7 +31,6 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	}
 
 	const handleCreate = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',

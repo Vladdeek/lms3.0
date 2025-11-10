@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { is, se } from 'date-fns/locale'
 import { Forbidden403, useError } from '../../components/Errors'
+import { token } from '../../TOKEN'
 
 const SettingsButton = ({
 	courseId,
@@ -59,7 +60,6 @@ const SettingsButton = ({
 	}, [titleValue, descriptionValue])
 
 	async function deleteCourse() {
-		const token = localStorage.getItem('access_token')
 		try {
 			const response = await fetch(`${API}/courses/delete/${courseId}`, {
 				method: 'DELETE',
@@ -97,8 +97,6 @@ const SettingsButton = ({
 		formData.append('image', img)
 
 		console.log('formdata: ', [...formData.entries()])
-
-		const token = localStorage.getItem('access_token')
 
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',
@@ -216,7 +214,7 @@ const DateButton = ({ locked, access, sectionId }) => {
 
 	const putLocked = async () => {
 		setLocked(prev => !prev)
-		const token = localStorage.getItem('access_token')
+
 		const res = await fetch(`${API}/sections/${sectionId}/is-locked`, {
 			method: 'PUT',
 			body: JSON.stringify({ locked: Locked }),
@@ -375,7 +373,6 @@ const ConstructorPage = ({ role }) => {
 
 	useEffect(() => {
 		const fetchCourses = async () => {
-			const token = localStorage.getItem('access_token')
 			try {
 				const res = await fetch(`${API}/courses/${courseId}`, {
 					headers: {
@@ -517,8 +514,6 @@ const ConstructorPage = ({ role }) => {
 	const handleSubmit = async (e, content, sectionId, accessedGroups) => {
 		if (e && e.preventDefault) e.preventDefault()
 
-		const token = localStorage.getItem('access_token')
-
 		if (selected === 0) {
 			const res = await fetch(`${API}/sections/${sectionId}/content`, {
 				method: 'PUT',
@@ -569,8 +564,6 @@ const ConstructorPage = ({ role }) => {
 	const handleStatus = async () => {
 		const formData = new FormData()
 		formData.append('course_status', 'pending')
-
-		const token = localStorage.getItem('access_token')
 
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',

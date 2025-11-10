@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import Loader from '../components/Loader'
 import { InputDefault, TextArea } from '../components/Inputs'
 import ModerationComponent from './ModerationView'
+import { token } from '../TOKEN'
 
 const ModerationCourseCard = ({
 	img,
@@ -90,8 +91,6 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 	const handleSubmit = async () => {
 		const formData = new FormData()
 		formData.append('course_status', access ? 'approved' : 'pending')
-
-		const token = localStorage.getItem('access_token')
 
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',
@@ -180,7 +179,6 @@ const Moderation = ({ role }) => {
 	const { setError } = useError()
 
 	const fetchAllCourses = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await axios.get(`${API}/courses/all/pending`, {
 				headers: {

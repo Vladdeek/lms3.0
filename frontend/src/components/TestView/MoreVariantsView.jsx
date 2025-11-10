@@ -4,6 +4,7 @@ import CustomAudioPlayer from '../AudioPlayer'
 import FormulaView from '../Viewer/FormulaView'
 import { API } from '../../API'
 import Loader from '../Loader'
+import { token } from '../../TOKEN'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -91,7 +92,7 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
-			const token = localStorage.getItem('access_token')
+
 			const res = await fetch(`${API}/questions/${id}`, {
 				headers: {
 					Authorization: `Bearer ${token}`,

@@ -23,6 +23,7 @@ import Loader from '../components/Loader'
 import MoreVariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
+import { token } from '../TOKEN'
 
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 	return (
@@ -394,7 +395,6 @@ const StudentsAndGroups = () => {
 	const [selectedTask, setSelectedTask] = useState(null)
 
 	const fetchCourses = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await axios.get(`${API}/courses/`, {
 				headers: {
@@ -450,7 +450,6 @@ const StudentsAndGroups = () => {
 	}
 
 	const fetchStudentLessons = async () => {
-		const token = localStorage.getItem('access_token')
 		const studentId = students[selectedStudent]?.id
 		const courseId = courses[selectedCourse]?.id
 		try {
@@ -477,7 +476,6 @@ const StudentsAndGroups = () => {
 	}
 
 	const fetchLesson = async () => {
-		const token = localStorage.getItem('access_token')
 		const studentId = students[selectedStudent]?.id
 		const assignmentId = tasks[selectedTask]?.assignment_id
 

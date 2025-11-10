@@ -23,6 +23,7 @@ import { motion } from 'framer-motion'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Forbidden403, useError } from '../components/Errors'
 import axios from 'axios'
+import { token } from '../TOKEN'
 
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
@@ -52,7 +53,6 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	const isFormValid = isNameValid
 
 	const handleSubmit = async e => {
-		const token = localStorage.getItem('access_token')
 		e.preventDefault()
 
 		if (!isFormValid) return
@@ -424,7 +424,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	}
 
 	const fetchCourses = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await axios.get(`${API}/courses/`, {
 				headers: {
@@ -447,7 +446,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	}
 
 	const fetchAllCourses = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await axios.get(`${API}/courses/all`, {
 				headers: {
@@ -471,7 +469,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	}
 
 	const fetchWebinars = async () => {
-		const token = localStorage.getItem('access_token')
 		try {
 			const res = await axios.get(
 				`${API}/webinar${
@@ -605,7 +602,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 										deadline={course.deadline}
 										to={
 											location.pathname === '/catalog/all'
-												? `/constructor/${course.id}`
+												? `/course/${course.id}`
 												: `/constructor/${course.id}`
 										}
 									/>

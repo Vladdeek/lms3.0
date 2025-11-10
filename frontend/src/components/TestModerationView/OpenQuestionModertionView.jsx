@@ -4,6 +4,7 @@ import { API } from '../../API'
 import FormulaView from '../Viewer/FormulaView'
 import CustomAudioPlayer from '../AudioPlayer'
 import Loader from '../Loader'
+import { token } from '../../TOKEN'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -35,7 +36,7 @@ const OpenQuestionCheckView = ({ testId }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
-			const token = localStorage.getItem('access_token')
+
 			const res = await fetch(`${API}/questions/${id}`, {
 				headers: {
 					Authorization: `Bearer ${token}`,

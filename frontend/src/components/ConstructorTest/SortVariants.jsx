@@ -5,6 +5,7 @@ import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
 import { API } from '../../API'
 import Loader from '../Loader'
+import { token } from '../../TOKEN'
 
 // Компонент для пары сопоставления
 const MatchPair = ({
@@ -64,6 +65,8 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [question, setQuestion] = useState('')
 
+	console.log('score out: ', score)
+
 	useEffect(() => {
 		const combinedPairs = left_option.map((left, index) => ({
 			id: (index + 1).toString(),
@@ -72,10 +75,6 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 		}))
 		setPairs(combinedPairs)
 	}, [left_option, right_option])
-
-	useEffect(() => {
-		fetchTest(testId)
-	}, [testId])
 
 	const handleLeftChange = (index, value) => {
 		setLeft_option(prev => {
@@ -105,23 +104,24 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const token = localStorage.getItem('access_token')
 		const res = await fetch(`${API}/questions/${id}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
 		})
 		const data = await res.json()
-		if (data) setIsLoading(false)
-		setQuestion(data?.title)
-		setScore(data?.score)
-		setMedia(data?.media)
-		setLeft_option(data?.answer_data?.left_options || ['', ''])
-		setRight_option(data?.answer_data?.right_options || ['', ''])
+		if (data) {
+			setIsLoading(false)
+			setQuestion(data?.title)
+			setScore(data?.score)
+			setMedia(data?.media)
+			setLeft_option(data?.answer_data?.left_options || ['', ''])
+			setRight_option(data?.answer_data?.right_options || ['', ''])
+		}
 	}
 
 	const handleCreate = async () => {
-		const token = localStorage.getItem('access_token')
+		console.log('score in: ', score)
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
@@ -156,7 +156,10 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
 				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({
 					title: question,
 					question_type: 'matching',
@@ -185,7 +188,6 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			fetchTest(testId)
 		} else {
 			setQuestion('')
-			setScore(1)
 			setMedia({})
 			setLeft_option(['', ''])
 			setRight_option(['', ''])

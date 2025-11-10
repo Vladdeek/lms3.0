@@ -6,6 +6,7 @@ import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
 import { API } from '../../API'
 import Loader from '../Loader'
+import { token } from '../../TOKEN'
 
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({
@@ -124,6 +125,8 @@ const MoreVariant = ({
 
 	const [showMassage, setShowMassage] = useState(false)
 
+	const [index, setIndex] = useState(0)
+
 	const showMessageFunc = () => {
 		setShowMassage(true)
 		setTimeout(() => {
@@ -181,8 +184,6 @@ const MoreVariant = ({
 	}
 
 	const fetchTest = async id => {
-		console.log(id)
-		const token = localStorage.getItem('access_token')
 		const res = await fetch(`${API}/questions/${id}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -209,23 +210,7 @@ const MoreVariant = ({
 		}
 
 		const correctAnswers = getCorrectAnswers()
-		console.log([
-			{
-				question_type: 'multiple',
-				title: question,
-				score: Number(score),
-				answer_data: {
-					type: 'multiple',
-					correct_answer: correctAnswers.map(answer => answer.name) || [],
-				},
-				question_options: answers.map(answer => ({
-					name: answer?.name,
-					option_code: answer?.option_code,
-				})),
-				media: media || {},
-			},
-		])
-		const token = localStorage.getItem('access_token')
+
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
@@ -266,7 +251,10 @@ const MoreVariant = ({
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
 				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({
 					question_type: 'multiple',
 					title: question,
@@ -286,7 +274,7 @@ const MoreVariant = ({
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
 
-			fetchTest(data)
+			fetchTest(testId)
 		} catch (error) {
 			console.error(error)
 		}
