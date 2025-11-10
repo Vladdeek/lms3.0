@@ -531,7 +531,7 @@ const StudentsAndGroups = () => {
 	}
 	return (
 		<>
-			<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-20 select-none h-[70vh]'>
+			<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-5 xl:mt-15 mb-40 select-none h-[70vh]'>
 				<div className='col-span-2 flex flex-col gap-5 h-full'>
 					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
 						<p className='text-[var(--middle)] text-sm'>Выберите курс</p>
@@ -551,7 +551,7 @@ const StudentsAndGroups = () => {
 							onChange={setSelectedGroupe}
 						/>
 					</div>
-					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar max-h-200'>
+					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar max-h-[50vh]'>
 						<div className='flex flex-col gap-3 p-5'>
 							{students?.map((item, index) => (
 								<StudentCard
