@@ -14,6 +14,12 @@ export const NotFoundError404 = () => {
 				loop
 				autoplay
 			/>
+			<button
+				className='bg-[var(--black)] rounded-lg px-4 py-2 text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer'
+				onClick={() => (window.location.href = '/')}
+			>
+				На главную
+			</button>
 		</div>
 	)
 }
@@ -26,18 +32,30 @@ export const InternalServerError500 = () => {
 				loop
 				autoplay
 			/>
+			<button
+				className='bg-[var(--black)] rounded-lg px-4 py-2 text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer'
+				onClick={() => (window.location.href = '/')}
+			>
+				На главную
+			</button>
 		</div>
 	)
 }
 export const Forbidden403 = () => {
 	return (
-		<div className='md:-mx-10 -mx-2 w-screen h-screen flex justify-center items-center '>
+		<div className='md:-mx-10 -mx-2 w-screen h-screen flex flex-col justify-center items-center '>
 			<DotLottieReact
 				className='w-[75%]'
 				src='/anim/ERROR403.lottie'
 				loop
 				autoplay
 			/>
+			<button
+				className='bg-[var(--black)] rounded-lg px-4 py-2 text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer'
+				onClick={() => (window.location.href = '/')}
+			>
+				На главную
+			</button>
 		</div>
 	)
 }
@@ -74,8 +92,6 @@ export const ErrorProvider = ({ children }) => {
 
 	const ErrorsDescription = {
 		400: 'Некорректный запрос. Проверьте правильность введённых данных.',
-		401: 'Не удалось сделать запрос, попробуйте еще раз.',
-		403: 'Доступ запрещён. Недостаточно прав для выполнения действия.',
 		409: 'Конфликт. Данные уже существуют или нарушены ограничения.',
 		422: 'Неверный формат входных данных. Проверьте корректность передаваемых параметров.',
 		429: 'Слишком много запросов. Попробуйте позже.',
@@ -89,9 +105,20 @@ export const ErrorProvider = ({ children }) => {
 	const { refreshAccessToken } = useContext(AuthContext)
 
 	useEffect(() => {
-		if (error === '401') {
-			const newAccessToken = refreshAccessToken()
+		const handle401 = async () => {
+			if (error === '401') {
+				console.log('Ошибка 401 — обновляем токен...')
+				const newAccessToken = await refreshAccessToken()
+
+				if (newAccessToken) {
+					console.log('Новый access_token получен ✅')
+				} else {
+					console.warn('Не удалось обновить токен ❌')
+				}
+			}
 		}
+
+		handle401()
 	}, [error])
 	useEffect(() => {
 		if (error) {
@@ -111,6 +138,8 @@ export const ErrorProvider = ({ children }) => {
 					<InternalServerError500 />
 				) : error === '403' ? (
 					<Forbidden403 />
+				) : error === '401' ? (
+					console.log('401 Unauthorized')
 				) : (
 					<>
 						{children}

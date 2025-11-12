@@ -132,7 +132,7 @@ const Authorization = ({ isRegister = false }) => {
 									value={password}
 									onChange={e => setPassword(e.target.value)}
 								/>
-								<div className='flex gap-5 hidden'>
+								<div className=' gap-5 hidden'>
 									<Link to={'#'} title={'Забыли логин или пароль?'} />
 								</div>
 								<SubmitButton

@@ -82,13 +82,22 @@ export default function DashboardLayout({ onChange }) {
 	const links = HeaderLinkInfo[0][userInfo?.current_user_role] || []
 
 	useEffect(() => {
-		if (location.pathname === '/') {
-			if (userInfo?.current_user_role === 'student') navigate('/catalogs')
-			else if (userInfo?.current_user_role === 'teacher') navigate('/catalogt')
-			else if (userInfo?.current_user_role === 'moderator')
-				navigate('/moderation')
+		if (userInfo && location.pathname === '/') {
+			switch (userInfo.current_user_role) {
+				case 'student':
+					navigate('/catalogs')
+					break
+				case 'teacher':
+					navigate('/catalogt')
+					break
+				case 'moderator':
+					navigate('/moderation')
+					break
+				default:
+					break
+			}
 		}
-	}, [location, navigate])
+	}, [userInfo])
 
 	const { refreshAccessToken } = useContext(AuthContext)
 	const storedAccess = localStorage.getItem('access_token')

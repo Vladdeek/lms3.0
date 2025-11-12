@@ -182,8 +182,7 @@ const CatalogS = ({ role }) => {
 					</div>
 				)}
 
-				{location.pathname === '/catalogs/courses' ||
-				location.pathname === '/catalog/all' ? (
+				{location.pathname === '/catalogs/courses' ? (
 					<div className={` flex flex-col gap-4 py-[50px]`}>
 						<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
 							{courses?.map((course, index) => (
@@ -203,11 +202,7 @@ const CatalogS = ({ role }) => {
 										img_path={`${FILE_API}${course.image_url}`}
 										status={course.status}
 										deadline={course.deadline}
-										to={
-											location.pathname === '/catalog/all'
-												? `/constructor/${course.id}`
-												: `/constructor/${course.id}`
-										}
+										to={`/course/${course.id}`}
 									/>
 								</motion.div>
 							))}
