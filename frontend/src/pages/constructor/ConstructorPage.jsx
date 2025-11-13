@@ -104,7 +104,6 @@ const SettingsButton = ({
 			body: formData,
 			credentials: 'include',
 			headers: {
-				'Content-Type': 'application/json',
 				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
 		})
@@ -585,7 +584,6 @@ const ConstructorPage = ({ role }) => {
 			body: formData,
 			credentials: 'include',
 			headers: {
-				'Content-Type': 'application/json',
 				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
 		})

@@ -28,7 +28,6 @@ export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 				method: 'POST',
 				credentials: 'include',
 				headers: {
-					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 				body: formData,

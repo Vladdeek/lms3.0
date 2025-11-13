@@ -76,7 +76,6 @@ export const ConstructorVideoInput = ({
 				method: 'POST',
 				credentials: 'include',
 				headers: {
-					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 				body: formData,

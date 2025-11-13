@@ -67,7 +67,6 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			const res = await axios.post(`${API}/courses`, formData, {
 				withCredentials: true,
 				headers: {
-					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
@@ -216,7 +215,6 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 			method: 'POST',
 			credentials: 'include',
 			headers: {
-				'Content-Type': 'application/json',
 				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
 			body: formData,

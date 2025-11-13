@@ -38,14 +38,6 @@ export const AuthProvider = ({ children }) => {
 	}
 
 	const refreshAccessToken = async () => {
-		const storedRefresh = localStorage.getItem('refresh_token')
-		console.log('Access token expired, refreshing... \n', storedRefresh)
-
-		if (!storedRefresh) {
-			navigate('/auth')
-			return null
-		}
-
 		try {
 			const res = await fetch(`${API}/auth/jwt/refresh`, {
 				method: 'POST',
@@ -64,12 +56,9 @@ export const AuthProvider = ({ children }) => {
 			}
 
 			const data = await res.json()
-			console.log('refresh in context: ', data)
+			console.log('refresh in context:', data)
 
 			setAccessToken(data.access_token)
-			setAccessToken(data.refresh_token)
-			localStorage.setItem('access_token', data.access_token)
-			localStorage.setItem('refresh_token', data.refresh_token)
 			console.log('Access token refreshed!')
 
 			return data.access_token
