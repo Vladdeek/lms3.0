@@ -3,7 +3,7 @@ import { ChevronsUp, ChevronsDown, GripHorizontal, X } from 'lucide-react'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { set } from 'date-fns'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -120,8 +120,10 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 			setIsLoading(true)
 
 			const res = await fetch(`${API}/questions/${id}`, {
+				credentials: 'include',
 				headers: {
-					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 			const data = await res.json()

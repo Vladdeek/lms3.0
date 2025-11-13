@@ -10,6 +10,7 @@ import { ru } from 'date-fns/locale'
 import DirectionOfTraining from '../components/DirectionOfTraining'
 import { useEffect, useState } from 'react'
 import { API } from '../API'
+import { getCookie } from '../TOKEN'
 
 const scheduleData = {
 	'2025-09-18': [
@@ -73,7 +74,13 @@ const Schedule = () => {
 
 	useEffect(() => {
 		const fetchSchedule = async () => {
-			const res = await fetch(`https:///courses/`)
+			const res = await fetch(`https:///courses/`, {
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 			const data = await res.json()
 
 			setScheduleData1(data)

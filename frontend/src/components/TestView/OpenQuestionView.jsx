@@ -4,7 +4,7 @@ import { API } from '../../API'
 import FormulaView from '../Viewer/FormulaView'
 import CustomAudioPlayer from '../AudioPlayer'
 import Loader from '../Loader'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -45,8 +45,10 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 			setIsLoading(true)
 
 			const res = await fetch(`${API}/questions/${id}`, {
+				credentials: 'include',
 				headers: {
-					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 			const data = await res.json()

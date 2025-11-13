@@ -102,8 +102,10 @@ const SettingsButton = ({
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',
 			body: formData,
+			credentials: 'include',
 			headers: {
-				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
 		})
 
@@ -218,11 +220,12 @@ const DateButton = ({ locked, access, sectionId }) => {
 
 		const res = await fetch(`${API}/sections/${sectionId}/is-locked`, {
 			method: 'PUT',
-			body: JSON.stringify({ locked: Locked }),
+			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
+			body: JSON.stringify({ locked: Locked }),
 		})
 		const data = await res.json()
 		console.log('locked: ', Locked)
@@ -376,8 +379,10 @@ const ConstructorPage = ({ role }) => {
 		const fetchCourses = async () => {
 			try {
 				const res = await fetch(`${API}/courses/${courseId}`, {
+					credentials: 'include',
 					headers: {
-						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 				const data = await res.json()
@@ -483,7 +488,14 @@ const ConstructorPage = ({ role }) => {
 			} else {
 				try {
 					const res = await fetch(
-						`${API}/sections/${selectedContentId}/is-locked`
+						`${API}/sections/${selectedContentId}/is-locked`,
+						{
+							credentials: 'include',
+							headers: {
+								'Content-Type': 'application/json',
+								'X-CSRF-TOKEN': getCookie('csrftoken'),
+							},
+						}
 					)
 					const data = await res.json()
 
@@ -545,7 +557,7 @@ const ConstructorPage = ({ role }) => {
 				{
 					method: 'PUT',
 					body: JSON.stringify({ groups: accessedGroups }),
-					withCredentials: true,
+					credentials: 'include',
 					headers: {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -571,8 +583,10 @@ const ConstructorPage = ({ role }) => {
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',
 			body: formData,
+			credentials: 'include',
 			headers: {
-				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
 		})
 

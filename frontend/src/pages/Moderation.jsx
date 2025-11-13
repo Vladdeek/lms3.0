@@ -94,10 +94,12 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 
 		const res = await fetch(`${API}/courses/${courseId}`, {
 			method: 'PUT',
-			body: formData,
+			credentials: 'include',
 			headers: {
-				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
+			body: formData,
 		})
 
 		const data = await res.json()

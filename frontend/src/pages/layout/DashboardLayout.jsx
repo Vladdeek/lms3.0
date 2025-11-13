@@ -126,6 +126,7 @@ export default function DashboardLayout({ onChange }) {
 								withCredentials: true,
 								headers: {
 									'Content-Type': 'application/json',
+									'X-CSRF-TOKEN': getCookie('csrftoken'),
 								},
 							})
 							console.log('XSRFTOKEN: ', getCookie('XSRF-TOKEN'))

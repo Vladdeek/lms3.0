@@ -38,8 +38,10 @@ const OpenQuestionCheckView = ({ testId }) => {
 			setIsLoading(true)
 
 			const res = await fetch(`${API}/questions/${id}`, {
+				credentials: 'include',
 				headers: {
-					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 

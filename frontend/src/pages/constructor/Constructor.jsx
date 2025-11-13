@@ -92,6 +92,7 @@ const CreateModuleButton = ({
 		try {
 			const res = await fetch(`${API}/modules/${courseId}`, {
 				method: 'POST',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -367,6 +368,7 @@ const ModuleTitle = ({
 		try {
 			const response = await fetch(`${API}/modules/${id}`, {
 				method: 'DELETE',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -441,6 +443,7 @@ const ModuleContent = ({
 		try {
 			const response = await fetch(`${API}/sections/${id}`, {
 				method: 'DELETE',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -1182,8 +1185,10 @@ const Constructor = ({
 			try {
 				setSelectedContent(null)
 				const res = await fetch(`${API}/sections/${section?.id}/content`, {
+					credentials: 'include',
 					headers: {
-						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')

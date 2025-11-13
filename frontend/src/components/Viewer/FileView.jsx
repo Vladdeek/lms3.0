@@ -79,6 +79,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 		try {
 			const response = await fetch(`${API}/files/download`, {
 				method: 'POST',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),

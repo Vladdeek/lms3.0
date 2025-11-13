@@ -392,8 +392,10 @@ const CourseOverview = ({ content }) => {
 		const fetchContent = async () => {
 			try {
 				const res = await fetch(`${API}/sections/${sectionId}/content`, {
+					credentials: 'include',
 					headers: {
-						Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 				if (!res.ok) throw new Error('Ошибка при загрузке контента')
