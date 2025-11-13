@@ -181,9 +181,9 @@ const Moderation = ({ role }) => {
 	const fetchAllCourses = async () => {
 		try {
 			const res = await axios.get(`${API}/courses/all/pending`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 			})
 

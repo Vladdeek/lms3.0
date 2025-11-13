@@ -200,7 +200,13 @@ const AccessManagement = ({ onChange }) => {
 			const res = await axios.get(
 				`${API}/courses/student-group/unlinked/?course_id=${courseId}${
 					term?.length ? `&term=${term}` : ''
-				}`
+				}`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
 			)
 
 			console.log(res)
@@ -226,7 +232,13 @@ const AccessManagement = ({ onChange }) => {
 			const res = await axios.get(
 				`${API}/courses/student-group/linked/?course_id=${courseId}${
 					term?.length ? `&term=${term}` : ''
-				}`
+				}`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
 			)
 
 			console.log(res)
@@ -256,9 +268,9 @@ const AccessManagement = ({ onChange }) => {
 			await axios.post(`${API}/courses/students/${courseId}`, {
 				student_group_id: number,
 
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
 				},
 			})
 
@@ -281,9 +293,9 @@ const AccessManagement = ({ onChange }) => {
 				data: {
 					student_group_id: number,
 				},
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
 				},
 			})
 

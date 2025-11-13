@@ -119,6 +119,8 @@ export const ConstructorPhotoInput = ({
 			formData.append('file', fileToUpload)
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: formData,
 			})
 
@@ -162,9 +164,8 @@ export const ConstructorPhotoInput = ({
 		try {
 			const response = await fetch(`${API}/files/`, {
 				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					file_path: imgUrl[id]?.photoUrl
 						.split(`${FILE_API}`)[1]

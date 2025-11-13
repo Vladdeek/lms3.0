@@ -220,10 +220,8 @@ export const Header = ({ links = [], UserInfo = null }) => {
 		try {
 			const res = await fetch(`${API}/auth/jwt/logout`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${storedAccess}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ refresh_token: storedRefresh }),
 			})
 
@@ -259,9 +257,9 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 		try {
 			const res = await axios.get(`${API}/user/active-profiles`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 			})
 
@@ -289,9 +287,9 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				`${API}/user/active-profile`,
 				{ profile_name: name, profile_id: id },
 				{
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
 					},
 				}
 			)

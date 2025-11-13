@@ -473,9 +473,8 @@ const ModerationComponent = ({ moderationCourseId }) => {
 				const res = await fetch(
 					`${API}/courses/${moderationCourseId || courseId}`,
 					{
-						headers: {
-							Authorization: `Bearer ${token}`,
-						},
+						credentials: 'include',
+						headers: { 'Content-Type': 'application/json' },
 					}
 				)
 				const data = await res.json()

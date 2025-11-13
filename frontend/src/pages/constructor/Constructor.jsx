@@ -201,10 +201,8 @@ const CreateLessonButton = ({
 		try {
 			const res = await fetch(`${API}/sections/modules/${moduleId}`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					title: lesson.title,
 					type: lesson.type,

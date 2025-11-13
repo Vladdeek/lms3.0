@@ -397,9 +397,9 @@ const StudentsAndGroups = () => {
 	const fetchCourses = async () => {
 		try {
 			const res = await axios.get(`${API}/courses/`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 			})
 
@@ -415,7 +415,13 @@ const StudentsAndGroups = () => {
 		const id = courses[selectedCourse]?.id
 		try {
 			const res = await axios.get(
-				`${API}/courses/student-group/linked/?course_id=${id}`
+				`${API}/courses/student-group/linked/?course_id=${id}`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
 			)
 
 			setError(null)
@@ -434,7 +440,12 @@ const StudentsAndGroups = () => {
 	const fetchStudents = async () => {
 		const id = groups[selectedGroupe].id
 		try {
-			const res = await axios.get(`${API}/student-group/${id}/students`)
+			const res = await axios.get(`${API}/student-group/${id}/students`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			})
 
 			setError(null)
 			setStudents(res.data)
@@ -456,8 +467,9 @@ const StudentsAndGroups = () => {
 			const res = await axios.get(
 				`${API}/student-profile/${studentId}/assignments/?course_id=${courseId}`,
 				{
+					withCredentials: true,
 					headers: {
-						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
 					},
 				}
 			)
@@ -483,8 +495,9 @@ const StudentsAndGroups = () => {
 			const res = await axios.get(
 				`${API}/student-profile/${studentId}/assignment/result?assignment_id=${assignmentId}`,
 				{
+					withCredentials: true,
 					headers: {
-						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
 					},
 				}
 			)

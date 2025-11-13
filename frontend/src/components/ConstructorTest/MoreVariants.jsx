@@ -185,9 +185,8 @@ const MoreVariant = ({
 
 	const fetchTest = async id => {
 		const res = await fetch(`${API}/questions/${id}`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+			credentials: 'include',
+			headers: { 'Content-Type': 'application/json' },
 		})
 		const data = await res.json()
 		if (data) setIsLoading(false)
@@ -214,10 +213,8 @@ const MoreVariant = ({
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					question_type: 'multiple',
 					title: question,
@@ -251,10 +248,8 @@ const MoreVariant = ({
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
 				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					question_type: 'multiple',
 					title: question,

@@ -63,10 +63,8 @@ const SettingsButton = ({
 		try {
 			const response = await fetch(`${API}/courses/delete/${courseId}`, {
 				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 			})
 
 			if (!response.ok) {
@@ -518,10 +516,8 @@ const ConstructorPage = ({ role }) => {
 			const res = await fetch(`${API}/sections/${sectionId}/content`, {
 				method: 'PUT',
 				body: JSON.stringify(content),
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 			})
 
 			if (!res.ok) {
@@ -543,9 +539,9 @@ const ConstructorPage = ({ role }) => {
 				{
 					method: 'PUT',
 					body: JSON.stringify({ groups: accessedGroups }),
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
 					},
 				}
 			)

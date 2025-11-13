@@ -65,8 +65,9 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			if (img !== null) formData.append('image', img)
 
 			const res = await axios.post(`${API}/courses`, formData, {
+				withCredentials: true,
 				headers: {
-					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
 				},
 			})
 
@@ -426,9 +427,9 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	const fetchCourses = async () => {
 		try {
 			const res = await axios.get(`${API}/courses/`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 			})
 
@@ -448,9 +449,9 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	const fetchAllCourses = async () => {
 		try {
 			const res = await axios.get(`${API}/courses/all`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 			})
 
@@ -475,9 +476,9 @@ const Catalog = ({ role, teacher_profile_id }) => {
 					selectedFilters !== 'all' ? `/?webinar_status=${selectedFilters}` : ''
 				}`,
 				{
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
 					},
 				}
 			)

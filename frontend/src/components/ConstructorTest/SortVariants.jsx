@@ -105,9 +105,8 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 
 	const fetchTest = async id => {
 		const res = await fetch(`${API}/questions/${id}`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+			credentials: 'include',
+			headers: { 'Content-Type': 'application/json' },
 		})
 		const data = await res.json()
 		if (data) {
@@ -125,10 +124,8 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 		try {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					title: question,
 					question_type: 'matching',
@@ -156,10 +153,8 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 		try {
 			const res = await fetch(`${API}/questions/${testId}`, {
 				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					title: question,
 					question_type: 'matching',

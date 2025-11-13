@@ -25,6 +25,7 @@ import { motion } from 'framer-motion'
 import { AuthContext } from '../../context/AuthContext'
 import axios from 'axios'
 import { API } from '../../API'
+import { getCookie } from '../../TOKEN'
 
 export default function DashboardLayout({ onChange }) {
 	const [userInfo, setUserInfo] = useState()
@@ -106,11 +107,12 @@ export default function DashboardLayout({ onChange }) {
 		if (storedAccess !== null) {
 			try {
 				const res = await axios.get(`${API}/users/me`, {
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${storedAccess}`,
 					},
 				})
+				console.log('XSRFTOKEN: ', getCookie('csrftoken'))
 				setUserInfo(res.data)
 				localStorage.setItem('role', res.data.current_user_role)
 			} catch (error) {
@@ -120,11 +122,12 @@ export default function DashboardLayout({ onChange }) {
 					if (newAccessToken) {
 						try {
 							const retryRes = await axios.get(`${API}/users/me`, {
+								withCredentials: true,
 								headers: {
 									'Content-Type': 'application/json',
-									Authorization: `Bearer ${newAccessToken}`,
 								},
 							})
+							console.log('XSRFTOKEN: ', getCookie('XSRF-TOKEN'))
 							setUserInfo(retryRes.data)
 							localStorage.setItem('role', retryRes.data.current_user_role)
 						} catch (error) {

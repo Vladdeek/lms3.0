@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }) => {
 	}, [])
 
 	const login = data => {
+		console.log('login data: ', data)
 		setAccessToken(data.access_token)
 		setRefreshToken(data.refresh_token)
 
@@ -47,10 +48,8 @@ export const AuthProvider = ({ children }) => {
 		try {
 			const res = await fetch(`${API}/auth/jwt/refresh`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${storedRefresh}`,
-				},
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 			})
 
 			if (!res.ok) {

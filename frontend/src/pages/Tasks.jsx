@@ -77,9 +77,9 @@ const CatalogS = ({ role }) => {
 	const fetchCourses = async () => {
 		try {
 			const res = await axios.get(`${API}/courses/`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 			})
 
@@ -102,9 +102,9 @@ const CatalogS = ({ role }) => {
 					selectedFilters !== 'all' ? `/?webinar_status=${selectedFilters}` : ''
 				}`,
 				{
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
 					},
 				}
 			)

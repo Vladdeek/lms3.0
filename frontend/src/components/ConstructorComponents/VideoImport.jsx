@@ -73,6 +73,8 @@ export const ConstructorVideoInput = ({
 
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: formData,
 			})
 

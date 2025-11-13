@@ -36,6 +36,8 @@ export const AudioInput = ({
 			formData.append('file', file)
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: formData,
 			})
 

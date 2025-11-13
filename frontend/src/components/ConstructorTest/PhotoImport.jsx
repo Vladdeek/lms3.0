@@ -25,6 +25,8 @@ export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 			formData.append('file', fileToUpload)
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
 				body: formData,
 			})
 
