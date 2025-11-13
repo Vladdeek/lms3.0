@@ -8,6 +8,7 @@ import { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Loader, { AltLoader } from '../../components/Loader'
+import { getCookie } from '../../TOKEN'
 
 const GroupComponent = ({
 	id,
@@ -205,6 +206,7 @@ const AccessManagement = ({ onChange }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)
@@ -237,6 +239,7 @@ const AccessManagement = ({ onChange }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)
@@ -271,6 +274,7 @@ const AccessManagement = ({ onChange }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -296,6 +300,7 @@ const AccessManagement = ({ onChange }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 

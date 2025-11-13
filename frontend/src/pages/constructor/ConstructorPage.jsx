@@ -28,7 +28,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { is, se } from 'date-fns/locale'
 import { Forbidden403, useError } from '../../components/Errors'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
 
 const SettingsButton = ({
 	courseId,
@@ -64,7 +64,10 @@ const SettingsButton = ({
 			const response = await fetch(`${API}/courses/delete/${courseId}`, {
 				method: 'DELETE',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 			})
 
 			if (!response.ok) {
@@ -517,7 +520,10 @@ const ConstructorPage = ({ role }) => {
 				method: 'PUT',
 				body: JSON.stringify(content),
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 			})
 
 			if (!res.ok) {
@@ -542,6 +548,7 @@ const ConstructorPage = ({ role }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)

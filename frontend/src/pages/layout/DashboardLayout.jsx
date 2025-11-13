@@ -110,9 +110,10 @@ export default function DashboardLayout({ onChange }) {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
-				console.log('XSRFTOKEN: ', getCookie('csrftoken'))
+
 				setUserInfo(res.data)
 				localStorage.setItem('role', res.data.current_user_role)
 			} catch (error) {

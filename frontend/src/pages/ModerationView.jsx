@@ -51,7 +51,7 @@ import axios from 'axios'
 import { set } from 'date-fns'
 import Loader from '../components/Loader'
 import VariantModerationView from '../components/TestModerationView/VariantsModertionView'
-import { token } from '../TOKEN'
+import { getCookie, token } from '../TOKEN'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -474,7 +474,10 @@ const ModerationComponent = ({ moderationCourseId }) => {
 					`${API}/courses/${moderationCourseId || courseId}`,
 					{
 						credentials: 'include',
-						headers: { 'Content-Type': 'application/json' },
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'),
+						},
 					}
 				)
 				const data = await res.json()

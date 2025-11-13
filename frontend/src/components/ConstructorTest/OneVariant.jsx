@@ -5,7 +5,7 @@ import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
 import { API } from '../../API'
 import Loader from '../Loader'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -210,7 +210,10 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 	const fetchTest = async id => {
 		const res = await fetch(`${API}/questions/${id}`, {
 			credentials: 'include',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
+			},
 		})
 		const data = await res.json()
 
@@ -240,7 +243,10 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({
 					question_type: 'single',
 					title: question,
@@ -281,7 +287,10 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			const res = await fetch(`${API}/questions/${questionId}`, {
 				method: 'PUT',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({
 					question_type: 'single',
 					title: question,

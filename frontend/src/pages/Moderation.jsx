@@ -8,7 +8,7 @@ import { motion } from 'framer-motion'
 import Loader from '../components/Loader'
 import { InputDefault, TextArea } from '../components/Inputs'
 import ModerationComponent from './ModerationView'
-import { token } from '../TOKEN'
+import { getCookie, token } from '../TOKEN'
 
 const ModerationCourseCard = ({
 	img,
@@ -184,6 +184,7 @@ const Moderation = ({ role }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 

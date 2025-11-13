@@ -23,7 +23,7 @@ import Loader from '../components/Loader'
 import MoreVariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
-import { token } from '../TOKEN'
+import { getCookie, token } from '../TOKEN'
 
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 	return (
@@ -400,6 +400,7 @@ const StudentsAndGroups = () => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -420,6 +421,7 @@ const StudentsAndGroups = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)
@@ -444,6 +446,7 @@ const StudentsAndGroups = () => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -470,6 +473,7 @@ const StudentsAndGroups = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)
@@ -498,6 +502,7 @@ const StudentsAndGroups = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)

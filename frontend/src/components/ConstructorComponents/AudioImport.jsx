@@ -4,6 +4,7 @@ import CustomAudioPlayer from '../AudioPlayer'
 import { API, FILE_API } from '../../API'
 import { maxAudioSizeInMB } from './Constants'
 import Loader, { AltLoader } from '../Loader'
+import { getCookie } from '../../TOKEN'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -37,7 +38,10 @@ export const AudioInput = ({
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: formData,
 			})
 

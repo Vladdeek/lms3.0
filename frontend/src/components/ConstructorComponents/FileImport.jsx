@@ -15,6 +15,7 @@ import {
 import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { maxFilesSizeInMB } from './Constants'
+import { getCookie } from '../../TOKEN'
 
 export const ConstructorFileInput = ({
 	onStatusChange,
@@ -54,7 +55,10 @@ export const ConstructorFileInput = ({
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: formData,
 			})
 

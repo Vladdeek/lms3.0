@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
+import { getCookie } from '../../TOKEN'
 
 export const FileView = ({ onStatusChange, Files }) => {
 	const inputId = useId()
@@ -80,6 +81,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 				body: JSON.stringify({
 					file_name: files[id]?.name.split('.')[0],

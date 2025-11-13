@@ -1,6 +1,7 @@
 import { ImagePlus, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
+import { getCookie } from '../../TOKEN'
 
 export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 	const inputId = useId()
@@ -26,7 +27,10 @@ export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: formData,
 			})
 

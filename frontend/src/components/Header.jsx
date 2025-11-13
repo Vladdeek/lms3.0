@@ -23,7 +23,7 @@ import axios from 'axios'
 import Loader, { BlockLoader } from './Loader'
 import { useError } from './Errors'
 import Moderation from '../pages/Moderation'
-import { token } from '../TOKEN'
+import { getCookie, token } from '../TOKEN'
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -221,7 +221,10 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			const res = await fetch(`${API}/auth/jwt/logout`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({ refresh_token: storedRefresh }),
 			})
 
@@ -260,6 +263,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -290,6 +294,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)

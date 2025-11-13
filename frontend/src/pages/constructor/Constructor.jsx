@@ -66,7 +66,7 @@ import { PhotoView } from '../../components/Viewer/PhotoView'
 import CustomCodeBlock from '../../components/CustomCodeBlock'
 import { TextViewer } from '../../components/Viewer/TextViewer'
 import CustomAudioPlayer from '../../components/AudioPlayer'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -92,7 +92,10 @@ const CreateModuleButton = ({
 		try {
 			const res = await fetch(`${API}/modules/${courseId}`, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({ name: title }),
 			})
 
@@ -202,7 +205,10 @@ const CreateLessonButton = ({
 			const res = await fetch(`${API}/sections/modules/${moduleId}`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({
 					title: lesson.title,
 					type: lesson.type,
@@ -361,7 +367,10 @@ const ModuleTitle = ({
 		try {
 			const response = await fetch(`${API}/modules/${id}`, {
 				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 			})
 
 			if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`)
@@ -432,7 +441,10 @@ const ModuleContent = ({
 		try {
 			const response = await fetch(`${API}/sections/${id}`, {
 				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 			})
 
 			if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`)

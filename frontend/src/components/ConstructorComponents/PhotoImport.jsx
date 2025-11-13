@@ -3,6 +3,7 @@ import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { motion } from 'framer-motion'
 import { maxPhotoSizeInMB } from './Constants'
+import { getCookie } from '../../TOKEN'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
@@ -120,7 +121,10 @@ export const ConstructorPhotoInput = ({
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: formData,
 			})
 
@@ -165,7 +169,10 @@ export const ConstructorPhotoInput = ({
 			const response = await fetch(`${API}/files/`, {
 				method: 'DELETE',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({
 					file_path: imgUrl[id]?.photoUrl
 						.split(`${FILE_API}`)[1]

@@ -4,7 +4,7 @@ import { AddMediaButton } from './AddMedia'
 import { ScoreInput1, ScoreInput2 } from './ScoreInput'
 import Loader from '../Loader'
 import { API } from '../../API'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
 
 const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	const [question, setQuestion] = useState('')
@@ -19,7 +19,10 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	const fetchTest = async id => {
 		const res = await fetch(`${API}/questions/${id}`, {
 			credentials: 'include',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
+			},
 		})
 		const data = await res.json()
 		if (data) setIsLoading(false)
@@ -34,7 +37,10 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 			const res = await fetch(`${API}/questions/test/${sectionId}`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({
 					question_type: 'open',
 					title: question,
@@ -58,7 +64,10 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 			const res = await fetch(`${API}/questions/${testId}`, {
 				method: 'PUT',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify({
 					question_type: 'open',
 					title: question,

@@ -8,7 +8,7 @@ import { AuthContext } from '../context/AuthContext'
 import DecryptedText from '../components/ReactBits/DecryptedText'
 import LiquidEther from '../components/ReactBits/LiquidEther'
 import TextType from '../components/ReactBits/TextType'
-import { token } from '../TOKEN'
+import { getCookie, token } from '../TOKEN'
 
 const Authorization = ({ isRegister = false }) => {
 	const [email, setEmail] = useState('')
@@ -49,7 +49,10 @@ const Authorization = ({ isRegister = false }) => {
 			const response = await fetch(`${API}/auth/jwt/login`, {
 				method: 'POST',
 				credentials: 'include', // 🔥 ОБЯЗАТЕЛЬНО
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: JSON.stringify(data),
 			})
 			const result = await response.json()

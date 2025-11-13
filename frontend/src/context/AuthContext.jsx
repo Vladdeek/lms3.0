@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react'
 import { API } from '../API'
 import { useNavigate } from 'react-router-dom'
+import { getCookie } from '../TOKEN'
 
 export const AuthContext = createContext()
 
@@ -49,7 +50,10 @@ export const AuthProvider = ({ children }) => {
 			const res = await fetch(`${API}/auth/jwt/refresh`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 			})
 
 			if (!res.ok) {

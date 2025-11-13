@@ -4,6 +4,7 @@ import { InputDefault } from '../Inputs'
 import VideoPlayer from '../VideoPlayer'
 import { API, FILE_API } from '../../API'
 import { maxVideoSizeInMB } from './Constants'
+import { getCookie } from '../../TOKEN'
 
 export const ConstructorVideoInput = ({
 	onStatusChange,
@@ -74,7 +75,10 @@ export const ConstructorVideoInput = ({
 			const response = await fetch(`${API}/files/`, {
 				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
 				body: formData,
 			})
 
