@@ -3,7 +3,7 @@ import { ChevronsUp, ChevronsDown, GripHorizontal, X } from 'lucide-react'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { set } from 'date-fns'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -24,77 +24,57 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	)
 }
 
-const PairItem = forwardRef(
-	(
-		{
-			pair,
-			index,
-			side,
-			moveUp,
-			moveDown,
-			onDragStart,
-			onDrop,
-			height,
-			length,
-		},
-		ref
-	) => {
-		const isRight = side === 'right'
+const PairItem = forwardRef(({ pair, index, side, height, length }, ref) => {
+	const isRight = side === 'right'
 
-		return (
-			<div
-				ref={ref}
-				draggable={isRight}
-				onDragStart={e => isRight && onDragStart(e, index)}
-				onDragOver={e => isRight && e.preventDefault()}
-				onDrop={e => isRight && onDrop(e, index)}
-				style={{ height: height ? `${height}px` : undefined }}
-				className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-white cursor-default select-none`}
-			>
-				<span className='col-span-4 flex items-center w-full'>
-					{side === 'left' ? pair : pair}
-				</span>
+	return (
+		<div
+			ref={ref}
+			draggable={isRight}
+			style={{ height: height ? `${height}px` : undefined }}
+			className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-white cursor-default select-none`}
+		>
+			<span className='col-span-4 flex items-center w-full'>
+				{side === 'left' ? pair : pair}
+			</span>
 
-				{isRight && (
-					<div className='col-span-2 flex items-center justify-center w-full cursor-grab'>
-						<GripHorizontal size={24} />
-					</div>
-				)}
+			{isRight && (
+				<div className='col-span-2 flex items-center justify-center w-full cursor-default'>
+					<GripHorizontal size={24} />
+				</div>
+			)}
 
-				{isRight && (
-					<div className='col-span-1 flex items-center justify-center w-full'>
-						<button
-							onClick={() => moveUp(index)}
-							className={`p-1 z-10 rounded  ${
-								index === 0
-									? 'opacity-25 cursor-not-allowed'
-									: 'hover:bg-gray-200 cursor-pointer'
-							}`}
-							aria-label='Переместить вверх'
-							disabled={index === 0}
-						>
-							<ChevronsUp size={24} />
-						</button>
-						<button
-							onClick={() => moveDown(index)}
-							className={`p-1 z-10 rounded  ${
-								index === length - 1
-									? 'opacity-25 cursor-not-allowed'
-									: 'hover:bg-gray-200 cursor-pointer'
-							}`}
-							aria-label='Переместить вниз'
-							disabled={index === length - 1}
-						>
-							<ChevronsDown size={24} />
-						</button>
-					</div>
-				)}
-			</div>
-		)
-	}
-)
+			{isRight && (
+				<div className='col-span-1 flex items-center justify-center w-full'>
+					<button
+						className={`p-1 z-10 rounded  ${
+							index === 0
+								? 'opacity-25 cursor-default'
+								: 'hover:bg-gray-200 cursor-default'
+						}`}
+						aria-label='Переместить вверх'
+						disabled={index === 0}
+					>
+						<ChevronsUp size={24} />
+					</button>
+					<button
+						className={`p-1 z-10 rounded  ${
+							index === length - 1
+								? 'opacity-25 cursor-default'
+								: 'hover:bg-gray-200 cursor-default'
+						}`}
+						aria-label='Переместить вниз'
+						disabled={index === length - 1}
+					>
+						<ChevronsDown size={24} />
+					</button>
+				</div>
+			)}
+		</div>
+	)
+})
 
-const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
+const SortVariantModerationView = ({ testId, onAnswerSelect }) => {
 	const [heights, setHeights] = useState([])
 	const rightRefs = useRef([])
 	const [isLoading, setIsLoading] = useState(false)
@@ -145,40 +125,6 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 		)
 		setHeights(newHeights)
 	}, [right_option])
-
-	const moveUp = index => {
-		if (index === 0) return
-		setRight_option(prev => {
-			const newArr = [...prev]
-			;[newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]]
-			return newArr
-		})
-	}
-
-	const moveDown = index => {
-		if (index === right_option.length - 1) return
-		setRight_option(prev => {
-			const newArr = [...prev]
-			;[newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]]
-			return newArr
-		})
-	}
-
-	const handleDragStart = (e, index) => {
-		e.dataTransfer.setData('dragIndex', index)
-	}
-
-	const handleDrop = (e, dropIndex) => {
-		const dragIndex = parseInt(e.dataTransfer.getData('dragIndex'))
-		if (isNaN(dragIndex)) return
-
-		setRight_option(prev => {
-			const newArr = [...prev]
-			const [dragged] = newArr.splice(dragIndex, 1)
-			newArr.splice(dropIndex, 0, dragged)
-			return newArr
-		})
-	}
 
 	if (isLoading) return <Loader />
 
@@ -256,10 +202,6 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 								pair={pair}
 								index={index}
 								side='right'
-								moveUp={moveUp}
-								moveDown={moveDown}
-								onDragStart={handleDragStart}
-								onDrop={handleDrop}
 								ref={el => (rightRefs.current[index] = el)}
 								height={heights[index]}
 								length={right_option.length}
@@ -272,4 +214,4 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 	)
 }
 
-export default SortVariantCheckView
+export default SortVariantModerationView

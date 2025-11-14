@@ -52,6 +52,8 @@ import { set } from 'date-fns'
 import Loader from '../components/Loader'
 import VariantModerationView from '../components/TestModerationView/VariantsModertionView'
 import { getCookie, token } from '../TOKEN'
+import SortVariantModerationView from '../components/TestModerationView/SortVariantsModertionView'
+import OpenQuestionModerationView from '../components/TestModerationView/OpenQuestionModertionView'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [

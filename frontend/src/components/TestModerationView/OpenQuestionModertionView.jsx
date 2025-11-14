@@ -4,7 +4,8 @@ import { API } from '../../API'
 import FormulaView from '../Viewer/FormulaView'
 import CustomAudioPlayer from '../AudioPlayer'
 import Loader from '../Loader'
-import { token } from '../../TOKEN'
+import { getCookie, token } from '../../TOKEN'
+import { tr } from 'date-fns/locale'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -25,7 +26,7 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	)
 }
 
-const OpenQuestionCheckView = ({ testId }) => {
+const OpenQuestionModerationView = ({ testId }) => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
@@ -104,25 +105,13 @@ const OpenQuestionCheckView = ({ testId }) => {
 					<input
 						type='text'
 						className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition mt-3 w-full text-[var(--black)] placeholder:text-[var(--middle)]'
-						placeholder={'Введите свой вариант ответа...'}
-						value={value}
-						readOnly={value}
-						onChange={e => setAnswer(e.target.value)}
+						placeholder={'Поле для ввода ответа...'}
+						readOnly={true}
 					/>
-					{value && (
-						<div className='flex justify-center gap-5 w-full'>
-							<button className='bg-[var(--black)] text-[var(--white)] w-full hover:bg-[var(--correct-lvl)] hover:text-white py-3 px-4  rounded-lg cursor-pointer transition-all hover:shadow-[var(--correct-glow)]'>
-								Правильно
-							</button>
-							<button className='bg-[var(--black)] text-[var(--white)] w-full hover:bg-[var(--not-correct-lvl)] hover:text-white py-3 px-4 rounded-lg cursor-pointer transition-all hover:shadow-[var(--not-correct-glow)]'>
-								Не правильно
-							</button>
-						</div>
-					)}
 				</div>
 			</div>
 		</>
 	)
 }
 
-export default OpenQuestionCheckView
+export default OpenQuestionModerationView
