@@ -278,7 +278,7 @@ const MoreVariant = ({
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
 
-			fetchTest(testId)
+			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
 		}

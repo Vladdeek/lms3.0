@@ -89,6 +89,7 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 	const [access, setAccess] = useState(true)
 
 	const handleSubmit = async () => {
+		if (!courseId) return
 		const formData = new FormData()
 		formData.append('course_status', access ? 'approved' : 'pending')
 
@@ -96,7 +97,6 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 			method: 'PUT',
 			credentials: 'include',
 			headers: {
-				'Content-Type': 'application/json',
 				'X-CSRF-TOKEN': getCookie('csrftoken'),
 			},
 			body: formData,
@@ -107,8 +107,6 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 		onClose?.()
 
 		onChange?.('good')
-
-		console.log(data)
 
 		if (!res.ok) {
 			console.error('Ошибка сервера:', res.status)
@@ -163,7 +161,7 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 
 					<button
 						className={`px-4 py-3 font-normal text-xl rounded-lg w-fit transition-all bg-[var(--black)] text-[var(--white)] cursor-pointer hover:bg-[var(--hero-epta)] active:scale-97`}
-						onClick={handleSubmit}
+						onClick={() => handleSubmit()}
 					>
 						Подтвердить
 					</button>
@@ -195,6 +193,8 @@ const Moderation = ({ role }) => {
 			console.log('courses: ', res)
 
 			setCourses(res.data)
+
+			setActive(null)
 		} catch (err) {
 			console.log(err)
 			if (err.response) {

@@ -268,9 +268,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 
 			onChange?.(data?.id)
 
-			console.log('questionId: ', questionId)
-
-			fetchTest(questionId)
+			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
 		}
@@ -310,7 +308,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
 			const data = await res.json()
 
-			fetchTest(questionId)
+			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
 		}

@@ -262,7 +262,6 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 										element = <PhotoView photos={item?.content} />
 										break
 									case 'video':
-										console.log(item)
 										element = <VideoPlayer url={item?.content} course={true} />
 										break
 									case 'files':
