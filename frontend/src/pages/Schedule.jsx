@@ -279,7 +279,6 @@ const Schedule2 = scheduleData => {
 }
 
 const SchedulePage = () => {
-	const group_name = '2211-0101.1' // пример группы
 	const [scheduleData, setScheduleData] = useState({})
 	const [loading, setLoading] = useState(false)
 
@@ -289,16 +288,13 @@ const SchedulePage = () => {
 			setLoading(true)
 			console.log('1) начало')
 			try {
-				const res = await fetch(
-					`${API}/schedule-lessons?group_name=${group_name}`,
-					{
-						method: 'GET',
-						credentials: 'include',
-						headers: {
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
-						},
-					}
-				)
+				const res = await fetch(`${API}/schedule-lessons`, {
+					method: 'GET',
+					credentials: 'include',
+					headers: {
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				})
 
 				const data = await res.json()
 
@@ -336,7 +332,7 @@ const SchedulePage = () => {
 
 	return (
 		<div className='flex flex-col gap-2 p-4 h-screen'>
-			<div className='col-span-1'>
+			<div className='hidden'>
 				<DirectionOfTraining group={'2211-0101.1'} course={3} DofT={'ИБ'} />
 			</div>
 			{loading ? (

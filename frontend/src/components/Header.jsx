@@ -374,9 +374,9 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			)}
 			{showSelectRoleModal && (
 				<div
-					className={`absolute z-1000 h-screen w-screen -left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
+					className={`absolute z-1000 h-screen w-screen md:-left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
 				>
-					<div className='relative p-4 h-fit w-1/4 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
+					<div className='relative p-4 h-fit w-full mx-5 lg:w-2/4 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
 						<X
 							onClick={() => setShowSelectRoleModal(false)}
 							className='absolute top-2 right-2 text-[var(--black)] hover:text-red-500 cursor-pointer'
