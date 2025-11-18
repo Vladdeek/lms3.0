@@ -7,7 +7,7 @@ import { AuthContext } from '../context/AuthContext'
 
 export const NotFoundError404 = () => {
 	return (
-		<div className='h-181 overflow-hidden md:-mx-10 -mx-2 '>
+		<div className='md:-mx-10 -mx-2 w-screen h-screen flex flex-col justify-center items-center'>
 			<DotLottieReact
 				className='w-screen '
 				src='/anim/ERROR404.lottie'
@@ -25,7 +25,7 @@ export const NotFoundError404 = () => {
 }
 export const InternalServerError500 = () => {
 	return (
-		<div className='md:-mx-10 -mx-2 w-screen h-screen flex justify-center items-center '>
+		<div className='md:-mx-10 -mx-2 w-screen h-screen flex flex-col justify-center items-center'>
 			<DotLottieReact
 				className='w-[75%]'
 				src='/anim/ERROR500.lottie'

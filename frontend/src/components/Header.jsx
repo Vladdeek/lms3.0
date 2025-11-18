@@ -272,7 +272,14 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			setUserRolesLoading(false)
 			setUserRoles(res.data)
 		} catch (err) {
-			console.log('err: ', err)
+			console.log(err) // 401, 403, 422, 500 — что угодно
+
+			if (err.response) {
+				setError(String(err.response.status)) // 401, 403, 422, 500 — что угодно
+			} else {
+				// Если ответа нет вообще (сетевые ошибки)
+				setError('500')
+			}
 		}
 	}
 
@@ -306,7 +313,14 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				: name === 'teacher' && navigate('/catalogt/courses')
 			res.data && window.location.reload()
 		} catch (err) {
-			console.log('err: ', err)
+			console.log(err) // 401, 403, 422, 500 — что угодно
+
+			if (err.response) {
+				setError(String(err.response.status)) // 401, 403, 422, 500 — что угодно
+			} else {
+				// Если ответа нет вообще (сетевые ошибки)
+				setError('500')
+			}
 		}
 	}
 

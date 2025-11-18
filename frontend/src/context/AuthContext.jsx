@@ -38,15 +38,17 @@ export const AuthProvider = ({ children }) => {
 	}
 
 	const refreshAccessToken = async () => {
+		console.log('refresh')
 		try {
 			const res = await fetch(`${API}/auth/jwt/refresh`, {
 				method: 'POST',
 				credentials: 'include',
 				headers: {
-					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
+
+			console.log('refresh api done')
 
 			if (!res.ok) {
 				console.log('Access token not refreshed.')
