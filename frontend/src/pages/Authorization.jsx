@@ -117,7 +117,10 @@ const Authorization = ({ isRegister = false }) => {
 					<div className='xl:grid grid-cols-[1fr_7fr] gap-3'>
 						<div></div>
 						<div className=' flex flex-col '>
-							<div className='flex flex-col gap-10 xl:mt-20'>
+							<form
+								onSubmit={handleSubmit}
+								className='flex flex-col gap-10 xl:mt-20'
+							>
 								<InputAuth
 									placeholder={'example@mail.ru'}
 									title={'Почта'}
@@ -140,13 +143,17 @@ const Authorization = ({ isRegister = false }) => {
 								<div className=' gap-5 hidden'>
 									<Link to={'#'} title={'Забыли логин или пароль?'} />
 								</div>
-								<SubmitButton
+								<input
+									type='submit'
 									disabled={!isFormValid}
-									title={isRegister ? 'Зарегистрироваться' : 'Войти'}
-									style={'black'}
-									onClick={handleSubmit}
+									className={`${
+										isFormValid
+											? 'active:scale-99 active:brightness-90 hover:bg-[var(--hero-epta)] hover:text-white  cursor-pointer'
+											: 'opacity-25 cursor-not-allowed'
+									} bg-[var(--black)] text-[var(--white)] rounded-xl h-full flex gap-4 items-center justify-center transition-all py-4`}
+									value={isRegister ? 'Зарегистрироваться' : 'Войти'}
 								/>
-							</div>
+							</form>
 							<div className='flex justify-between items-center mt-25'>
 								<div className='flex gap-3'></div>
 							</div>
