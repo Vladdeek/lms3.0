@@ -107,7 +107,7 @@ export const ErrorProvider = ({ children }) => {
 	useEffect(() => {
 		const handle401 = async () => {
 			if (error === '401') {
-				console.log('Ошибка 401 — обновляем токен...')
+				navigate('/auth')
 			}
 		}
 
