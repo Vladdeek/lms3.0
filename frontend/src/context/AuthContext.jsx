@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
 		if (accessToken?.length !== 0 && refreshToken?.length !== 0) navigate('/')
 	}
 
+	//LOGOUT
 	const logout = () => {
 		setAccessToken(null)
 		setRefreshToken(null)
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }) => {
 		localStorage.removeItem('refresh_token')
 	}
 
+	//REFRESH
 	const refreshAccessToken = async () => {
 		console.log('refresh')
 		try {

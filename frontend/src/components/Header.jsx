@@ -214,9 +214,6 @@ export const Header = ({ links = [], UserInfo = null }) => {
 	useLockBodyScroll(showMessage)
 
 	const logout = async () => {
-		const storedAccess = localStorage.getItem('access_token')
-		const storedRefresh = localStorage.getItem('refresh_token')
-
 		try {
 			const res = await fetch(`${API}/auth/jwt/logout`, {
 				method: 'POST',
@@ -225,7 +222,6 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
-				body: JSON.stringify({ refresh_token: storedRefresh }),
 			})
 
 			if (!res.ok) {
@@ -236,14 +232,9 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			const data = await res.json()
 			console.log('Logout success:', data)
 
-			localStorage.removeItem('access_token')
-			localStorage.removeItem('refresh_token')
-
 			navigate('/auth')
 		} catch (error) {
 			console.log('Logout error:', error.message)
-			localStorage.removeItem('access_token')
-			localStorage.removeItem('refresh_token')
 			navigate('/auth')
 		}
 	}

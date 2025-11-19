@@ -108,18 +108,12 @@ export const ErrorProvider = ({ children }) => {
 		const handle401 = async () => {
 			if (error === '401') {
 				console.log('Ошибка 401 — обновляем токен...')
-				const newAccessToken = await refreshAccessToken()
-
-				if (newAccessToken) {
-					console.log('Новый access_token получен ✅')
-				} else {
-					console.warn('Не удалось обновить токен ❌')
-				}
 			}
 		}
 
 		handle401()
 	}, [error])
+
 	useEffect(() => {
 		if (error) {
 			setError(null)
@@ -138,8 +132,6 @@ export const ErrorProvider = ({ children }) => {
 					<InternalServerError500 />
 				) : error === '403' ? (
 					<Forbidden403 />
-				) : error === '401' ? (
-					console.log('401 Unauthorized')
 				) : (
 					<>
 						{children}

@@ -16,12 +16,7 @@ const Authorization = ({ isRegister = false }) => {
 	const [isEmailValid, setIsEmailValid] = useState(false)
 	const [isPasswordValid, setIsPasswordValid] = useState(false)
 
-	const storedAccess = localStorage.getItem('access_token')
-	const storedRefresh = localStorage.getItem('refresh_token')
-
 	const navigate = useNavigate()
-
-	const { login } = useContext(AuthContext)
 
 	const emailValidate = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 	const passwordValidate = value =>
@@ -48,7 +43,7 @@ const Authorization = ({ isRegister = false }) => {
 		try {
 			const response = await fetch(`${API}/auth/jwt/login`, {
 				method: 'POST',
-				credentials: 'include', // 🔥 ОБЯЗАТЕЛЬНО
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -58,22 +53,10 @@ const Authorization = ({ isRegister = false }) => {
 			const result = await response.json()
 			if (result?.detail === 'Пользователь не найден')
 				showMessageFunc(result?.detail)
-			else login(result)
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
 	}
-
-	useEffect(() => {
-		const access_token = localStorage.getItem('access_token')
-		const refresh_token = localStorage.getItem('refresh_token')
-		const info = {
-			access_token: access_token,
-			refresh_token: refresh_token,
-			token_type: 'bearer',
-		}
-		if (access_token !== null && refresh_token !== refresh_token) login(info)
-	}, [])
 
 	return (
 		<div className='relative'>

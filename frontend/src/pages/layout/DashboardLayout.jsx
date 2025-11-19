@@ -62,11 +62,11 @@ export default function DashboardLayout({ onChange }) {
 					to: '/schedule',
 				},
 
-				{
-					title: 'Оценки',
-					icon: CopyCheck,
-					to: '/score',
-				},
+				// {
+				// 	title: 'Оценки',
+				// 	icon: CopyCheck,
+				// 	to: '/score',
+				// },
 			],
 			moderator: [
 				{
