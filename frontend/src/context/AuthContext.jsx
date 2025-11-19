@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 				},
 			})
 
-			console.log('refresh api done')
+			console.log('refresh done')
 
 			if (!res.ok) {
 				console.log('Access token not refreshed.')
