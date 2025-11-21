@@ -191,19 +191,18 @@ const Schedule1 = scheduleData => {
 }
 
 const Schedule2 = scheduleData => {
-	const daysCount = 6
-	// today
 	const today = startOfToday()
 
-	console.log('scheduleData2: ', scheduleData)
+	// 🔥 Начало текущей недели (понедельник)
+	const weekStart = startOfWeek(today, { weekStartsOn: 1 })
 
-	// генерируем weekDays: массив из daysCount дат, начиная с today
+	// 🔥 Генерация именно текущей недели (6 дней, как у Schedule1)
 	const weekDays = useMemo(
-		() => Array.from({ length: daysCount }, (_, i) => addDays(today, i)),
-		[daysCount, today]
+		() => Array.from({ length: 6 }, (_, i) => addDays(weekStart, i)),
+		[weekStart]
 	)
 
-	// selectedDay по умолчанию — сегодня если он есть в weekDays, иначе первый элемент
+	// выбор дня — по умолчанию сегодня, если он в текущей неделе
 	const [selectedDay, setSelectedDay] = useState(
 		weekDays.find(d => isSameDay(d, today)) || weekDays[0]
 	)
@@ -214,7 +213,7 @@ const Schedule2 = scheduleData => {
 			const lessonStart = new Date(lessonDate)
 			lessonStart.setHours(hours, minutes, 0, 0)
 
-			const lessonEnd = new Date(lessonStart.getTime() + 90 * 60000) // 90 минут
+			const lessonEnd = new Date(lessonStart.getTime() + 90 * 60000)
 
 			return isWithinInterval(new Date(), {
 				start: lessonStart,
@@ -225,14 +224,13 @@ const Schedule2 = scheduleData => {
 		}
 	}
 
-	// расписание для выбранного дня
 	const selectedDateString = format(selectedDay, 'yyyy-MM-dd')
 	const selectedDaySchedule =
 		scheduleData?.scheduleData[selectedDateString] || []
 
 	return (
 		<div className='grid grid-cols-6 gap-2'>
-			{/* Дни */}
+			{/* Дни недели */}
 			{weekDays.map((day, index) => {
 				const isCurrentDay = isToday(day)
 				const isSelected = isSameDay(day, selectedDay)
@@ -254,7 +252,7 @@ const Schedule2 = scheduleData => {
 			{/* Расписание выбранного дня */}
 			<div className='col-span-6 flex flex-col gap-3 mt-1'>
 				{selectedDaySchedule?.length > 0 ? (
-					selectedDaySchedule?.map((lesson, lessonIndex) => {
+					selectedDaySchedule.map((lesson, lessonIndex) => {
 						const isCurrent = isCurrentLesson(selectedDay, lesson?.time_start)
 
 						return (
