@@ -374,7 +374,7 @@ const ConstructorPage = ({ role }) => {
 
 				console.log('get: ', res.data)
 
-				setError(null)
+				setGlobalError(null)
 				setCourseContent(res.data)
 			} catch (error) {
 				console.error(error)
@@ -487,7 +487,7 @@ const ConstructorPage = ({ role }) => {
 					}
 				)
 
-				setError(null)
+				setGlobalError(null)
 				setIsLocked(res.data?.locked)
 			} catch (error) {
 				console.error(error)

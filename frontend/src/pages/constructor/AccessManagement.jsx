@@ -211,7 +211,7 @@ const AccessManagement = ({ onChange }) => {
 
 			console.log(res)
 
-			setError(null)
+			setGlobalError(null)
 
 			setUnlinkedGroups(res.data)
 			setIsLoading(null)
@@ -239,7 +239,7 @@ const AccessManagement = ({ onChange }) => {
 
 			console.log(res)
 
-			setError(null)
+			setGlobalError(null)
 
 			setLinkedGroups(res.data)
 			setIsLoading(null)
@@ -269,7 +269,7 @@ const AccessManagement = ({ onChange }) => {
 			fetchUnlinkedGroups()
 			fetchLinkedGroups()
 
-			setError(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.error(error)
 			setGlobalError(error.response?.status || '500')
@@ -291,7 +291,7 @@ const AccessManagement = ({ onChange }) => {
 			fetchUnlinkedGroups()
 			fetchLinkedGroups()
 
-			setError(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.error(error)
 			setGlobalError(error.response?.status || '500')

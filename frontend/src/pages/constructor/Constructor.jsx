@@ -106,7 +106,7 @@ const CreateModuleButton = ({
 
 			console.log(data)
 			onReplaceModule(tempId, data)
-			setError(null) // очищаем ошибку, если всё ок
+			setGlobalError(null) // очищаем ошибку, если всё ок
 		} catch (error) {
 			console.error(error)
 			onRemoveModule(tempId)
@@ -226,7 +226,7 @@ const CreateLessonButton = ({
 
 			console.log(data)
 			onReplaceLesson(moduleId, tempId, data)
-			setError(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.error(error)
 			onRemoveLesson(moduleId, tempId)
@@ -381,7 +381,7 @@ const ModuleTitle = ({
 			})
 
 			onRemoveModule(id)
-			setError(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.error('Ошибка при удалении модуля:', error)
 			setError(error.response ? String(error.response.status) : '500')
@@ -455,7 +455,7 @@ const ModuleContent = ({
 			})
 
 			onRemoveLesson(id)
-			setError(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.error('Ошибка при удалении секции:', error)
 			setError(error.response ? String(error.response.status) : '500')

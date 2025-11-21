@@ -182,7 +182,7 @@ const Moderation = ({ role }) => {
 				},
 			})
 
-			setError(null)
+			setGlobalError(null)
 
 			console.log('courses: ', res)
 

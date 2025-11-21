@@ -434,7 +434,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				},
 			})
 
-			setError(null)
+			setGlobalError(null)
 			setCourses(res.data)
 		} catch (error) {
 			console.log(error)
@@ -452,7 +452,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				},
 			})
 
-			setError(null)
+			setGlobalError(null)
 
 			setCourses(res.data)
 		} catch (error) {
@@ -476,7 +476,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				}
 			)
 
-			setError(null)
+			setGlobalError(null)
 			setWebinars(res.data)
 		} catch (error) {
 			console.log(error)

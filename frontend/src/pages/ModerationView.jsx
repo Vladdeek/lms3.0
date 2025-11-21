@@ -483,7 +483,7 @@ const ModerationComponent = ({ moderationCourseId }) => {
 				)
 				const data = res.data
 
-				setError(null)
+				setGlobalError(null)
 				setCourseContent(data)
 				setLoading(false)
 			} catch (error) {

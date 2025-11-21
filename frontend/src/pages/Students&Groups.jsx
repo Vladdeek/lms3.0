@@ -403,7 +403,7 @@ const StudentsAndGroups = () => {
 			})
 
 			setCourses(res.data)
-			setError(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.log('error: ', error.response.status)
 			setError(error.response.status.toString())
@@ -424,7 +424,7 @@ const StudentsAndGroups = () => {
 				}
 			)
 
-			setError(null)
+			setGlobalError(null)
 			setGroups(res.data)
 		} catch (error) {
 			console.log(error)
@@ -443,7 +443,7 @@ const StudentsAndGroups = () => {
 				},
 			})
 
-			setError(null)
+			setGlobalError(null)
 			setStudents(res.data)
 		} catch (error) {
 			console.log(error)
@@ -466,7 +466,7 @@ const StudentsAndGroups = () => {
 				}
 			)
 
-			setError(null)
+			setGlobalError(null)
 			setTasks(res.data)
 		} catch (error) {
 			console.log(error)
@@ -490,7 +490,7 @@ const StudentsAndGroups = () => {
 				}
 			)
 
-			setError(null)
+			setGlobalError(null)
 			setLessons(res.data)
 		} catch (error) {
 			console.log(error)
