@@ -5,6 +5,7 @@ import VideoPlayer from '../VideoPlayer'
 import { API, FILE_API } from '../../API'
 import { maxVideoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
+import axios from 'axios'
 
 export const ConstructorVideoInput = ({
 	onStatusChange,
@@ -72,22 +73,14 @@ export const ConstructorVideoInput = ({
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
 
-			const response = await fetch(`${API}/files/`, {
-				method: 'POST',
-				credentials: 'include',
+			const response = await axios.post(`${API}/files/`, formData, {
+				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
-				body: formData,
 			})
 
-			if (!response.ok) {
-				const errorText = await response.text()
-				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
-			}
-
-			const result = await response.json()
-
+			const result = response.data
 			const uploadedUrl = `${FILE_API}${result?.file_path}`
 
 			return {
@@ -105,6 +98,7 @@ export const ConstructorVideoInput = ({
 			}
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
+			setError(error.response ? String(error.response.status) : '500')
 			throw error
 		} finally {
 			setUploading(false)

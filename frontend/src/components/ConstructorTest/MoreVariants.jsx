@@ -7,6 +7,7 @@ import { ScoreInput1 } from './ScoreInput'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
+import axios from 'axios'
 
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({
@@ -184,19 +185,26 @@ const MoreVariant = ({
 	}
 
 	const fetchTest = async id => {
-		const res = await fetch(`${API}/questions/${id}`, {
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-		})
-		const data = await res.json()
-		if (data) setIsLoading(false)
-		setQuestion(data?.title)
-		setScore(data?.score)
-		setMedia(data?.media)
-		setAnswers(data?.question_options)
+		try {
+			const res = await axios.get(`${API}/questions/${id}`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
+			const data = res.data
+
+			if (data) setIsLoading(false)
+			setQuestion(data?.title)
+			setScore(data?.score)
+			setMedia(data?.media)
+			setAnswers(data?.question_options)
+		} catch (error) {
+			console.error('Ошибка при загрузке теста:', error)
+			setError(error.response ? String(error.response.status) : '500')
+		}
 	}
 
 	const hasDuplicateAnswers = answers => {
@@ -214,14 +222,9 @@ const MoreVariant = ({
 		const correctAnswers = getCorrectAnswers()
 
 		try {
-			const res = await fetch(`${API}/questions/test/${sectionId}`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const res = await axios.post(
+				`${API}/questions/test/${sectionId}`,
+				{
 					question_type: 'multiple',
 					title: question,
 					score: Number(score),
@@ -234,17 +237,22 @@ const MoreVariant = ({
 						option_code: answer?.option_code,
 					})),
 					media: media || {},
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			onChange?.(data?.id)
-
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
@@ -252,14 +260,9 @@ const MoreVariant = ({
 		const correctAnswers = getCorrectAnswers()
 
 		try {
-			const res = await fetch(`${API}/questions/${testId}`, {
-				method: 'PUT',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const res = await axios.put(
+				`${API}/questions/${testId}`,
+				{
 					question_type: 'multiple',
 					title: question,
 					score: Number(score),
@@ -272,15 +275,21 @@ const MoreVariant = ({
 						option_code: answer?.option_code,
 					})),
 					media: media || {},
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

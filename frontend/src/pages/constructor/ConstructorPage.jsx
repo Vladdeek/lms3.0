@@ -29,6 +29,7 @@ import { motion } from 'framer-motion'
 import { is, se } from 'date-fns/locale'
 import { Forbidden403, useError } from '../../components/Errors'
 import { getCookie, token } from '../../TOKEN'
+import axios from 'axios'
 
 const SettingsButton = ({
 	courseId,
@@ -61,26 +62,21 @@ const SettingsButton = ({
 
 	async function deleteCourse() {
 		try {
-			const response = await fetch(`${API}/courses/delete/${courseId}`, {
-				method: 'DELETE',
-				credentials: 'include',
+			const response = await axios.delete(`${API}/courses/delete/${courseId}`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
+				validateStatus: status => status < 500, // чтобы не выбрасывало ошибки на 4xx
 			})
 
-			if (!response.ok) {
-				throw new Error(`Ошибка HTTP: ${response.status}`)
-			}
-
 			if (response.status === 204) {
-				return { success: true, message: 'Секция успешно удален' }
+				return { success: true, message: 'Секция успешно удалена' }
 			}
 
-			const data = await response.json()
 			navigate(-1)
-			return { success: true, data }
+			return { success: true, data: response.data }
 		} catch (error) {
 			console.error('Ошибка при удалении модуля:', error)
 			return {
@@ -97,25 +93,20 @@ const SettingsButton = ({
 		formData.append('description', description)
 		formData.append('image', img)
 
-		console.log('formdata: ', [...formData.entries()])
+		console.log('formData: ', [...formData.entries()])
 
-		const res = await fetch(`${API}/courses/${courseId}`, {
-			method: 'PUT',
-			body: formData,
-			credentials: 'include',
-			headers: {
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-		})
+		try {
+			const res = await axios.put(`${API}/courses/${courseId}`, formData, {
+				withCredentials: true,
+				headers: {
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-		const data = await res.json()
-
-		onChange?.('good')
-
-		if (!res.ok) {
-			console.error('Ошибка сервера:', res.status)
-			setError(res.status)
-			return
+			onChange?.('good')
+		} catch (error) {
+			console.error('Ошибка сервера:', error.response?.status || error.message)
+			setError(error.response?.status)
 		}
 	}
 
@@ -215,25 +206,27 @@ const DateButton = ({ locked, access, sectionId }) => {
 	const { setError } = useError()
 
 	const putLocked = async () => {
-		setLocked(prev => !prev)
+		try {
+			// меняем состояние локально
+			setLocked(prev => !prev)
 
-		const res = await fetch(`${API}/sections/${sectionId}/is-locked`, {
-			method: 'PUT',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-			body: JSON.stringify({ locked: Locked }),
-		})
-		const data = await res.json()
-		console.log('locked: ', Locked)
-		console.log('put locked: ', data)
+			const res = await axios.put(
+				`${API}/sections/${sectionId}/is-locked`,
+				{ locked: Locked },
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-		if (!res.ok) {
-			console.error('Ошибка сервера:', res.status)
-			setError(res.status)
-			return
+			console.log('locked: ', Locked)
+			console.log('put locked: ', res.data)
+		} catch (error) {
+			console.error('Ошибка сервера:', error.response?.status || error.message)
+			setError(error.response?.status)
 		}
 	}
 
@@ -377,24 +370,25 @@ const ConstructorPage = ({ role }) => {
 	useEffect(() => {
 		const fetchCourses = async () => {
 			try {
-				const res = await fetch(`${API}/courses/${courseId}`, {
-					credentials: 'include',
+				const res = await axios.get(`${API}/courses/${courseId}`, {
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
-				const data = await res.json()
-				console.log('get: ', data)
+
+				console.log('get: ', res.data)
 
 				setError(null)
-				setCourseContent(data)
+				setCourseContent(res.data)
 			} catch (err) {
-				setError(err)
+				console.error(err)
+				setError(err.response?.status || err.message)
 			}
 		}
 
-		fetchCourses()
+		if (courseId) fetchCourses()
 	}, [courseId])
 
 	const addModule = newModule =>
@@ -484,33 +478,31 @@ const ConstructorPage = ({ role }) => {
 		const fetchIsLocked = async () => {
 			if (sectionType === 'lecture') {
 				setIsLocked(null)
-			} else {
-				try {
-					const res = await fetch(
-						`${API}/sections/${selectedContentId}/is-locked`,
-						{
-							credentials: 'include',
-							headers: {
-								'Content-Type': 'application/json',
-								'X-CSRF-TOKEN': getCookie('csrftoken'),
-							},
-						}
-					)
-					const data = await res.json()
+				return
+			}
 
-					if (!res.ok) {
-						setError(res.status.toString())
-					} else {
-						setError(null)
-						setIsLocked(data?.locked)
+			try {
+				const res = await axios.get(
+					`${API}/sections/${selectedContentId}/is-locked`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'),
+						},
 					}
-				} catch (err) {
-					setError('500')
-				}
+				)
+
+				setError(null)
+				setIsLocked(res.data?.locked)
+			} catch (err) {
+				console.error(err)
+				setError(err.response?.status?.toString() || '500')
 			}
 		}
-		selectedContentId && fetchIsLocked()
-	}, [selectedContentId])
+
+		if (selectedContentId) fetchIsLocked()
+	}, [selectedContentId, sectionType])
 
 	const [showMassage, setShowMassage] = useState(null)
 
@@ -524,80 +516,65 @@ const ConstructorPage = ({ role }) => {
 	}
 
 	const handleSubmit = async (e, content, sectionId, accessedGroups) => {
-		if (e && e.preventDefault) e.preventDefault()
+		if (e?.preventDefault) e.preventDefault()
 
-		if (selected === 0) {
-			const res = await fetch(`${API}/sections/${sectionId}/content`, {
-				method: 'PUT',
-				body: JSON.stringify(content),
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
+		try {
+			if (selected === 0) {
+				const { data } = await axios.put(
+					`${API}/sections/${sectionId}/content`,
+					content,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'),
+						},
+					}
+				)
 
-			if (!res.ok) {
-				console.error('Ошибка сервера:', res.status)
-				setError(res.status)
-				setIsLoading(false)
-				return
+				setIsEdit(prev => !prev)
+				console.log('save: ', data)
+				showMassageFunc('good')
+			} else if (selected === 1) {
+				const addStudents = false
+				const { data } = await axios.put(
+					`${API}/courses/students/${courseId}?add_student=${addStudents}`,
+					{ groups: accessedGroups },
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'),
+						},
+					}
+				)
+
+				console.log('students updated: ', data)
 			}
-
-			const data = await res.json()
-			setIsEdit(prev => !prev)
-			console.log('save: ', data)
-			showMassageFunc('good')
-		} else if (selected === 1) {
-			const addStudents = false
-
-			const res = await fetch(
-				`${API}/courses/students/${courseId}?add_student=${addStudents}`,
-				{
-					method: 'PUT',
-					body: JSON.stringify({ groups: accessedGroups }),
-					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				}
-			)
-
-			if (!res.ok) {
-				console.error('Ошибка сервера:', res.status)
-				setError(res.status)
-				setIsLoading(false)
-				return
-			}
-
-			const data = await res.json()
+		} catch (err) {
+			console.error('Ошибка сервера:', err.response?.status || err.message)
+			setError(err.response?.status || 500)
+			setIsLoading(false)
 		}
 	}
 
 	const handleStatus = async () => {
-		const formData = new FormData()
-		formData.append('course_status', 'pending')
+		try {
+			const formData = new FormData()
+			formData.append('course_status', 'pending')
 
-		const res = await fetch(`${API}/courses/${courseId}`, {
-			method: 'PUT',
-			body: formData,
-			credentials: 'include',
-			headers: {
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-		})
+			const { data } = await axios.put(`${API}/courses/${courseId}`, formData, {
+				withCredentials: true,
+				headers: {
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-		const data = await res.json()
-
-		showMassageFunc('public')
-
-		console.log(data)
-
-		if (!res.ok) {
-			console.error('Ошибка сервера:', res.status)
-			setError(res.status)
-			return
+			showMassageFunc('public')
+			console.log(data)
+		} catch (err) {
+			console.error('Ошибка сервера:', err.response?.status || err.message)
+			setError(err.response?.status || 500)
 		}
 	}
 

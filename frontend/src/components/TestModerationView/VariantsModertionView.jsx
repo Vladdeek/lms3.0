@@ -5,6 +5,7 @@ import FormulaView from '../Viewer/FormulaView'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
+import axios from 'axios'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -51,23 +52,28 @@ const VariantModerationView = ({ testId }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
-			const res = await fetch(`${API}/questions/${id}`, {
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
+			try {
+				const res = await axios.get(`${API}/questions/${id}`, {
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				})
 
-			const data = await res.json()
-
-			setType(data?.question_type)
-			setQuestion(data?.title)
-			setMedia(data?.media)
-			setAnswers(data?.question_options)
-
-			setIsLoading(false)
+				const data = res.data
+				setType(data?.question_type)
+				setQuestion(data?.title)
+				setMedia(data?.media)
+				setAnswers(data?.question_options)
+			} catch (error) {
+				console.error('Ошибка при загрузке теста:', error)
+				setError(error.response ? String(error.response.status) : '500')
+			} finally {
+				setIsLoading(false)
+			}
 		}
+
 		if (testId) fetchTest(testId)
 	}, [testId])
 

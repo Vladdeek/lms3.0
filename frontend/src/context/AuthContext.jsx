@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from 'react'
 import { API } from '../API'
 import { useNavigate } from 'react-router-dom'
 import { getCookie } from '../TOKEN'
+import axios from 'axios'
 
 export const AuthContext = createContext()
 
@@ -42,24 +43,20 @@ export const AuthProvider = ({ children }) => {
 	const refreshAccessToken = async () => {
 		console.log('refresh')
 		try {
-			const res = await fetch(`${API}/auth/jwt/refresh`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
+			const res = await axios.post(
+				`${API}/auth/jwt/refresh`,
+				{},
+				{
+					withCredentials: true,
+					headers: {
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
 			console.log('refresh done')
 
-			if (!res.ok) {
-				console.log('Access token not refreshed.')
-				logout()
-				navigate('/auth')
-				return null
-			}
-
-			const data = await res.json()
+			const data = res.data
 			console.log('refresh in context:', data)
 
 			setAccessToken(data.access_token)
@@ -68,6 +65,7 @@ export const AuthProvider = ({ children }) => {
 			return data.access_token
 		} catch (error) {
 			console.log('Error while refreshing token:', error.message)
+			setError(error.response ? String(error.response.status) : '500')
 			logout()
 			navigate('/auth')
 			return null

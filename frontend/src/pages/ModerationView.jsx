@@ -392,21 +392,21 @@ const CourseOverview = ({ content }) => {
 
 		const fetchContent = async () => {
 			try {
-				const res = await fetch(`${API}/sections/${sectionId}/content`, {
-					credentials: 'include',
+				const res = await axios.get(`${API}/sections/${sectionId}/content`, {
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
-				if (!res.ok) throw new Error('Ошибка при загрузке контента')
-				const data = await res.json()
 
+				const data = res.data
 				console.log('Fetched content data:', data)
 				setSelectedContent(data)
 			} catch (err) {
 				setSelectedContent(null)
 				console.error(err)
+				setError(err.response ? String(err.response.status) : '500')
 			}
 		}
 
@@ -473,27 +473,24 @@ const ModerationComponent = ({ moderationCourseId }) => {
 		setLoading(true)
 		const fetchCourses = async () => {
 			try {
-				const res = await fetch(
+				const res = await axios.get(
 					`${API}/courses/${moderationCourseId || courseId}`,
 					{
-						credentials: 'include',
+						withCredentials: true,
 						headers: {
 							'Content-Type': 'application/json',
 							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
 					}
 				)
-				const data = await res.json()
+				const data = res.data
 
-				if (!res.ok) {
-					setError(res.status.toString())
-				} else {
-					setError(null)
-					setCourseContent(data)
-					setLoading(false)
-				}
+				setError(null)
+				setCourseContent(data)
+				setLoading(false)
 			} catch (err) {
-				setError('500')
+				console.error(err)
+				setError(err.response ? String(err.response.status) : '500')
 			}
 		}
 

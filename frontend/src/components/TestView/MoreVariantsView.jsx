@@ -92,24 +92,30 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
+			try {
+				const res = await axios.get(`${API}/questions/${id}`, {
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				})
 
-			const res = await fetch(`${API}/questions/${id}`, {
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
-			const data = await res.json()
+				const data = res.data
+				console.log('question data:', data)
 
-			console.log('question data:', data)
-
-			setIsLoading(false)
-			setQuestion(data?.title)
-			setAnswers(data?.question_options || [])
-			setMedia(data?.media)
-			setSelected(data?.student_answer === null ? [] : data?.student_answer)
+				setQuestion(data?.title)
+				setAnswers(data?.question_options || [])
+				setMedia(data?.media)
+				setSelected(data?.student_answer === null ? [] : data?.student_answer)
+			} catch (error) {
+				console.error('Ошибка при загрузке теста:', error)
+				setError(error.response ? String(error.response.status) : '500')
+			} finally {
+				setIsLoading(false)
+			}
 		}
+
 		if (testId) fetchTest(testId)
 	}, [testId])
 

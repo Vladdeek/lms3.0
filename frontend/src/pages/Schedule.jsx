@@ -15,6 +15,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { API } from '../API'
 import { getCookie } from '../TOKEN'
 import Loader from '../components/Loader'
+import axios from 'axios'
 
 const ScheduleCard1 = ({
 	lessonIndex,
@@ -281,6 +282,7 @@ const Schedule2 = scheduleData => {
 const SchedulePage = () => {
 	const [scheduleData, setScheduleData] = useState({})
 	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState(null)
 
 	useEffect(() => {
 		console.log('Начинаем загрузку расписания для группы')
@@ -288,15 +290,14 @@ const SchedulePage = () => {
 			setLoading(true)
 			console.log('1) начало')
 			try {
-				const res = await fetch(`${API}/schedule-lessons`, {
-					method: 'GET',
-					credentials: 'include',
+				const res = await axios.get(`${API}/schedule-lessons`, {
+					withCredentials: true,
 					headers: {
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 
-				const data = await res.json()
+				const data = res.data
 
 				console.log('2) данные: ', data)
 
@@ -310,7 +311,6 @@ const SchedulePage = () => {
 						time_end: lesson.time_end.slice(0, 5), // 09:20
 						title: `${lesson.subject} (${lesson.lesson_type})`,
 						description: `${lesson.teacher_name}, ауд. ${lesson.auditory_name}`,
-						// можно добавить всё сырое, если нужно потом расширить
 						raw: lesson,
 					}))
 				})
@@ -318,12 +318,13 @@ const SchedulePage = () => {
 				console.log('3) нормализованные данные: ', normalized)
 
 				setScheduleData(normalized)
-
 				setLoading(false)
 
 				console.log('4) конец загрузки')
 			} catch (e) {
 				console.error(e)
+				setError(e.response ? String(e.response.status) : '500')
+				setLoading(false)
 			}
 		}
 

@@ -9,6 +9,7 @@ import DecryptedText from '../components/ReactBits/DecryptedText'
 import LiquidEther from '../components/ReactBits/LiquidEther'
 import TextType from '../components/ReactBits/TextType'
 import { getCookie, token } from '../TOKEN'
+import axios from 'axios'
 
 const Authorization = ({ isRegister = false }) => {
 	const [email, setEmail] = useState('')
@@ -41,20 +42,20 @@ const Authorization = ({ isRegister = false }) => {
 		const data = { email: email, password: password }
 
 		try {
-			const response = await fetch(`${API}/auth/jwt/login`, {
-				method: 'POST',
-				credentials: 'include',
+			const response = await axios.post(`${API}/auth/jwt/login`, data, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
-				body: JSON.stringify(data),
 			})
-			const result = await response.json()
+
+			const result = response.data
 			if (result?.detail === 'Пользователь не найден')
 				showMessageFunc(result?.detail)
 		} catch (error) {
 			console.error('Ошибка:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

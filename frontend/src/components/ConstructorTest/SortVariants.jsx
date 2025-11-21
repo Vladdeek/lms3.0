@@ -6,6 +6,7 @@ import { ScoreInput1 } from './ScoreInput'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
+import axios from 'axios'
 
 // Компонент для пары сопоставления
 const MatchPair = ({
@@ -104,35 +105,36 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const res = await fetch(`${API}/questions/${id}`, {
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-		})
-		const data = await res.json()
-		if (data) {
-			setIsLoading(false)
-			setQuestion(data?.title)
-			setScore(data?.score)
-			setMedia(data?.media)
-			setLeft_option(data?.answer_data?.left_options || ['', ''])
-			setRight_option(data?.answer_data?.right_options || ['', ''])
+		try {
+			const res = await axios.get(`${API}/questions/${id}`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
+			const data = res.data
+			if (data) {
+				setIsLoading(false)
+				setQuestion(data?.title)
+				setScore(data?.score)
+				setMedia(data?.media)
+				setLeft_option(data?.answer_data?.left_options || ['', ''])
+				setRight_option(data?.answer_data?.right_options || ['', ''])
+			}
+		} catch (error) {
+			console.error('Ошибка при загрузке теста:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
 	const handleCreate = async () => {
 		console.log('score in: ', score)
 		try {
-			const res = await fetch(`${API}/questions/test/${sectionId}`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const res = await axios.post(
+				`${API}/questions/test/${sectionId}`,
+				{
 					title: question,
 					question_type: 'matching',
 					media: media || {},
@@ -142,29 +144,30 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 						left_options: left_option,
 						right_options: right_option,
 					},
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			onChange?.(data?.id)
-
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
+
 	const handleEdit = async () => {
 		try {
-			const res = await fetch(`${API}/questions/${testId}`, {
-				method: 'PUT',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const res = await axios.put(
+				`${API}/questions/${testId}`,
+				{
 					title: question,
 					question_type: 'matching',
 					media: media || {},
@@ -174,15 +177,21 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 						left_options: left_option,
 						right_options: right_option,
 					},
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

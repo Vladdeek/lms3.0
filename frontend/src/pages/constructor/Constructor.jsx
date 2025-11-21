@@ -67,6 +67,7 @@ import CustomCodeBlock from '../../components/CustomCodeBlock'
 import { TextViewer } from '../../components/Viewer/TextViewer'
 import CustomAudioPlayer from '../../components/AudioPlayer'
 import { getCookie, token } from '../../TOKEN'
+import axios from 'axios'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -90,24 +91,27 @@ const CreateModuleButton = ({
 		onAddModule(tempModule)
 
 		try {
-			const res = await fetch(`${API}/modules/${courseId}`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({ name: title }),
-			})
-
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
+			const { data } = await axios.post(
+				`${API}/modules/${courseId}`,
+				{ name: title },
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
 			console.log(data)
 			onReplaceModule(tempId, data)
+			setError(null) // очищаем ошибку, если всё ок
 		} catch (error) {
 			console.error(error)
 			onRemoveModule(tempId)
+
+			// ловим статус или сетевую ошибку
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
@@ -203,28 +207,29 @@ const CreateLessonButton = ({
 		onAddLesson(moduleId, tempLesson)
 
 		try {
-			const res = await fetch(`${API}/sections/modules/${moduleId}`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const { data } = await axios.post(
+				`${API}/sections/modules/${moduleId}`,
+				{
 					title: lesson.title,
 					type: lesson.type,
 					content: {},
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
 			console.log(data)
-
 			onReplaceLesson(moduleId, tempId, data)
+			setError(null)
 		} catch (error) {
 			console.error(error)
 			onRemoveLesson(moduleId, tempId)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
@@ -366,22 +371,21 @@ const ModuleTitle = ({
 
 	const deleteModule = async id => {
 		try {
-			const response = await fetch(`${API}/modules/${id}`, {
-				method: 'DELETE',
-				credentials: 'include',
+			await axios.delete(`${API}/modules/${id}`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
-			if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`)
 			onRemoveModule(id)
+			setError(null)
 		} catch (err) {
 			console.error('Ошибка при удалении модуля:', err)
+			setError(err.response ? String(err.response.status) : '500')
 		}
 	}
-
 	return (
 		<div className='flex justify-between items-center'>
 			<div className='flex gap-3 text-[var(--middle)] items-center'>
@@ -441,19 +445,19 @@ const ModuleContent = ({
 
 	const deleteSection = async id => {
 		try {
-			const response = await fetch(`${API}/sections/${id}`, {
-				method: 'DELETE',
-				credentials: 'include',
+			await axios.delete(`${API}/sections/${id}`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
-			if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`)
 			onRemoveLesson(id)
+			setError(null)
 		} catch (err) {
 			console.error('Ошибка при удалении секции:', err)
+			setError(err.response ? String(err.response.status) : '500')
 		}
 	}
 
@@ -1177,27 +1181,27 @@ const Constructor = ({
 	}
 
 	useEffect(() => {
-		if (!section) {
-			return
-		}
+		if (!section) return
 
 		const fetchContent = async () => {
 			try {
 				setSelectedContent(null)
-				const res = await fetch(`${API}/sections/${section?.id}/content`, {
-					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				})
-				if (!res.ok) throw new Error('Ошибка при загрузке контента')
-				const data = await res.json()
+
+				const { data } = await axios.get(
+					`${API}/sections/${section?.id}/content`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'),
+						},
+					}
+				)
 
 				setSelectedContent(data)
 			} catch (err) {
 				setSelectedContent(null)
-				console.error(err)
+				console.error('Ошибка при загрузке контента:', err)
 			}
 		}
 

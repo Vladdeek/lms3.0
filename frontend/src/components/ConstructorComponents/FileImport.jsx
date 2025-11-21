@@ -16,6 +16,7 @@ import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { maxFilesSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
+import axios from 'axios'
 
 export const ConstructorFileInput = ({
 	onStatusChange,
@@ -52,23 +53,16 @@ export const ConstructorFileInput = ({
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
 			console.log('formdata: ', formData)
-			const response = await fetch(`${API}/files/`, {
-				method: 'POST',
-				credentials: 'include',
+
+			const response = await axios.post(`${API}/files/`, formData, {
+				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
-				body: formData,
 			})
 
-			if (!response.ok) {
-				const errorText = await response.text()
-				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
-			}
-
-			const result = await response.json()
-
-			console.log('respose: ', result)
+			const result = response.data
+			console.log('response: ', result)
 
 			setFiles(prevUrls => [
 				...prevUrls,
@@ -81,6 +75,7 @@ export const ConstructorFileInput = ({
 			])
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
+			setError(error.response ? String(error.response.status) : '500')
 			throw error
 		}
 	}

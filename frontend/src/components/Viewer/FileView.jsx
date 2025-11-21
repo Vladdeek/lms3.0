@@ -15,6 +15,7 @@ import {
 import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
+import axios from 'axios'
 
 export const FileView = ({ onStatusChange, Files }) => {
 	const inputId = useId()
@@ -77,35 +78,32 @@ export const FileView = ({ onStatusChange, Files }) => {
 		)
 
 		try {
-			const response = await fetch(`${API}/files/download`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const response = await axios.post(
+				`${API}/files/download`,
+				{
 					file_name: files[id]?.name.split('.')[0],
 					file_path: files[id]?.file_path.split(`${FILE_API}`)[1],
-				}),
-			})
-
-			if (!response.ok) {
-				throw new Error(`Ошибка HTTP: ${response.status}`)
-			}
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+					responseType: 'blob',
+				}
+			)
 
 			// Скачиваем файл
-			const blob = await response.blob()
-
+			const blob = response.data
 			const url = window.URL.createObjectURL(blob)
-
 			const a = document.createElement('a')
 
 			a.style.display = 'none'
 			a.href = url
 
 			// Получаем имя файла
-			const contentDisposition = response.headers.get('content-disposition')
+			const contentDisposition = response.headers['content-disposition']
 			let filename = 'file'
 
 			if (contentDisposition) {
@@ -124,6 +122,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 			document.body.removeChild(a)
 		} catch (err) {
 			console.error('Ошибка:', err)
+			setError(err.response ? String(err.response.status) : '500')
 		}
 	}
 

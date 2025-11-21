@@ -6,6 +6,7 @@ import { ScoreInput1 } from './ScoreInput'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
+import axios from 'axios'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -208,22 +209,27 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const res = await fetch(`${API}/questions/${id}`, {
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-		})
-		const data = await res.json()
+		try {
+			const res = await axios.get(`${API}/questions/${id}`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-		console.log(data)
+			const data = res.data
+			console.log(data)
 
-		if (data) setIsLoading(false)
-		setQuestion(data?.title)
-		setScore(data?.score)
-		setMedia(data?.media)
-		setAnswers(data?.question_options)
+			if (data) setIsLoading(false)
+			setQuestion(data?.title)
+			setScore(data?.score)
+			setMedia(data?.media)
+			setAnswers(data?.question_options)
+		} catch (error) {
+			console.error('Ошибка при загрузке теста:', error)
+			setError(error.response ? String(error.response.status) : '500')
+		}
 	}
 
 	const hasDuplicateAnswers = answers => {
@@ -240,14 +246,9 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		const correctAnswer = answers.find(answer => answer.correct)
 
 		try {
-			const res = await fetch(`${API}/questions/test/${sectionId}`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const res = await axios.post(
+				`${API}/questions/test/${sectionId}`,
+				{
 					question_type: 'single',
 					title: question,
 					score: Number(score),
@@ -260,19 +261,25 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 						option_code: answer?.option_code,
 					})),
 					media: media || [],
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			onChange?.(data?.id)
-
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
+
 	const handleEdit = async () => {
 		if (hasDuplicateAnswers(answers)) {
 			showMessageFunc()
@@ -282,14 +289,9 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		const correctAnswer = answers.find(answer => answer.correct)
 
 		try {
-			const res = await fetch(`${API}/questions/${questionId}`, {
-				method: 'PUT',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const res = await axios.put(
+				`${API}/questions/${questionId}`,
+				{
 					question_type: 'single',
 					title: question,
 					score: Number(score),
@@ -302,15 +304,21 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 						option_code: answer?.id,
 					})),
 					media: media || [],
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

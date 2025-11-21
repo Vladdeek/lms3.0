@@ -5,6 +5,7 @@ import { ScoreInput1, ScoreInput2 } from './ScoreInput'
 import Loader from '../Loader'
 import { API } from '../../API'
 import { getCookie, token } from '../../TOKEN'
+import axios from 'axios'
 
 const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	const [question, setQuestion] = useState('')
@@ -17,71 +18,79 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	}
 
 	const fetchTest = async id => {
-		const res = await fetch(`${API}/questions/${id}`, {
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-		})
-		const data = await res.json()
-		if (data) setIsLoading(false)
-
-		setQuestion(data?.title)
-		setScore(data?.score)
-		setMedia(data?.media)
-	}
-
-	const handleCreate = async () => {
 		try {
-			const res = await fetch(`${API}/questions/test/${sectionId}`, {
-				method: 'POST',
-				credentials: 'include',
+			const res = await axios.get(`${API}/questions/${id}`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
-				body: JSON.stringify({
+			})
+
+			const data = res.data
+			if (data) setIsLoading(false)
+
+			setQuestion(data?.title)
+			setScore(data?.score)
+			setMedia(data?.media)
+		} catch (error) {
+			console.error('Ошибка при загрузке теста:', error)
+			setError(error.response ? String(error.response.status) : '500')
+		}
+	}
+
+	const handleCreate = async () => {
+		try {
+			const res = await axios.post(
+				`${API}/questions/test/${sectionId}`,
+				{
 					question_type: 'open',
 					title: question,
 					score: Number(score),
 					media: media || {},
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			onChange?.(data?.id)
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
 	const handleEdit = async () => {
 		try {
-			const res = await fetch(`${API}/questions/${testId}`, {
-				method: 'PUT',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-				body: JSON.stringify({
+			const res = await axios.put(
+				`${API}/questions/${testId}`,
+				{
 					question_type: 'open',
 					title: question,
 					score: Number(score),
 					media: media || {},
-				}),
-			})
+				},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`)
-			const data = await res.json()
-
+			const data = res.data
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

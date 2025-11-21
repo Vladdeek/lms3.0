@@ -43,20 +43,27 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 	useEffect(() => {
 		const fetchTest = async id => {
 			setIsLoading(true)
+			try {
+				const res = await axios.get(`${API}/questions/${id}`, {
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				})
 
-			const res = await fetch(`${API}/questions/${id}`, {
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
-			const data = await res.json()
-			console.log(data)
-			setIsLoading(false)
-			setQuestion(data?.title)
-			setMedia(data?.media)
+				const data = res.data
+				console.log(data)
+				setQuestion(data?.title)
+				setMedia(data?.media)
+			} catch (error) {
+				console.error('Ошибка при загрузке теста:', error)
+				setError(error.response ? String(error.response.status) : '500')
+			} finally {
+				setIsLoading(false)
+			}
 		}
+
 		if (testId) fetchTest(testId)
 	}, [testId])
 

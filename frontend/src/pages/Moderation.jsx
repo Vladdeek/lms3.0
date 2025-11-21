@@ -9,6 +9,7 @@ import Loader from '../components/Loader'
 import { InputDefault, TextArea } from '../components/Inputs'
 import ModerationComponent from './ModerationView'
 import { getCookie, token } from '../TOKEN'
+import axios from 'axios'
 
 const ModerationCourseCard = ({
 	img,
@@ -93,25 +94,21 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 		const formData = new FormData()
 		formData.append('course_status', access ? 'approved' : 'pending')
 
-		const res = await fetch(`${API}/courses/${courseId}`, {
-			method: 'PUT',
-			credentials: 'include',
-			headers: {
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-			body: formData,
-		})
+		try {
+			const res = await axios.put(`${API}/courses/${courseId}`, formData, {
+				withCredentials: true,
+				headers: {
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-		const data = await res.json()
+			const data = res.data
 
-		onClose?.()
-
-		onChange?.('good')
-
-		if (!res.ok) {
-			console.error('Ошибка сервера:', res.status)
-			setError(res.status)
-			return
+			onClose?.()
+			onChange?.('good')
+		} catch (error) {
+			console.error('Ошибка сервера:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

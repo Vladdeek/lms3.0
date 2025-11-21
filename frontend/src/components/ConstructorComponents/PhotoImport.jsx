@@ -4,6 +4,7 @@ import { API, FILE_API } from '../../API'
 import { motion } from 'framer-motion'
 import { maxPhotoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
+import axios from 'axios'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
@@ -118,21 +119,15 @@ export const ConstructorPhotoInput = ({
 		try {
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
-			const response = await fetch(`${API}/files/`, {
-				method: 'POST',
-				credentials: 'include',
+
+			const response = await axios.post(`${API}/files/`, formData, {
+				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
-				body: formData,
 			})
 
-			if (!response.ok) {
-				const errorText = await response.text()
-				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
-			}
-
-			const result = await response.json()
+			const result = response.data
 
 			setImgUrl(prevUrls => [
 				...prevUrls,
@@ -144,6 +139,7 @@ export const ConstructorPhotoInput = ({
 			return result
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
+			setError(error.response ? String(error.response.status) : '500')
 			throw error
 		}
 	}
@@ -165,27 +161,29 @@ export const ConstructorPhotoInput = ({
 
 	const deletePhoto = async id => {
 		try {
-			const response = await fetch(`${API}/files/`, {
-				method: 'DELETE',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
+			const response = await axios.delete(
+				`${API}/files/`,
+				{
+					data: {
+						file_path: imgUrl[id]?.photoUrl
+							.split(`${FILE_API}`)[1]
+							.replace(/\\/g, '\\'),
+					},
 				},
-				body: JSON.stringify({
-					file_path: imgUrl[id]?.photoUrl
-						.split(`${FILE_API}`)[1]
-						.replace(/\\/g, '\\'),
-				}),
-			})
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			const result = await response.json()
-
+			const result = response.data
 			console.log(result)
-
-			if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`)
 		} catch (err) {
 			console.error('Ошибка при удалении фото:', err)
+			setError(err.response ? String(err.response.status) : '500')
 		}
 	}
 

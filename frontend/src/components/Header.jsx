@@ -215,26 +215,22 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 	const logout = async () => {
 		try {
-			const res = await fetch(`${API}/auth/jwt/logout`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
+			const res = await axios.post(
+				`${API}/auth/jwt/logout`,
+				{},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
-			if (!res.ok) {
-				const errorData = await res.json()
-				throw new Error(errorData?.detail || `Error ${res.status}`)
-			}
-
-			const data = await res.json()
-			console.log('Logout success:', data)
-
+			console.log('Logout success:', res.data)
 			navigate('/auth')
 		} catch (error) {
-			console.log('Logout error:', error.message)
+			setError(error.response ? String(error.response.status) : '500')
 			navigate('/auth')
 		}
 	}

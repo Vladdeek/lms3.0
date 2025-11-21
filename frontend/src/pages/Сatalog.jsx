@@ -211,30 +211,28 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 		)
 		img !== null && formData.append('image', img)
 
-		const res = await fetch(`${API}/webinar`, {
-			method: 'POST',
-			credentials: 'include',
-			headers: {
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-			body: formData,
-		})
+		try {
+			const res = await axios.post(`${API}/webinar`, formData, {
+				withCredentials: true,
+				headers: {
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-		if (!res.ok) {
-			console.error('Ошибка сервера:', res.status)
-			return
+			const data = res.data
+
+			onCreate(data)
+			onClose()
+			setTitle('')
+			setUrl('')
+			setDate('')
+			setSTime('')
+			setETime('')
+			setImg(null)
+		} catch (error) {
+			console.error('Ошибка сервера:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
-
-		const data = await res.json()
-
-		onCreate(data)
-		onClose()
-		setTitle('')
-		setUrl('')
-		setDate('')
-		setSTime('')
-		setETime('')
-		setImg(null)
 	}
 
 	return (

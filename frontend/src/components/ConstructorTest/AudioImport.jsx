@@ -3,6 +3,7 @@ import { useEffect, useId, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 import { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
+import axios from 'axios'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -33,21 +34,14 @@ export const AudioInput = ({
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
 
-			const response = await fetch(`${API}/files/`, {
-				method: 'POST',
-				credentials: 'include',
+			const response = await axios.post(`${API}/files/`, formData, {
+				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
-				body: formData,
 			})
 
-			if (!response.ok) {
-				const errorText = await response.text()
-				throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`)
-			}
-
-			const result = await response.json()
+			const result = response.data
 
 			setAudioUrl({
 				audioUrl: `${FILE_API}${result?.file_path}`,
@@ -58,7 +52,7 @@ export const AudioInput = ({
 			return result
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
-
+			setError(error.response ? String(error.response.status) : '500')
 			throw error
 		}
 	}
