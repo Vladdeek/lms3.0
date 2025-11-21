@@ -56,6 +56,9 @@ const Authorization = ({ isRegister = false }) => {
 			const result = response.data
 			if (result?.detail === 'Пользователь не найден')
 				showMessageFunc(result?.detail)
+			else {
+				navigate('/')
+			}
 		} catch (error) {
 			console.error('Ошибка:', error)
 			setError(error.response ? String(error.response.status) : '500')
