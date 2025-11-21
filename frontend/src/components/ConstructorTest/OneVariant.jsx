@@ -3,11 +3,10 @@ import { Check, X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
-import { setGlobalError } from '../Errors'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -211,7 +210,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 
 	const fetchTest = async id => {
 		try {
-			const res = await axios.get(`${API}/questions/${id}`, {
+			const res = await api.get(`${API}/questions/${id}`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -229,7 +228,6 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			setAnswers(data?.question_options)
 		} catch (error) {
 			console.error('Ошибка при загрузке теста:', error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -247,7 +245,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		const correctAnswer = answers.find(answer => answer.correct)
 
 		try {
-			const res = await axios.post(
+			const res = await api.post(
 				`${API}/questions/test/${sectionId}`,
 				{
 					question_type: 'single',
@@ -277,7 +275,6 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -290,7 +287,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		const correctAnswer = answers.find(answer => answer.correct)
 
 		try {
-			const res = await axios.put(
+			const res = await api.put(
 				`${API}/questions/${questionId}`,
 				{
 					question_type: 'single',
@@ -319,7 +316,6 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 

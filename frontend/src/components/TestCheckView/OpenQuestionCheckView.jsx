@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Check, X } from 'lucide-react'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import FormulaView from '../Viewer/FormulaView'
 import CustomAudioPlayer from '../AudioPlayer'
 import Loader from '../Loader'

@@ -12,11 +12,10 @@ import {
 import { ru } from 'date-fns/locale'
 import DirectionOfTraining from '../components/DirectionOfTraining'
 import { useEffect, useMemo, useState } from 'react'
-import { API } from '../API'
+import api, { API } from '../API'
 import { getCookie } from '../TOKEN'
 import Loader from '../components/Loader'
 import axios from 'axios'
-import { setGlobalError } from '../components/Errors'
 
 const ScheduleCard1 = ({
 	lessonIndex,
@@ -291,7 +290,7 @@ const SchedulePage = () => {
 			setLoading(true)
 			console.log('1) начало')
 			try {
-				const res = await axios.get(`${API}/schedule-lessons`, {
+				const res = await api.get(`${API}/schedule-lessons`, {
 					withCredentials: true,
 					headers: {
 						'X-CSRF-TOKEN': getCookie('csrftoken'),

@@ -13,10 +13,9 @@ import {
 	X,
 } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
-import { API, FILE_API } from '../../API'
+import api, { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { setGlobalError } from '../Errors'
 
 export const FileView = ({ onStatusChange, Files }) => {
 	const inputId = useId()
@@ -79,7 +78,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 		)
 
 		try {
-			const response = await axios.post(
+			const response = await api.post(
 				`${API}/files/download`,
 				{
 					file_name: files[id]?.name.split('.')[0],

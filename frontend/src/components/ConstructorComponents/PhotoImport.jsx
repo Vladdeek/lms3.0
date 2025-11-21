@@ -1,11 +1,10 @@
 import { ImagePlus, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
-import { API, FILE_API } from '../../API'
+import api, { API, FILE_API } from '../../API'
 import { motion } from 'framer-motion'
 import { maxPhotoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { setGlobalError } from '../Errors'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
@@ -121,7 +120,7 @@ export const ConstructorPhotoInput = ({
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
 
-			const response = await axios.post(`${API}/files/`, formData, {
+			const response = await api.post(`${API}/files/`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -140,7 +139,7 @@ export const ConstructorPhotoInput = ({
 			return result
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
-			setGlobalError(error.response?.status || '500')
+
 			throw error
 		}
 	}
@@ -162,7 +161,7 @@ export const ConstructorPhotoInput = ({
 
 	const deletePhoto = async id => {
 		try {
-			const response = await axios.delete(
+			const response = await api.delete(
 				`${API}/files/`,
 				{
 					data: {

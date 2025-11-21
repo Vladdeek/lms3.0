@@ -23,7 +23,7 @@ import {
 } from '../../components/Inputs'
 import QRCode from '../../components/QrCode'
 import { useParams } from 'react-router-dom'
-import { API, FILE_API } from '../../API'
+import api, { API, FILE_API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { is, se } from 'date-fns/locale'
@@ -60,7 +60,7 @@ const SettingsButton = ({
 
 	async function deleteCourse() {
 		try {
-			const response = await axios.delete(`${API}/courses/delete/${courseId}`, {
+			const response = await api.delete(`${API}/courses/delete/${courseId}`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ const SettingsButton = ({
 		console.log('formData: ', [...formData.entries()])
 
 		try {
-			const res = await axios.put(`${API}/courses/${courseId}`, formData, {
+			const res = await api.put(`${API}/courses/${courseId}`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -206,7 +206,7 @@ const DateButton = ({ locked, access, sectionId }) => {
 			// меняем состояние локально
 			setLocked(prev => !prev)
 
-			const res = await axios.put(
+			const res = await api.put(
 				`${API}/sections/${sectionId}/is-locked`,
 				{ locked: Locked },
 				{
@@ -364,7 +364,7 @@ const ConstructorPage = ({ role }) => {
 	useEffect(() => {
 		const fetchCourses = async () => {
 			try {
-				const res = await axios.get(`${API}/courses/${courseId}`, {
+				const res = await api.get(`${API}/courses/${courseId}`, {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
@@ -476,7 +476,7 @@ const ConstructorPage = ({ role }) => {
 			}
 
 			try {
-				const res = await axios.get(
+				const res = await api.get(
 					`${API}/sections/${selectedContentId}/is-locked`,
 					{
 						withCredentials: true,
@@ -514,7 +514,7 @@ const ConstructorPage = ({ role }) => {
 
 		try {
 			if (selected === 0) {
-				const { data } = await axios.put(
+				const { data } = await api.put(
 					`${API}/sections/${sectionId}/content`,
 					content,
 					{
@@ -531,7 +531,7 @@ const ConstructorPage = ({ role }) => {
 				showMassageFunc('good')
 			} else if (selected === 1) {
 				const addStudents = false
-				const { data } = await axios.put(
+				const { data } = await api.put(
 					`${API}/courses/students/${courseId}?add_student=${addStudents}`,
 					{ groups: accessedGroups },
 					{
@@ -557,7 +557,7 @@ const ConstructorPage = ({ role }) => {
 			const formData = new FormData()
 			formData.append('course_status', 'pending')
 
-			const { data } = await axios.put(`${API}/courses/${courseId}`, formData, {
+			const { data } = await api.put(`${API}/courses/${courseId}`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),

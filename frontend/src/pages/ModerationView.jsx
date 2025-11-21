@@ -42,8 +42,8 @@ import SortVariantView from '../components/TestView/SortVariantsView'
 import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { TextViewer } from '../components/Viewer/TextViewer'
 import { useParams } from 'react-router-dom'
-import { API } from '../API'
-import { setGlobalError } from '../components/Errors'
+import api, { API } from '../API'
+
 import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
@@ -54,6 +54,7 @@ import VariantModerationView from '../components/TestModerationView/VariantsMode
 import { getCookie, token } from '../TOKEN'
 import SortVariantModerationView from '../components/TestModerationView/SortVariantsModertionView'
 import OpenQuestionModerationView from '../components/TestModerationView/OpenQuestionModertionView'
+import { setGlobalError } from '../components/Errors'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -392,7 +393,7 @@ const CourseOverview = ({ content }) => {
 
 		const fetchContent = async () => {
 			try {
-				const res = await axios.get(`${API}/sections/${sectionId}/content`, {
+				const res = await api.get(`${API}/sections/${sectionId}/content`, {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
@@ -471,7 +472,7 @@ const ModerationComponent = ({ moderationCourseId }) => {
 		setLoading(true)
 		const fetchCourses = async () => {
 			try {
-				const res = await axios.get(
+				const res = await api.get(
 					`${API}/courses/${moderationCourseId || courseId}`,
 					{
 						withCredentials: true,

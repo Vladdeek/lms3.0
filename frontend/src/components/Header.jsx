@@ -18,12 +18,13 @@ import {
 } from 'lucide-react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
-import { API, FILE_API } from '../API'
+import api, { API, FILE_API } from '../API'
 import axios from 'axios'
 import Loader, { BlockLoader } from './Loader'
-import { setGlobalError } from './Errors'
+
 import Moderation from '../pages/Moderation'
 import { getCookie, token } from '../TOKEN'
+import { setGlobalError } from './Errors'
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -179,8 +180,6 @@ const MobileHeaderLink = ({ title, icon: Icon, to }) => {
 }
 
 export const Header = ({ links = [], UserInfo = null }) => {
-	console.log('userInfo: ', UserInfo)
-
 	const isDashboard = location?.pathname === '/dashboard'
 	const isStudent = UserInfo?.current_user_role === 'student'
 	const Wrapper = isStudent ? NavLink : 'div'
@@ -214,7 +213,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 	const logout = async () => {
 		try {
-			const res = await axios.post(
+			const res = await api.post(
 				`${API}/auth/jwt/logout`,
 				{},
 				{
@@ -226,10 +225,8 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				}
 			)
 
-			console.log('Logout success:', res.data)
 			navigate('/auth')
 		} catch (error) {
-			setGlobalError(error.response?.status || '500')
 			navigate('/auth')
 		}
 	}
@@ -245,7 +242,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 		setShowSelectRoleModal(true)
 
 		try {
-			const res = await axios.get(`${API}/user/active-profiles`, {
+			const res = await api.get(`${API}/user/active-profiles`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -253,29 +250,18 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				},
 			})
 
-			console.log('res: ', res.data)
-
 			setUserRolesLoading(false)
 			setUserRoles(res.data)
 		} catch (error) {
 			console.log(error) // 401, 403, 422, 500 — что угодно
-
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
 	const putUserActiveRoles = async (name, id) => {
-		console.log(
-			'input data!!! ',
-			'\nprofile_name: ',
-			name,
-			'\nprofile_id: ',
-			id
-		)
 		setShowSelectRoleModal(false)
 
 		try {
-			const res = await axios.put(
+			const res = await api.put(
 				`${API}/user/active-profile`,
 				{ profile_name: name, profile_id: id },
 				{
@@ -286,7 +272,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					},
 				}
 			)
-			console.log('res data: ', res.data)
+
 			name === 'moderator'
 				? navigate('/moderation')
 				: name === 'student'
@@ -295,8 +281,6 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			res.data && window.location.reload()
 		} catch (error) {
 			console.log(error) // 401, 403, 422, 500 — что угодно
-
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 

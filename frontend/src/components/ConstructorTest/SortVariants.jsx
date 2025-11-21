@@ -3,11 +3,10 @@ import { X, Plus } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
-import { setGlobalError } from '../Errors'
 
 // Компонент для пары сопоставления
 const MatchPair = ({
@@ -107,7 +106,7 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 
 	const fetchTest = async id => {
 		try {
-			const res = await axios.get(`${API}/questions/${id}`, {
+			const res = await api.get(`${API}/questions/${id}`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -126,14 +125,13 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			}
 		} catch (error) {
 			console.error('Ошибка при загрузке теста:', error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
 	const handleCreate = async () => {
 		console.log('score in: ', score)
 		try {
-			const res = await axios.post(
+			const res = await api.post(
 				`${API}/questions/test/${sectionId}`,
 				{
 					title: question,
@@ -160,13 +158,12 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
 	const handleEdit = async () => {
 		try {
-			const res = await axios.put(
+			const res = await api.put(
 				`${API}/questions/${testId}`,
 				{
 					title: question,
@@ -192,7 +189,6 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 

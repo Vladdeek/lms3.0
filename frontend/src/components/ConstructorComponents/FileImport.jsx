@@ -13,11 +13,10 @@ import {
 	X,
 } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
-import { API, FILE_API } from '../../API'
+import api, { API, FILE_API } from '../../API'
 import { maxFilesSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { setGlobalError } from '../Errors'
 
 export const ConstructorFileInput = ({
 	onStatusChange,
@@ -55,7 +54,7 @@ export const ConstructorFileInput = ({
 			formData.append('file', fileToUpload)
 			console.log('formdata: ', formData)
 
-			const response = await axios.post(`${API}/files/`, formData, {
+			const response = await api.post(`${API}/files/`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -76,7 +75,7 @@ export const ConstructorFileInput = ({
 			])
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
-			setGlobalError(error.response?.status || '500')
+
 			throw error
 		}
 	}

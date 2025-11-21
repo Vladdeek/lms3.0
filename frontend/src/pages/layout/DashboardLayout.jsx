@@ -24,7 +24,7 @@ import Loader from '../../components/Loader'
 import { motion } from 'framer-motion'
 
 import axios from 'axios'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import { getCookie } from '../../TOKEN'
 
 export default function DashboardLayout({ onChange }) {
@@ -102,7 +102,7 @@ export default function DashboardLayout({ onChange }) {
 
 	const fetchUser = async () => {
 		try {
-			const res = await axios.get(`${API}/users/me`, {
+			const res = await api.get(`${API}/users/me`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -113,9 +113,7 @@ export default function DashboardLayout({ onChange }) {
 			setUserInfo(res.data)
 			localStorage.setItem('role', res.data.current_user_role)
 		} catch (error) {
-			error.response.status === 401
-				? navigate('/auth')
-				: setGlobalError(error.response?.status || '500')
+			console.error('Ошибка при получении данных пользователя:', error)
 		}
 	}
 

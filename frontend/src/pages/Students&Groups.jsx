@@ -18,7 +18,7 @@ import { setSelection } from 'slate'
 import { se } from 'date-fns/locale'
 import { setGlobalError } from '../components/Errors'
 import axios from 'axios'
-import { API, FILE_API } from '../API'
+import api, { API, FILE_API } from '../API'
 import Loader from '../components/Loader'
 import MoreVariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
@@ -394,7 +394,7 @@ const StudentsAndGroups = () => {
 
 	const fetchCourses = async () => {
 		try {
-			const res = await axios.get(`${API}/courses/`, {
+			const res = await api.get(`${API}/courses/`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -413,7 +413,7 @@ const StudentsAndGroups = () => {
 	const fetchGroups = async () => {
 		const id = courses[selectedCourse]?.id
 		try {
-			const res = await axios.get(
+			const res = await api.get(
 				`${API}/courses/student-group/linked/?course_id=${id}`,
 				{
 					withCredentials: true,
@@ -428,14 +428,13 @@ const StudentsAndGroups = () => {
 			setGroups(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
 	const fetchStudents = async () => {
 		const id = groups[selectedGroupe].id
 		try {
-			const res = await axios.get(`${API}/student-group/${id}/students`, {
+			const res = await api.get(`${API}/student-group/${id}/students`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -447,7 +446,6 @@ const StudentsAndGroups = () => {
 			setStudents(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -455,7 +453,7 @@ const StudentsAndGroups = () => {
 		const studentId = students[selectedStudent]?.id
 		const courseId = courses[selectedCourse]?.id
 		try {
-			const res = await axios.get(
+			const res = await api.get(
 				`${API}/student-profile/${studentId}/assignments/?course_id=${courseId}`,
 				{
 					withCredentials: true,
@@ -470,7 +468,6 @@ const StudentsAndGroups = () => {
 			setTasks(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -479,7 +476,7 @@ const StudentsAndGroups = () => {
 		const assignmentId = tasks[selectedTask]?.assignment_id
 
 		try {
-			const res = await axios.get(
+			const res = await api.get(
 				`${API}/student-profile/${studentId}/assignment/result?assignment_id=${assignmentId}`,
 				{
 					withCredentials: true,
@@ -494,7 +491,6 @@ const StudentsAndGroups = () => {
 			setLessons(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 

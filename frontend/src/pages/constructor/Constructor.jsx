@@ -52,7 +52,7 @@ import OneVariant from '../../components/ConstructorTest/OneVariant'
 import MoreVariant from '../../components/ConstructorTest/MoreVariants'
 import SortVariants from '../../components/ConstructorTest/SortVariants'
 import OpenQuestion from '../../components/ConstructorTest/OpenQuestion'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Loader from '../../components/Loader'
@@ -92,7 +92,7 @@ const CreateModuleButton = ({
 		onAddModule(tempModule)
 
 		try {
-			const { data } = await axios.post(
+			const { data } = await api.post(
 				`${API}/modules/${courseId}`,
 				{ name: title },
 				{
@@ -112,7 +112,6 @@ const CreateModuleButton = ({
 			onRemoveModule(tempId)
 
 			// ловим статус или сетевую ошибку
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -208,7 +207,7 @@ const CreateLessonButton = ({
 		onAddLesson(moduleId, tempLesson)
 
 		try {
-			const { data } = await axios.post(
+			const { data } = await api.post(
 				`${API}/sections/modules/${moduleId}`,
 				{
 					title: lesson.title,
@@ -230,7 +229,6 @@ const CreateLessonButton = ({
 		} catch (error) {
 			console.error(error)
 			onRemoveLesson(moduleId, tempId)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -372,7 +370,7 @@ const ModuleTitle = ({
 
 	const deleteModule = async id => {
 		try {
-			await axios.delete(`${API}/modules/${id}`, {
+			await api.delete(`${API}/modules/${id}`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -446,7 +444,7 @@ const ModuleContent = ({
 
 	const deleteSection = async id => {
 		try {
-			await axios.delete(`${API}/sections/${id}`, {
+			await api.delete(`${API}/sections/${id}`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -1188,7 +1186,7 @@ const Constructor = ({
 			try {
 				setSelectedContent(null)
 
-				const { data } = await axios.get(
+				const { data } = await api.get(
 					`${API}/sections/${section?.id}/content`,
 					{
 						withCredentials: true,

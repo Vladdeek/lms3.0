@@ -31,7 +31,7 @@ import { useScroll } from 'framer-motion'
 import Authorization from './pages/Authorization'
 
 import axios from 'axios'
-import { API } from './API'
+import api, { API } from './API'
 import Moderation from './pages/Moderation'
 import { ErrorProvider } from './components/Errors'
 

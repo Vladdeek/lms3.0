@@ -4,7 +4,7 @@ import { SearchInput } from '../../components/Inputs'
 import { useEffect, useRef, useState } from 'react'
 import { setGlobalError } from '../../components/Errors'
 import axios from 'axios'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Loader, { AltLoader } from '../../components/Loader'
@@ -196,7 +196,7 @@ const AccessManagement = ({ onChange }) => {
 	const fetchUnlinkedGroups = async term => {
 		try {
 			setIsLoading(isSearchLoading !== null ? null : 0)
-			const res = await axios.get(
+			const res = await api.get(
 				`${API}/courses/student-group/unlinked/?course_id=${courseId}${
 					term?.length ? `&term=${term}` : ''
 				}`,
@@ -218,13 +218,12 @@ const AccessManagement = ({ onChange }) => {
 			setIsSearchLoading(null)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 	const fetchLinkedGroups = async term => {
 		try {
 			setIsLoading(isSearchLoading !== null ? null : 1)
-			const res = await axios.get(
+			const res = await api.get(
 				`${API}/courses/student-group/linked/?course_id=${courseId}${
 					term?.length ? `&term=${term}` : ''
 				}`,
@@ -246,7 +245,6 @@ const AccessManagement = ({ onChange }) => {
 			setIsSearchLoading(null)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -256,7 +254,7 @@ const AccessManagement = ({ onChange }) => {
 
 	const handleAdd = async number => {
 		try {
-			await axios.post(`${API}/courses/students/${courseId}`, {
+			await api.post(`${API}/courses/students/${courseId}`, {
 				student_group_id: number,
 
 				withCredentials: true,
@@ -272,12 +270,11 @@ const AccessManagement = ({ onChange }) => {
 			setGlobalError(null)
 		} catch (error) {
 			console.error(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 	const handleRemove = async number => {
 		try {
-			await axios.delete(`${API}/courses/students/${courseId}`, {
+			await api.delete(`${API}/courses/students/${courseId}`, {
 				data: {
 					student_group_id: number,
 				},
@@ -294,7 +291,6 @@ const AccessManagement = ({ onChange }) => {
 			setGlobalError(null)
 		} catch (error) {
 			console.error(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 

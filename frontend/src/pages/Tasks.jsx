@@ -17,7 +17,7 @@ import {
 	TextArea,
 } from '../components/Inputs'
 import { motion } from 'framer-motion'
-import { API, FILE_API } from '../API'
+import api, { API, FILE_API } from '../API'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import TiltedCard from '../components/ReactBits/TiledCard'
 import { setGlobalError } from '../components/Errors'
@@ -74,7 +74,7 @@ const CatalogS = ({ role }) => {
 
 	const fetchCourses = async () => {
 		try {
-			const res = await axios.get(`${API}/courses/`, {
+			const res = await api.get(`${API}/courses/`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -86,12 +86,11 @@ const CatalogS = ({ role }) => {
 			setCourses(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 	const fetchWebinars = async () => {
 		try {
-			const res = await axios.get(
+			const res = await api.get(
 				`${API}/webinar${
 					selectedFilters !== 'all' ? `/?webinar_status=${selectedFilters}` : ''
 				}`,
@@ -108,7 +107,6 @@ const CatalogS = ({ role }) => {
 			setWebinars(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 	useEffect(() => {

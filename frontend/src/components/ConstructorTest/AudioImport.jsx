@@ -1,10 +1,9 @@
 import { FileAudio, Trash2, Upload, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
-import { API, FILE_API } from '../../API'
+import api, { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { setGlobalError } from '../Errors'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -35,7 +34,7 @@ export const AudioInput = ({
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
 
-			const response = await axios.post(`${API}/files/`, formData, {
+			const response = await api.post(`${API}/files/`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -53,7 +52,7 @@ export const AudioInput = ({
 			return result
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
-			setGlobalError(error.response?.status || '500')
+
 			throw error
 		}
 	}

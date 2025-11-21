@@ -2,10 +2,9 @@ import { Check, X } from 'lucide-react'
 import { useState, useEffect, useMemo, use } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 import FormulaView from '../Viewer/FormulaView'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
-import { setGlobalError } from '../Errors'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -94,7 +93,7 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 		const fetchTest = async id => {
 			setIsLoading(true)
 			try {
-				const res = await axios.get(`${API}/questions/${id}`, {
+				const res = await api.get(`${API}/questions/${id}`, {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
@@ -111,7 +110,6 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 				setSelected(data?.student_answer === null ? [] : data?.student_answer)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
-				setGlobalError(error.response?.status || '500')
 			} finally {
 				setIsLoading(false)
 			}

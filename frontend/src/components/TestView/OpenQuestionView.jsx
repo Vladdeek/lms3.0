@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Check, X } from 'lucide-react'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import FormulaView from '../Viewer/FormulaView'
 import CustomAudioPlayer from '../AudioPlayer'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
-import { setGlobalError } from '../Errors'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -45,7 +44,7 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 		const fetchTest = async id => {
 			setIsLoading(true)
 			try {
-				const res = await axios.get(`${API}/questions/${id}`, {
+				const res = await api.get(`${API}/questions/${id}`, {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
@@ -59,7 +58,6 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 				setMedia(data?.media)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
-				setGlobalError(error.response?.status || '500')
 			} finally {
 				setIsLoading(false)
 			}

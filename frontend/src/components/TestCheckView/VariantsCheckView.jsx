@@ -2,7 +2,7 @@ import { Check, X } from 'lucide-react'
 import { useState, useEffect, useMemo, use } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 import FormulaView from '../Viewer/FormulaView'
-import { API } from '../../API'
+import api, { API } from '../../API'
 import Loader from '../Loader'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {

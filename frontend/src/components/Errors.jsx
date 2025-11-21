@@ -83,17 +83,22 @@ export const ErrorProvider = ({ children }) => {
 	useEffect(() => {
 		if (
 			error !== null &&
-			error !== '500' &&
-			error !== '403' &&
-			error !== '404'
+			String(error) !== '500' &&
+			String(error) !== '403' &&
+			String(error) !== '404'
 		) {
-			setShowError(true)
-			const timer = setTimeout(() => {
-				setShowError(false)
-				setError(null)
-			}, 30000)
+			if (String(error) === '401') {
+				console.log('401 error detected, navigating to /auth')
+				navigate('/auth')
+			} else {
+				setShowError(true)
+				const timer = setTimeout(() => {
+					setShowError(false)
+					setError(null)
+				}, 30000)
 
-			return () => clearTimeout(timer)
+				return () => clearTimeout(timer)
+			}
 		}
 	}, [error])
 
@@ -102,6 +107,7 @@ export const ErrorProvider = ({ children }) => {
 
 	const ErrorsDescription = {
 		400: 'Некорректный запрос. Проверьте правильность введённых данных.',
+		401: 'Unauthorized. Пожалуйста, войдите в систему.',
 		409: 'Конфликт. Данные уже существуют или нарушены ограничения.',
 		422: 'Неверный формат входных данных. Проверьте корректность передаваемых параметров.',
 		429: 'Слишком много запросов. Попробуйте позже.',
@@ -109,18 +115,6 @@ export const ErrorProvider = ({ children }) => {
 		503: 'Сервис временно недоступен. Попробуйте позже.',
 		504: 'Превышено время ожидания ответа от сервера.',
 	}
-
-	console.log('error: ', error)
-
-	useEffect(() => {
-		const handle401 = async () => {
-			if (error === '401') {
-				navigate('/auth')
-			}
-		}
-
-		handle401()
-	}, [error])
 
 	useEffect(() => {
 		if (error) {

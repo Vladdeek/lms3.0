@@ -18,12 +18,13 @@ import {
 	SearchInput,
 	TextArea,
 } from '../components/Inputs'
-import { API, FILE_API } from '../API'
+import api, { API, FILE_API } from '../API'
 import { motion } from 'framer-motion'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { setGlobalError } from '../components/Errors'
+
 import axios from 'axios'
 import { getCookie, token } from '../TOKEN'
+import { setGlobalError } from '../components/Errors'
 
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
@@ -64,7 +65,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			formData.append('teacher_profile_id', teacher_profile_id)
 			if (img !== null) formData.append('image', img)
 
-			const res = await axios.post(`${API}/courses`, formData, {
+			const res = await api.post(`${API}/courses`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -212,7 +213,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 		img !== null && formData.append('image', img)
 
 		try {
-			const res = await axios.post(`${API}/webinar`, formData, {
+			const res = await api.post(`${API}/webinar`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -231,7 +232,6 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 			setImg(null)
 		} catch (error) {
 			console.error('Ошибка сервера:', error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -426,7 +426,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 
 	const fetchCourses = async () => {
 		try {
-			const res = await axios.get(`${API}/courses/`, {
+			const res = await api.get(`${API}/courses/`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -438,13 +438,12 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			setCourses(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
 	const fetchAllCourses = async () => {
 		try {
-			const res = await axios.get(`${API}/courses/all`, {
+			const res = await api.get(`${API}/courses/all`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -457,13 +456,12 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			setCourses(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
 	const fetchWebinars = async () => {
 		try {
-			const res = await axios.get(
+			const res = await api.get(
 				`${API}/webinar${
 					selectedFilters !== 'all' ? `/?webinar_status=${selectedFilters}` : ''
 				}`,
@@ -480,7 +478,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			setWebinars(res.data)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 

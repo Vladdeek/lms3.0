@@ -3,14 +3,13 @@ import { InputAuth, InputDefault } from '../components/Inputs'
 import { Link } from '../components/Links'
 import { Button, SubmitButton } from '../components/Buttons'
 import { useContext, useEffect, useState } from 'react'
-import { API } from '../API'
+import api, { API } from '../API'
 
 import DecryptedText from '../components/ReactBits/DecryptedText'
 import LiquidEther from '../components/ReactBits/LiquidEther'
 import TextType from '../components/ReactBits/TextType'
 import { getCookie, token } from '../TOKEN'
 import axios from 'axios'
-import { setGlobalError } from '../components/Errors'
 
 const Authorization = ({ isRegister = false }) => {
 	const [email, setEmail] = useState('')
@@ -43,7 +42,7 @@ const Authorization = ({ isRegister = false }) => {
 		const data = { email: email, password: password }
 
 		try {
-			const response = await axios.post(`${API}/auth/jwt/login`, data, {
+			const response = await api.post(`${API}/auth/jwt/login`, data, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -59,7 +58,6 @@ const Authorization = ({ isRegister = false }) => {
 			}
 		} catch (error) {
 			console.error('Ошибка:', error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 

@@ -1,5 +1,5 @@
 // import { createContext, useState, useEffect } from 'react'
-// import { API } from '../API'
+// import api, { API } from '../API'
 // import { useNavigate } from 'react-router-dom'
 // import { getCookie } from '../TOKEN'
 // import axios from 'axios'
@@ -43,7 +43,7 @@
 // 	const refreshAccessToken = async () => {
 // 		console.log('refresh')
 // 		try {
-// 			const res = await axios.post(
+// 			const res = await api.post(
 // 				`${API}/auth/jwt/refresh`,
 // 				{},
 // 				{

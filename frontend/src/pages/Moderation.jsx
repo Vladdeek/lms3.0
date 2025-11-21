@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { CircleQuestionMark, FileInput, ImageOff, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { API, FILE_API } from '../API'
+import api, { API, FILE_API } from '../API'
 import { setGlobalError } from '../components/Errors'
 import CoursePage from './CoursePage'
 import { motion } from 'framer-motion'
@@ -94,7 +94,7 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 		formData.append('course_status', access ? 'approved' : 'pending')
 
 		try {
-			const res = await axios.put(`${API}/courses/${courseId}`, formData, {
+			const res = await api.put(`${API}/courses/${courseId}`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
@@ -107,7 +107,6 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 			onChange?.('good')
 		} catch (error) {
 			console.error('Ошибка сервера:', error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -174,7 +173,7 @@ const Moderation = ({ role }) => {
 
 	const fetchAllCourses = async () => {
 		try {
-			const res = await axios.get(`${API}/courses/all/pending`, {
+			const res = await api.get(`${API}/courses/all/pending`, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
@@ -191,7 +190,6 @@ const Moderation = ({ role }) => {
 			setActive(null)
 		} catch (error) {
 			console.log(error)
-			setGlobalError(error.response?.status || '500')
 		}
 	}
 
