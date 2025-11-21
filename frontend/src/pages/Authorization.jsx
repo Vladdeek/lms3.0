@@ -10,6 +10,9 @@ import LiquidEther from '../components/ReactBits/LiquidEther'
 import TextType from '../components/ReactBits/TextType'
 import { getCookie, token } from '../TOKEN'
 import axios from 'axios'
+import { useError } from '../components/Errors'
+
+const { setError } = useError()
 
 const Authorization = ({ isRegister = false }) => {
 	const [email, setEmail] = useState('')

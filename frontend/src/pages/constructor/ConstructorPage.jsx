@@ -31,6 +31,8 @@ import { Forbidden403, useError } from '../../components/Errors'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
 
+const { setError } = useError()
+
 const SettingsButton = ({
 	courseId,
 	titleValue,
@@ -40,8 +42,6 @@ const SettingsButton = ({
 }) => {
 	const [isOpen, setIsOpen] = useState(true)
 	const navigate = useNavigate()
-
-	const { setError } = useError()
 
 	const [Title, setTitle] = useState(titleValue || '')
 	const [Description, setDescription] = useState(descriptionValue || '')
@@ -203,8 +203,6 @@ const DateButton = ({ locked, access, sectionId }) => {
 		locked && setLocked(locked)
 	}, [locked])
 
-	const { setError } = useError()
-
 	const putLocked = async () => {
 		try {
 			// меняем состояние локально
@@ -364,8 +362,6 @@ const ConstructorPage = ({ role }) => {
 
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
-
-	const { setError } = useError()
 
 	useEffect(() => {
 		const fetchCourses = async () => {

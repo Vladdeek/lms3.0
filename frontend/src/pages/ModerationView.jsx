@@ -55,6 +55,8 @@ import { getCookie, token } from '../TOKEN'
 import SortVariantModerationView from '../components/TestModerationView/SortVariantsModertionView'
 import OpenQuestionModerationView from '../components/TestModerationView/OpenQuestionModertionView'
 
+const { setError } = useError()
+
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
 		{
@@ -464,8 +466,6 @@ const CourseOverview = ({ content }) => {
 const ModerationComponent = ({ moderationCourseId }) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
-
-	const { setError } = useError()
 
 	const [loading, setLoading] = useState(false)
 

@@ -6,6 +6,9 @@ import Loader from '../Loader'
 import { API } from '../../API'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	const [question, setQuestion] = useState('')

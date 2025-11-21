@@ -16,6 +16,9 @@ import { API } from '../API'
 import { getCookie } from '../TOKEN'
 import Loader from '../components/Loader'
 import axios from 'axios'
+import { useError } from '../components/Errors'
+
+const { setError } = useError()
 
 const ScheduleCard1 = ({
 	lessonIndex,

@@ -25,6 +25,8 @@ import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
 import { getCookie, token } from '../TOKEN'
 
+const { setError } = useError()
+
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 	return (
 		<div
@@ -377,8 +379,6 @@ const TestView = ({ content }) => {
 }
 
 const StudentsAndGroups = () => {
-	const { setError } = useError()
-
 	const [ActiveTask, setActiveTask] = useState(0)
 	const [ActiveType, setActiveType] = useState(0)
 	const Type = ['Оценка', 'Комментарий']

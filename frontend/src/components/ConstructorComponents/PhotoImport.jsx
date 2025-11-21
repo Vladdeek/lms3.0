@@ -5,6 +5,9 @@ import { motion } from 'framer-motion'
 import { maxPhotoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,

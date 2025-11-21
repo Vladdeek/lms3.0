@@ -25,6 +25,8 @@ import { Forbidden403, useError } from '../components/Errors'
 import axios from 'axios'
 import { getCookie, token } from '../TOKEN'
 
+const { setError } = useError()
+
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
 		<button
@@ -416,8 +418,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	const [webinars, setWebinars] = useState([])
 
 	const [image, setImage] = useState([])
-
-	const { setError } = useError()
 
 	const handleCreateCourse = () => {
 		fetchCourses()

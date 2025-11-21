@@ -10,6 +10,8 @@ import { motion } from 'framer-motion'
 import Loader, { AltLoader } from '../../components/Loader'
 import { getCookie } from '../../TOKEN'
 
+const { setError } = useError()
+
 const GroupComponent = ({
 	id,
 	number,
@@ -157,8 +159,6 @@ const AccessManagement = ({ onChange }) => {
 
 	const [searchLinkedGroups, setSearchLinkedGroups] = useState('')
 	const [searchUnlinkedGroups, setSearchUnlinkedGroups] = useState('')
-
-	const { setError } = useError()
 
 	const linkedDebounce = useRef(null)
 	const unlinkedDebounce = useRef(null)

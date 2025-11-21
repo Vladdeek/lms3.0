@@ -16,6 +16,9 @@ import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 export const FileView = ({ onStatusChange, Files }) => {
 	const inputId = useId()

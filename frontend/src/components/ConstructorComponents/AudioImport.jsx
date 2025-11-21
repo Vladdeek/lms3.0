@@ -6,6 +6,9 @@ import { maxAudioSizeInMB } from './Constants'
 import Loader, { AltLoader } from '../Loader'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 export const AudioInput = ({
 	onStatusChange,

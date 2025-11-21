@@ -5,6 +5,9 @@ import FormulaView from '../Viewer/FormulaView'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (

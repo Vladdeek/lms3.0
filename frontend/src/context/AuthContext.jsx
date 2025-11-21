@@ -3,6 +3,9 @@ import { API } from '../API'
 import { useNavigate } from 'react-router-dom'
 import { getCookie } from '../TOKEN'
 import axios from 'axios'
+import { useError } from '../components/Errors'
+
+const { setError } = useError()
 
 export const AuthContext = createContext()
 

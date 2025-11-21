@@ -25,6 +25,8 @@ import { useError } from './Errors'
 import Moderation from '../pages/Moderation'
 import { getCookie, token } from '../TOKEN'
 
+const { setError } = useError()
+
 const NotificationCard = ({ title, description }) => {
 	return (
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-lg px-3 py-2'>
@@ -122,7 +124,6 @@ const Notification = () => {
 }
 
 const HeaderLink = ({ title, icon: Icon, to }) => {
-	const { setError } = useError()
 	const clearError = () => {
 		setError(null)
 	}
@@ -181,7 +182,7 @@ const MobileHeaderLink = ({ title, icon: Icon, to }) => {
 
 export const Header = ({ links = [], UserInfo = null }) => {
 	console.log('userInfo: ', UserInfo)
-	const { setError } = useError()
+
 	const isDashboard = location?.pathname === '/dashboard'
 	const isStudent = UserInfo?.current_user_role === 'student'
 	const Wrapper = isStudent ? NavLink : 'div'

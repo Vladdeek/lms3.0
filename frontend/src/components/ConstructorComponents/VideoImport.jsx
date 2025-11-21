@@ -6,6 +6,9 @@ import { API, FILE_API } from '../../API'
 import { maxVideoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 export const ConstructorVideoInput = ({
 	onStatusChange,

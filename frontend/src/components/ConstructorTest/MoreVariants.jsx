@@ -8,6 +8,9 @@ import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({

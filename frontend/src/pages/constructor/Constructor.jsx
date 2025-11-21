@@ -68,6 +68,9 @@ import { TextViewer } from '../../components/Viewer/TextViewer'
 import CustomAudioPlayer from '../../components/AudioPlayer'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../../components/Errors'
+
+const { setError } = useError()
 
 const CreateModuleButton = ({
 	onAddModule,

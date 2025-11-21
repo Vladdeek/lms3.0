@@ -11,6 +11,8 @@ import ModerationComponent from './ModerationView'
 import { getCookie, token } from '../TOKEN'
 import axios from 'axios'
 
+const { setError } = useError()
+
 const ModerationCourseCard = ({
 	img,
 	user_img,
@@ -172,8 +174,6 @@ const Moderation = ({ role }) => {
 	const [courses, setCourses] = useState([])
 
 	const [status, setStatus] = useState(null)
-
-	const { setError } = useError()
 
 	const fetchAllCourses = async () => {
 		try {

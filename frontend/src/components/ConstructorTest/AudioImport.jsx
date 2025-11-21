@@ -4,6 +4,9 @@ import CustomAudioPlayer from '../AudioPlayer'
 import { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useError } from '../Errors'
+
+const { setError } = useError()
 
 export const AudioInput = ({
 	onStatusChange,

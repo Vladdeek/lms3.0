@@ -24,6 +24,8 @@ import { Forbidden403, useError } from '../components/Errors'
 import axios from 'axios'
 import { getCookie, token } from '../TOKEN'
 
+const { setError } = useError()
+
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
 		<button
@@ -54,8 +56,6 @@ const CatalogS = ({ role }) => {
 
 	const location = useLocation()
 	const navigate = useNavigate()
-
-	const { setError } = useError()
 
 	const NavigateTo = (to, value) => {
 		setSelected(value)
