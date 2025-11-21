@@ -496,13 +496,13 @@ export const Header = ({ links = [], UserInfo = null }) => {
 								setShowOptions(prev => !prev)
 							}}
 							className={`
-								flex items-center gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-3 pr-[15px] cursor-pointer transition-all relative
+								flex items-center gap-2 min-[377px]:gap-4 shadow-[var(--shadow)] rounded-lg py-[15px] pl-1 min-[369px]:pl-3 pr-[15px] cursor-pointer transition-all relative
 							`}
 						>
 							{UserInfo ? (
 								<>
 									<p
-										className={`text-base font-medium whitespace-nowrap text-end leading-5 ${
+										className={`text-sm min-[406px]:text-base font-medium whitespace-nowrap text-end leading-5 ${
 											isStudent && isDashboard
 												? 'text-white'
 												: 'text-[var(--black)]'
@@ -514,7 +514,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 											? `${UserInfo.personal_data.middle_name[0]}.`
 											: ''}
 										<span
-											className={`font-normal ${
+											className={`font-normal text-xs min-[406px]:text-base  ${
 												isStudent && isDashboard
 													? 'text-white/80'
 													: 'text-[var(--middle)]'
@@ -540,7 +540,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 							{UserInfo ? (
 								<img
-									className='h-10 rounded-full aspect-square'
+									className='h-9 min-[377px]:h-10 rounded-full aspect-square'
 									src={`${FILE_API}${UserInfo?.photo}`}
 									alt=''
 								/>
