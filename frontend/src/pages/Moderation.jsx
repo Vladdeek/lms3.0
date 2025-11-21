@@ -9,7 +9,6 @@ import Loader from '../components/Loader'
 import { InputDefault, TextArea } from '../components/Inputs'
 import ModerationComponent from './ModerationView'
 import { getCookie, token } from '../TOKEN'
-import axios from 'axios'
 
 const { setError } = useError()
 
