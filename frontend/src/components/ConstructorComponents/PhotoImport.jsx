@@ -5,9 +5,7 @@ import { motion } from 'framer-motion'
 import { maxPhotoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
@@ -142,7 +140,7 @@ export const ConstructorPhotoInput = ({
 			return result
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 			throw error
 		}
 	}
@@ -184,9 +182,9 @@ export const ConstructorPhotoInput = ({
 
 			const result = response.data
 			console.log(result)
-		} catch (err) {
-			console.error('Ошибка при удалении фото:', err)
-			setError(err.response ? String(err.response.status) : '500')
+		} catch (error) {
+			console.error('Ошибка при удалении фото:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

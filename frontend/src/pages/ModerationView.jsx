@@ -43,7 +43,7 @@ import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { TextViewer } from '../components/Viewer/TextViewer'
 import { useParams } from 'react-router-dom'
 import { API } from '../API'
-import { useError } from '../components/Errors'
+import { setGlobalError } from '../components/Errors'
 import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
@@ -54,8 +54,6 @@ import VariantModerationView from '../components/TestModerationView/VariantsMode
 import { getCookie, token } from '../TOKEN'
 import SortVariantModerationView from '../components/TestModerationView/SortVariantsModertionView'
 import OpenQuestionModerationView from '../components/TestModerationView/OpenQuestionModertionView'
-
-const { setError } = useError()
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -405,10 +403,10 @@ const CourseOverview = ({ content }) => {
 				const data = res.data
 				console.log('Fetched content data:', data)
 				setSelectedContent(data)
-			} catch (err) {
+			} catch (error) {
 				setSelectedContent(null)
-				console.error(err)
-				setError(err.response ? String(err.response.status) : '500')
+				console.error(error)
+				setError(error.response ? String(error.response.status) : '500')
 			}
 		}
 
@@ -488,9 +486,9 @@ const ModerationComponent = ({ moderationCourseId }) => {
 				setError(null)
 				setCourseContent(data)
 				setLoading(false)
-			} catch (err) {
-				console.error(err)
-				setError(err.response ? String(err.response.status) : '500')
+			} catch (error) {
+				console.error(error)
+				setError(error.response ? String(error.response.status) : '500')
 			}
 		}
 

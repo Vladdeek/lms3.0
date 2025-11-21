@@ -4,15 +4,13 @@ import { Link } from '../components/Links'
 import { Button, SubmitButton } from '../components/Buttons'
 import { useContext, useEffect, useState } from 'react'
 import { API } from '../API'
-import { AuthContext } from '../context/AuthContext'
+
 import DecryptedText from '../components/ReactBits/DecryptedText'
 import LiquidEther from '../components/ReactBits/LiquidEther'
 import TextType from '../components/ReactBits/TextType'
 import { getCookie, token } from '../TOKEN'
 import axios from 'axios'
-import { useError } from '../components/Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../components/Errors'
 
 const Authorization = ({ isRegister = false }) => {
 	const [email, setEmail] = useState('')
@@ -61,7 +59,7 @@ const Authorization = ({ isRegister = false }) => {
 			}
 		} catch (error) {
 			console.error('Ошибка:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 

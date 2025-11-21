@@ -20,11 +20,9 @@ import { motion } from 'framer-motion'
 import { API, FILE_API } from '../API'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import TiltedCard from '../components/ReactBits/TiledCard'
-import { Forbidden403, useError } from '../components/Errors'
+import { setGlobalError } from '../components/Errors'
 import axios from 'axios'
 import { getCookie, token } from '../TOKEN'
-
-const { setError } = useError()
 
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
@@ -86,14 +84,9 @@ const CatalogS = ({ role }) => {
 
 			setError(null)
 			setCourses(res.data)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 	const fetchWebinars = async () => {
@@ -113,14 +106,9 @@ const CatalogS = ({ role }) => {
 
 			setError(null)
 			setWebinars(res.data)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 	useEffect(() => {

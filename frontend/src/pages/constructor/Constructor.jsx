@@ -68,9 +68,7 @@ import { TextViewer } from '../../components/Viewer/TextViewer'
 import CustomAudioPlayer from '../../components/AudioPlayer'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../../components/Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../../components/Errors'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -114,7 +112,7 @@ const CreateModuleButton = ({
 			onRemoveModule(tempId)
 
 			// ловим статус или сетевую ошибку
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -232,7 +230,7 @@ const CreateLessonButton = ({
 		} catch (error) {
 			console.error(error)
 			onRemoveLesson(moduleId, tempId)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -384,9 +382,9 @@ const ModuleTitle = ({
 
 			onRemoveModule(id)
 			setError(null)
-		} catch (err) {
-			console.error('Ошибка при удалении модуля:', err)
-			setError(err.response ? String(err.response.status) : '500')
+		} catch (error) {
+			console.error('Ошибка при удалении модуля:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 	return (
@@ -458,9 +456,9 @@ const ModuleContent = ({
 
 			onRemoveLesson(id)
 			setError(null)
-		} catch (err) {
-			console.error('Ошибка при удалении секции:', err)
-			setError(err.response ? String(err.response.status) : '500')
+		} catch (error) {
+			console.error('Ошибка при удалении секции:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
@@ -1202,9 +1200,9 @@ const Constructor = ({
 				)
 
 				setSelectedContent(data)
-			} catch (err) {
+			} catch (error) {
 				setSelectedContent(null)
-				console.error('Ошибка при загрузке контента:', err)
+				console.error('Ошибка при загрузке контента:', error)
 			}
 		}
 

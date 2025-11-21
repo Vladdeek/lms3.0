@@ -6,9 +6,7 @@ import { maxAudioSizeInMB } from './Constants'
 import Loader, { AltLoader } from '../Loader'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -63,7 +61,7 @@ export const AudioInput = ({
 
 			return result
 		} catch (error) {
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 			throw error
 		} finally {
 		}

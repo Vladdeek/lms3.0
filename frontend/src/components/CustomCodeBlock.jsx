@@ -24,8 +24,8 @@ const CustomCodeBlock = ({
 			await navigator.clipboard.writeText(codeInfo.code)
 			setCopied(true)
 			setTimeout(() => setCopied(false), 2000)
-		} catch (err) {
-			console.error('Ошибка копирования:', err)
+		} catch (error) {
+			console.error('Ошибка копирования:', error)
 		}
 	}
 

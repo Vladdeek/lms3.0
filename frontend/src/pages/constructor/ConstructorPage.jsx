@@ -27,11 +27,9 @@ import { API, FILE_API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { is, se } from 'date-fns/locale'
-import { Forbidden403, useError } from '../../components/Errors'
+import { Forbidden403, setGlobalError } from '../../components/Errors'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
-
-const { setError } = useError()
 
 const SettingsButton = ({
 	courseId,
@@ -378,9 +376,9 @@ const ConstructorPage = ({ role }) => {
 
 				setError(null)
 				setCourseContent(res.data)
-			} catch (err) {
-				console.error(err)
-				setError(err.response?.status || err.message)
+			} catch (error) {
+				console.error(error)
+				setError(error.response?.status || error.message)
 			}
 		}
 
@@ -491,9 +489,9 @@ const ConstructorPage = ({ role }) => {
 
 				setError(null)
 				setIsLocked(res.data?.locked)
-			} catch (err) {
-				console.error(err)
-				setError(err.response?.status?.toString() || '500')
+			} catch (error) {
+				console.error(error)
+				setError(error.response?.status?.toString() || '500')
 			}
 		}
 
@@ -547,9 +545,9 @@ const ConstructorPage = ({ role }) => {
 
 				console.log('students updated: ', data)
 			}
-		} catch (err) {
-			console.error('Ошибка сервера:', err.response?.status || err.message)
-			setError(err.response?.status || 500)
+		} catch (error) {
+			console.error('Ошибка сервера:', error.response?.status || error.message)
+			setError(error.response?.status || 500)
 			setIsLoading(false)
 		}
 	}
@@ -568,9 +566,9 @@ const ConstructorPage = ({ role }) => {
 
 			showMassageFunc('public')
 			console.log(data)
-		} catch (err) {
-			console.error('Ошибка сервера:', err.response?.status || err.message)
-			setError(err.response?.status || 500)
+		} catch (error) {
+			console.error('Ошибка сервера:', error.response?.status || error.message)
+			setError(error.response?.status || 500)
 		}
 	}
 

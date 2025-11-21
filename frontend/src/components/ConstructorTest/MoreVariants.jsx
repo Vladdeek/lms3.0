@@ -8,9 +8,7 @@ import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({
@@ -206,7 +204,7 @@ const MoreVariant = ({
 			setAnswers(data?.question_options)
 		} catch (error) {
 			console.error('Ошибка при загрузке теста:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -255,7 +253,7 @@ const MoreVariant = ({
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -292,7 +290,7 @@ const MoreVariant = ({
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 

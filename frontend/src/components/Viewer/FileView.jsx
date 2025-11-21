@@ -16,9 +16,7 @@ import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 export const FileView = ({ onStatusChange, Files }) => {
 	const inputId = useId()
@@ -123,9 +121,9 @@ export const FileView = ({ onStatusChange, Files }) => {
 			a.click()
 			window.URL.revokeObjectURL(url)
 			document.body.removeChild(a)
-		} catch (err) {
-			console.error('Ошибка:', err)
-			setError(err.response ? String(err.response.status) : '500')
+		} catch (error) {
+			console.error('Ошибка:', error)
+			setError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

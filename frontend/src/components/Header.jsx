@@ -21,11 +21,9 @@ import { isWithinInterval } from 'date-fns'
 import { API, FILE_API } from '../API'
 import axios from 'axios'
 import Loader, { BlockLoader } from './Loader'
-import { useError } from './Errors'
+import { setGlobalError } from './Errors'
 import Moderation from '../pages/Moderation'
 import { getCookie, token } from '../TOKEN'
-
-const { setError } = useError()
 
 const NotificationCard = ({ title, description }) => {
 	return (
@@ -125,7 +123,7 @@ const Notification = () => {
 
 const HeaderLink = ({ title, icon: Icon, to }) => {
 	const clearError = () => {
-		setError(null)
+		setGlobalError(null)
 	}
 
 	return (
@@ -231,7 +229,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			console.log('Logout success:', res.data)
 			navigate('/auth')
 		} catch (error) {
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 			navigate('/auth')
 		}
 	}
@@ -259,15 +257,10 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 			setUserRolesLoading(false)
 			setUserRoles(res.data)
-		} catch (err) {
-			console.log(err) // 401, 403, 422, 500 — что угодно
+		} catch (error) {
+			console.log(error) // 401, 403, 422, 500 — что угодно
 
-			if (err.response) {
-				setError(String(err.response.status)) // 401, 403, 422, 500 — что угодно
-			} else {
-				// Если ответа нет вообще (сетевые ошибки)
-				setError('500')
-			}
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -300,15 +293,10 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				? navigate('/catalogs/courses')
 				: name === 'teacher' && navigate('/catalogt/courses')
 			res.data && window.location.reload()
-		} catch (err) {
-			console.log(err) // 401, 403, 422, 500 — что угодно
+		} catch (error) {
+			console.log(error) // 401, 403, 422, 500 — что угодно
 
-			if (err.response) {
-				setError(String(err.response.status)) // 401, 403, 422, 500 — что угодно
-			} else {
-				// Если ответа нет вообще (сетевые ошибки)
-				setError('500')
-			}
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 

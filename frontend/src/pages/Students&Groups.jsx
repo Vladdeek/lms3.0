@@ -16,7 +16,7 @@ import SortVariantView from '../components/TestView/SortVariantsView'
 import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { setSelection } from 'slate'
 import { se } from 'date-fns/locale'
-import { useError } from '../components/Errors'
+import { setGlobalError } from '../components/Errors'
 import axios from 'axios'
 import { API, FILE_API } from '../API'
 import Loader from '../components/Loader'
@@ -24,8 +24,6 @@ import MoreVariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
 import { getCookie, token } from '../TOKEN'
-
-const { setError } = useError()
 
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 	return (
@@ -406,9 +404,9 @@ const StudentsAndGroups = () => {
 
 			setCourses(res.data)
 			setError(null)
-		} catch (err) {
-			console.log('error: ', err.response.status)
-			setError(err.response.status.toString())
+		} catch (error) {
+			console.log('error: ', error.response.status)
+			setError(error.response.status.toString())
 		}
 	}
 
@@ -428,14 +426,9 @@ const StudentsAndGroups = () => {
 
 			setError(null)
 			setGroups(res.data)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -452,14 +445,9 @@ const StudentsAndGroups = () => {
 
 			setError(null)
 			setStudents(res.data)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -480,14 +468,9 @@ const StudentsAndGroups = () => {
 
 			setError(null)
 			setTasks(res.data)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -509,14 +492,9 @@ const StudentsAndGroups = () => {
 
 			setError(null)
 			setLessons(res.data)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 

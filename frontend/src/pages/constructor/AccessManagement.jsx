@@ -2,15 +2,13 @@ import { Ban, ChevronsRight, GripVertical } from 'lucide-react'
 import { FilterButton } from '../../components/Buttons'
 import { SearchInput } from '../../components/Inputs'
 import { useEffect, useRef, useState } from 'react'
-import { useError } from '../../components/Errors'
+import { setGlobalError } from '../../components/Errors'
 import axios from 'axios'
 import { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Loader, { AltLoader } from '../../components/Loader'
 import { getCookie } from '../../TOKEN'
-
-const { setError } = useError()
 
 const GroupComponent = ({
 	id,
@@ -218,14 +216,9 @@ const AccessManagement = ({ onChange }) => {
 			setUnlinkedGroups(res.data)
 			setIsLoading(null)
 			setIsSearchLoading(null)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 	const fetchLinkedGroups = async term => {
@@ -251,14 +244,9 @@ const AccessManagement = ({ onChange }) => {
 			setLinkedGroups(res.data)
 			setIsLoading(null)
 			setIsSearchLoading(null)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -282,13 +270,9 @@ const AccessManagement = ({ onChange }) => {
 			fetchLinkedGroups()
 
 			setError(null)
-		} catch (err) {
-			console.error(err)
-			if (err.response) {
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.error(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 	const handleRemove = async number => {
@@ -308,13 +292,9 @@ const AccessManagement = ({ onChange }) => {
 			fetchLinkedGroups()
 
 			setError(null)
-		} catch (err) {
-			console.error(err)
-			if (err.response) {
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.error(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 

@@ -2,15 +2,13 @@ import axios from 'axios'
 import { CircleQuestionMark, FileInput, ImageOff, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { API, FILE_API } from '../API'
-import { useError } from '../components/Errors'
+import { setGlobalError } from '../components/Errors'
 import CoursePage from './CoursePage'
 import { motion } from 'framer-motion'
 import Loader from '../components/Loader'
 import { InputDefault, TextArea } from '../components/Inputs'
 import ModerationComponent from './ModerationView'
 import { getCookie, token } from '../TOKEN'
-
-const { setError } = useError()
 
 const ModerationCourseCard = ({
 	img,
@@ -109,7 +107,7 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 			onChange?.('good')
 		} catch (error) {
 			console.error('Ошибка сервера:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -191,14 +189,9 @@ const Moderation = ({ role }) => {
 			setCourses(res.data)
 
 			setActive(null)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 

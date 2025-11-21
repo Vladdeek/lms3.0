@@ -3,7 +3,17 @@ import { X } from 'lucide-react'
 import { Children } from 'react'
 import { createContext, use, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { AuthContext } from '../context/AuthContext'
+
+// ErrorService.js
+let _setError = null
+
+export const setGlobalError = msg => {
+	if (_setError) _setError(msg)
+}
+
+export const registerErrorHandler = fn => {
+	_setError = fn
+}
 
 export const NotFoundError404 = () => {
 	return (
@@ -102,8 +112,6 @@ export const ErrorProvider = ({ children }) => {
 
 	console.log('error: ', error)
 
-	const { refreshAccessToken } = useContext(AuthContext)
-
 	useEffect(() => {
 		const handle401 = async () => {
 			if (error === '401') {
@@ -120,6 +128,10 @@ export const ErrorProvider = ({ children }) => {
 			return () => clearTimeout(timer)
 		}
 	}, [false])
+
+	useEffect(() => {
+		registerErrorHandler(setError)
+	}, [])
 
 	return (
 		<ErrorContext.Provider value={{ error, setError }}>

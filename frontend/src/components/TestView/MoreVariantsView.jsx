@@ -5,9 +5,7 @@ import FormulaView from '../Viewer/FormulaView'
 import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -113,7 +111,7 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 				setSelected(data?.student_answer === null ? [] : data?.student_answer)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
-				setError(error.response ? String(error.response.status) : '500')
+				setGlobalError(error.response?.status || '500')
 			} finally {
 				setIsLoading(false)
 			}

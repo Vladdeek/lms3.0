@@ -6,9 +6,7 @@ import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -71,7 +69,7 @@ const VariantModerationView = ({ testId }) => {
 				setAnswers(data?.question_options)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
-				setError(error.response ? String(error.response.status) : '500')
+				setGlobalError(error.response?.status || '500')
 			} finally {
 				setIsLoading(false)
 			}

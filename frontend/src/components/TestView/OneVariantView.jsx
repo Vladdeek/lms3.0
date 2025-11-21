@@ -6,9 +6,7 @@ import { API } from '../../API'
 import Loader from '../Loader'
 import { se } from 'date-fns/locale'
 import { getCookie, token } from '../../TOKEN'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -114,7 +112,7 @@ const OneVariantView = ({
 				)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
-				setError(error.response ? String(error.response.status) : '500')
+				setGlobalError(error.response?.status || '500')
 			} finally {
 				setIsLoading(false)
 			}

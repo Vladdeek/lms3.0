@@ -29,10 +29,11 @@ import CoursePage from './pages/CoursePage'
 import CatalogS from './pages/Tasks'
 import { useScroll } from 'framer-motion'
 import Authorization from './pages/Authorization'
-import { AuthProvider, AuthContext } from './context/AuthContext'
+
 import axios from 'axios'
 import { API } from './API'
 import Moderation from './pages/Moderation'
+import { ErrorProvider } from './components/Errors'
 
 function MainApp() {
 	const [role, setRole] = useState()
@@ -99,8 +100,8 @@ function MainApp() {
 
 createRoot(document.getElementById('root')).render(
 	<Router>
-		<AuthProvider>
+		<ErrorProvider>
 			<MainApp />
-		</AuthProvider>
+		</ErrorProvider>
 	</Router>
 )

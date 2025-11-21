@@ -18,11 +18,11 @@ import {
 	ErrorProvider,
 	InternalServerError500,
 	NotFoundError404,
-	useError,
+	setGlobalError,
 } from '../../components/Errors'
 import Loader from '../../components/Loader'
 import { motion } from 'framer-motion'
-import { AuthContext } from '../../context/AuthContext'
+
 import axios from 'axios'
 import { API } from '../../API'
 import { getCookie } from '../../TOKEN'
@@ -100,49 +100,22 @@ export default function DashboardLayout({ onChange }) {
 		}
 	}, [userInfo])
 
-	const { refreshAccessToken } = useContext(AuthContext)
-	const storedAccess = localStorage.getItem('access_token')
-
 	const fetchUser = async () => {
-		if (storedAccess !== null) {
-			try {
-				const res = await axios.get(`${API}/users/me`, {
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				})
+		try {
+			const res = await axios.get(`${API}/users/me`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-				setUserInfo(res.data)
-				localStorage.setItem('role', res.data.current_user_role)
-			} catch (error) {
-				if (error.response?.status === 401) {
-					const newAccessToken = await refreshAccessToken()
-					console.log('new: ', newAccessToken)
-					if (newAccessToken) {
-						try {
-							const retryRes = await axios.get(`${API}/users/me`, {
-								withCredentials: true,
-								headers: {
-									'Content-Type': 'application/json',
-									'X-CSRF-TOKEN': getCookie('csrftoken'),
-								},
-							})
-							console.log('XSRFTOKEN: ', getCookie('XSRF-TOKEN'))
-							setUserInfo(retryRes.data)
-							localStorage.setItem('role', retryRes.data.current_user_role)
-						} catch (error) {
-							console.error(error)
-						}
-					}
-				} else {
-					navigate('/auth')
-					console.error(error)
-				}
-			}
-		} else {
-			navigate('/auth')
+			setUserInfo(res.data)
+			localStorage.setItem('role', res.data.current_user_role)
+		} catch (error) {
+			error.response.status === 401
+				? navigate('/auth')
+				: setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -158,7 +131,7 @@ export default function DashboardLayout({ onChange }) {
 	}, [userInfo])
 
 	return (
-		<ErrorProvider>
+		<>
 			<div className='md:mx-10 mx-2'>
 				<Header links={links} UserInfo={userInfo} />
 				<div className='h-25'></div>
@@ -186,6 +159,6 @@ export default function DashboardLayout({ onChange }) {
 			<div className='md:hidden'>
 				<MobileMenuBar links={links} />
 			</div>
-		</ErrorProvider>
+		</>
 	)
 }

@@ -4,9 +4,7 @@ import { API } from '../../API'
 import Loader from '../Loader'
 import { set } from 'date-fns'
 import { getCookie, token } from '../../TOKEN'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	return (
@@ -139,7 +137,7 @@ const SortVariantView = ({ testId, onAnswerSelect }) => {
 				setRight_option(data?.answer_data?.right_options || [])
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
-				setError(error.response ? String(error.response.status) : '500')
+				setGlobalError(error.response?.status || '500')
 			} finally {
 				setIsLoading(false)
 			}

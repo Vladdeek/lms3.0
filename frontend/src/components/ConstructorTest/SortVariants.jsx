@@ -7,9 +7,7 @@ import { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 // Компонент для пары сопоставления
 const MatchPair = ({
@@ -128,7 +126,7 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			}
 		} catch (error) {
 			console.error('Ошибка при загрузке теста:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -162,7 +160,7 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 
@@ -194,7 +192,7 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			fetchTest(data?.id)
 		} catch (error) {
 			console.error(error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 		}
 	}
 

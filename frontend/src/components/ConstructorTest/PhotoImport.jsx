@@ -3,9 +3,7 @@ import { useEffect, useId, useState } from 'react'
 import { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
-import { useError } from '../Errors'
-
-const { setError } = useError()
+import { setGlobalError } from '../Errors'
 
 export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 	const inputId = useId()
@@ -48,7 +46,7 @@ export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 			return result
 		} catch (error) {
 			console.error('Ошибка загрузки файла:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response?.status || '500')
 			throw error
 		}
 	}
