@@ -228,26 +228,63 @@ export const FileInput = ({
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 	const maxSize = 10 * 1024 * 1024 // 20 MB
 
-	const validateFile = file => {
-		if (!file) return setInputStatus(false)
-		const isValidFormat = validFormats.includes(file.type)
-		const isValidSize = file.size <= maxSize
+	const validateFile = async file => {
+		if (!file) {
+			setInputStatus(false)
+			return
+		}
 
-		if (isValidFormat && isValidSize) {
-			setInputStatus(true)
-			onStatusChange?.(true)
-			setFileInfo({
-				name: file.name,
-				size: (file.size / 1024 / 1024).toFixed(2),
-			})
-			setPreview(URL.createObjectURL(file))
-			onFileChange?.(file) // отправляем файл наружу
-		} else {
+		// 1. Валидация формата
+		const isValidFormat = validFormats.includes(file.type)
+		if (!isValidFormat) {
 			setInputStatus(false)
 			onStatusChange?.(false)
 			setFileInfo(null)
 			setPreview(null)
+			return
 		}
+
+		// 2. Валидация размера
+		const isValidSize = file.size <= maxSize
+		if (!isValidSize) {
+			setInputStatus(false)
+			onStatusChange?.(false)
+			setFileInfo(null)
+			setPreview(null)
+			return
+		}
+
+		// 3. Валидация разрешения, если это изображение
+		if (file.type.startsWith('image/')) {
+			try {
+				const dimensions = await getImageDimensions(file)
+
+				if (dimensions.width > 4000 || dimensions.height > 4000) {
+					setInputStatus(false)
+					onStatusChange?.(false)
+					setFileInfo(null)
+					setPreview(null)
+					return
+				}
+			} catch (error) {
+				console.error('Ошибка при проверке разрешения:', error)
+				setInputStatus(false)
+				onStatusChange?.(false)
+				setFileInfo(null)
+				setPreview(null)
+				return
+			}
+		}
+
+		// --- Если все ок ---
+		setInputStatus(true)
+		onStatusChange?.(true)
+		setFileInfo({
+			name: file.name,
+			size: (file.size / 1024 / 1024).toFixed(2),
+		})
+		setPreview(URL.createObjectURL(file))
+		onFileChange?.(file)
 	}
 
 	const handleFileChange = e => validateFile(e.target.files[0])
