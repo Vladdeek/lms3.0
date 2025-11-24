@@ -2,10 +2,10 @@ let API = ''
 let FILE_API = ''
 if (import.meta.env.VITE_ENV === 'dev') {
 	API = import.meta.env.VITE_API_URL
-	FILE_API = import.meta.env.VITE_API_URL
+	FILE_API = import.meta.env.VITE_IMG_URL
 } else if (import.meta.env.VITE_ENV === 'prod') {
 	API = import.meta.env.VITE_API_URL_VDS
-	FILE_API = import.meta.env.VITE_API_URL_VDS
+	FILE_API = import.meta.env.VITE_IMG_URL_VDS
 } else {
 	throw new Error('Ошибка при чтении переменной среды ENV')
 }
