@@ -126,9 +126,12 @@ const Authorization = ({ isRegister = false }) => {
 									value={password}
 									onChange={e => setPassword(e.target.value)}
 								/>
-								<div className=' gap-5 hidden'>
-									<Link to={'#'} title={'Забыли логин или пароль?'} />
-								</div>
+								<Link
+									to={'https://my.melsu.ru/request-access'}
+									title={'Нет аккаунта? Запросить доступ'}
+									textsize='text-lg'
+									underline={true}
+								/>
 								<input
 									type='submit'
 									disabled={!isFormValid}
