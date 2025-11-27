@@ -43,14 +43,15 @@ import SortVariantView from '../components/TestView/SortVariantsView'
 import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { TextViewer } from '../components/Viewer/TextViewer'
 import { useParams } from 'react-router-dom'
-import { API } from '../API'
-import { useError } from '../components/Errors'
+import api, { API } from '../API'
+
 import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
 import { motion } from 'framer-motion'
 import { is } from 'date-fns/locale'
 import axios from 'axios'
 import { set } from 'date-fns'
 import Loader from '../components/Loader'
+import { getCookie, token } from '../TOKEN'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -232,41 +233,31 @@ const ContentView = ({
 	const [questions, setQuestions] = useState([])
 	const [score, setScore] = useState(null)
 	const [gradeStatus, setGradeStatus] = useState(null)
-	const token = localStorage.getItem('access_token')
 
 	const [activeIndex, setActiveIndex] = useState(0)
 
 	const [studentWork, setStudentWork] = useState()
-	const [studentAnswers, setStudentAnswers] = useState([])
+	const [studentAnswers, setStudentAnswers] = useState(null)
 
 	const [lastQuestion, setLastQuestion] = useState(false)
 
 	const [session, setSession] = useState(null)
 
-	const { setError } = useError()
-
 	const fetchSession = async () => {
 		try {
-			const res = await axios.get(`${API}/tests/is-active/${testId}`, {
+			const res = await api.get(`${API}/tests/is-active/${testId}`, {
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
 			setSession(res.data.is_active)
 			setGradeStatus(res.data.grade_status)
 			setScore(res.data.score)
-
-			setError(null)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
 		}
 	}
 
@@ -274,27 +265,22 @@ const ContentView = ({
 		setActiveIndex(0)
 		setLastQuestion(false)
 		try {
-			const res = await axios.post(
+			const res = await api.post(
 				`${API}/tests/start/${testId}`,
 				{},
 				{
+					withCredentials: true,
 					headers: {
-						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)
 
 			console.log('res: ', res.data)
 			setSession(res.data.is_active)
-			setError(null)
-		} catch (err) {
-			console.log(err)
-			if (err.response) {
-				console.log('error: ', err.response.status)
-				setError(err.response.status.toString())
-			} else {
-				setError('500')
-			}
+		} catch (error) {
+			console.log(error)
 		}
 
 		fetchSession()
@@ -311,13 +297,14 @@ const ContentView = ({
 		try {
 			const payload = [studentWork?.map(f => f.file_path)]
 
-			const res = await axios.post(
+			const res = await api.post(
 				`${API}/sections/${sectionId}/upload/assignment`,
 				payload[0],
 				{
+					withCredentials: true,
 					headers: {
-						Authorization: `Bearer ${token}`,
 						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				}
 			)
@@ -361,18 +348,18 @@ const ContentView = ({
 
 	const PUT = async () => {
 		try {
-			const response = await fetch(
+			const response = await api.put(
 				`${API}/tests/student-answers/update/${testId}`,
+				answers,
 				{
-					method: 'PUT',
+					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-					body: JSON.stringify(answers),
 				}
 			)
-			const result = await response.json()
+			const result = response.data
 			setAnswers(null)
 		} catch (error) {
 			console.error('Ошибка:', error)
@@ -381,14 +368,18 @@ const ContentView = ({
 
 	const testEnd = async () => {
 		try {
-			const response = await fetch(`${API}/tests/end/${testId}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-			})
-			const result = await response.json()
+			const response = await api.post(
+				`${API}/tests/end/${testId}`,
+				{},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
+			const result = response.data
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
@@ -400,8 +391,10 @@ const ContentView = ({
 	}
 
 	useEffect(() => {
-		PUT()
-	}, [studentAnswers])
+		if (studentAnswers !== null && testId) {
+			PUT()
+		}
+	}, [studentAnswers, testId])
 
 	if (!content) {
 		return (
@@ -414,7 +407,10 @@ const ContentView = ({
 	}
 
 	return (
-		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-scroll hide-scrollbar max-h-[70vh] '>
+		<div
+			className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 
+    overflow-y-scroll overflow-x-hidden hide-scrollbar h-full max-h-[72.5vh] w-full box-border'
+		>
 			<div className='flex gap-3 items-center'>
 				<div className='min-[1200px]:hidden'>
 					<Button
@@ -683,19 +679,21 @@ const CourseOverview = ({ content }) => {
 
 		const fetchContent = async () => {
 			try {
-				const res = await fetch(`${API}/sections/${sectionId}/content`, {
+				const res = await api.get(`${API}/sections/${sectionId}/content`, {
+					withCredentials: true,
 					headers: {
-						Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
-				if (!res.ok) throw new Error('Ошибка при загрузке контента')
-				const data = await res.json()
 
+				const data = res.data
 				console.log('Fetched content data:', data)
 				setSelectedContent(data)
-			} catch (err) {
+			} catch (error) {
 				setSelectedContent(null)
-				console.error(err)
+				console.error(error)
+				setError(error.response ? String(error.response.status) : '500')
 			}
 		}
 
@@ -704,9 +702,9 @@ const CourseOverview = ({ content }) => {
 
 	return (
 		<>
-			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] max-h-[70vh] gap-5 '>
+			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] h-[70vh] gap-5 '>
 				<div
-					className={`flex flex-col gap-3 ${
+					className={`flex flex-col gap-3 h-[70vh] ${
 						selectedContent && 'max-[1200px]:hidden'
 					}`}
 				>
@@ -766,34 +764,31 @@ const CoursePage = ({ moderationCourseId }) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
-	const { setError } = useError()
-
 	const [loading, setLoading] = useState(false)
 
 	useEffect(() => {
-		setLoading(true)
 		const fetchCourses = async () => {
-			const token = localStorage.getItem('access_token')
+			setLoading(true)
+
 			try {
-				const res = await fetch(
+				const res = await api.get(
 					`${API}/courses/${moderationCourseId || courseId}`,
 					{
+						withCredentials: true,
 						headers: {
-							Authorization: `Bearer ${token}`,
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'), //хуйня
 						},
 					}
 				)
-				const data = await res.json()
 
-				if (!res.ok) {
-					setError(res.status.toString())
-				} else {
-					setError(null)
-					setCourseContent(data)
-					setLoading(false)
-				}
-			} catch (err) {
-				setError('500')
+				setCourseContent(res.data)
+				setError(null)
+			} catch (error) {
+				console.error(error)
+				setError(error.response?.status || error.message)
+			} finally {
+				setLoading(false)
 			}
 		}
 
@@ -810,7 +805,7 @@ const CoursePage = ({ moderationCourseId }) => {
 
 	return (
 		<>
-			<div className='flex flex-col gap-5 h-[73vh]'>
+			<div className='flex flex-col gap-5 h-[73vh] mb-20'>
 				<div className='flex justify-between items-center mt-10'></div>
 
 				<CourseOverview content={courseContent} />
