@@ -549,12 +549,12 @@ const ModuleContent = ({
 				</div>
 				{!bg && (
 					<Trash
-						size={24}
+						size={28}
 						className={`${
 							selectedSectionId === sectionId
-								? 'text-white'
-								: 'text-[var(--black)]'
-						} hover:bg-red-500 hover:text-white p-0.75 rounded-md cursor-pointer transition-all z-10`}
+								? 'text-white hover:bg-white hover:text-red-500'
+								: 'text-[var(--black)] hover:bg-red-500 hover:text-white'
+						}  p-1 rounded-md cursor-pointer transition-all z-10`}
 						onClick={() => setDeleteModalActive(true)}
 					/>
 				)}
@@ -702,7 +702,7 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 			<div className='bg-[var(--white)] relative p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001 min-w-[400px]'>
 				<X
 					onClick={onClose}
-					className='absolute top-1 right-1 text-[var(--middle)] cursor-pointer'
+					className='absolute top-1 right-1 text-[var(--middle)] hover:text-red-500 transition-all cursor-pointer'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
 					Создание вопроса
@@ -717,8 +717,8 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 									key={type.id}
 									className={`rounded-lg shadow-[var(--shadow)] flex gap-3 px-4 py-2 select-none ${
 										isSelected
-											? 'bg-[var(--hero-epta)] text-[var(--white)]'
-											: 'text-[var(--black)] bg-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+											? 'bg-[var(--hero-epta)] text-white'
+											: 'text-[var(--black)] bg-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white'
 									}   items-center p-2 transition-all cursor-pointer active:scale-95 font-medium mb-2 last:mb-0`}
 									onClick={() => handleAnswerTypeChange(type.id)}
 								>
@@ -791,7 +791,7 @@ const ConstructorLevels = ({
 				))}
 				<div
 					onClick={() => setCreateModalOpen(true)}
-					className='w-10 h-10 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-md hover:bg-[var(--hero-epta)] hover:text-[var(--white)] flex justify-center items-center p-2 transition-all cursor-pointer active:scale-90'
+					className='w-10 h-10 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-md hover:bg-[var(--hero-epta)] hover:text-white flex justify-center items-center p-2 transition-all cursor-pointer active:scale-90'
 				>
 					<Plus />
 				</div>

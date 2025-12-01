@@ -137,9 +137,11 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		{ option_code: '1', name: '', correct: false },
 		{ option_code: '2', name: '', correct: false },
 	])
-	const [media, setMedia] = useState()
+	const [media, setMedia] = useState([])
 
 	const [questionId, setQuestionId] = useState()
+
+	console.log('media: ', media)
 
 	useEffect(() => {
 		testId && setQuestionId(testId)
@@ -219,7 +221,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			})
 
 			const data = res.data
-			console.log(data)
+			console.log('data:', data)
 
 			if (data) setIsLoading(false)
 			setQuestion(data?.title)
@@ -295,11 +297,11 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 					score: Number(score),
 					answer_data: {
 						type: 'single',
-						correct_answer: correctAnswer ? correctAnswer.text : '',
+						correct_answer: correctAnswer ? correctAnswer.name : '',
 					},
 					question_options: answers.map(answer => ({
-						name: answer?.text,
-						option_code: answer?.id,
+						name: answer?.name,
+						option_code: answer?.option_code,
 					})),
 					media: media || [],
 				},

@@ -33,7 +33,8 @@ export default function FormulaConstructor({ DelComponent, onChange, info }) {
 
 	useEffect(() => {
 		const data = { info: formula, type: 'formula' }
-		!info && onChange?.(data)
+
+		onChange?.(data)
 	}, [formula])
 
 	const buttons = [

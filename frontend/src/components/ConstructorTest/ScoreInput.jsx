@@ -2,15 +2,27 @@ import { Angry, Frown, Smile } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export const ScoreInput1 = ({ value, onChange }) => {
+	const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 	return (
 		<div className='flex flex-col'>
 			<p className='text-[var(--middle)] mb-2'>Балл</p>
 			<input
 				type={'number'}
-				onChange={e => onChange(e.target.value)}
+				onChange={e => {
+					const val = e.target.value
+					if (val === '') {
+						onChange('')
+						return
+					}
+
+					const num = Number(val)
+					if (!isNaN(num)) {
+						onChange(clamp(num, 1, 5))
+					}
+				}}
 				value={value}
 				min='1'
-				max={'5'}
+				max='5'
 				className='rounded-xl p-[10px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] text-[var(--black)] transition text-lg font-medium w-20'
 			/>
 		</div>

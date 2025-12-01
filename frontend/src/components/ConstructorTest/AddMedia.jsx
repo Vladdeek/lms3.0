@@ -99,7 +99,7 @@ export const AddMediaModal = ({ isOpen, onClose, onCreate }) => {
 			<div className='bg-[var(--white)] relative p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001 min-w-[400px]'>
 				<X
 					onClick={onClose}
-					className='absolute top-1 right-1 text-[var(--middle)] cursor-pointer'
+					className='absolute top-1 right-1 text-[var(--middle)] hover:text-red-500 cursor-pointer transition-all'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
 					Выберите тип медиа
@@ -114,8 +114,8 @@ export const AddMediaModal = ({ isOpen, onClose, onCreate }) => {
 								key={type.id}
 								className={`rounded-lg w-25 h-25 flex-col shadow-[var(--shadow)] flex items-center justify-center select-none ${
 									isSelected
-										? 'bg-[var(--hero-epta)] text-[var(--white)]'
-										: 'text-[var(--black)] bg-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+										? 'bg-[var(--hero-epta)] text-white'
+										: 'text-[var(--black)] bg-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white'
 								} transition-all cursor-pointer active:scale-95 font-medium mb-2 last:mb-0`}
 								onClick={() => handleAnswerTypeChange(type.id)}
 							>

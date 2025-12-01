@@ -27,7 +27,7 @@ const MatchPair = ({
 				onChange={e => onLeftChange(id, e.target.value)}
 				disabled={disabled}
 				placeholder='Левое значение...'
-				className='flex-1 px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] transition-all bg-transparent'
+				className='flex-1 px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] transition-all bg-transparent placeholder:text-[var(--middle)] text-[var(--black)]'
 			/>
 
 			<div className='text-[var(--middle)]'>—</div>
@@ -38,7 +38,7 @@ const MatchPair = ({
 				onChange={e => onRightChange(id, e.target.value)}
 				disabled={disabled}
 				placeholder='Правое значение...'
-				className='flex-1 px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] transition-all bg-transparent'
+				className='flex-1 px-3 py-2 shadow-[var(--shadow)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--hero-epta)] transition-all bg-transparent placeholder:text-[var(--middle)] text-[var(--black)]'
 			/>
 
 			<button
