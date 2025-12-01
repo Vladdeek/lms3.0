@@ -511,9 +511,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				onCreate={handleCreateWebinar}
 			/>
 			<div
-				className={`${
-					courses?.length === 0 || courses?.length < 4 ? 'h-screen' : 'h-full'
-				} flex flex-col gap-4 py-[50px]`}
+				className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
 			>
 				<div className='flex max-[874px]:gap-3 max-[874px]:flex-col-reverse justify-between'>
 					<div className='flex gap-4 max-lg:gap-2 h-12'>
@@ -562,11 +560,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				{location.pathname === '/catalogt/courses' ||
 				location.pathname === '/catalog/all' ? (
 					<div
-						className={`${
-							courses?.length === 0 || courses?.length < 4
-								? 'h-screen'
-								: 'h-full'
-						} flex flex-col gap-4 py-[50px]`}
+						className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
 					>
 						<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
 							{courses?.map((course, index) => (
@@ -618,11 +612,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				) : (
 					location.pathname === '/catalogt/webinars' && (
 						<div
-							className={`${
-								webinars?.length === 0 || webinars?.length < 5
-									? 'h-screen'
-									: 'h-full'
-							} flex flex-col gap-4 py-[50px]`}
+							className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
 						>
 							<div className='grid 2xl:grid-cols-5 xl:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4'>
 								{webinars?.map((web, index) => (

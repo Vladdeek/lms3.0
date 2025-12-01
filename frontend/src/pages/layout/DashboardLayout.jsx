@@ -133,7 +133,6 @@ export default function DashboardLayout({ onChange }) {
 			<div className='md:mx-10 mx-2'>
 				<Header links={links} UserInfo={userInfo} />
 				<div className='h-25'></div>
-
 				{location.pathname === '/' && (
 					<div className='h-[85vh] flex justify-center items-center'>
 						<div className='w-2/3'>
@@ -141,9 +140,7 @@ export default function DashboardLayout({ onChange }) {
 						</div>
 					</div>
 				)}
-
 				<Outlet />
-
 				<motion.div
 					key={location.pathname}
 					initial={{ opacity: 0, y: 30 }}

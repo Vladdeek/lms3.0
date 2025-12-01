@@ -171,7 +171,9 @@ const CatalogS = ({ role }) => {
 				)}
 
 				{location.pathname === '/catalogs/courses' ? (
-					<div className={` flex flex-col gap-4 py-[50px]`}>
+					<div
+						className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
+					>
 						<div className='grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4'>
 							{courses?.map((course, index) => (
 								<motion.div
@@ -198,7 +200,9 @@ const CatalogS = ({ role }) => {
 					</div>
 				) : (
 					location.pathname === '/catalogs/webinars' && (
-						<div className={` flex flex-col gap-4 py-[50px]`}>
+						<div
+							className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
+						>
 							<div className='grid 2xl:grid-cols-5 xl:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4'>
 								{webinars?.map((web, index) => (
 									<motion.div
