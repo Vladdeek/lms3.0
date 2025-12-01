@@ -424,24 +424,38 @@ const ModuleContent = ({
 	onRemoveLesson,
 	selectedSectionId,
 }) => {
-	const options = [
-		{
-			title: 'Переместить вверх',
-			icon: <ChevronsUp size={20} />,
-			action: 'up',
-		},
-		{
-			title: 'Переместить вниз',
-			icon: <ChevronsDown size={20} />,
-			action: 'down',
-		},
-		{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
-		{
-			title: 'Удалить',
-			icon: <Trash size={20} />,
-			action: () => deleteSection(sectionId),
-		},
-	]
+	const [deleteModalActive, setDeleteModalActive] = useState(false)
+
+	useEffect(() => {
+		if (deleteModalActive) {
+			document.body.style.overflow = 'hidden'
+		} else {
+			document.body.style.overflow = ''
+		}
+
+		return () => {
+			document.body.style.overflow = ''
+		}
+	}, [deleteModalActive])
+
+	// const options = [
+	// 	{
+	// 		title: 'Переместить вверх',
+	// 		icon: <ChevronsUp size={20} />,
+	// 		action: 'up',
+	// 	},
+	// 	{
+	// 		title: 'Переместить вниз',
+	// 		icon: <ChevronsDown size={20} />,
+	// 		action: 'down',
+	// 	},
+	// 	{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
+	// 	{
+	// 		title: 'Удалить',
+	// 		icon: <Trash size={20} />,
+	// 		action: () => deleteSection(sectionId),
+	// 	},
+	// ]
 
 	const deleteSection = async id => {
 		try {
@@ -454,6 +468,8 @@ const ModuleContent = ({
 			})
 
 			onRemoveLesson(id)
+			setDeleteModalActive(false)
+			window.location.reload()
 			setGlobalError(null)
 		} catch (error) {
 			console.error('Ошибка при удалении секции:', error)
@@ -462,57 +478,88 @@ const ModuleContent = ({
 	}
 
 	return (
-		<div
-			onClick={selectedSectionId !== sectionId && onClick}
-			className={`flex justify-between items-center ${
-				!bg && 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
-			} rounded-lg cursor-default  transition-all  `}
-		>
+		<>
+			{deleteModalActive && (
+				<div className='fixed inset-0 z-[1000] flex items-center justify-center backdrop-blur-xs'>
+					<div className='p-4 h-30 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
+						<p>Вы уверены что хотите удалить это занятие?</p>
+						<div className='flex gap-3'>
+							<button
+								onClick={() => deleteSection(sectionId)}
+								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
+							>
+								Удалить
+							</button>
+							<button
+								onClick={() => {
+									setDeleteModalActive(false)
+								}}
+								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-[var(--black)] hover:bg-[var(--white)] border-1 border-transparent hover:border-[var(--middle)] shadow-[var(--shadow)] transition-all cursor-pointer'
+							>
+								Отмена
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 			<div
-				className={`flex gap-3 ${
-					selectedSectionId === sectionId && !bg
-						? 'text-[var(--hero-epta)]'
-						: 'text-[var(--middle)]'
-				}  items-center`}
+				onClick={selectedSectionId !== sectionId && onClick}
+				className={`flex justify-between items-center ${
+					!bg && selectedSectionId === sectionId
+						? 'bg-[var(--hero-epta)] shadow-[var(--shadow)]'
+						: 'hover:bg-[var(--light-middle)] cursor-pointer '
+				} rounded-lg cursor-default  transition-all  pl-3 pr-2`}
 			>
 				<div
-					className={`flex items-center gap-4 ${
+					className={`flex gap-3 ${
 						selectedSectionId === sectionId && !bg
-							? 'text-[var(--hero-epta)]'
-							: 'text-[var(--black)]'
-					}  px-3 py-2 rounded-lg ${
-						bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
-					}`}
+							? 'text-white'
+							: 'text-[var(--middle)]'
+					}  items-center`}
 				>
-					{type === 'lecture' ? (
-						<BookMarked size={20} />
-					) : type === 'practice' ? (
-						<NotebookPen size={20} />
-					) : (
-						type === 'test' && <LaptopMinimalCheck size={20} />
-					)}
-					<p className='font-medium text-base whitespace-nowrap'>
-						{type === 'lecture'
-							? 'Лекция'
-							: type === 'practice'
-							? 'Практика'
-							: type === 'test' && 'Тест'}
-						{index}
+					<div
+						className={`flex items-center gap-4 ${
+							selectedSectionId === sectionId && !bg
+								? 'text-white'
+								: 'text-[var(--black)]'
+						}  px-3 py-2 rounded-lg ${
+							bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
+						}`}
+					>
+						{type === 'lecture' ? (
+							<BookMarked size={20} />
+						) : type === 'practice' ? (
+							<NotebookPen size={20} />
+						) : (
+							type === 'test' && <LaptopMinimalCheck size={20} />
+						)}
+						<p className='font-medium text-base whitespace-nowrap'>
+							{type === 'lecture'
+								? 'Лекция'
+								: type === 'practice'
+								? 'Практика'
+								: type === 'test' && 'Тест'}
+							{index}
+						</p>
+					</div>
+					<p className='font-bold text-base'>/</p>
+					<p className={`font-normal  ${bg ? 'text-base' : 'text-sm w-2/5'}`}>
+						{title}
 					</p>
 				</div>
-				<p className='font-bold text-base'>/</p>
-				<p className={`font-normal  ${bg ? 'text-base' : 'text-sm w-2/5'}`}>
-					{title}
-				</p>
+				{!bg && (
+					<Trash
+						size={24}
+						className={`${
+							selectedSectionId === sectionId
+								? 'text-white'
+								: 'text-[var(--black)]'
+						} hover:bg-red-500 hover:text-white p-0.75 rounded-md cursor-pointer transition-all z-10`}
+						onClick={() => setDeleteModalActive(true)}
+					/>
+				)}
 			</div>
-			{!bg && (
-				<EllipsisButton
-					options={options}
-					onOptionClick={options => options.action(sectionId)}
-					bg={false}
-				/>
-			)}
-		</div>
+		</>
 	)
 }
 
@@ -565,7 +612,7 @@ const ModuleBlock = ({
 									/>
 									{isExpanded && module.module_sections && (
 										<div>
-											<div className='mb-2'>
+											<div className='mb-2 flex flex-col gap-1'>
 												{module.module_sections.map((section, sectionIndex) => {
 													return (
 														<motion.div
