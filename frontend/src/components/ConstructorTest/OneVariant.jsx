@@ -141,7 +141,22 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 
 	const [questionId, setQuestionId] = useState()
 
-	console.log('media: ', media)
+	const [validate, setValidate] = useState(false)
+
+	useEffect(() => {
+		const isInvalid = () => {
+			if (!question.trim()) return true
+			if (typeof score !== 'number' || score < 1 || score > 5) return true
+			for (let ans of answers) {
+				if (!ans.name.trim()) return true
+			}
+			if (!answers.some(ans => ans.correct)) return true
+
+			return false
+		}
+
+		setValidate(isInvalid())
+	}, [question, score, answers])
 
 	useEffect(() => {
 		testId && setQuestionId(testId)
@@ -431,7 +446,12 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			</div>
 			<button
 				onClick={handleSave}
-				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2 cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all active:scale-95'
+				disabled={validate}
+				className={`${
+					validate
+						? 'opacity-50 cursor-not-allowed'
+						: 'cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white active:scale-95'
+				} bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2  transition-all `}
 			>
 				{testId ? 'Обновить' : 'Сохранить'}
 			</button>

@@ -13,6 +13,19 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 	const [media, setMedia] = useState()
 	const [isLoading, setIsLoading] = useState(false)
 
+	const [validate, setValidate] = useState(false)
+
+	useEffect(() => {
+		const isInvalid = () => {
+			if (!question.trim()) return true
+			if (typeof score !== 'number' || score < 1 || score > 5) return true
+
+			return false
+		}
+
+		setValidate(isInvalid())
+	}, [question, score])
+
 	const handleQuestionChange = e => {
 		setQuestion(e.target.value)
 	}
@@ -133,7 +146,12 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 			</div>
 			<button
 				onClick={handleSave}
-				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2 cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all active:scale-95'
+				disabled={validate}
+				className={`${
+					validate
+						? 'opacity-50 cursor-not-allowed'
+						: 'cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white active:scale-95'
+				} bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2  transition-all `}
 			>
 				{testId ? 'Обновить' : 'Сохранить'}
 			</button>

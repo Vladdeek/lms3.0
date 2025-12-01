@@ -66,7 +66,23 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [question, setQuestion] = useState('')
 
-	console.log('score out: ', score)
+	const [validate, setValidate] = useState(false)
+
+	useEffect(() => {
+		const isInvalid = () => {
+			if (!question.trim()) return true
+			if (typeof score !== 'number' || score < 1 || score > 5) return true
+
+			// Проверяем, что все элементы left_option заполнены
+			if (left_option.some(opt => !opt.trim())) return true
+			// Проверяем, что все элементы right_option заполнены
+			if (right_option.some(opt => !opt.trim())) return true
+
+			return false // Всё ок
+		}
+
+		setValidate(isInvalid())
+	}, [question, score, left_option, right_option])
 
 	useEffect(() => {
 		const combinedPairs = left_option.map((left, index) => ({
@@ -290,7 +306,12 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			</div>
 			<button
 				onClick={handleSave}
-				className='bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2 cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all active:scale-95'
+				disabled={validate}
+				className={`${
+					validate
+						? 'opacity-50 cursor-not-allowed'
+						: 'cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white active:scale-95'
+				} bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2  transition-all `}
 			>
 				{testId ? 'Обновить' : 'Сохранить'}
 			</button>
