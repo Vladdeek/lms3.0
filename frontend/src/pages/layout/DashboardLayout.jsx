@@ -44,11 +44,11 @@ export default function DashboardLayout({ onChange }) {
 					icon: GraduationCap,
 					to: '/catalogt',
 				},
-				{
-					title: 'Задания',
-					icon: CopyCheck,
-					to: '/students',
-				},
+				// {
+				// 	title: 'Задания',
+				// 	icon: CopyCheck,
+				// 	to: '/students',
+				// },
 			],
 			student: [
 				{
