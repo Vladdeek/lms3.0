@@ -422,6 +422,7 @@ const ModuleContent = ({
 	onClick,
 	sectionId,
 	onRemoveLesson,
+	selectedSectionId,
 }) => {
 	const options = [
 		{
@@ -462,14 +463,24 @@ const ModuleContent = ({
 
 	return (
 		<div
-			onClick={onClick}
+			onClick={selectedSectionId !== sectionId && onClick}
 			className={`flex justify-between items-center ${
 				!bg && 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
 			} rounded-lg cursor-default  transition-all  `}
 		>
-			<div className='flex gap-3 text-[var(--middle)] items-center'>
+			<div
+				className={`flex gap-3 ${
+					selectedSectionId === sectionId && !bg
+						? 'text-[var(--hero-epta)]'
+						: 'text-[var(--middle)]'
+				}  items-center`}
+			>
 				<div
-					className={`flex items-center gap-4 text-[var(--black)] px-3 py-2 rounded-lg ${
+					className={`flex items-center gap-4 ${
+						selectedSectionId === sectionId && !bg
+							? 'text-[var(--hero-epta)]'
+							: 'text-[var(--black)]'
+					}  px-3 py-2 rounded-lg ${
 						bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
 					}`}
 				>
@@ -514,6 +525,7 @@ const ModuleBlock = ({
 	onRemoveLesson,
 	deleteModule,
 	deleteSection,
+	sectionId,
 }) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
@@ -573,6 +585,7 @@ const ModuleBlock = ({
 																onClick={() => onContentSelect(section)}
 																isSelected={selectedContent?.id === section.id}
 																onRemoveLesson={deleteSection}
+																selectedSectionId={sectionId}
 															/>
 														</motion.div>
 													)
@@ -1244,6 +1257,7 @@ const Constructor = ({
 								onRemoveLesson={onRemoveLesson}
 								deleteModule={deleteModule}
 								deleteSection={deleteSection}
+								sectionId={section?.id}
 							/>
 							<div className='h-fit mt-2'>
 								<motion.div
