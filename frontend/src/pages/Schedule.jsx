@@ -379,7 +379,7 @@ const SchedulePage = () => {
 			setLoading(false)
 		} catch (e) {
 			console.error(e)
-			setError(e.response ? String(e.response.status) : '500')
+			setGlobalError(e.response ? String(e.response.status) : '500')
 			setLoading(false)
 		}
 	}

@@ -122,7 +122,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 			document.body.removeChild(a)
 		} catch (error) {
 			console.error('Ошибка:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response ? String(error.response.status) : '500')
 		}
 	}
 

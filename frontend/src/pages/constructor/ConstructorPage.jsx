@@ -104,7 +104,7 @@ const SettingsButton = ({
 			onChange?.('good')
 		} catch (error) {
 			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setError(error.response?.status)
+			setGlobalError(error.response?.status)
 		}
 	}
 
@@ -186,7 +186,7 @@ const QrCodeButton = ({ url }) => {
 	)
 }
 
-const DateButton = ({ locked, access, sectionId }) => {
+const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 	const [isOpen, setIsOpen] = useState(true)
 	const [checked, setChecked] = useState([false, false, false])
 	const handleCheckboxChange = idx => {
@@ -197,18 +197,15 @@ const DateButton = ({ locked, access, sectionId }) => {
 
 	const [Locked, setLocked] = useState()
 
-	useEffect(() => {
-		locked && setLocked(locked)
-	}, [locked])
+	const fetchIsLocked = async () => {
+		if (sectionType === 'lecture') {
+			setLocked(null)
+			return
+		}
 
-	const putLocked = async () => {
 		try {
-			// меняем состояние локально
-			setLocked(prev => !prev)
-
-			const res = await api.put(
-				`${API}/sections/${sectionId}/is-locked`,
-				{ locked: Locked },
+			const res = await api.get(
+				`${API}/sections/${selectedContentId}/is-locked`,
 				{
 					withCredentials: true,
 					headers: {
@@ -218,11 +215,34 @@ const DateButton = ({ locked, access, sectionId }) => {
 				}
 			)
 
-			console.log('locked: ', Locked)
+			setGlobalError(null)
+
+			setLocked(res.data?.locked)
+		} catch (error) {
+			console.error(error)
+			setGlobalError(error.response?.status?.toString() || '500')
+		}
+	}
+
+	useEffect(() => {
+		if (selectedContentId) fetchIsLocked()
+	}, [selectedContentId, sectionType])
+
+	const putLocked = async () => {
+		try {
+			const res = await api.put(`${API}/sections/${sectionId}/is-locked`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
 			console.log('put locked: ', res.data)
+			fetchIsLocked()
 		} catch (error) {
 			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setError(error.response?.status)
+			setGlobalError(error.response?.status)
 		}
 	}
 
@@ -235,21 +255,23 @@ const DateButton = ({ locked, access, sectionId }) => {
 	const validateEnd = EndData && EndTime
 	const validateAll = validateEnd && validateStart
 
+	console.log('Locked: ', Locked)
+
 	return (
 		<div className='relative z-10'>
 			<button
-				disabled={!access && locked === null}
+				disabled={!access && Locked === null}
 				onClick={() => putLocked()}
 				className={`rounded-lg h-full flex ga}p-4 aspect-square justify-center items-center  transition-all  ${
-					access && locked !== null
-						? !Locked
+					access && Locked !== null
+						? Locked
 							? 'text-[var(--red-status-text)] cursor-pointer hover:scale-102 bg-[var(--white)]'
 							: 'text-[var(--green-status-text)] cursor-pointer hover:scale-102 bg-[var(--white)]'
 						: 'bg-[var(--light-gray)] text-[var(--middle)] cursor-not-allowed'
 				}  p-[12px]  shadow-[var(--shadow)]`}
 			>
-				{access && locked !== null ? (
-					!Locked ? (
+				{access && Locked !== null ? (
+					Locked ? (
 						<Lock size={24} />
 					) : (
 						<LockOpen size={24} />
@@ -378,7 +400,7 @@ const ConstructorPage = ({ role }) => {
 				setCourseContent(res.data)
 			} catch (error) {
 				console.error(error)
-				setError(error.response?.status || error.message)
+				setGlobalError(error.response?.status || error.message)
 			}
 		}
 
@@ -468,36 +490,6 @@ const ConstructorPage = ({ role }) => {
 
 	const [isLocked, setIsLocked] = useState(null)
 
-	useEffect(() => {
-		const fetchIsLocked = async () => {
-			if (sectionType === 'lecture') {
-				setIsLocked(null)
-				return
-			}
-
-			try {
-				const res = await api.get(
-					`${API}/sections/${selectedContentId}/is-locked`,
-					{
-						withCredentials: true,
-						headers: {
-							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
-						},
-					}
-				)
-
-				setGlobalError(null)
-				setIsLocked(res.data?.locked)
-			} catch (error) {
-				console.error(error)
-				setError(error.response?.status?.toString() || '500')
-			}
-		}
-
-		if (selectedContentId) fetchIsLocked()
-	}, [selectedContentId, sectionType])
-
 	const [showMassage, setShowMassage] = useState(null)
 
 	const showMassageFunc = status => {
@@ -547,7 +539,7 @@ const ConstructorPage = ({ role }) => {
 			}
 		} catch (error) {
 			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setError(error.response?.status || 500)
+			setGlobalError(error.response?.status || 500)
 			setIsLoading(false)
 		}
 	}
@@ -568,7 +560,7 @@ const ConstructorPage = ({ role }) => {
 			console.log(data)
 		} catch (error) {
 			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setError(error.response?.status || 500)
+			setGlobalError(error.response?.status || 500)
 		}
 	}
 
@@ -630,6 +622,8 @@ const ConstructorPage = ({ role }) => {
 								access={selectedContentId && sectionType !== 'lecture'}
 								locked={isLocked}
 								sectionId={selectedContentId}
+								sectionType={sectionType}
+								selectedContentId={selectedContentId}
 							/>
 						)}
 

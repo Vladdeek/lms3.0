@@ -407,7 +407,7 @@ const CourseOverview = ({ content }) => {
 			} catch (error) {
 				setSelectedContent(null)
 				console.error(error)
-				setError(error.response ? String(error.response.status) : '500')
+				setGlobalError(error.response ? String(error.response.status) : '500')
 			}
 		}
 
@@ -489,7 +489,7 @@ const ModerationComponent = ({ moderationCourseId }) => {
 				setLoading(false)
 			} catch (error) {
 				console.error(error)
-				setError(error.response ? String(error.response.status) : '500')
+				setGlobalError(error.response ? String(error.response.status) : '500')
 			}
 		}
 

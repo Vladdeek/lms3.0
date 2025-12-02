@@ -344,7 +344,7 @@ const MoreVariant = ({
 			</div>
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
-					<div className='flex flex-col gap-3 w-2/3 mb-5'>
+					<div className='flex flex-col gap-3 2xl:w-2/3 w-full mb-5'>
 						<div className='flex gap-3 items-end'>
 							<InputDefault
 								title={'Введите вопрос'}
@@ -361,7 +361,7 @@ const MoreVariant = ({
 						/>
 					</div>
 
-					<div className='flex flex-col items-center gap-3 w-2/3'>
+					<div className='flex flex-col items-center gap-3 2xl:w-2/3 w-full'>
 						<div className='flex flex-col items-center gap-3 w-full'>
 							<h3 className='text-lg font-medium mb-2 text-[var(--middle)]'>
 								Варианты ответов:
@@ -392,7 +392,7 @@ const MoreVariant = ({
 
 					<button
 						onClick={handleAddAnswer}
-						className='flex items-center w-2/3 gap-3 mt-3 justify-center py-2 bg-[var(--light-middle)] text-[var(--middle)] rounded-lg hover:bg-[var(--black)] hover:text-[var(--white)] transition-all active:scale-95'
+						className='flex items-center 2xl:w-2/3 w-full gap-3 mt-3 justify-center py-2 bg-[var(--light-middle)] text-[var(--middle)] rounded-lg hover:bg-[var(--black)] hover:text-[var(--white)] transition-all active:scale-95'
 					>
 						<Plus size={18} />
 						Добавить вариант ответа

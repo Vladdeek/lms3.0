@@ -367,6 +367,19 @@ const ModuleTitle = ({
 			action: () => deleteModule(moduleId),
 		},
 	]
+	const [deleteModalActive, setDeleteModalActive] = useState(false)
+
+	useEffect(() => {
+		if (deleteModalActive) {
+			document.body.style.overflow = 'hidden'
+		} else {
+			document.body.style.overflow = ''
+		}
+
+		return () => {
+			document.body.style.overflow = ''
+		}
+	}, [deleteModalActive])
 
 	const deleteModule = async id => {
 		try {
@@ -382,35 +395,62 @@ const ModuleTitle = ({
 			setGlobalError(null)
 		} catch (error) {
 			console.error('Ошибка при удалении модуля:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response ? String(error.response.status) : '500')
 		}
 	}
 	return (
-		<div className='flex justify-between items-center'>
-			<div className='flex gap-3 text-[var(--middle)] items-center'>
-				<div className='flex items-center gap-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-xl px-3 py-2 text-[var(--black)]'>
-					<Package size={20} />
-					<p className='font-medium text-base whitespace-nowrap'>
-						Модуль {index}
-					</p>
+		<>
+			{deleteModalActive && (
+				<div className='fixed inset-0 z-[1000] flex items-center justify-center backdrop-blur-xs'>
+					<div className='p-4 h-30 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
+						<p className='text-[var(--black)]'>
+							Вы уверены что хотите удалить это занятие?
+						</p>
+						<div className='flex gap-3'>
+							<button
+								onClick={() => deleteSection(sectionId)}
+								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
+							>
+								Удалить
+							</button>
+							<button
+								onClick={() => {
+									setDeleteModalActive(false)
+								}}
+								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-[var(--black)] hover:bg-[var(--white)] border-1 border-transparent hover:border-[var(--middle)] shadow-[var(--shadow)] transition-all cursor-pointer'
+							>
+								Отмена
+							</button>
+						</div>
+					</div>
 				</div>
-				<p className='font-bold text-base'>/</p>
-				<p className='font-normal text-base'>{title}</p>
+			)}
+			<div className='flex justify-between items-center'>
+				<div className='flex gap-3 text-[var(--middle)] items-center'>
+					<div className='flex items-center gap-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-xl px-3 py-2 text-[var(--black)]'>
+						<Package size={20} />
+						<p className='font-medium text-base whitespace-nowrap'>
+							Модуль {index}
+						</p>
+					</div>
+					<p className='font-bold text-base'>/</p>
+					<p className='font-normal text-base'>{title}</p>
+				</div>
+				<div className='flex gap-3'>
+					<Button
+						icon={isExpanded ? ChevronUp : ChevronDown}
+						style='white'
+						size={32}
+						onClick={onToggle}
+					/>
+					<Trash
+						size={32}
+						className={`${'text-[var(--black)] hover:bg-red-500 hover:text-white'}  p-2 shadow-[var(--shadow)] rounded-lg cursor-pointer transition-all z-10`}
+						onClick={() => setDeleteModalActive(true)}
+					/>
+				</div>
 			</div>
-			<div className='flex gap-3'>
-				<Button
-					icon={isExpanded ? ChevronUp : ChevronDown}
-					style='white'
-					size={32}
-					onClick={onToggle}
-				/>
-				<EllipsisButton
-					options={options}
-					onOptionClick={options => options.action(moduleId)}
-					bg={true}
-				/>
-			</div>
-		</div>
+		</>
 	)
 }
 
@@ -473,7 +513,7 @@ const ModuleContent = ({
 			setGlobalError(null)
 		} catch (error) {
 			console.error('Ошибка при удалении секции:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
@@ -482,7 +522,9 @@ const ModuleContent = ({
 			{deleteModalActive && (
 				<div className='fixed inset-0 z-[1000] flex items-center justify-center backdrop-blur-xs'>
 					<div className='p-4 h-30 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
-						<p>Вы уверены что хотите удалить это занятие?</p>
+						<p className='text-[var(--black)]'>
+							Вы уверены что хотите удалить это занятие?
+						</p>
 						<div className='flex gap-3'>
 							<button
 								onClick={() => deleteSection(sectionId)}
@@ -508,7 +550,7 @@ const ModuleContent = ({
 					!bg && selectedSectionId === sectionId
 						? 'bg-[var(--hero-epta)] shadow-[var(--shadow)]'
 						: 'hover:bg-[var(--light-middle)] cursor-pointer '
-				} rounded-lg cursor-default  transition-all  pl-3 pr-2`}
+				} rounded-lg cursor-default  transition-all  pl-3 pr-1.25`}
 			>
 				<div
 					className={`flex gap-3 ${
@@ -549,12 +591,12 @@ const ModuleContent = ({
 				</div>
 				{!bg && (
 					<Trash
-						size={28}
+						size={32}
 						className={`${
 							selectedSectionId === sectionId
 								? 'text-white hover:bg-white hover:text-red-500'
 								: 'text-[var(--black)] hover:bg-red-500 hover:text-white'
-						}  p-1 rounded-md cursor-pointer transition-all z-10`}
+						}  p-2 rounded-md cursor-pointer transition-all z-10`}
 						onClick={() => setDeleteModalActive(true)}
 					/>
 				)}
@@ -1232,6 +1274,8 @@ const Constructor = ({
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
+
+	console.log(selectedContent)
 
 	const handleContentSelect = SectionId => {
 		setSection(SectionId)

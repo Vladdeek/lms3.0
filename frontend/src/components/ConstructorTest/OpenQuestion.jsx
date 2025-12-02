@@ -124,7 +124,7 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 		<>
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
-					<div className='flex flex-col gap-3 w-2/3 mb-5'>
+					<div className='flex flex-col gap-3 2xl:w-2/3 w-full mb-5'>
 						<div className='flex gap-3 items-end'>
 							<InputDefault
 								title={'Введите вопрос'}

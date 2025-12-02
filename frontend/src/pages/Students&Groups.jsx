@@ -406,7 +406,7 @@ const StudentsAndGroups = () => {
 			setGlobalError(null)
 		} catch (error) {
 			console.log('error: ', error.response.status)
-			setError(error.response.status.toString())
+			setGlobalError(error.response.status.toString())
 		}
 	}
 

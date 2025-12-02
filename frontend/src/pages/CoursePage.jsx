@@ -693,7 +693,7 @@ const CourseOverview = ({ content }) => {
 			} catch (error) {
 				setSelectedContent(null)
 				console.error(error)
-				setError(error.response ? String(error.response.status) : '500')
+				setGlobalError(error.response ? String(error.response.status) : '500')
 			}
 		}
 
@@ -783,10 +783,10 @@ const CoursePage = ({ moderationCourseId }) => {
 				)
 
 				setCourseContent(res.data)
-				setError(null)
+				setGlobalError(null)
 			} catch (error) {
 				console.error(error)
-				setError(error.response?.status || error.message)
+				setGlobalError(error.response?.status || error.message)
 			} finally {
 				setLoading(false)
 			}

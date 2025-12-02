@@ -183,7 +183,7 @@ export const ConstructorPhotoInput = ({
 			console.log(result)
 		} catch (error) {
 			console.error('Ошибка при удалении фото:', error)
-			setError(error.response ? String(error.response.status) : '500')
+			setGlobalError(error.response ? String(error.response.status) : '500')
 		}
 	}
 
