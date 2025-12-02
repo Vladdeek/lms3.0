@@ -52,6 +52,7 @@ import axios from 'axios'
 import { set } from 'date-fns'
 import Loader from '../components/Loader'
 import { getCookie, token } from '../TOKEN'
+import { setGlobalError } from '../components/Errors'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -231,17 +232,50 @@ const ContentView = ({
 }) => {
 	const [answers, setAnswers] = useState({})
 	const [questions, setQuestions] = useState([])
+	const [normalizedContent, setNormalizedContent] = useState([])
+
 	const [score, setScore] = useState(null)
 	const [gradeStatus, setGradeStatus] = useState(null)
 
 	const [activeIndex, setActiveIndex] = useState(0)
 
 	const [studentWork, setStudentWork] = useState()
-	const [studentAnswers, setStudentAnswers] = useState(null)
-
+	const [studentAnswers, setStudentAnswers] = useState([])
 	const [lastQuestion, setLastQuestion] = useState(false)
 
 	const [session, setSession] = useState(null)
+
+	// 🔥 Нормализация контента (главная фикса)
+	const normalizeContent = (type, content) => {
+		if (type === 'test') {
+			return null
+		}
+
+		// если контент массив — оставляем
+		if (Array.isArray(content)) return content
+
+		// если прилетело что-то кривое
+		return []
+	}
+
+	// 🔥 Следим за изменением контента или типа
+	useEffect(() => {
+		if (!content) return
+
+		if (contentType === 'test') {
+			setQuestions(content?.content || [])
+			fetchSession()
+		} else {
+			setNormalizedContent(normalizeContent(contentType, content))
+		}
+
+		setActiveIndex(0)
+		setLastQuestion(false)
+	}, [contentType, content])
+
+	// ==========================
+	//         TEST LOGIC
+	// ==========================
 
 	const fetchSession = async () => {
 		try {
@@ -264,6 +298,7 @@ const ContentView = ({
 	const startSession = async () => {
 		setActiveIndex(0)
 		setLastQuestion(false)
+
 		try {
 			const res = await api.post(
 				`${API}/tests/start/${testId}`,
@@ -277,7 +312,6 @@ const ContentView = ({
 				}
 			)
 
-			console.log('res: ', res.data)
 			setSession(res.data.is_active)
 		} catch (error) {
 			console.log(error)
@@ -286,89 +320,57 @@ const ContentView = ({
 		fetchSession()
 	}
 
-	useEffect(() => {
-		contentType === 'test' && setQuestions(content?.content)
-		if (contentType === 'test') {
-			fetchSession()
-		}
-	}, [content])
-
-	const sendResultOfWork = async () => {
-		try {
-			const payload = [studentWork?.map(f => f.file_path)]
-
-			const res = await api.post(
-				`${API}/sections/${sectionId}/upload/assignment`,
-				payload[0],
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				}
-			)
-
-			console.log('✅ Результат отправки:', res.data)
-		} catch (error) {
-			console.error('❌ Ошибка при отправке:', error)
-		}
-	}
-
 	const handleStudentAnswer = () => {
-		activeIndex + 1 !== questions?.length
-			? setActiveIndex(prev => prev + 1)
-			: setLastQuestion(true)
+		if (activeIndex + 1 !== questions.length) {
+			setActiveIndex(prev => prev + 1)
+		} else {
+			setLastQuestion(true)
+		}
 
-		const q = content?.content[activeIndex]
+		const q = questions[activeIndex]
 		const data = { question_id: q?.id, answers_data: answers }
 
-		setStudentAnswers(oldArray => {
-			const existingIndex = oldArray.findIndex(
-				item => item.question_id === q?.id
-			)
+		setStudentAnswers(prev => {
+			const idx = prev.findIndex(item => item.question_id === q?.id)
 
-			if (existingIndex !== -1) {
-				const newArray = [...oldArray]
-				newArray[existingIndex] = {
-					...newArray[existingIndex],
-					answers_data: answers,
-				}
-				return newArray
-			} else {
-				return [...oldArray, data]
+			if (idx !== -1) {
+				const updated = [...prev]
+				updated[idx] = { ...updated[idx], answers_data: answers }
+				return updated
 			}
+			return [...prev, data]
 		})
-		setQuestions(prevQuestions =>
-			prevQuestions.map(item =>
-				item.id === q?.id ? { ...item, filled: true } : item
-			)
+
+		setQuestions(prev =>
+			prev.map(item => (item.id === q?.id ? { ...item, filled: true } : item))
 		)
 	}
 
 	const PUT = async () => {
 		try {
-			const response = await api.put(
-				`${API}/tests/student-answers/update/${testId}`,
-				answers,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				}
-			)
-			const result = response.data
-			setAnswers(null)
+			await api.put(`${API}/tests/student-answers/update/${testId}`, answers, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
+
+		setAnswers(null)
 	}
+
+	useEffect(() => {
+		if (studentAnswers?.length && testId) {
+			PUT()
+		}
+	}, [studentAnswers, testId])
 
 	const testEnd = async () => {
 		try {
-			const response = await api.post(
+			await api.post(
 				`${API}/tests/end/${testId}`,
 				{},
 				{
@@ -379,38 +381,53 @@ const ContentView = ({
 					},
 				}
 			)
-			const result = response.data
 		} catch (error) {
 			console.error('Ошибка:', error)
 		}
+
 		fetchSession()
 	}
 
-	const handleFinish = () => {
-		testEnd()
+	// ==========================
+	//       PRACTICE
+	// ==========================
+
+	const sendResultOfWork = async () => {
+		try {
+			const payload = studentWork?.map(f => f.file_path)
+
+			const res = await api.post(
+				`${API}/sections/${sectionId}/upload/assignment`,
+				payload,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
+
+			console.log('Отправлено:', res.data)
+		} catch (error) {
+			console.error('Ошибка:', error)
+		}
 	}
 
-	useEffect(() => {
-		if (studentAnswers !== null && testId) {
-			PUT()
-		}
-	}, [studentAnswers, testId])
+	// ============================================
+	//                RENDER
+	// ============================================
 
 	if (!content) {
 		return (
 			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl p-6 flex items-center justify-center h-full'>
-				<p className='text-[var(--middle)] text-lg'>
-					Выберите занятие для просмотра
-				</p>
+				<p className='text-[var(--middle)] text-lg'>Выберите занятие</p>
 			</div>
 		)
 	}
 
 	return (
-		<div
-			className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 
-    overflow-y-scroll overflow-x-hidden hide-scrollbar h-full max-h-[72.5vh] w-full box-border'
-		>
+		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-scroll hide-scrollbar h-full max-h-[72.5vh] w-full'>
 			<div className='flex gap-3 items-center'>
 				<div className='min-[1200px]:hidden'>
 					<Button
@@ -420,15 +437,20 @@ const ContentView = ({
 						onClick={clearSelection}
 					/>
 				</div>
+
 				<ModuleContent bg={true} type={contentType} title={contentTitle} />
 			</div>
 
-			<div className='flex flex-col gap-5'>
-				{content?.length !== 0 ? (
-					contentType !== 'test' ? (
+			{/* =============================
+			   CONTENT (LECTURE / PRACTICE)
+			   ============================= */}
+			{contentType !== 'test' && (
+				<>
+					{normalizedContent?.length ? (
 						<>
-							{content?.map((item, i) => {
+							{normalizedContent.map((item, i) => {
 								let element
+
 								switch (item?.type) {
 									case 'text':
 										element = (
@@ -445,14 +467,15 @@ const ContentView = ({
 										)
 										break
 									case 'image':
-										element = <PhotoView photos={item?.content} />
+										element = <PhotoView key={i} photos={item?.content} />
 										break
 									case 'video':
-										console.log(item)
-										element = <VideoPlayer url={item?.content} course={true} />
+										element = (
+											<VideoPlayer key={i} url={item?.content} course={true} />
+										)
 										break
 									case 'files':
-										element = <FileView Files={item?.content} />
+										element = <FileView key={i} Files={item?.content} />
 										break
 									case 'table':
 										element = (
@@ -466,7 +489,10 @@ const ContentView = ({
 										break
 									case 'audio':
 										element = (
-											<CustomAudioPlayer audioUrl={item?.content?.fileUrl} />
+											<CustomAudioPlayer
+												key={i}
+												audioUrl={item?.content?.fileUrl}
+											/>
 										)
 										break
 									case 'callout':
@@ -515,13 +541,12 @@ const ContentView = ({
 
 							{contentType === 'practice' && (
 								<motion.div
-									key={content?.length}
+									key={normalizedContent.length}
 									initial={{ scale: 0.8, opacity: 0 }}
 									animate={{ scale: 1, opacity: 1 }}
 									transition={{
 										duration: 0.3,
-										delay: content?.length * 0.1,
-										ease: 'easeOut',
+										delay: normalizedContent.length * 0.1,
 									}}
 								>
 									<div className='w-full flex flex-col justify-center gap-3'>
@@ -542,122 +567,124 @@ const ContentView = ({
 							)}
 						</>
 					) : (
-						<>
-							{gradeStatus === 'assessed' ? (
-								<div className='w-full relative flex justify-center items-center'>
-									<p className='px-4 absolute top-100 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
-										{score} / 5
-									</p>
-								</div>
-							) : gradeStatus === 'pending' ? (
-								<div className='w-full h-full flex justify-center items-center'>
-									<p className=' font-normal text-[var(--black)] text-xl'>
-										На рассмотрении
-									</p>
-									<p className='px-4 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
-										? / 5
-									</p>
-								</div>
-							) : (
-								gradeStatus === 'not_attempted' && (
-									<>
-										{session === false ? (
-											<div className='w-full h-225 flex items-center justify-center'>
-												<div className='h-12'>
-													<StartButton
-														title={'Начать тест'}
-														onClick={startSession}
-													/>
-												</div>
-											</div>
-										) : (
-											<>
-												<LevelsBar
-													questions={questions}
-													activeIndex={activeIndex}
-													setActiveIndex={setActiveIndex}
-													filled={studentAnswers}
-												/>
-												<div className='w-full flex justify-center'>
-													{(() => {
-														const q = content?.content[activeIndex]
-
-														if (q?.type === 'multiple') {
-															return (
-																<MoreVariantView
-																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={setAnswers}
-																/>
-															)
-														} else if (q?.type === 'single') {
-															return (
-																<OneVariantView
-																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={setAnswers}
-																/>
-															)
-														} else if (q?.type === 'matching') {
-															return (
-																<SortVariantView
-																	testId={questions[activeIndex]?.id}
-																	onAnswerSelect={setAnswers}
-																/>
-															)
-														} else if (q?.type === 'open') {
-															return (
-																<OpenQuestionView
-																	testId={questions[activeIndex]?.id}
-																	onChange={setAnswers}
-																/>
-															)
-														}
-
-														return null
-													})()}
-												</div>
-												<div className='flex justify-center gap-3'>
-													{!lastQuestion ? (
-														<div className='flex flex-col gap-3 items-center'>
-															<button
-																onClick={handleStudentAnswer}
-																className={` justify-center items-center w-fit px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium  flex ${
-																	questions[activeIndex].filled
-																		? 'opacity-25 cursor-not-allowed'
-																		: 'hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer'
-																}`}
-															>
-																<p>Ответить</p>
-															</button>
-															<p className='text-[var(--middle)] font-light'>
-																Внимание: после отправки вы не сможете изменить
-																свой ответ. Убедитесь, что всё верно!
-															</p>
-														</div>
-													) : (
-														<button
-															onClick={() => handleFinish()}
-															className=' justify-center items-center px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white transition-all cursor-pointer flex'
-														>
-															<p>Завершить тест</p>
-														</button>
-													)}
-												</div>
-											</>
-										)}
-									</>
-								)
-							)}
-						</>
-					)
-				) : (
-					<div className='flex w-full h-150 justify-center items-center'>
-						<div className='flex gap-3 text-lg items-center font-medium text-[var(--middle)]'>
-							<p>Пусто</p>
-							<Frown />
+						<div className='flex w-full h-150 justify-center items-center'>
+							<p className='text-lg text-[var(--middle)] font-medium flex items-center gap-3'>
+								Пусто <Frown />
+							</p>
 						</div>
-					</div>
-				)}
-			</div>
+					)}
+				</>
+			)}
+
+			{/* =============================
+			   TEST BLOCK
+			   ============================= */}
+			{contentType === 'test' && (
+				<>
+					{gradeStatus === 'assessed' ? (
+						<div className='w-full relative flex justify-center items-center'>
+							<p className='px-4 absolute top-100 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
+								{score} / 5
+							</p>
+						</div>
+					) : gradeStatus === 'pending' ? (
+						<div className='w-full h-full flex justify-center items-center'>
+							<p className='font-normal text-[var(--black)] text-xl'>
+								На рассмотрении
+							</p>
+							<p className='px-4 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
+								? / 5
+							</p>
+						</div>
+					) : (
+						gradeStatus === 'not_attempted' && (
+							<>
+								{session === false ? (
+									<div className='w-full h-225 flex items-center justify-center'>
+										<StartButton title={'Начать тест'} onClick={startSession} />
+									</div>
+								) : (
+									<>
+										<LevelsBar
+											questions={questions}
+											activeIndex={activeIndex}
+											setActiveIndex={setActiveIndex}
+											filled={studentAnswers}
+										/>
+
+										<div className='w-full flex justify-center'>
+											{(() => {
+												const q = questions[activeIndex]
+
+												if (q?.type === 'multiple') {
+													return (
+														<MoreVariantView
+															testId={q?.id}
+															onAnswerSelect={setAnswers}
+														/>
+													)
+												} else if (q?.type === 'single') {
+													return (
+														<OneVariantView
+															testId={q?.id}
+															onAnswerSelect={setAnswers}
+														/>
+													)
+												} else if (q?.type === 'matching') {
+													return (
+														<SortVariantView
+															testId={q?.id}
+															onAnswerSelect={setAnswers}
+														/>
+													)
+												} else if (q?.type === 'open') {
+													return (
+														<OpenQuestionView
+															testId={q?.id}
+															onChange={setAnswers}
+														/>
+													)
+												}
+
+												return null
+											})()}
+										</div>
+
+										<div className='flex justify-center gap-3'>
+											{!lastQuestion ? (
+												<div className='flex flex-col gap-3 items-center'>
+													<button
+														onClick={handleStudentAnswer}
+														className={`w-fit px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium flex ${
+															questions[activeIndex]?.filled
+																? 'opacity-25 cursor-not-allowed'
+																: 'hover:bg-[var(--hero-epta)] hover:text-white'
+														}`}
+													>
+														Ответить
+													</button>
+
+													<p className='text-[var(--middle)] font-light'>
+														Внимание: после отправки вы не сможете изменить
+														ответ.
+													</p>
+												</div>
+											) : (
+												<button
+													onClick={() => testEnd()}
+													className='px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white'
+												>
+													Завершить тест
+												</button>
+											)}
+										</div>
+									</>
+								)}
+							</>
+						)
+					)}
+				</>
+			)}
 		</div>
 	)
 }
