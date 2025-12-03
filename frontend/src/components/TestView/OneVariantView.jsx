@@ -62,7 +62,7 @@ const StudentRadio = ({ answer, selectedName, onChange }) => {
 const OneVariantView = ({
 	onAnswerSelect,
 	testId,
-	shuffle = true,
+
 	onChange,
 	select,
 }) => {
@@ -84,11 +84,6 @@ const OneVariantView = ({
 	const handleSelect = id => {
 		setSelectedName(id)
 	}
-
-	const shuffleAnswers = useMemo(() => {
-		if (!answers) return []
-		return shuffle ? [...answers].sort(() => Math.random() - 0.5) : answers
-	}, [answers, shuffle])
 
 	useEffect(() => {
 		const fetchTest = async id => {
@@ -157,7 +152,7 @@ const OneVariantView = ({
 				</div>
 
 				<div className='flex flex-col items-center gap-3 w-full'>
-					{shuffleAnswers?.map((answer, index) => (
+					{answers?.map((answer, index) => (
 						<StudentRadio
 							key={index}
 							id={index}

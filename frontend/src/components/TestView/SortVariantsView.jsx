@@ -94,7 +94,7 @@ const PairItem = forwardRef(
 	}
 )
 
-const SortVariantView = ({ testId, onAnswerSelect }) => {
+const SortVariantView = ({ testId, onAnswerSelect, Answered }) => {
 	const [heights, setHeights] = useState([])
 	const rightRefs = useRef([])
 	const [isLoading, setIsLoading] = useState(false)
@@ -132,8 +132,16 @@ const SortVariantView = ({ testId, onAnswerSelect }) => {
 				setQuestion(data?.title)
 				setMedia(data?.media)
 				setScore(data?.score)
-				setLeft_option(data?.answer_data?.left_options || [])
-				setRight_option(data?.answer_data?.right_options || [])
+				setLeft_option(
+					data?.student_answer === null
+						? data?.answer_data?.left_options
+						: data?.student_answer?.left_options || []
+				)
+				setRight_option(
+					data?.student_answer === null
+						? data?.answer_data?.right_options
+						: data?.student_answer?.right_options || []
+				)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
 			} finally {

@@ -264,7 +264,7 @@ const ContentView = ({
 
 		if (contentType === 'test') {
 			setQuestions(content?.content || [])
-			fetchSession()
+			testId && fetchSession()
 		} else {
 			setNormalizedContent(normalizeContent(contentType, content))
 		}
@@ -635,6 +635,7 @@ const ContentView = ({
 														<SortVariantView
 															testId={q?.id}
 															onAnswerSelect={setAnswers}
+															Answered={questions[activeIndex]?.filled}
 														/>
 													)
 												} else if (q?.type === 'open') {
@@ -655,6 +656,7 @@ const ContentView = ({
 												<div className='flex flex-col gap-3 items-center'>
 													<button
 														onClick={handleStudentAnswer}
+														disabled={questions[activeIndex]?.filled}
 														className={`w-fit px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium flex ${
 															questions[activeIndex]?.filled
 																? 'opacity-25 cursor-not-allowed'

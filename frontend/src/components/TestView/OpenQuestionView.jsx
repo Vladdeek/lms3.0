@@ -55,6 +55,7 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 				const data = res.data
 				console.log(data)
 				setQuestion(data?.title)
+				data?.student_answer !== null && setAnswer(data?.student_answer)
 				setMedia(data?.media)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
@@ -113,8 +114,8 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 						type='text'
 						className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition mt-3 w-full'
 						placeholder={'Введите свой вариант ответа...'}
-						value={value}
-						readOnly={value}
+						value={answer || value}
+						readOnly={answer || value}
 						onChange={e => setAnswer(e.target.value)}
 					/>
 					{value && (

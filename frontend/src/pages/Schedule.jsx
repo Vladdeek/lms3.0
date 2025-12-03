@@ -160,7 +160,7 @@ const Schedule1 = ({
 
 	return (
 		<>
-			<div className='w-full flex justify-center items-center gap-5'>
+			<div className='w-full flex justify-center items-center gap-5 text-[var(--black)]'>
 				<ChevronLeft
 					size={48}
 					onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
@@ -274,7 +274,7 @@ const Schedule2 = ({
 
 	return (
 		<>
-			<div className='w-full flex justify-between items-center mb-3'>
+			<div className='w-full flex justify-between items-center mb-3 text-[var(--black)]'>
 				<ChevronLeft
 					size={48}
 					onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
