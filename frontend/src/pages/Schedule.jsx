@@ -62,10 +62,10 @@ const DayCard1 = ({ isCurrentDay, day, month, weekDay }) => {
 			} `}
 		>
 			<div className='flex flex-col items-center justify-center'>
-				<p className='xl:text-8xl text-6xl'>{day}</p>
-				<p className='xl:text-2xl text-lg'>{month}</p>
+				<p className='2xl:text-8xl xl:text-7xl text-5xl'>{day}</p>
+				<p className='2xl:text-2xl xl:text-xl text-md'>{month}</p>
 			</div>
-			<p className='xl:text-7xl text-5xl'>{weekDay}</p>
+			<p className='2xl:text-7xl xl:text-6xl text-5xl'>{weekDay}</p>
 		</div>
 	)
 }

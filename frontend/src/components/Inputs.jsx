@@ -132,6 +132,7 @@ export const InputAuth = ({
 				/>
 				{password && (
 					<button
+						type='button'
 						onClick={() => {
 							setShowPassword(prev => !prev)
 						}}

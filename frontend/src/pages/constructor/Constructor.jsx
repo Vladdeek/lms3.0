@@ -393,6 +393,7 @@ const ModuleTitle = ({
 
 			onRemoveModule(id)
 			setGlobalError(null)
+			setDeleteModalActive(false)
 		} catch (error) {
 			console.error('Ошибка при удалении модуля:', error)
 			setGlobalError(error.response ? String(error.response.status) : '500')
@@ -408,7 +409,7 @@ const ModuleTitle = ({
 						</p>
 						<div className='flex gap-3'>
 							<button
-								onClick={() => deleteSection(sectionId)}
+								onClick={() => deleteModule(sectionId)}
 								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
 							>
 								Удалить
@@ -1313,7 +1314,7 @@ const Constructor = ({
 
 	return (
 		<>
-			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] gap-3 2xl:gap-5 h-full'>
+			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] gap-3 2xl:gap-5 h-[75vh]'>
 				<div
 					className={`${
 						selectedContent && 'max-[1200px]:hidden'

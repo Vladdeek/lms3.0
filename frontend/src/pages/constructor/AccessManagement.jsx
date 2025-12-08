@@ -254,15 +254,17 @@ const AccessManagement = ({ onChange }) => {
 
 	const handleAdd = async number => {
 		try {
-			await api.post(`${API}/courses/students/${courseId}`, {
-				student_group_id: number,
-
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
+			await api.post(
+				`${API}/courses/students/${courseId}`,
+				{ student_group_id: number },
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
 			fetchUnlinkedGroups()
 			fetchLinkedGroups()
@@ -302,7 +304,7 @@ const AccessManagement = ({ onChange }) => {
 	}
 
 	return (
-		<div className='grid grid-cols-2 gap-5'>
+		<div className=' grid grid-cols-2 gap-5'>
 			<AccessBlock
 				title={'Список групп'}
 				mass={unlinkedGroups}
