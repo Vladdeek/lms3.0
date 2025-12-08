@@ -34,6 +34,7 @@ import axios from 'axios'
 import api, { API } from './API'
 import Moderation from './pages/Moderation'
 import { ErrorProvider } from './components/Errors'
+import SchedulePage from './pages/Schedule'
 
 function MainApp() {
 	const [role, setRole] = useState()
@@ -86,7 +87,7 @@ function MainApp() {
 						element={<ConstructorPage role={role} />}
 					/>
 					<Route path='/dashboard' element={<Dashboard />} />
-					<Route path='/schedule' element={<Schedule />} />
+					<Route path='/schedule' element={<SchedulePage role={role} />} />
 					<Route path='/score' element={<ScorePage />} />
 					<Route
 						path='/course/:courseId?'

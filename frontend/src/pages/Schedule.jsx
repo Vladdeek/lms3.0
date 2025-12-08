@@ -27,11 +27,12 @@ const ScheduleCard1 = ({
 	time_end,
 	title,
 	description,
+	auditory_name,
 }) => {
 	return (
 		<div
 			key={lessonIndex}
-			className={`bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 w-full flex flex-col gap-2 ${
+			className={`relative bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 w-full flex flex-col gap-2 ${
 				isCurrent ? 'ring-4 ring-[var(--hero-epta)]' : ''
 			}`}
 		>
@@ -48,8 +49,14 @@ const ScheduleCard1 = ({
 			<p className='text-[var(--black)] font-bold xl:text-lg text-md'>
 				{title}
 			</p>
-			<p className='text-[var(--middle)] font-light xl:text-sm text-xs'>
-				{description}
+			<p className='text-[var(--middle)] font-light xl:text-sm text-xs mb-3'>
+				{description} <span></span>
+			</p>
+			<p className='absolute bottom-2 w-fit flex gap-1 items-center right-2  text-[var(--middle)] font-light'>
+				ауд.
+				<span className=' text-white w-fit rounded-lg bg-[var(--hero-epta)] px-2 py-[1px] font-medium xl:text-sm text-xs'>
+					{auditory_name}
+				</span>
 			</p>
 		</div>
 	)
@@ -78,11 +85,12 @@ const ScheduleCard2 = ({
 	time_end,
 	title,
 	description,
+	auditory_name,
 }) => {
 	return (
 		<div
 			key={lessonIndex}
-			className={`bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 w-full flex flex-col gap-2 ${
+			className={`relative bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 w-full flex flex-col gap-2 ${
 				isCurrent ? 'ring-4 ring-[var(--hero-epta)]' : ''
 			}`}
 		>
@@ -96,7 +104,15 @@ const ScheduleCard2 = ({
 				</span>
 			</p>
 			<p className='text-[var(--black)] font-bold text-lg'>{title}</p>
-			<p className='text-[var(--middle)] font-light text-sm'>{description}</p>
+			<p className='text-[var(--middle)] font-light text-sm mb-3'>
+				{description}
+			</p>
+			<p className='absolute bottom-1 w-fit flex gap-1 items-center right-1  text-[var(--middle)] font-light'>
+				ауд.
+				<span className=' text-white w-fit rounded-lg bg-[var(--hero-epta)] px-2 py-[1px] font-medium text-sm'>
+					{auditory_name}
+				</span>
+			</p>
 		</div>
 	)
 }
@@ -127,6 +143,7 @@ const Schedule1 = ({
 	next_active,
 	selectedOffset,
 	WeekNumber,
+	role,
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
 	const [selected, setSelected] = useState(false)
@@ -163,30 +180,38 @@ const Schedule1 = ({
 	return (
 		<>
 			<div className='flex items-center justify-between m-3'>
-				<div className='w-full flex items-center gap-3 relative'>
-					<button
-						type={'button'}
-						onClick={() => {
-							setSelected(prev => !prev)
-						}}
-						className={`bg-transparent px-4 py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
-							selected
-								? 'text-[var(--hero-epta)] ring-[var(--hero-epta)]'
-								: 'text-[var(--black)]  ring-[var(--black)]'
-						}`}
-					>
-						Найти преподавателя
-					</button>
-					<div
-						className={`transition-all  ${
-							!selected && 'absolute opacity-0 -z-1'
-						}`}
-					>
-						<OptionSearch placeholder='Иванов И..' />
-					</div>
-				</div>
+				{role === 'student' && (
+					<>
+						<div className='w-full flex items-center gap-3 relative'>
+							<button
+								type={'button'}
+								onClick={() => {
+									setSelected(prev => !prev)
+								}}
+								className={`bg-transparent px-4 py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
+									selected
+										? 'text-[var(--hero-epta)] ring-[var(--hero-epta)]'
+										: 'text-[var(--black)]  ring-[var(--black)]'
+								}`}
+							>
+								Найти преподавателя
+							</button>
+							<div
+								className={`transition-all  ${
+									!selected && 'absolute opacity-0 -z-1'
+								}`}
+							>
+								<OptionSearch placeholder='Иванов И..' />
+							</div>
+						</div>
+					</>
+				)}
 
-				<div className='w-full justify-end flex items-center gap-5 text-[var(--black)]'>
+				<div
+					className={`w-full ${
+						role !== 'student' ? 'justify-center' : 'justify-end'
+					}  flex items-center gap-5 text-[var(--black)]`}
+				>
 					<ChevronLeft
 						size={48}
 						onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
@@ -228,6 +253,7 @@ const Schedule1 = ({
 												time_end={lesson.time_end}
 												title={lesson.title}
 												description={lesson.description}
+												auditory_name={lesson.auditory_name}
 											/>
 										)
 									})
@@ -254,6 +280,7 @@ const Schedule2 = ({
 	next_active,
 	selectedOffset,
 	WeekNumber,
+	role,
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
 	const today = startOfToday()
@@ -304,28 +331,32 @@ const Schedule2 = ({
 	return (
 		<>
 			<div className='w-full relative flex flex-col justify-center mb-3 text-[var(--black)]'>
-				<div className='w-full flex items-center'>
-					<button
-						type={'button'}
-						onClick={() => {
-							setSelected(prev => !prev)
-						}}
-						className={`bg-transparent w-full py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
-							selected
-								? 'text-[var(--hero-epta)] ring-[var(--hero-epta)]'
-								: 'text-[var(--black)]  ring-[var(--black)]'
-						}`}
-					>
-						Найти преподавателя
-					</button>
-				</div>
-				<div
-					className={`transition-all w-full my-3 ${
-						!selected && 'absolute opacity-0 -z-1'
-					}`}
-				>
-					<OptionSearch placeholder='Иванов И..' />
-				</div>
+				{role === 'student' && (
+					<>
+						<div className='w-full flex items-center'>
+							<button
+								type={'button'}
+								onClick={() => {
+									setSelected(prev => !prev)
+								}}
+								className={`bg-transparent w-full py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
+									selected
+										? 'text-[var(--hero-epta)] ring-[var(--hero-epta)]'
+										: 'text-[var(--black)]  ring-[var(--black)]'
+								}`}
+							>
+								Найти преподавателя
+							</button>
+						</div>
+						<div
+							className={`transition-all w-full my-3 ${
+								!selected && 'absolute opacity-0 -z-1'
+							}`}
+						>
+							<OptionSearch placeholder='Иванов И..' />
+						</div>
+					</>
+				)}
 
 				<div className='w-full flex items-center justify-between text-[var(--black)]'>
 					<ChevronLeft
@@ -376,6 +407,7 @@ const Schedule2 = ({
 									time_end={lesson.time_end}
 									title={lesson.title}
 									description={lesson.description}
+									auditory_name={lesson.auditory_name}
 								/>
 							)
 						})
@@ -390,7 +422,7 @@ const Schedule2 = ({
 	)
 }
 
-const SchedulePage = () => {
+const SchedulePage = ({ role }) => {
 	const [scheduleData, setScheduleData] = useState({})
 	const [allScheduleData, setAllScheduleData] = useState({})
 	const [loading, setLoading] = useState(false)
@@ -418,13 +450,47 @@ const SchedulePage = () => {
 			const normalized = {}
 
 			Object.entries(data?.schedule).forEach(([date, lessons]) => {
-				const shortDate = date.split('T')[0] // 2025-11-17
+				const shortDate = date.split('T')[0]
 
-				normalized[shortDate] = lessons.map(lesson => ({
-					time_start: lesson.time_start.slice(0, 5), // 08:00
-					time_end: lesson.time_end.slice(0, 5), // 09:20
+				// Если роль преподаватель — сначала группируем
+				let preparedLessons = lessons
+
+				if (role === 'teacher') {
+					const map = {}
+
+					lessons.forEach(lesson => {
+						// ключ по важным параметрам
+						const key = [
+							lesson.time_start,
+							lesson.time_end,
+							lesson.subject,
+							lesson.lesson_type,
+							lesson.teacher_name,
+							lesson.auditory_name,
+						].join('|')
+
+						if (!map[key]) {
+							map[key] = {
+								...lesson,
+								group_names: [lesson.group_name], // ← собираем группы
+							}
+						} else {
+							map[key].group_names.push(lesson.group_name)
+						}
+					})
+
+					preparedLessons = Object.values(map)
+				}
+
+				normalized[shortDate] = preparedLessons.map(lesson => ({
+					time_start: lesson.time_start.slice(0, 5),
+					time_end: lesson.time_end.slice(0, 5),
 					title: `${lesson.subject} (${lesson.lesson_type})`,
-					description: `${lesson.teacher_name}, ауд. ${lesson.auditory_name}`,
+					description:
+						role === 'student'
+							? lesson.teacher_name
+							: `${lesson.group_names?.join(', ')}`,
+					auditory_name: lesson.auditory_name,
 					raw: lesson,
 				}))
 			})
@@ -459,6 +525,7 @@ const SchedulePage = () => {
 							next_active={allScheduleData?.has_next}
 							selectedOffset={current_week}
 							WeekNumber={allScheduleData?.current_week_number}
+							role={role}
 						/>
 					</div>
 					<div className='max-lg:hidden'>
@@ -469,6 +536,7 @@ const SchedulePage = () => {
 							next_active={allScheduleData?.has_next}
 							selectedOffset={current_week}
 							WeekNumber={allScheduleData?.current_week_number}
+							role={role}
 						/>
 					</div>
 				</>
