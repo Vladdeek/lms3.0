@@ -44,11 +44,16 @@ export default function DashboardLayout({ onChange }) {
 					icon: GraduationCap,
 					to: '/catalogt',
 				},
-				// {
-				// 	title: 'Задания',
-				// 	icon: CopyCheck,
-				// 	to: '/students',
-				// },
+				{
+					title: 'Расписание',
+					icon: CalendarDays,
+					to: '/schedule',
+				},
+				{
+					title: 'Задания',
+					icon: CopyCheck,
+					to: '/students',
+				},
 			],
 			student: [
 				{
@@ -62,11 +67,11 @@ export default function DashboardLayout({ onChange }) {
 					to: '/schedule',
 				},
 
-				// {
-				// 	title: 'Оценки',
-				// 	icon: CopyCheck,
-				// 	to: '/score',
-				// },
+				{
+					title: 'Оценки',
+					icon: CopyCheck,
+					to: '/score',
+				},
 			],
 			moderator: [
 				{

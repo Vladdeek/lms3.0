@@ -9,7 +9,7 @@ import {
 	ScanSearch,
 	Search,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AltLoader } from './Loader'
 
 export const InputDefault = ({
@@ -539,6 +539,85 @@ export const OptionInput = ({
 							{typeof item === 'object' ? item[labelKey] : item}
 						</p>
 					))}
+				</div>
+			)}
+		</div>
+	)
+}
+
+export const OptionSearch = ({
+	Options = [],
+	color = 'white',
+	placeholder = '',
+	onChange,
+
+	labelKey = 'name',
+}) => {
+	const [isOpen, setIsOpen] = useState(false)
+	const [query, setQuery] = useState('')
+	const [selectedIndex, setSelectedIndex] = useState(null)
+
+	const filtered = useMemo(() => {
+		return Options.filter(opt => {
+			const text = typeof opt === 'object' ? opt[labelKey] : String(opt ?? '')
+			return text.toLowerCase().includes(query.toLowerCase())
+		})
+	}, [query, Options, labelKey])
+
+	useEffect(() => {
+		if (selectedIndex !== null) onChange?.(Options[selectedIndex])
+	}, [selectedIndex])
+
+	return (
+		<div className='relative select-none'>
+			<div
+				className={`${
+					color === 'white'
+						? 'bg-[var(--white)] text-[var(--black)]'
+						: 'bg-[var(--black)] text-[var(--white)]'
+				} flex justify-between rounded-lg shadow-[var(--shadow)] px-4 py-3 font-medium w-full
+                focus-within:ring-2 focus-within:ring-[var(--hero-epta)] transition-all items-center
+				`}
+			>
+				<input
+					value={query}
+					onChange={e => setQuery(e.target.value)}
+					placeholder={placeholder}
+					className='w-full bg-transparent outline-none'
+					onFocus={() => setIsOpen(true)}
+					onBlur={() => {
+						setTimeout(() => setIsOpen(false), 150)
+					}}
+				/>
+				<ChevronDown
+					className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
+				/>
+			</div>
+
+			{isOpen && (
+				<div
+					className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
+					max-h-50 overflow-y-scroll hide-scrollbar w-full top-13 z-10 text-[var(--black)]'
+				>
+					{filtered.length === 0 && (
+						<p className='px-3 py-2 opacity-50'>Ничего нет</p>
+					)}
+
+					{filtered.map((item, index) => {
+						const originalIndex = Options.indexOf(item)
+						return (
+							<p
+								key={originalIndex}
+								onMouseDown={() => {
+									setSelectedIndex(originalIndex)
+									setQuery(typeof item === 'object' ? item[labelKey] : item)
+								}}
+								className='px-3 py-2 transition-all hover:bg-[var(--light-middle)] cursor-pointer'
+							>
+								{typeof item === 'object' ? item[labelKey] : item}
+							</p>
+						)
+					})}
 				</div>
 			)}
 		</div>

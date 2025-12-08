@@ -18,6 +18,7 @@ import { getCookie } from '../TOKEN'
 import Loader from '../components/Loader'
 import axios from 'axios'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { OptionSearch } from '../components/Inputs'
 
 const ScheduleCard1 = ({
 	lessonIndex,
@@ -128,6 +129,7 @@ const Schedule1 = ({
 	WeekNumber,
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
+	const [selected, setSelected] = useState(false)
 	const today = new Date()
 	const weekStart = startOfWeek(addWeeks(today, weekOffset), {
 		weekStartsOn: 1,
@@ -160,19 +162,45 @@ const Schedule1 = ({
 
 	return (
 		<>
-			<div className='w-full flex justify-center items-center gap-5 text-[var(--black)]'>
-				<ChevronLeft
-					size={48}
-					onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
-					className={`${!prev_active && 'opacity-50 cursor-not-allowed'}`}
-				/>
-				<p className='font-medium text-2xl mt-0.5'>Неделя {WeekNumber}</p>
-				<ChevronRight
-					size={48}
-					onClick={() => next_active && setWeekOffset(prev => prev + 1)}
-					className={`${!next_active && 'opacity-50 cursor-not-allowed'}`}
-				/>
+			<div className='flex items-center justify-between m-3'>
+				<div className='w-full flex items-center gap-3 relative'>
+					<button
+						type={'button'}
+						onClick={() => {
+							setSelected(prev => !prev)
+						}}
+						className={`bg-transparent px-4 py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
+							selected
+								? 'text-[var(--hero-epta)] ring-[var(--hero-epta)]'
+								: 'text-[var(--black)]  ring-[var(--black)]'
+						}`}
+					>
+						Найти преподавателя
+					</button>
+					<div
+						className={`transition-all  ${
+							!selected && 'absolute opacity-0 -z-1'
+						}`}
+					>
+						<OptionSearch placeholder='Иванов И..' />
+					</div>
+				</div>
+
+				<div className='w-full justify-end flex items-center gap-5 text-[var(--black)]'>
+					<ChevronLeft
+						size={48}
+						onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
+						className={`${!prev_active && 'opacity-50 cursor-not-allowed'}`}
+					/>
+					<p className='font-medium text-2xl mt-0.5'>Неделя {WeekNumber}</p>
+					<ChevronRight
+						size={48}
+						onClick={() => next_active && setWeekOffset(prev => prev + 1)}
+						className={`${!next_active && 'opacity-50 cursor-not-allowed'}`}
+					/>
+				</div>
 			</div>
+
 			<div className=' grid grid-cols-6 gap-2'>
 				{weekDays.map((day, index) => {
 					const dateString = format(day, 'yyyy-MM-dd')
@@ -229,6 +257,7 @@ const Schedule2 = ({
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
 	const today = startOfToday()
+	const [selected, setSelected] = useState(false)
 
 	// 🔥 Начало текущей недели (понедельник)
 	const weekStart = startOfWeek(addWeeks(today, weekOffset), {
@@ -274,18 +303,43 @@ const Schedule2 = ({
 
 	return (
 		<>
-			<div className='w-full flex justify-between items-center mb-3 text-[var(--black)]'>
-				<ChevronLeft
-					size={48}
-					onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
-					className={`${!prev_active && 'opacity-50 cursor-not-allowed'}`}
-				/>
-				<p className='font-medium text-2xl mt-0.5'>Неделя {WeekNumber}</p>
-				<ChevronRight
-					size={48}
-					onClick={() => next_active && setWeekOffset(prev => prev + 1)}
-					className={`${!next_active && 'opacity-50 cursor-not-allowed'}`}
-				/>
+			<div className='w-full relative flex flex-col justify-center mb-3 text-[var(--black)]'>
+				<div className='w-full flex items-center'>
+					<button
+						type={'button'}
+						onClick={() => {
+							setSelected(prev => !prev)
+						}}
+						className={`bg-transparent w-full py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
+							selected
+								? 'text-[var(--hero-epta)] ring-[var(--hero-epta)]'
+								: 'text-[var(--black)]  ring-[var(--black)]'
+						}`}
+					>
+						Найти преподавателя
+					</button>
+				</div>
+				<div
+					className={`transition-all w-full my-3 ${
+						!selected && 'absolute opacity-0 -z-1'
+					}`}
+				>
+					<OptionSearch placeholder='Иванов И..' />
+				</div>
+
+				<div className='w-full flex items-center justify-between text-[var(--black)]'>
+					<ChevronLeft
+						size={48}
+						onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
+						className={`${!prev_active && 'opacity-50 cursor-not-allowed'}`}
+					/>
+					<p className='font-medium text-2xl mt-0.5'>Неделя {WeekNumber}</p>
+					<ChevronRight
+						size={48}
+						onClick={() => next_active && setWeekOffset(prev => prev + 1)}
+						className={`${!next_active && 'opacity-50 cursor-not-allowed'}`}
+					/>
+				</div>
 			</div>
 			<div className='grid grid-cols-6 gap-2'>
 				{/* Дни недели */}

@@ -396,6 +396,8 @@ const ContentView = ({
 		try {
 			const payload = studentWork?.map(f => f.file_path)
 
+			console.log('payload: ', payload)
+
 			const res = await api.post(
 				`${API}/sections/${sectionId}/upload/assignment`,
 				payload,
