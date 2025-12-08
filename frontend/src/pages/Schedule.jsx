@@ -389,7 +389,7 @@ const SchedulePage = () => {
 	}, [current_week])
 
 	return (
-		<div className='flex flex-col gap-2 p-4 h-screen'>
+		<div className='flex flex-col gap-2 p-4 min-h-[calc(100vh-100px)]'>
 			<div className='hidden'>
 				<DirectionOfTraining group={'2211-0101.1'} course={3} DofT={'ИБ'} />
 			</div>
