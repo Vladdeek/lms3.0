@@ -622,7 +622,7 @@ export const OptionSearch = ({
 								setQuery(item)
 								onSelect?.(item)
 							}}
-							className='text-left px-3 py-2 transition-all hover:bg-[var(--light-middle)] cursor-pointer w-full'
+							className='text-left px-3 py-2 transition-all hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer w-full'
 						>
 							{item}
 						</button>

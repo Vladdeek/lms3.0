@@ -361,7 +361,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 						{userRolesLoading ? (
 							<Loader />
 						) : (
-							<div className='flex flex-col items-center gap-3 w-full'>
+							<div className='flex flex-col items-center gap-3 w-full text-[var(--black)]'>
 								{roleMass.map((item, index) => {
 									return (
 										<div key={index} className='w-full'>
