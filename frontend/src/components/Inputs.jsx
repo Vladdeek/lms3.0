@@ -550,23 +550,30 @@ export const OptionSearch = ({
 	color = 'white',
 	placeholder = '',
 	onChange,
-
+	onSearch, // ← НОВОЕ
 	labelKey = 'name',
+	onSelect,
 }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [query, setQuery] = useState('')
 	const [selectedIndex, setSelectedIndex] = useState(null)
 
-	const filtered = useMemo(() => {
-		return Options.filter(opt => {
-			const text = typeof opt === 'object' ? opt[labelKey] : String(opt ?? '')
-			return text.toLowerCase().includes(query.toLowerCase())
-		})
-	}, [query, Options, labelKey])
+	// УДАЛЯЕМ useMemo — фильтр больше не нужен!
+	// ДАННЫЕ уже приходят с бэка.
+
+	const handleChange = e => {
+		const value = e.target.value
+		setQuery(value)
+		onSearch?.(value) // ← передаём вверх, запускаем fetch
+	}
 
 	useEffect(() => {
-		if (selectedIndex !== null) onChange?.(Options[selectedIndex])
+		if (selectedIndex !== null) {
+			onChange?.(Options[selectedIndex])
+		}
 	}, [selectedIndex])
+
+	console.log(Options)
 
 	return (
 		<div className='relative select-none'>
@@ -576,19 +583,17 @@ export const OptionSearch = ({
 						? 'bg-[var(--white)] text-[var(--black)]'
 						: 'bg-[var(--black)] text-[var(--white)]'
 				} flex justify-between rounded-lg shadow-[var(--shadow)] px-4 py-3 font-medium w-full
-                focus-within:ring-2 focus-within:ring-[var(--hero-epta)] transition-all items-center
-				`}
+					focus-within:ring-2 focus-within:ring-[var(--hero-epta)] transition-all items-center`}
 			>
 				<input
 					value={query}
-					onChange={e => setQuery(e.target.value)}
+					onChange={handleChange}
 					placeholder={placeholder}
 					className='w-full bg-transparent outline-none'
 					onFocus={() => setIsOpen(true)}
-					onBlur={() => {
-						setTimeout(() => setIsOpen(false), 150)
-					}}
+					onBlur={() => setTimeout(() => setIsOpen(false), 150)}
 				/>
+
 				<ChevronDown
 					className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
 				/>
@@ -599,25 +604,29 @@ export const OptionSearch = ({
 					className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
 					max-h-50 overflow-y-scroll hide-scrollbar w-full top-13 z-10 text-[var(--black)]'
 				>
-					{filtered.length === 0 && (
-						<p className='px-3 py-2 opacity-50'>Ничего нет</p>
-					)}
+					{Options.length === 0 &&
+						(query.length === 0 ? (
+							<p className='px-3 py-2 opacity-50'>Ничего нет</p>
+						) : (
+							<div className='w-full h-15 flex justify-center items-center'>
+								<AltLoader />
+							</div>
+						))}
 
-					{filtered.map((item, index) => {
-						const originalIndex = Options.indexOf(item)
-						return (
-							<p
-								key={originalIndex}
-								onMouseDown={() => {
-									setSelectedIndex(originalIndex)
-									setQuery(typeof item === 'object' ? item[labelKey] : item)
-								}}
-								className='px-3 py-2 transition-all hover:bg-[var(--light-middle)] cursor-pointer'
-							>
-								{typeof item === 'object' ? item[labelKey] : item}
-							</p>
-						)
-					})}
+					{Options.map((item, index) => (
+						<button
+							type='button'
+							key={index}
+							onClick={() => {
+								setSelectedIndex(index)
+								setQuery(item)
+								onSelect?.(item)
+							}}
+							className='text-left px-3 py-2 transition-all hover:bg-[var(--light-middle)] cursor-pointer w-full'
+						>
+							{item}
+						</button>
+					))}
 				</div>
 			)}
 		</div>

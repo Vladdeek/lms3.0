@@ -12,13 +12,14 @@ import {
 } from 'date-fns'
 import { da, ru } from 'date-fns/locale'
 import DirectionOfTraining from '../components/DirectionOfTraining'
-import { use, useEffect, useMemo, useState } from 'react'
+import { use, useEffect, useMemo, useRef, useState } from 'react'
 import api, { API } from '../API'
 import { getCookie } from '../TOKEN'
 import Loader from '../components/Loader'
 import axios from 'axios'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { OptionSearch } from '../components/Inputs'
+import { setGlobalError } from '../components/Errors'
 
 const ScheduleCard1 = ({
 	lessonIndex,
@@ -144,6 +145,8 @@ const Schedule1 = ({
 	selectedOffset,
 	WeekNumber,
 	role,
+	onClick,
+	onSelected,
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
 	const [selected, setSelected] = useState(false)
@@ -173,6 +176,53 @@ const Schedule1 = ({
 		}
 	}
 
+	const [isLoading, setIsLoading] = useState(3)
+	const [isSearchLoading, setIsSearchLoading] = useState(null)
+
+	const [teachers, setTeachers] = useState([])
+	const [searchTeachers, setSearchTeachers] = useState('')
+
+	const teachersDebounce = useRef(null)
+
+	const fetchTeachers = async term => {
+		try {
+			setIsLoading(isSearchLoading !== null ? null : 1)
+
+			const res = await api.get(
+				`${API}/teacher-profile${term?.length ? `?term=${term}` : ''}`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
+
+			setGlobalError(null)
+			setTeachers(res.data.map(t => t.mmis_name))
+
+			setIsLoading(null)
+			setIsSearchLoading(null)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+	useEffect(() => {
+		if (searchTeachers === '') {
+			fetchTeachers()
+			return
+		}
+
+		if (teachersDebounce.current) clearTimeout(teachersDebounce.current)
+
+		teachersDebounce.current = setTimeout(() => {
+			fetchTeachers(searchTeachers)
+		}, 1500)
+
+		return () => clearTimeout(teachersDebounce.current)
+	}, [searchTeachers])
+
 	useEffect(() => {
 		Offset?.(weekOffset)
 	}, [weekOffset])
@@ -185,8 +235,11 @@ const Schedule1 = ({
 						<div className='w-full flex items-center gap-3 relative'>
 							<button
 								type={'button'}
-								onClick={() => {
-									setSelected(prev => !prev)
+								onClick={e => {
+									e.preventDefault()
+									const newValue = !selected
+									setSelected(newValue)
+									onSelected?.(newValue) // ← ДОБАВИТЬ ЭТО
 								}}
 								className={`bg-transparent px-4 py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
 									selected
@@ -201,7 +254,12 @@ const Schedule1 = ({
 									!selected && 'absolute opacity-0 -z-1'
 								}`}
 							>
-								<OptionSearch placeholder='Иванов И..' />
+								<OptionSearch
+									placeholder='Иванов И..'
+									onSearch={term => setSearchTeachers(term)}
+									Options={teachers}
+									onSelect={teacher => onClick(teacher)}
+								/>
 							</div>
 						</div>
 					</>
@@ -281,6 +339,8 @@ const Schedule2 = ({
 	selectedOffset,
 	WeekNumber,
 	role,
+	onClick,
+	onSelected,
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
 	const today = startOfToday()
@@ -322,11 +382,58 @@ const Schedule2 = ({
 	const selectedDateString = format(selectedDay, 'yyyy-MM-dd')
 	const selectedDaySchedule = scheduleData?.[selectedDateString] || []
 
+	const [isLoading, setIsLoading] = useState(3)
+	const [isSearchLoading, setIsSearchLoading] = useState(null)
+
+	const [teachers, setTeachers] = useState([])
+	const [searchTeachers, setSearchTeachers] = useState('')
+
+	const teachersDebounce = useRef(null)
+
+	const fetchTeachers = async term => {
+		try {
+			setIsLoading(isSearchLoading !== null ? null : 1)
+
+			const res = await api.get(
+				`${API}/teacher-profile${term?.length ? `&term=${term}` : ''}`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
+
+			console.log(res)
+
+			setGlobalError(null)
+			setTeachers(res.data.map(t => t.mmis_name))
+
+			setIsLoading(null)
+			setIsSearchLoading(null)
+		} catch (error) {
+			setGlobalError(error)
+		}
+	}
+	useEffect(() => {
+		if (searchTeachers === '') {
+			fetchTeachers()
+			return
+		}
+
+		if (teachersDebounce.current) clearTimeout(teachersDebounce.current)
+
+		teachersDebounce.current = setTimeout(() => {
+			fetchTeachers(searchTeachers)
+		}, 500)
+
+		return () => clearTimeout(teachersDebounce.current)
+	}, [searchTeachers])
+
 	useEffect(() => {
 		Offset?.(weekOffset)
 	}, [weekOffset])
-
-	console.log(prev_active, next_active)
 
 	return (
 		<>
@@ -336,8 +443,11 @@ const Schedule2 = ({
 						<div className='w-full flex items-center'>
 							<button
 								type={'button'}
-								onClick={() => {
-									setSelected(prev => !prev)
+								onClick={e => {
+									e.preventDefault()
+									const newValue = !selected
+									setSelected(newValue)
+									onSelected?.(newValue) // ← ДОБАВИТЬ ЭТО
 								}}
 								className={`bg-transparent w-full py-2.5 ring-2 rounded-lg cursor-pointer transition-all font-medium text-xl ${
 									selected
@@ -353,7 +463,12 @@ const Schedule2 = ({
 								!selected && 'absolute opacity-0 -z-1'
 							}`}
 						>
-							<OptionSearch placeholder='Иванов И..' />
+							<OptionSearch
+								placeholder='Иванов И..'
+								onSearch={term => setSearchTeachers(term)}
+								Options={teachers}
+								onSelect={teacher => onClick(teacher)}
+							/>
 						</div>
 					</>
 				)}
@@ -429,12 +544,20 @@ const SchedulePage = ({ role }) => {
 	const [error, setError] = useState(null)
 	const [current_week, setCurrentWeek] = useState(0)
 
+	const [selected, setSelected] = useState(false)
+
+	const [teacher, setTeacher] = useState('')
+
 	const loadSchedule = async () => {
 		setLoading(true)
 
 		try {
 			const res = await api.get(
-				`${API}/schedule-lessons?week_offset=${current_week}`,
+				`${API}/schedule-lessons${
+					teacher && selected ? '/teacher' : ''
+				}?week_offset=${current_week}${
+					teacher && selected ? `&mmis_name=${encodeURIComponent(teacher)}` : ''
+				}`,
 				{
 					withCredentials: true,
 					headers: {
@@ -455,7 +578,7 @@ const SchedulePage = ({ role }) => {
 				// Если роль преподаватель — сначала группируем
 				let preparedLessons = lessons
 
-				if (role === 'teacher') {
+				if (role === 'teacher' || teacher) {
 					const map = {}
 
 					lessons.forEach(lesson => {
@@ -508,15 +631,24 @@ const SchedulePage = ({ role }) => {
 		loadSchedule()
 	}, [current_week])
 
+	useEffect(() => {
+		if (!selected || (selected && teacher)) {
+			loadSchedule()
+		}
+	}, [selected, teacher])
+
 	return (
 		<div className='flex flex-col gap-2 p-4 max-md:mb-20 md:min-h-[calc(100vh-100px)] '>
 			<div className='hidden'>
 				<DirectionOfTraining group={'2211-0101.1'} course={3} DofT={'ИБ'} />
 			</div>
-			{loading ? (
-				<Loader />
-			) : (
-				<>
+			<>
+				{loading && (
+					<div className='fixed inset-0 flex items-center justify-center z-[9999]'>
+						<Loader />
+					</div>
+				)}
+				<div className={`${loading ? 'pointer-events-none opacity-30' : ''}`}>
 					<div className='lg:hidden'>
 						<Schedule2
 							scheduleData={scheduleData}
@@ -526,6 +658,10 @@ const SchedulePage = ({ role }) => {
 							selectedOffset={current_week}
 							WeekNumber={allScheduleData?.current_week_number}
 							role={role}
+							onClick={data => {
+								setTeacher(data)
+							}}
+							onSelected={data => setSelected(data)}
 						/>
 					</div>
 					<div className='max-lg:hidden'>
@@ -537,10 +673,14 @@ const SchedulePage = ({ role }) => {
 							selectedOffset={current_week}
 							WeekNumber={allScheduleData?.current_week_number}
 							role={role}
+							onClick={data => {
+								setTeacher(data)
+							}}
+							onSelected={data => setSelected(data)}
 						/>
 					</div>
-				</>
-			)}
+				</div>
+			</>
 		</div>
 	)
 }
