@@ -395,7 +395,7 @@ const Schedule2 = ({
 			setIsLoading(isSearchLoading !== null ? null : 1)
 
 			const res = await api.get(
-				`${API}/teacher-profile${term?.length ? `&term=${term}` : ''}`,
+				`${API}/teacher-profile${term?.length ? `?term=${term}` : ''}`,
 				{
 					withCredentials: true,
 					headers: {
@@ -405,15 +405,13 @@ const Schedule2 = ({
 				}
 			)
 
-			console.log(res)
-
 			setGlobalError(null)
 			setTeachers(res.data.map(t => t.mmis_name))
 
 			setIsLoading(null)
 			setIsSearchLoading(null)
 		} catch (error) {
-			setGlobalError(error)
+			console.log(error)
 		}
 	}
 	useEffect(() => {
@@ -426,7 +424,7 @@ const Schedule2 = ({
 
 		teachersDebounce.current = setTimeout(() => {
 			fetchTeachers(searchTeachers)
-		}, 500)
+		}, 1500)
 
 		return () => clearTimeout(teachersDebounce.current)
 	}, [searchTeachers])
