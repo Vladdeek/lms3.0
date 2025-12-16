@@ -229,6 +229,29 @@ export const FileInput = ({
 	const validFormats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 	const maxSize = 10 * 1024 * 1024 // 20 MB
 
+	const getImageDimensions = file => {
+		return new Promise((resolve, reject) => {
+			const img = new Image()
+			const url = URL.createObjectURL(file)
+
+			img.onload = function () {
+				const dimensions = {
+					width: this.width,
+					height: this.height,
+				}
+				URL.revokeObjectURL(url)
+				resolve(dimensions)
+			}
+
+			img.onerror = function () {
+				URL.revokeObjectURL(url)
+				reject(new Error('Не удалось загрузить изображение'))
+			}
+
+			img.src = url
+		})
+	}
+
 	const validateFile = async file => {
 		if (!file) {
 			setInputStatus(false)
