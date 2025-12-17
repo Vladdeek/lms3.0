@@ -5,6 +5,9 @@ import MoodBlock from '../components/MoodBlock'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import { NavLink } from 'react-router-dom'
 import DirectionOfTraining from '../components/DirectionOfTraining'
+import { useEffect, useState } from 'react'
+import api, { API } from '../API'
+import { getCookie } from '../TOKEN'
 
 const Comment = ({ img_path, FullName, lesson, comment }) => {
 	return (
@@ -83,6 +86,30 @@ const LessonCard = ({ lesson, description, status, deadline }) => {
 const Dashboard = () => {
 	const percentage = 75
 
+	const [userInfo, setUserInfo] = useState(null)
+
+	const fetchUser = async () => {
+		try {
+			const res = await api.get(`${API}/users/me`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
+			console.log(res.data)
+
+			setUserInfo(res.data)
+		} catch (error) {
+			console.error('Ошибка при получении данных пользователя:', error)
+		}
+	}
+
+	useEffect(() => {
+		fetchUser()
+	}, [])
+
 	return (
 		<div className='h-screen'>
 			<div className='grid grid-cols-12 gap-5 mt-10'>
@@ -92,11 +119,11 @@ const Dashboard = () => {
 							<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col items-center gap-3 rounded-xl p-4 mb-5'>
 								<img
 									className='aspect-square rounded-lg shadow-[var(--shadow)]'
-									src={students[0].img}
+									src='https://i.pinimg.com/736x/0d/ed/ef/0dedefd1d3bfc24d4e8c0ad4eec2a71e.jpg'
 									alt=''
 								/>
 								<p className='font-medium text-[var(--black)]'>
-									{students[0].name}
+									хуй залупа пенис
 								</p>
 							</div>
 							<DirectionOfTraining
@@ -229,18 +256,10 @@ const Dashboard = () => {
 							</p>
 							<div className='overflow-y-scroll hide-scrollbar w-full h-75 flex flex-col gap-3 p-1 pr-5 pb-2'>
 								<Comment
-									img_path={students[2].img}
-									FullName={students[2].name}
+									img_path='https://i.pinimg.com/736x/0d/ed/ef/0dedefd1d3bfc24d4e8c0ad4eec2a71e.jpg'
+									FullName='хуй залупа пенис'
 									lesson={'Практика №1'}
 									comment={'Знаю можешь лучше!!!'}
-								/>
-								<Comment
-									img_path={students[2].img}
-									FullName={students[2].name}
-									lesson={'Практика №2'}
-									comment={
-										'В принципе очень даже хорошо вот только есть там один сомнительный момент, пересдашь?'
-									}
 								/>
 							</div>
 						</div>
