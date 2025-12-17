@@ -15,6 +15,8 @@ import { CourseCard, WebinarCard } from '../components/Cards'
 import {
 	FileInput,
 	InputDefault,
+	OptionInput,
+	OptionSearch,
 	SearchInput,
 	TextArea,
 } from '../components/Inputs'
@@ -50,6 +52,14 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	const [img, setImg] = useState(null)
 
 	const [hintOpen, setHintOpen] = useState(null)
+
+	const [selected, setSelected] = useState(0)
+
+	const [selectedFilters, setSelectedFilters] = useState('all')
+	const options = [
+		{ value: 0, title: 'Свободное' },
+		{ value: 1, title: 'По нагрузке' },
+	]
 
 	const isFormValid = isNameValid
 
@@ -90,80 +100,262 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 		}
 	}
 
+	const [year, setYear] = useState([])
+	const [selectedYear, setSelectedYear] = useState(null)
+	const [semester, setSemester] = useState(['1', '2'])
+	const [selectedSemester, setSelectedSemester] = useState(null)
+	const [disciplines, setDisciplines] = useState([])
+	const fetchYear = async () => {
+		try {
+			const res = await api.get(`${API}/courses/study-year/all`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
+			setGlobalError(null)
+
+			console.log(res.data)
+			setYear(res.data)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const fetchDisciplines = async (year, semester) => {
+		try {
+			const res = await api.get(
+				`${API}/courses/disciplines/by-load?year=${year}&semester=${semester}`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
+
+			setGlobalError(null)
+			setDisciplines(res.data)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+	useEffect(() => {
+		if (selected === 1) {
+			fetchYear()
+		}
+		if (selected === 0) {
+			setDisciplines([])
+		}
+	}, [selected])
+
+	useEffect(() => {
+		selectedYear !== null &&
+			selectedSemester !== null &&
+			fetchDisciplines(year[selectedYear], semester[selectedSemester])
+	}, [selectedYear, selectedSemester])
+
+	// const [year, setYear] = useState([])
+	// const [searchYear, setSearchYear] = useState('')
+
+	// const yearDebounce = useRef(null)
+
+	// const fetchYear = async term => {
+	// 	try {
+	// 		setIsLoading(isSearchLoading !== null ? null : 1)
+
+	// 		const res = await api.get(
+	// 			`${API}/teacher-profile${term?.length ? `?term=${term}` : ''}`,
+	// 			{
+	// 				withCredentials: true,
+	// 				headers: {
+	// 					'Content-Type': 'application/json',
+	// 					'X-CSRF-TOKEN': getCookie('csrftoken'),
+	// 				},
+	// 			}
+	// 		)
+
+	// 		setGlobalError(null)
+	// 		setYear(res.data.map(t => t.mmis_name))
+
+	// 		setIsLoading(null)
+	// 		setIsSearchLoading(null)
+	// 	} catch (error) {
+	// 		console.log(error)
+	// 	}
+	// }
+	// useEffect(() => {
+	// 	if (searchYear === '') {
+	// 		fetchYear()
+	// 		return
+	// 	}
+
+	// 	if (yearDebounce.current) clearTimeout(yearDebounce.current)
+
+	// 	yearDebounce.current = setTimeout(() => {
+	// 		fetchYear(searchYear)
+	// 	}, 1500)
+
+	// 	return () => clearTimeout(yearDebounce.current)
+	// }, [searchYear])
+
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
-			<div className='bg-[var(--white)] relative p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001'>
+			<div className='bg-[var(--white)] relative p-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001'>
 				<X
 					onClick={onClose}
-					className='absolute top-1 right-1 text-[var(--middle)]'
+					className='absolute top-1.5 right-1.5 text-[var(--middle)] cursor-pointer hover:text-white  hover:bg-red-500 hover:rounded-full hover:p-0.5  transition-all'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
 					Создание курса
 				</h2>
-				<form
-					onSubmit={handleSubmit}
-					className='w-[482px] inline-flex flex-col items-center gap-5'
-				>
-					<InputDefault
-						type='text'
-						placeholder=''
-						title='Введите название курса'
-						required={true}
-						InputStatus={false}
-						onStatusChange={setIsNameValid}
-						value={title}
-						onChange={e => setTitle(e.target.value)}
-					/>
+				<div className='flex gap-3 w-full justify-center mb-3'>
+					{options?.map(option => (
+						<RadioButton
+							key={option?.value}
+							name='example'
+							value={option?.value}
+							title={option?.title}
+							icon={option?.icon}
+							checked={selected === option?.value}
+							onChange={() => setSelected(option?.value)}
+						/>
+					))}
+				</div>
 
-					<TextArea
-						type='text'
-						placeholder=''
-						title='Введите описание'
-						value={description}
-						onChange={e => setDescription(e.target.value)}
-						InputStatus={false}
-					/>
-					<div className='flex flex-col gap-3'>
-						<div className='inline-flex items-center gap-[10px]'>
-							<p className={`text-[18px] text-[var(--middle)]`}>
-								Загрузите превью
-							</p>
-							<div className='relative'>
-								<CircleQuestionMark
-									onClick={() =>
-										setHintOpen(prev => (prev === null ? 1 : null))
-									}
-									className='text-blue-500  cursor-pointer'
-									size={16}
-								/>
-								<div
-									className={`${
-										hintOpen === 1
-											? 'opacity-100 scale-100'
-											: 'opacity-0 scale-0 -translate-x-1/2'
-									} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 rounded-lg`}
-								>
-									<p>
-										При отсутствии загруженного изображения система
-										автоматически сгенерирует превью.
-									</p>
+				{selected === 0 ? (
+					<form
+						onSubmit={handleSubmit}
+						className='w-[482px] inline-flex flex-col items-center gap-5'
+					>
+						{/* <button
+						type='button'
+						onClick={() => setSelected(prev => !prev)}
+						className={`border-1 px-4 py-2 rounded-lg transition-all cursor-pointer ${
+							!selected
+								? 'hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] hover:scale-101 border-[var(--middle)] text-[var(--middle)] active:scale-99'
+								: 'border-[var(--hero-epta)] bg-[var(--hero-epta)] text-white hover:scale-101 active:scale-99'
+						}  `}
+					>
+						Создать по учебному плану
+					</button> */}
+
+						<InputDefault
+							type='text'
+							placeholder=''
+							title='Введите название курса'
+							required={true}
+							InputStatus={false}
+							onStatusChange={setIsNameValid}
+							value={title}
+							onChange={e => setTitle(e.target.value)}
+						/>
+						<TextArea
+							type='text'
+							placeholder=''
+							title='Введите описание'
+							value={description}
+							onChange={e => setDescription(e.target.value)}
+							InputStatus={false}
+						/>
+						<div className='flex flex-col gap-3'>
+							<div className='inline-flex items-center gap-[10px]'>
+								<p className={`text-[18px] text-[var(--middle)]`}>
+									Загрузите превью
+								</p>
+								<div className='relative'>
+									<CircleQuestionMark
+										onClick={() =>
+											setHintOpen(prev => (prev === null ? 1 : null))
+										}
+										className='text-blue-500  cursor-pointer'
+										size={16}
+									/>
+									<div
+										className={`${
+											hintOpen === 1
+												? 'opacity-100 scale-100'
+												: 'opacity-0 scale-0 -translate-x-1/2'
+										} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 rounded-lg`}
+									>
+										<p>
+											При отсутствии загруженного изображения система
+											автоматически сгенерирует превью.
+										</p>
+									</div>
 								</div>
 							</div>
+							<FileInput onFileChange={file => setImg(file)} />
 						</div>
-						<FileInput onFileChange={file => setImg(file)} />
-					</div>
+						<input
+							className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+								isFormValid
+									? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+									: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+							}`}
+							type='submit'
+							value='Создать курс'
+							disabled={!isFormValid}
+						/>
+					</form>
+				) : selected === 1 ? (
+					<form
+						onSubmit={handleSubmit}
+						className='w-[482px] inline-flex flex-col items-center gap-5'
+					>
+						<div className='w-full flex flex-col gap-3'>
+							<OptionInput
+								Options={year}
+								color='white'
+								placeholder={'Учебный год'}
+								onChange={data => setSelectedYear(data)}
+							/>
+							<OptionInput
+								Options={semester}
+								color='white'
+								placeholder={'Семестр'}
+								onChange={data => setSelectedSemester(data)}
+							/>
+						</div>
 
-					<input
-						className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
-							isFormValid
-								? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
-								: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
-						}`}
-						type='submit'
-						value='Создать курс'
-						disabled={!isFormValid}
-					/>
-				</form>
+						<div className=' bg-[var(--light-middle)] rounded-lg shadow-inner p-2 pr-2.75 overflow-y-scroll flex flex-col gap-2 w-full h-[39.5vh]'>
+							{disciplines?.map((item, i) => (
+								<div
+									key={i}
+									className='bg-[var(--white)] rounded-md shadow-[var(--shadow)] px-4 py-2 text-[var(--black)] cursor-pointer hover:scale-101 transition-all flex flex-col'
+								>
+									<p className='font-medium text-[var(--black)]'>
+										{item?.name}
+									</p>
+									<p className='font-light text-[var(--middle)]'>
+										{item?.study_plan?.replace(/\.plx$/, '')}
+									</p>
+								</div>
+							))}
+						</div>
+						{/* <OptionSearch
+							placeholder='Учебный год'
+							onSearch={term => setSearchYear(term)}
+							Options={year}
+							onSelect={teacher => onClick(teacher)}
+						/> */}
+						<input
+							className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+								isFormValid
+									? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+									: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+							}`}
+							type='submit'
+							value='Создать курс'
+							disabled={!isFormValid}
+						/>
+					</form>
+				) : (
+					<></>
+				)}
 			</div>
 		</div>
 	)
@@ -245,6 +437,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
 					Создание вебинара
 				</h2>
+
 				<form
 					onSubmit={handleSubmit}
 					className='w-[482px] inline-flex flex-col items-center gap-5'
