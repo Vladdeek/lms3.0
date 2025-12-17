@@ -105,6 +105,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	const [semester, setSemester] = useState(['1', '2'])
 	const [selectedSemester, setSelectedSemester] = useState(null)
 	const [disciplines, setDisciplines] = useState([])
+	const [selectedDisciplines, setSelectedDisciplines] = useState(null)
 	const fetchYear = async () => {
 		try {
 			const res = await api.get(`${API}/courses/study-year/all`, {
@@ -325,7 +326,11 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 							{disciplines?.map((item, i) => (
 								<div
 									key={i}
-									className='bg-[var(--white)] rounded-md shadow-[var(--shadow)] px-4 py-2 text-[var(--black)] cursor-pointer hover:scale-101 transition-all flex flex-col'
+									onClick={() => setSelectedDisciplines(i)}
+									className={`bg-[var(--white)] rounded-md shadow-[var(--shadow)] px-4 py-2 text-[var(--black)] cursor-pointer hover:scale-101 transition-all flex flex-col ${
+										selectedDisciplines === i &&
+										'bg-[var(--hero-epta)] text-white'
+									}`}
 								>
 									<p className='font-medium text-[var(--black)]'>
 										{item?.name}
