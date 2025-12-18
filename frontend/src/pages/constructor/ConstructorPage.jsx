@@ -635,6 +635,7 @@ const ConstructorPage = ({ role }) => {
 							onChange={showMassageFunc}
 						/>
 						{selected === 0 &&
+							sectionType &&
 							sectionType !== 'test' &&
 							(isEdit ? (
 								<Button
