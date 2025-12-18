@@ -16,6 +16,7 @@ import {
 	FileInput,
 	InputDefault,
 	OptionInput,
+	OptionInput2,
 	OptionSearch,
 	SearchInput,
 	TextArea,
@@ -61,12 +62,12 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 		{ value: 1, title: 'По нагрузке' },
 	]
 
-	const isFormValid = isNameValid
+	const isForm1Valid = isNameValid
 
-	const handleSubmit = async e => {
+	const handleSubmit1 = async e => {
 		e.preventDefault()
 
-		if (!isFormValid) return
+		if (!isForm1Valid) return
 
 		try {
 			const formData = new FormData()
@@ -106,6 +107,9 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	const [selectedSemester, setSelectedSemester] = useState(null)
 	const [disciplines, setDisciplines] = useState([])
 	const [selectedDisciplines, setSelectedDisciplines] = useState(null)
+
+	const isForm2Valid = selectedDisciplines !== null
+
 	const fetchYear = async () => {
 		try {
 			const res = await api.get(`${API}/courses/study-year/all`, {
@@ -117,8 +121,6 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			})
 
 			setGlobalError(null)
-
-			console.log(res.data)
 			setYear(res.data)
 		} catch (error) {
 			console.log(error)
@@ -150,6 +152,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 		}
 		if (selected === 0) {
 			setDisciplines([])
+			setSelectedDisciplines(null)
 		}
 	}, [selected])
 
@@ -159,49 +162,42 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			fetchDisciplines(year[selectedYear], semester[selectedSemester])
 	}, [selectedYear, selectedSemester])
 
-	// const [year, setYear] = useState([])
-	// const [searchYear, setSearchYear] = useState('')
+	const handleSubmit2 = async e => {
+		e.preventDefault()
 
-	// const yearDebounce = useRef(null)
+		if (!isForm1Valid) return
 
-	// const fetchYear = async term => {
-	// 	try {
-	// 		setIsLoading(isSearchLoading !== null ? null : 1)
+		try {
+			const formData = new FormData()
+			formData.append('name', title)
+			formData.append('description', description)
+			formData.append('teacher_profile_id', teacher_profile_id)
+			if (img !== null) formData.append('image', img)
 
-	// 		const res = await api.get(
-	// 			`${API}/teacher-profile${term?.length ? `?term=${term}` : ''}`,
-	// 			{
-	// 				withCredentials: true,
-	// 				headers: {
-	// 					'Content-Type': 'application/json',
-	// 					'X-CSRF-TOKEN': getCookie('csrftoken'),
-	// 				},
-	// 			}
-	// 		)
+			const res = await api.post(`${API}/courses`, formData, {
+				withCredentials: true,
+				headers: {
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-	// 		setGlobalError(null)
-	// 		setYear(res.data.map(t => t.mmis_name))
-
-	// 		setIsLoading(null)
-	// 		setIsSearchLoading(null)
-	// 	} catch (error) {
-	// 		console.log(error)
-	// 	}
-	// }
-	// useEffect(() => {
-	// 	if (searchYear === '') {
-	// 		fetchYear()
-	// 		return
-	// 	}
-
-	// 	if (yearDebounce.current) clearTimeout(yearDebounce.current)
-
-	// 	yearDebounce.current = setTimeout(() => {
-	// 		fetchYear(searchYear)
-	// 	}, 1500)
-
-	// 	return () => clearTimeout(yearDebounce.current)
-	// }, [searchYear])
+			onCreate(res.data)
+			onClose()
+			setTitle('')
+			setDescription('')
+			setImg(null)
+		} catch (error) {
+			if (error.response) {
+				console.error(
+					'Ошибка сервера:',
+					error.response.status,
+					error.response.data
+				)
+			} else {
+				console.error('Ошибка сети:', error.message)
+			}
+		}
+	}
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
@@ -229,7 +225,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 				{selected === 0 ? (
 					<form
-						onSubmit={handleSubmit}
+						onSubmit={handleSubmit1}
 						className='w-[482px] inline-flex flex-col items-center gap-5'
 					>
 						{/* <button
@@ -293,28 +289,28 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 						</div>
 						<input
 							className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
-								isFormValid
+								isForm1Valid
 									? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
 									: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
 							}`}
 							type='submit'
 							value='Создать курс'
-							disabled={!isFormValid}
+							disabled={!isForm1Valid}
 						/>
 					</form>
 				) : selected === 1 ? (
 					<form
-						onSubmit={handleSubmit}
+						onSubmit={handleSubmit2}
 						className='w-[482px] inline-flex flex-col items-center gap-5'
 					>
 						<div className='w-full flex flex-col gap-3'>
-							<OptionInput
+							<OptionInput2
 								Options={year}
 								color='white'
 								placeholder={'Учебный год'}
 								onChange={data => setSelectedYear(data)}
 							/>
-							<OptionInput
+							<OptionInput2
 								Options={semester}
 								color='white'
 								placeholder={'Семестр'}
@@ -324,21 +320,45 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 						<div className=' bg-[var(--light-middle)] rounded-lg shadow-inner p-2 pr-2.75 overflow-y-scroll flex flex-col gap-2 w-full h-[39.5vh]'>
 							{disciplines?.map((item, i) => (
-								<div
+								<motion.div
 									key={i}
-									onClick={() => setSelectedDisciplines(i)}
-									className={`bg-[var(--white)] rounded-md shadow-[var(--shadow)] px-4 py-2 text-[var(--black)] cursor-pointer hover:scale-101 transition-all flex flex-col ${
-										selectedDisciplines === i &&
-										'bg-[var(--hero-epta)] text-white'
-									}`}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: i * 0.1,
+										ease: 'easeOut',
+									}}
 								>
-									<p className='font-medium text-[var(--black)]'>
-										{item?.name}
-									</p>
-									<p className='font-light text-[var(--middle)]'>
-										{item?.study_plan?.replace(/\.plx$/, '')}
-									</p>
-								</div>
+									<div
+										key={i}
+										onClick={() => setSelectedDisciplines(i)}
+										className={` rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 transition-all flex flex-col ${
+											selectedDisciplines === i
+												? 'bg-[var(--hero-epta)]'
+												: 'bg-[var(--white)]'
+										}`}
+									>
+										<p
+											className={`font-medium ${
+												selectedDisciplines === i
+													? 'text-white'
+													: 'text-[var(--black)]'
+											} `}
+										>
+											{item?.name}
+										</p>
+										<p
+											className={`font-light ${
+												selectedDisciplines === i
+													? 'text-white'
+													: 'text-[var(--middle)]'
+											} `}
+										>
+											{item?.study_plan?.replace(/\.plx$/, '')}
+										</p>
+									</div>
+								</motion.div>
 							))}
 						</div>
 						{/* <OptionSearch
@@ -349,13 +369,13 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 						/> */}
 						<input
 							className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
-								isFormValid
+								isForm2Valid
 									? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
 									: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
 							}`}
 							type='submit'
 							value='Создать курс'
-							disabled={!isFormValid}
+							disabled={!isForm2Valid}
 						/>
 					</form>
 				) : (

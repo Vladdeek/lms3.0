@@ -512,6 +512,69 @@ export const OptionInput = ({
 	onChange,
 	labelKey = 'name', // 👈 добавили ключ, по которому будем доставать текст
 }) => {
+	const [Selected, setSelected] = useState(0)
+	const [isOpen, setIsOpen] = useState(false)
+
+	useEffect(() => {
+		onChange?.(Selected)
+	}, [Selected])
+
+	return (
+		<div className='relative select-none'>
+			<div
+				onClick={() => setIsOpen(prev => !prev)}
+				className={`${
+					color === 'white'
+						? 'bg-[var(--white)] text-[var(--black)]'
+						: 'bg-[var(--black)] text-[var(--white)]'
+				} flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-full`}
+			>
+				{placeholder.length === 0 ? (
+					<span>
+						{Options[Selected]
+							? typeof Options[Selected] === 'object'
+								? Options[Selected][labelKey] // 👈 если объект — берем нужное поле
+								: Options[Selected]
+							: '—'}
+					</span>
+				) : (
+					<p className='whitespace-nowrap'>{placeholder}</p>
+				)}
+				<ChevronDown
+					className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
+				/>
+			</div>
+
+			{isOpen && (
+				<div
+					className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
+					max-h-50 overflow-y-scroll hide-scrollbar hide-scrollbar w-full top-14 z-10 text-[var(--black)]'
+				>
+					{Options.map((item, index) => (
+						<p
+							onClick={() => {
+								setSelected(index)
+								setIsOpen(false)
+							}}
+							key={index}
+							className='px-3 py-2 transition-all hover:bg-[var(--light-middle)] cursor-pointer'
+						>
+							{typeof item === 'object' ? item[labelKey] : item}
+						</p>
+					))}
+				</div>
+			)}
+		</div>
+	)
+}
+
+export const OptionInput2 = ({
+	Options = [],
+	color = 'white',
+	placeholder = '',
+	onChange,
+	labelKey = 'name', // 👈 добавили ключ, по которому будем доставать текст
+}) => {
 	const [Selected, setSelected] = useState(null)
 	const [isOpen, setIsOpen] = useState(false)
 

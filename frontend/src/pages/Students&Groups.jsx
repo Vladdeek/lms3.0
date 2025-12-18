@@ -24,6 +24,7 @@ import MoreVariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
 import { getCookie, token } from '../TOKEN'
+import { motion } from 'framer-motion'
 
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 	return (
@@ -499,19 +500,19 @@ const StudentsAndGroups = () => {
 	}, [])
 
 	useEffect(() => {
-		if (courses?.length !== 0) fetchGroups()
+		courses?.length !== 0 ? fetchGroups() : setGroups([])
 	}, [courses, selectedCourse])
 
 	useEffect(() => {
-		if (groups?.length !== 0) fetchStudents()
+		groups?.length !== 0 ? fetchStudents() : setStudents([])
 	}, [groups, selectedGroupe])
 
 	useEffect(() => {
-		if (students?.length !== 0) fetchStudentLessons()
+		students?.length !== 0 ? fetchStudentLessons() : setTasks([])
 	}, [students, selectedStudent])
 
 	useEffect(() => {
-		if (tasks?.length !== 0) fetchLesson()
+		tasks?.length !== 0 ? fetchLesson() : setLessons([])
 	}, [selectedTask])
 
 	if (!courses) {
@@ -523,7 +524,7 @@ const StudentsAndGroups = () => {
 	}
 	return (
 		<>
-			<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-5 xl:mt-15 mb-40 select-none h-[70vh]'>
+			<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-5 xl:mt-15 mb-40 select-none md:min-h-[calc(70vh-100px)]'>
 				<div className='col-span-2 flex flex-col gap-5 h-full'>
 					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
 						<p className='text-[var(--middle)] text-sm'>Выберите курс</p>
@@ -543,17 +544,34 @@ const StudentsAndGroups = () => {
 							onChange={setSelectedGroupe}
 						/>
 					</div>
-					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar max-h-[50vh]'>
+					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar h-[50vh]'>
 						<div className='flex flex-col gap-3 p-5'>
-							{students?.map((item, index) => (
-								<StudentCard
-									key={item.id || index}
-									onClick={() => setSelectedStudent(index)}
-									active={selectedStudent === index}
-									PersonalData={item?.personal_data}
-									img_path={item?.image_path}
-								/>
-							))}
+							{students.length === 0 ? (
+								<p className='text-center font-light text-[var(--middle)]'>
+									Пусто
+								</p>
+							) : (
+								students?.map((item, index) => (
+									<motion.div
+										key={index}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: index * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<StudentCard
+											key={item.id || index}
+											onClick={() => setSelectedStudent(index)}
+											active={selectedStudent === index}
+											PersonalData={item?.personal_data}
+											img_path={item?.image_path}
+										/>
+									</motion.div>
+								))
+							)}
 						</div>
 					</div>
 				</div>
@@ -572,12 +590,23 @@ const StudentsAndGroups = () => {
 							tasks?.map((item, index) => {
 								console.log('in type: ', index, item)
 								return (
-									<TaskCard
-										title={item?.assignment_name}
-										type={item?.assignment_type}
-										onClick={() => setSelectedTask(index)}
-										isActive={selectedTask === index}
-									/>
+									<motion.div
+										key={index}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: index * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<TaskCard
+											title={item?.assignment_name}
+											type={item?.assignment_type}
+											onClick={() => setSelectedTask(index)}
+											isActive={selectedTask === index}
+										/>
+									</motion.div>
 								)
 							})
 						)}
