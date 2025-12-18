@@ -17,6 +17,7 @@ import {
 	FilePlus2,
 	Files,
 	Film,
+	FlaskConical,
 	Image,
 	LaptopMinimalCheck,
 	Layers2,
@@ -124,7 +125,7 @@ const CreateModuleButton = ({
 	}
 
 	return (
-		<div className='relative w-full'>
+		<div className='w-full'>
 			<Button
 				icon={Package}
 				title={'Добавить модуль'}
@@ -133,7 +134,7 @@ const CreateModuleButton = ({
 				onClick={() => setIsOpen(prev => !prev)}
 			/>
 			{isOpen && (
-				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 top-14 left-0 flex flex-col gap-3 z-10 w-full'>
+				<div className=' bg-[var(--white)] rounded-xl shadow-[var(--shadow)] p-4 mt-3 flex flex-col gap-3 z-10 w-full'>
 					<InputDefault
 						title={'Название модуля'}
 						placeholder={'Введите название'}
@@ -182,6 +183,13 @@ const CreateLessonButton = ({
 			label: 'Практика',
 			apiType: 'practice',
 			icon: <NotebookPen size={24} />,
+			description:
+				'Задания для самостоятельного выполнения. Включает текстовые инструкции, примеры и возможность загрузки решений.',
+		},
+		{
+			label: 'Лаба',
+			apiType: 'lab',
+			icon: <FlaskConical size={24} />,
 			description:
 				'Задания для самостоятельного выполнения. Включает текстовые инструкции, примеры и возможность загрузки решений.',
 		},
@@ -242,21 +250,21 @@ const CreateLessonButton = ({
 
 	const steps = [
 		<>
-			<div className='flex justify-center gap-5'>
+			<div className='grid grid-cols-2 gap-2'>
 				{lessonTypes.map((item, index) => (
 					<button
 						key={index}
 						type='button'
 						onClick={() => setSelected(index)}
 						className={`
-                                flex flex-col items-center justify-center gap-2 aspect-square rounded-lg transition-all
+                                flex flex-col items-center justify-center gap-2 py-2 rounded-lg transition-all
                                 ${
 																	selected === index
 																		? 'bg-[var(--hero-epta)] text-white'
 																		: 'bg-[var(--bg)] text-[var(--middle)]'
 																}
                                 hover:scale-105
-                                min-w-[100px]
+                                min-w-[100px] cursor-pointer
                             `}
 					>
 						<span className='mb-1'>{item.icon}</span>
@@ -1314,11 +1322,11 @@ const Constructor = ({
 
 	return (
 		<>
-			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] gap-3 2xl:gap-5 h-[75vh]'>
+			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] gap-3 2xl:gap-5 md:min-h-[calc(80vh-100px)] '>
 				<div
 					className={`${
 						selectedContent && 'max-[1200px]:hidden'
-					} bg-[var(--white)] shadow-[var(--shadow)] max-[1200px]:w-full rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between`}
+					} bg-[var(--white)] shadow-[var(--shadow)] max-[1200px]:w-full rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between max-h-[70vh] overflow-y-scroll`}
 				>
 					<div className='flex flex-col gap-3'>
 						<div className='flex flex-col gap-3 px-2'>
