@@ -35,11 +35,6 @@ export default function DashboardLayout({ onChange }) {
 		{
 			teacher: [
 				{
-					title: 'Каталог курсов',
-					icon: AlignJustify,
-					to: '/catalog/all',
-				},
-				{
 					title: 'Мои курсы',
 					icon: GraduationCap,
 					to: '/catalogt',
@@ -135,7 +130,15 @@ export default function DashboardLayout({ onChange }) {
 
 	return (
 		<>
-			<div className='md:mx-10 mx-2'>
+			<div className='md:mx-10 mx-2 relative'>
+				{/* <div className='absolute top-3.5  overflow-hidden h-20 w-screen flex items-center justify-center'>
+					<img
+						onClick={() => (window.location.href = 'https://mellstroy.com/')}
+						src='https://casino-otzovik.su/wp-content/uploads/2025/10/mellstroy-326x245.jpg'
+						alt=''
+						className='w-1/3 cursor-pointer z-1000'
+					/>
+				</div> */}
 				<Header links={links} UserInfo={userInfo} />
 				<div className='h-25'></div>
 				{location.pathname === '/' && (

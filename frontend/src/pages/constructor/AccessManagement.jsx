@@ -1,5 +1,5 @@
 import { Ban, ChevronsRight, GripVertical } from 'lucide-react'
-import { FilterButton } from '../../components/Buttons'
+import { FilterButton, RadioButton } from '../../components/Buttons'
 import { SearchInput } from '../../components/Inputs'
 import { useEffect, useRef, useState } from 'react'
 import { setGlobalError } from '../../components/Errors'
@@ -55,6 +55,45 @@ const GroupComponent = ({
 	)
 }
 
+const TeacherComponent = ({
+	id,
+	name,
+	onRemove,
+	onAdd,
+	dragged,
+	Accessed,
+	onDragStart,
+	onDragEnd,
+}) => {
+	return (
+		<div
+			className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'
+			draggable
+			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
+		>
+			<p className='col-span-8 text-start px-4'>{name}</p>
+
+			<p className='col-span-1 text-center flex justify-center gap-3'>
+				<GripVertical
+					className={dragged === name ? 'cursor-grabbing' : 'cursor-grab'}
+				/>
+				{Accessed ? (
+					<Ban
+						className='cursor-pointer'
+						onClick={() => onRemove && onRemove(id)}
+					/>
+				) : (
+					<ChevronsRight
+						className='cursor-pointer'
+						onClick={() => onAdd && onAdd(id)}
+					/>
+				)}
+			</p>
+		</div>
+	)
+}
+
 const AccessBlock = ({
 	title,
 	mass,
@@ -66,6 +105,7 @@ const AccessBlock = ({
 	searchValue,
 	loading = false,
 	searchLoading = false,
+	onChange,
 }) => {
 	const [dragged, setDragged] = useState(null)
 	const [isLoading, setIsLoading] = useState()
@@ -74,7 +114,17 @@ const AccessBlock = ({
 		setIsLoading(loading)
 	}, [loading])
 
-	console.log(searchLoading)
+	const [selected, setSelected] = useState(0)
+
+	const options = [
+		{ value: 0, title: 'Группы студентов' },
+		{ value: 1, title: 'Преподаватели' },
+	]
+	useEffect(() => {
+		onChange?.(selected)
+	}, [selected])
+
+	console.log('mass: ', mass, '\ntitle: ', title)
 
 	return (
 		<div
@@ -91,7 +141,28 @@ const AccessBlock = ({
 				e.preventDefault()
 			}}
 		>
-			<p className='font-medium text-[var(--black)]'>{title}</p>
+			{title ? (
+				<p className='font-medium text-[var(--black)]'>
+					{title === 'students'
+						? 'Допущены к прохождению курса'
+						: title === 'teachers' && 'Допущены к редактированию курса'}
+				</p>
+			) : (
+				<div className='flex gap-1'>
+					{options?.map(option => (
+						<RadioButton
+							key={option?.value}
+							name='example'
+							value={option?.value}
+							title={option?.title}
+							icon={option?.icon}
+							checked={selected === option?.value}
+							onChange={() => setSelected(option?.value)}
+						/>
+					))}
+				</div>
+			)}
+
 			<div className='flex gap-3 w-full pr-4'>
 				<SearchInput
 					width={'100%'}
@@ -104,46 +175,162 @@ const AccessBlock = ({
 			</div>
 
 			<div className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'>
-				<p className='col-span-2 text-center'>Номер группы</p>
-				<p className='col-span-2 text-center'>Уровень обр.</p>
-				<p className='col-span-2 text-center'>Курс</p>
-				<p className='col-span-2 text-center'>Кол-во студентов</p>
+				{title ? (
+					title === 'students' ? (
+						<>
+							<p className='col-span-2 text-center'>Номер группы</p>
+							<p className='col-span-2 text-center'>Уровень обр.</p>
+							<p className='col-span-2 text-center'>Курс</p>
+							<p className='col-span-2 text-center'>Кол-во студентов</p>
 
-				<p className='col-span-1 text-center'></p>
+							<p className='col-span-1 text-center'></p>
+						</>
+					) : (
+						<p className='col-span-2 text-center'>ФИО Преподавателя</p>
+					)
+				) : selected === 0 ? (
+					<>
+						<p className='col-span-2 text-center'>Номер группы</p>
+						<p className='col-span-2 text-center'>Уровень обр.</p>
+						<p className='col-span-2 text-center'>Курс</p>
+						<p className='col-span-2 text-center'>Кол-во студентов</p>
+
+						<p className='col-span-1 text-center'></p>
+					</>
+				) : (
+					<p className='col-span-2 text-center'>ФИО Преподавателя</p>
+				)}
 			</div>
 			{isLoading === true ? (
 				<Loader />
 			) : (
 				<div className='flex flex-col gap-3 overflow-y-scroll hide-scrollbar p-2'>
-					{mass.map((item, index) => (
-						<motion.div
-							key={index}
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{
-								duration: 0.3,
-								delay: index * 0.1,
-								ease: 'easeOut',
-							}}
-						>
-							<GroupComponent
-								id={item?.id}
-								number={item?.name}
-								lvl={item?.educational_level}
-								course={item?.course_level}
-								studentsLength={item?.count_students}
-								onAdd={onAdd}
-								onRemove={onRemove}
-								dragged={dragged}
-								Accessed={Accessed}
-								onDragStart={e => {
-									e.dataTransfer.setData('groupNumber', item?.id)
-									setDragged(item?.id)
-								}}
-								onDragEnd={() => setDragged(null)}
-							/>
-						</motion.div>
-					))}
+					{mass &&
+						(title ? (
+							title === 'students' ? (
+								<>
+									{mass.map((item, index) => (
+										<motion.div
+											key={index}
+											initial={{ scale: 0.8, opacity: 0 }}
+											animate={{ scale: 1, opacity: 1 }}
+											transition={{
+												duration: 0.3,
+												delay: index * 0.1,
+												ease: 'easeOut',
+											}}
+										>
+											<GroupComponent
+												id={item?.id}
+												number={item?.name}
+												lvl={item?.educational_level}
+												course={item?.course_level}
+												studentsLength={item?.count_students}
+												onAdd={onAdd}
+												onRemove={onRemove}
+												dragged={dragged}
+												Accessed={Accessed}
+												onDragStart={e => {
+													e.dataTransfer.setData('groupNumber', item?.id)
+													setDragged(item?.id)
+												}}
+												onDragEnd={() => setDragged(null)}
+											/>
+										</motion.div>
+									))}
+								</>
+							) : (
+								<>
+									{mass.map((item, index) => (
+										<motion.div
+											key={index}
+											initial={{ scale: 0.8, opacity: 0 }}
+											animate={{ scale: 1, opacity: 1 }}
+											transition={{
+												duration: 0.3,
+												delay: index * 0.1,
+												ease: 'easeOut',
+											}}
+										>
+											<TeacherComponent
+												id={item?.id}
+												name={item?.mmis_name}
+												onAdd={onAdd}
+												onRemove={onRemove}
+												dragged={dragged}
+												Accessed={Accessed}
+												onDragStart={e => {
+													e.dataTransfer.setData('groupNumber', item?.id)
+													setDragged(item?.id)
+												}}
+												onDragEnd={() => setDragged(null)}
+											/>
+										</motion.div>
+									))}
+								</>
+							)
+						) : selected === 0 ? (
+							<>
+								{mass.map((item, index) => (
+									<motion.div
+										key={index}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: index * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<GroupComponent
+											id={item?.id}
+											number={item?.name}
+											lvl={item?.educational_level}
+											course={item?.course_level}
+											studentsLength={item?.count_students}
+											onAdd={onAdd}
+											onRemove={onRemove}
+											dragged={dragged}
+											Accessed={Accessed}
+											onDragStart={e => {
+												e.dataTransfer.setData('groupNumber', item?.id)
+												setDragged(item?.id)
+											}}
+											onDragEnd={() => setDragged(null)}
+										/>
+									</motion.div>
+								))}
+							</>
+						) : (
+							<>
+								{mass.map((item, index) => (
+									<motion.div
+										key={index}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: index * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<TeacherComponent
+											id={item?.id}
+											name={item?.mmis_name}
+											onAdd={onAdd}
+											onRemove={onRemove}
+											dragged={dragged}
+											Accessed={Accessed}
+											onDragStart={e => {
+												e.dataTransfer.setData('groupNumber', item?.id)
+												setDragged(item?.id)
+											}}
+											onDragEnd={() => setDragged(null)}
+										/>
+									</motion.div>
+								))}
+							</>
+						))}
 				</div>
 			)}
 		</div>
@@ -164,87 +351,103 @@ const AccessManagement = ({ onChange }) => {
 	const [isLoading, setIsLoading] = useState(3)
 	const [isSearchLoading, setIsSearchLoading] = useState(null)
 
+	const [selectedParam, setSelectedParam] = useState(null)
+
 	useEffect(() => {
+		if (!selectedParam) return
+
 		setIsSearchLoading(searchUnlinkedGroups === '' ? null : 0)
-		if (searchUnlinkedGroups === '') {
-			fetchUnlinkedGroups()
-			return
-		}
 
 		if (unlinkedDebounce.current) clearTimeout(unlinkedDebounce.current)
+
 		unlinkedDebounce.current = setTimeout(() => {
 			fetchUnlinkedGroups(searchUnlinkedGroups)
 		}, 500)
 
 		return () => clearTimeout(unlinkedDebounce.current)
-	}, [searchUnlinkedGroups])
+	}, [searchUnlinkedGroups, selectedParam])
+
 	useEffect(() => {
+		if (!selectedParam) return
+
 		setIsSearchLoading(searchLinkedGroups === '' ? null : 1)
-		if (searchLinkedGroups === '') {
-			fetchLinkedGroups()
-			return
-		}
 
 		if (linkedDebounce.current) clearTimeout(linkedDebounce.current)
+
 		linkedDebounce.current = setTimeout(() => {
 			fetchLinkedGroups(searchLinkedGroups)
 		}, 500)
 
 		return () => clearTimeout(linkedDebounce.current)
-	}, [searchLinkedGroups])
+	}, [searchLinkedGroups, selectedParam])
 
-	const fetchUnlinkedGroups = async term => {
+	const fetchUnlinkedGroups = async (term = '') => {
+		if (!selectedParam) return
+
+		const url =
+			selectedParam === 'students'
+				? `${API}/courses/student-group/unlinked/?course_id=${courseId}${
+						term ? `&term=${term}` : ''
+				  }`
+				: `${API}/courses/teachers/unlinked/?course_id=${courseId}${
+						term ? `&term=${term}` : ''
+				  }`
+
 		try {
 			setIsLoading(isSearchLoading !== null ? null : 0)
-			const res = await api.get(
-				`${API}/courses/student-group/unlinked/?course_id=${courseId}${
-					term?.length ? `&term=${term}` : ''
-				}`,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				}
-			)
+			console.log('Fetching URL:', url)
 
-			console.log(res)
-
-			setGlobalError(null)
+			const res = await api.get(url, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
 			setUnlinkedGroups(res.data)
-			setIsLoading(null)
-			setIsSearchLoading(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.log(error)
+			setGlobalError('Ошибка при загрузке данных')
+		} finally {
+			setIsLoading(null)
+			setIsSearchLoading(null)
 		}
 	}
-	const fetchLinkedGroups = async term => {
+
+	const fetchLinkedGroups = async (term = '') => {
+		if (!selectedParam) return
+
+		const url =
+			selectedParam === 'students'
+				? `${API}/courses/student-group/linked/?course_id=${courseId}${
+						term ? `&term=${term}` : ''
+				  }`
+				: `${API}/courses/teachers/linked/?course_id=${courseId}${
+						term ? `&term=${term}` : ''
+				  }`
+
 		try {
 			setIsLoading(isSearchLoading !== null ? null : 1)
-			const res = await api.get(
-				`${API}/courses/student-group/linked/?course_id=${courseId}${
-					term?.length ? `&term=${term}` : ''
-				}`,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				}
-			)
+			console.log('Fetching URL:', url)
 
-			console.log(res)
-
-			setGlobalError(null)
+			const res = await api.get(url, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
 			setLinkedGroups(res.data)
-			setIsLoading(null)
-			setIsSearchLoading(null)
+			setGlobalError(null)
 		} catch (error) {
 			console.log(error)
+			setGlobalError('Ошибка при загрузке данных')
+		} finally {
+			setIsLoading(null)
+			setIsSearchLoading(null)
 		}
 	}
 
@@ -253,10 +456,15 @@ const AccessManagement = ({ onChange }) => {
 	}, [linkedGroups])
 
 	const handleAdd = async number => {
+		const url =
+			selectedParam === 'students'
+				? `${API}/courses/students/${courseId}?student_group_id=${number}`
+				: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
+
 		try {
 			await api.post(
-				`${API}/courses/students/${courseId}`,
-				{ student_group_id: number },
+				url,
+
 				{
 					withCredentials: true,
 					headers: {
@@ -275,17 +483,23 @@ const AccessManagement = ({ onChange }) => {
 		}
 	}
 	const handleRemove = async number => {
+		const url =
+			selectedParam === 'students'
+				? `${API}/courses/students/${courseId}?student_group_id=${number}`
+				: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
 		try {
-			await api.delete(`${API}/courses/students/${courseId}`, {
-				data: {
-					student_group_id: number,
-				},
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
+			await api.delete(
+				url,
+
+				{
+					data: {},
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
 
 			fetchUnlinkedGroups()
 			fetchLinkedGroups()
@@ -306,7 +520,6 @@ const AccessManagement = ({ onChange }) => {
 	return (
 		<div className=' grid grid-cols-2 gap-5'>
 			<AccessBlock
-				title={'Список групп'}
 				mass={unlinkedGroups}
 				Accessed={false}
 				onAdd={handleAdd}
@@ -315,9 +528,12 @@ const AccessManagement = ({ onChange }) => {
 				searchValue={searchUnlinkedGroups}
 				loading={isLoading === 3 ? true : isLoading === 0}
 				searchLoading={isSearchLoading === 0}
+				onChange={data =>
+					setSelectedParam(data === 0 ? 'students' : 'teachers')
+				}
 			/>
 			<AccessBlock
-				title={'Допущены к прохождению курса'}
+				title={selectedParam}
 				mass={linkedGroups}
 				Accessed={true}
 				onRemove={handleRemove}
