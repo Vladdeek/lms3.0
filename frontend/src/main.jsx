@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import Snowfall from 'react-snowfall'
 import {
 	BrowserRouter as Router,
 	Routes,
@@ -102,7 +103,18 @@ function MainApp() {
 createRoot(document.getElementById('root')).render(
 	<Router>
 		<ErrorProvider>
-			<MainApp />
+			<div className='relative'>
+				<Snowfall
+					style={{
+						position: 'fixed',
+						width: '100vw',
+						height: '100vh',
+						zIndex: 9999,
+						pointerEvents: 'none',
+					}}
+				/>
+				<MainApp />
+			</div>
 		</ErrorProvider>
 	</Router>
 )
