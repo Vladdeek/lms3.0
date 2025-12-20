@@ -49,6 +49,11 @@ export default function DashboardLayout({ onChange }) {
 					icon: CopyCheck,
 					to: '/students',
 				},
+				{
+					title: 'Журнал',
+					icon: CopyCheck,
+					to: '/score',
+				},
 			],
 			student: [
 				{

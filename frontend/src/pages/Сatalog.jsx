@@ -334,28 +334,24 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 										key={i}
 										onClick={() => setSelectedDisciplines(i)}
 										className={` rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 transition-all flex flex-col ${
-											selectedDisciplines === i
-												? 'bg-[var(--hero-epta)]'
-												: 'bg-[var(--white)]'
+											selectedDisciplines === i &&
+											'ring-2 ring-[var(--hero-epta)] shadow-[var(--hero-shadow)]'
 										}`}
 									>
-										<p
-											className={`font-medium ${
-												selectedDisciplines === i
-													? 'text-white'
-													: 'text-[var(--black)]'
-											} `}
-										>
-											{item?.name}
+										<p className={`font-medium text-[var(--black)] `}>
+											{item?.discipline}
+										</p>
+										<p className={`font-light text-[var(--middle)] `}>
+											{item?.study_plan?.replace(/\.plx$/, '')}
 										</p>
 										<p
-											className={`font-light ${
-												selectedDisciplines === i
-													? 'text-white'
-													: 'text-[var(--middle)]'
+											className={`font-light w-fit px-4 py-1 pt-1.5 rounded-md transition-all ${
+												selectedDisciplines !== i
+													? 'text-[var(--hero-epta)] bg-[var(--hero-pale)]'
+													: 'bg-[var(--hero-epta)] text-white'
 											} `}
 										>
-											{item?.study_plan?.replace(/\.plx$/, '')}
+											{item?.course} Курс
 										</p>
 									</div>
 								</motion.div>
