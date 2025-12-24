@@ -12,12 +12,23 @@ export const RadioButton = ({
 	onChange,
 	icon: Icon,
 	title,
+	fill = false,
+	wfull = false,
+	disabled = false,
 }) => {
 	return (
 		<label
-			className={`flex items-center gap-2 px-4 py-2 max-md:w-full max-md:justify-center rounded-xl border cursor-pointer transition-all ${
+			className={` ${
+				disabled && 'opacity-50'
+			} flex items-center gap-2 px-4 py-2 ${
+				wfull && 'w-full justify-center'
+			} max-md:w-full max-md:justify-center rounded-xl border cursor-pointer transition-all ${
 				checked
-					? 'bg-[var(--white)] border-[var(--hero-epta)] text-[var(--hero-epta)]'
+					? `${
+							fill ? 'bg-[var(--hero-epta)]' : 'bg-[var(--white)]'
+					  } border-[var(--hero-epta)] ${
+							fill ? 'text-white' : 'text-[var(--hero-epta)]'
+					  } `
 					: 'bg-transparent border-[var(--middle)] text-[var(--middle)] hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)]'
 			}`}
 		>
@@ -28,6 +39,7 @@ export const RadioButton = ({
 				checked={checked}
 				onChange={onChange}
 				className='hidden'
+				disabled={disabled}
 			/>
 			{Icon && <Icon className='w-5 h-5' />}
 			<span className='text-sm font-medium'>{title}</span>

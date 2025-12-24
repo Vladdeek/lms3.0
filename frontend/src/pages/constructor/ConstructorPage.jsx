@@ -117,7 +117,7 @@ const SettingsButton = ({
 				<Settings size={24} />
 			</button>
 			{!isOpen && (
-				<div className='absolute w-[466px] z-10 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 left-0'>
+				<div className='absolute w-[466px] z-15 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 max-[1366px]:-right-1/2 max-[1366px]:translate-x-1/2 min-[1366px]:-right-0'>
 					<p className='font-medium text-xl text-center text-[var(--black)]'>
 						Настройки курса
 					</p>

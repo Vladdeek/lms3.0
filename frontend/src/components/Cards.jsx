@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring } from 'framer-motion'
 
 export const CourseCard = ({
 	img_path,
+	semester,
 	education,
 	course,
 	title,
@@ -100,22 +101,47 @@ export const CourseCard = ({
 						{title}
 					</p>
 					<p className='text-[var(--middle)]'>{description}</p>
-					<p
-						className={`p-[10px] rounded-lg text-sm font-normal w-fit mt-5 ${
-							status === 'Опубликован'
-								? 'text-[var(--green-status-text)] bg-[var(--green-status-bg)]'
-								: status === 'В разработке'
-								? 'text-[var(--yellow-status-text)] bg-[var(--yellow-status-bg)]'
-								: ''
-						}`}
-					>
-						{status}
-					</p>
+					<div className='w-full flex gap-x-3 flex-wrap'>
+						<p
+							className={`py-1 px-2 rounded-lg text-sm font-normal w-fit mt-3 ${
+								status === 'approved'
+									? 'text-[var(--green-status-text)] bg-[var(--green-status-bg)]'
+									: status === 'in_development'
+									? 'text-[var(--red-status-text)] bg-[var(--red-status-bg)]'
+									: status === 'pending' &&
+									  'text-[var(--yellow-status-text)] bg-[var(--yellow-status-bg)] '
+							}`}
+						>
+							{status === 'approved'
+								? 'Опубликован'
+								: status === 'in_development'
+								? 'Не опубликован'
+								: status === 'pending' && 'На рассмотрении'}
+						</p>
+						{education && (
+							<p
+								className={`py-1 px-2 rounded-lg text-sm font-normal w-fit mt-3 text-[var(--hero-epta)] bg-[var(--hero-pale)]`}
+							>
+								{`${education}`}
+							</p>
+						)}
+						{course && (
+							<p
+								className={`py-1 px-2 rounded-lg text-sm font-normal w-fit mt-3 text-[var(--hero-epta)] bg-[var(--hero-pale)]`}
+							>
+								{`${course}-й курс`}
+							</p>
+						)}
+
+						{semester && (
+							<p
+								className={`py-1 px-2 rounded-lg text-sm font-normal w-fit mt-3 text-[var(--hero-epta)] bg-[var(--hero-pale)]`}
+							>
+								{`${semester}-й семестр`}
+							</p>
+						)}
+					</div>
 				</div>
-				<p className='text-[var(--middle)] text-sm font-normal mb-[10px]'>
-					Крайний срок сдачи:{' '}
-					<span className='font-medium'>{deadline || 'Не определен'}</span>
-				</p>
 			</NavLink>
 		</motion.figure>
 	)

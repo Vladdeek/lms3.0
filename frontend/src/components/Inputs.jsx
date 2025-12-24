@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { AltLoader } from './Loader'
+import { se } from 'date-fns/locale'
 
 export const InputDefault = ({
 	type,
@@ -575,7 +576,7 @@ export const OptionInput2 = ({
 	onChange,
 	labelKey = 'name', // 👈 добавили ключ, по которому будем доставать текст
 }) => {
-	const [Selected, setSelected] = useState(null)
+	const [Selected, setSelected] = useState(placeholder.length !== 0 ? null : 0)
 	const [isOpen, setIsOpen] = useState(false)
 
 	useEffect(() => {
@@ -590,7 +591,7 @@ export const OptionInput2 = ({
 					color === 'white'
 						? 'bg-[var(--white)] text-[var(--black)]'
 						: 'bg-[var(--black)] text-[var(--white)]'
-				} flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-full`}
+				} flex justify-between items-center rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-full`}
 			>
 				{Selected !== null ? (
 					<span>{Options[Selected]}</span>
