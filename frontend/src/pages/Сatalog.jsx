@@ -710,15 +710,21 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	]
 	const [selectedSortFilter, setSelectedSortFilter] = useState(null)
 	const sorting_filters = [
-		'по дате создания (новые)',
-		'по дате создания (старые)',
-		'по названию курса (А-Я)',
-		'по названию курса (Я-А)',
+		'Все',
+		'По дате создания (новые)',
+		'По дате создания (старые)',
+		'По названию курса (А-Я)',
+		'По названию курса (Я-А)',
 	]
 	const [selectedSemester, setSelectedSemester] = useState(null)
-	const study_level = ['Бакалавриат', 'Магистратура']
+	const study_level = ['Все', 'Бакалавриат', 'Магистратура']
 	const [selectedStatus, setSelectedStatus] = useState(null)
-	const status_options = ['Опубликован', 'Не опубликован', 'На рассмотрении']
+	const status_options = [
+		'Все',
+		'Опубликован',
+		'Не опубликован',
+		'На рассмотрении',
+	]
 	const [selectedElvl, setSelectedElvl] = useState(null)
 	const courses_option = [
 		{ value: 1, title: '1-й курс' },
@@ -737,6 +743,12 @@ const Catalog = ({ role, teacher_profile_id }) => {
 		setSelected(value)
 		navigate(to)
 	}
+
+	useEffect(() => {
+		status_options[selectedStatus] === 'Все' && setSelectedStatus(null)
+		study_level[selectedElvl] === 'Все' && setSelectedElvl(null)
+		sorting_filters[selectedSortFilter] === 'Все' && setSelectedSortFilter(null)
+	}, [selectedStatus, selectedElvl, selectedSortFilter])
 
 	useEffect(() => {
 		if (location.pathname === '/catalogt') {
@@ -788,13 +800,15 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				params: {
 					semester: selectedSemester,
 					...(sortParam && { [sortParam]: sortValue }),
-					status:
-						status_options[selectedStatus] === 'Опубликован'
-							? 'approved'
-							: status_options[selectedStatus] === 'Не опубликован'
-							? 'in_development'
-							: status_options[selectedStatus] === 'На рассмотрении' &&
-							  'pending',
+					...(selectedStatus !== null &&
+						selectedStatus !== undefined && {
+							course_status:
+								status_options[selectedStatus] === 'Опубликован'
+									? 'approved'
+									: status_options[selectedStatus] === 'Не опубликован'
+									? 'in_development'
+									: 'pending',
+						}),
 
 					study_level: study_level[selectedElvl],
 					course: selectedCoursesOpt,

@@ -61,7 +61,7 @@ function MainApp() {
 						/>
 					}
 				>
-					<Route path='/catalog/all' element={<Catalog role={role} />} />
+					{/* <Route path='/catalog/all' element={<Catalog role={role} />} /> */}
 					<Route
 						path='/catalogt'
 						element={
