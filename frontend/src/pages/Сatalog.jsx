@@ -793,9 +793,9 @@ const Catalog = ({ role, teacher_profile_id }) => {
 							? 'approved'
 							: status_options[selectedStatus] === 'Не опубликован'
 							? 'in_development'
-							: status_options[selectedStatus] === 'На рассмотрении'
-							? 'pending'
-							: undefined,
+							: status_options[selectedStatus] === 'На рассмотрении' &&
+							  'pending',
+
 					study_level: study_level[selectedElvl],
 					course: selectedCoursesOpt,
 				},

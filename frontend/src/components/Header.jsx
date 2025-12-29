@@ -326,7 +326,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					className={`absolute z-1000 h-screen w-screen -left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
 				>
 					<div className='p-4 h-30 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
-						<p>Вы уверены что хотите выйти?</p>
+						<p className='text-[var(--black)]'>Вы уверены что хотите выйти?</p>
 						<div className='flex gap-3'>
 							<button
 								onClick={logout}
