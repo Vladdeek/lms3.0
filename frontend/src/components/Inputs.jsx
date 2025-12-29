@@ -574,10 +574,23 @@ export const OptionInput2 = ({
 	color = 'white',
 	placeholder = '',
 	onChange,
-	labelKey = 'name', // 👈 добавили ключ, по которому будем доставать текст
+	value,
+	labelKey = 'name',
 }) => {
-	const [Selected, setSelected] = useState(placeholder.length !== 0 ? null : 0)
+	const [Selected, setSelected] = useState(
+		value !== undefined && value !== null
+			? value
+			: placeholder.length !== 0
+			? null
+			: 0
+	)
 	const [isOpen, setIsOpen] = useState(false)
+
+	useEffect(() => {
+		if (value !== undefined && value !== Selected) {
+			setSelected(value)
+		}
+	}, [value])
 
 	useEffect(() => {
 		onChange?.(Selected)
@@ -596,34 +609,30 @@ export const OptionInput2 = ({
 				{Selected !== null ? (
 					<span>{Options[Selected]}</span>
 				) : (
-					placeholder?.length !== 0 && (
-						<p className='whitespace-nowrap'>{placeholder}</p>
-					)
+					placeholder?.length && <p>{placeholder}</p>
 				)}
 				<ChevronDown
-					className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
+					className={`transition-all ${isOpen ? 'rotate-180' : ''}`}
 				/>
 			</div>
 
 			{isOpen && (
 				<div
 					className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
-					max-h-50 overflow-y-scroll hide-scrollbar hide-scrollbar w-full top-11 z-10 text-[var(--black)]'
+					max-h-50 overflow-y-scroll w-full top-11 z-10 text-[var(--black)]'
 				>
-					{Options.map((item, index) => {
-						return (
-							<p
-								onClick={() => {
-									setSelected(index)
-									setIsOpen(false)
-								}}
-								key={index}
-								className='px-3 py-2 transition-all hover:bg-[var(--light-middle)] cursor-pointer'
-							>
-								{typeof item === 'object' ? item[labelKey] : item}
-							</p>
-						)
-					})}
+					{Options.map((item, index) => (
+						<p
+							key={index}
+							onClick={() => {
+								setSelected(index)
+								setIsOpen(false)
+							}}
+							className='px-3 py-2 hover:bg-[var(--light-middle)] cursor-pointer'
+						>
+							{typeof item === 'object' ? item[labelKey] : item}
+						</p>
+					))}
 				</div>
 			)}
 		</div>

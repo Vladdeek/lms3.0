@@ -31,7 +31,8 @@ export const LinkBTN = ({
 }) => {
 	return (
 		<>
-			<NavLink
+			<button
+				type={'button'}
 				onClick={onClick}
 				className={`flex flex-col items-center group w-fit ${textsize} text-[var(--black)] p-1`}
 			>
@@ -41,7 +42,7 @@ export const LinkBTN = ({
 				)}
 
 				<div className='bg-[var(--hero-epta)] h-[1px]  w-0 group-hover:w-full transition-all'></div>
-			</NavLink>
+			</button>
 		</>
 	)
 }

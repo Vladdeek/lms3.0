@@ -765,18 +765,38 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	}
 
 	const fetchCourses = async () => {
-		console.log(`semester: ${selectedSemester}
-					\nsort: ${sorting_filters[selectedSortFilter]}
-					\nstatus: ${status_options[selectedStatus]}
-					\nstudy_level: ${study_level[selectedElvl]}
-					\ncourse: ${selectedCoursesOpt}`)
+		let sortParam = null
+		let sortValue = null
+
+		const sort = sorting_filters[selectedSortFilter]
+
+		if (sort === 'по дате создания (новые)') {
+			sortParam = 'sort_date'
+			sortValue = 'desc'
+		} else if (sort === 'по дате создания (старые)') {
+			sortParam = 'sort_date'
+			sortValue = 'asc'
+		} else if (sort === 'по названию курса (А-Я)') {
+			sortParam = 'sort_name'
+			sortValue = 'asc'
+		} else if (sort === 'по названию курса (Я-А)') {
+			sortParam = 'sort_name'
+			sortValue = 'desc'
+		}
 		try {
 			const res = await api.get(`${API}/courses/`, {
 				params: {
 					semester: selectedSemester,
-					sort: selectedSortFilter,
-					status: selectedStatus,
-					study_level: selectedElvl,
+					...(sortParam && { [sortParam]: sortValue }),
+					status:
+						status_options[selectedStatus] === 'Опубликован'
+							? 'approved'
+							: status_options[selectedStatus] === 'Не опубликован'
+							? 'in_development'
+							: status_options[selectedStatus] === 'На рассмотрении'
+							? 'pending'
+							: undefined,
+					study_level: study_level[selectedElvl],
 					course: selectedCoursesOpt,
 				},
 				withCredentials: true,
@@ -928,13 +948,16 @@ const Catalog = ({ role, teacher_profile_id }) => {
 								<OptionInput2
 									Options={study_level}
 									color='white'
+									placeholder={'Уровень обучения'}
 									onChange={data => setSelectedElvl(data)}
+									value={selectedElvl}
 								/>
 								<OptionInput2
 									Options={status_options}
 									color='white'
 									placeholder={'Статус'}
 									onChange={data => setSelectedStatus(data)}
+									value={selectedStatus}
 								/>
 								<div className='flex flex-col col-span-2'>
 									<div className='flex gap-3 w-full justify-center mb-3'>
@@ -979,6 +1002,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 										color='white'
 										placeholder={'Сортировка'}
 										onChange={data => setSelectedSortFilter(data)}
+										value={selectedSortFilter}
 									/>
 								</div>
 

@@ -19,7 +19,7 @@ const Authorization = ({ isRegister = false }) => {
 
 	const navigate = useNavigate()
 
-	const emailValidate = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+	const emailValidate = value => /.+/.test(value)
 	const passwordValidate = value =>
 		/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value)
 
@@ -108,8 +108,8 @@ const Authorization = ({ isRegister = false }) => {
 								className='flex flex-col gap-10 xl:mt-20'
 							>
 								<InputAuth
-									placeholder={'example@mail.ru'}
-									title={'Почта'}
+									placeholder={'Почта или логин'}
+									title={'Логин'}
 									required={true}
 									onStatusChange={setIsEmailValid}
 									validate={emailValidate}
