@@ -264,7 +264,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
-			<div className='bg-[var(--white)] relative p-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001'>
+			<div className='bg-[var(--white)] relative p-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] max-md:h-[90vh] max-md:overflow-y-scroll  z-1001'>
 				<X
 					onClick={onClose}
 					className='absolute top-1.5 right-1.5 text-[var(--middle)] cursor-pointer hover:text-white  hover:bg-red-500 hover:rounded-full hover:p-0.5  transition-all'
@@ -289,7 +289,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				{selected === 0 ? (
 					<form
 						onSubmit={handleSubmit1}
-						className='w-[482px] inline-flex flex-col items-center gap-5'
+						className='w-[482px] max-md:w-100 inline-flex flex-col items-center gap-5'
 					>
 						<InputDefault
 							type='text'
@@ -403,7 +403,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				) : selected === 1 ? (
 					<form
 						onSubmit={handleSubmit2}
-						className='w-[482px] inline-flex flex-col items-center gap-5'
+						className='w-[482px] max-md:w-100 inline-flex flex-col items-center gap-5'
 					>
 						<div className='w-full flex flex-col gap-3'>
 							<OptionInput2
@@ -958,7 +958,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 							</div>
 						)}
 						{activeFilterModal && (
-							<div className='absolute grid grid-cols-2 p-4 gap-3 right-0 top-15 w-[25vw] z-10 h-fit rounded-xl bg-[var(--white)] shadow-[var(--shadow)] text-white text-xs'>
+							<div className='absolute grid grid-cols-2 p-4 gap-3 right-0  max-[874px]:left-0 top-15 max-md:w-[93vw] max-xl:w-[50vw] w-[25vw] z-10 h-fit rounded-xl bg-[var(--white)] shadow-[var(--shadow)] text-white text-xs'>
 								<OptionInput2
 									Options={study_level}
 									color='white'

@@ -580,7 +580,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 export const MobileMenuBar = ({ links }) => {
 	return (
 		<div className='fixed bottom-0 left-0 z-50 w-full h-20 bg-[var(--white)] shadow-[var(--shadow)] '>
-			<div className='flex justify-between h-full max-w-lg  mx-20 font-medium'>
+			<div className='flex justify-between h-full max-w-lg  mx-auto font-medium'>
 				{links.map((item, index) => (
 					<MobileHeaderLink
 						key={index}
