@@ -15,6 +15,7 @@ import {
 	ChevronUp,
 	ChevronDown,
 	X,
+	Menu,
 } from 'lucide-react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
@@ -319,6 +320,8 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 	const [openIndex, setOpenIndex] = useState(null)
 
+	const [isOpen, setIsOpen] = useState(false)
+
 	return (
 		<div className='relative'>
 			{showMessage && (
@@ -419,7 +422,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			)}
 
 			<div className='flex justify-between items-center fixed w-full py-[15px] px-10 bg-[var(--white)] shadow-lg z-100 left-0'>
-				<div className='flex items-center gap-5 max-md:hidden'>
+				<div className='flex items-center gap-5 max-xl:hidden'>
 					{UserInfo ? (
 						<>
 							{links?.map((item, index) => (
@@ -437,6 +440,45 @@ export const Header = ({ links = [], UserInfo = null }) => {
 							<BlockLoader width={135} height={45} />
 							<BlockLoader width={135} height={45} />
 						</>
+					)}
+				</div>
+				<div className='flex items-center relative min-xl:hidden max-md:hidden'>
+					<div
+						onClick={() => {
+							setIsOpen(prev => !prev)
+						}}
+						data-clickable
+						className='relative h-12 w-12 flex flex-col bg-[var(--white)] rounded-lg shadow-[var(--shadow)] justify-center items-center '
+					>
+						<div
+							className={`h-[3px] w-[70%] bg-[var(--black)] rounded-2xl absolute transition-all ${
+								isOpen ? 'rotate-45' : 'top-3'
+							}`}
+						></div>
+						<div
+							className={`h-[3px] bg-[var(--black)] rounded-2xl absolute transition-all ${
+								isOpen ? 'opacity-75 w-0' : 'top-1/2 -translate-y-1/2 w-[70%]'
+							}`}
+						></div>
+						<div
+							className={`h-[3px] w-[70%] bg-[var(--black)] rounded-2xl absolute transition-all ${
+								isOpen ? '-rotate-45' : 'bottom-3'
+							}`}
+						></div>
+					</div>
+					{isOpen && (
+						<div className='absolute flex flex-col gap-5 top-15 -left-5 bg-[var(--white)] p-4 rounded-2xl w-[30vw] shadow-[var(--shadow)]'>
+							<>
+								{links?.map((item, index) => (
+									<HeaderLink
+										key={index}
+										title={item.title}
+										icon={item.icon}
+										to={item.to}
+									/>
+								))}
+							</>
+						</div>
 					)}
 				</div>
 
@@ -548,7 +590,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 								<ImageOff className='h-10 w-10 p-1.75 text-[var(--middle)] rounded-full aspect-square shimmer' />
 							)}
 							{showOptions && (
-								<div className='absolute top-20 -left-10 md:right-0 shadow-[var(--shadow)] bg-[var(--white)] rounded-xl flex flex-col w-50 p-2'>
+								<div className='absolute top-20 min-[767px]:right-0 max-[767px]:left-0 shadow-[var(--shadow)] bg-[var(--white)] rounded-xl flex flex-col w-50 p-2'>
 									<div
 										onClick={() => {
 											fetchUserRoles()

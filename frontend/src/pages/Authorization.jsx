@@ -72,8 +72,8 @@ const Authorization = ({ isRegister = false }) => {
 			</p>
 			<div className='mx-4 sm:mx-10 md:mx-20 lg:mx-40 h-screen flex justify-center items-center'>
 				<div className='w-full xl:grid grid-cols-[1fr_auto_2fr] gap-3'>
-					<div className='flex flex-col w-150 max-2xl:w-120 xl:justify-between'>
-						<p className='text-8xl max-2xl:text-7xl max-sm:text-6xl max-xs:text-4xl mb-15 max-sm:mb-7.5 text-[var(--hero-epta)] flex gap-3 font-bold w-full'>
+					<div className='flex flex-col w-full xl:justify-between'>
+						<p className='text-8xl max-2xl:text-7xl max-sm:text-5xl max-xs:text-4xl  mb-15 max-sm:mb-7.5 text-[var(--hero-epta)] flex gap-3 font-bold w-full'>
 							<DecryptedText
 								text='МелГУ'
 								animateOn='view'
@@ -85,7 +85,7 @@ const Authorization = ({ isRegister = false }) => {
 								revealDirection='center'
 							/>
 						</p>
-						<p className='font-base text-[var(--black)] text-[64px] max-2xl:text-6xl max-md:text-4xl max-sm:text-2xl flex flex-col items-start w-full h-50 max-sm:h-25'>
+						<p className='font-base text-[var(--black)] text-[64px] max-2xl:text-6xl max-md:text-4xl max-sm:text-xl flex flex-col items-start w-full h-50 max-sm:h-25'>
 							<TextType
 								text={'Твои курсы \nпод рукой'}
 								typingSpeed={100}

@@ -289,7 +289,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				{selected === 0 ? (
 					<form
 						onSubmit={handleSubmit1}
-						className='w-[482px] max-md:w-100 inline-flex flex-col items-center gap-5'
+						className='w-[482px] max-md:w-[80vw] inline-flex flex-col items-center gap-5'
 					>
 						<InputDefault
 							type='text'
@@ -403,7 +403,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				) : selected === 1 ? (
 					<form
 						onSubmit={handleSubmit2}
-						className='w-[482px] max-md:w-100 inline-flex flex-col items-center gap-5'
+						className='w-[482px] max-md:w-[80vw] inline-flex flex-col items-center gap-5'
 					>
 						<div className='w-full flex flex-col gap-3'>
 							<OptionInput2
