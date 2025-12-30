@@ -942,119 +942,105 @@ const Catalog = ({ role, teacher_profile_id }) => {
 								/>
 							))}
 					</div>
-
-					<div className='relative flex gap-4 max-lg:gap-2 h-12'>
-						<button
-							type='button'
-							onClick={() => setActiveFilterModal(prev => !prev)}
-							className='flex gap-2 items-center text-xl font-normal px-4 rounded-lg  text-[var(--black)] bg-[var(--white)] shadow-[var(--shadow)] cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all'
-						>
-							<Filter />
-							Фильтры
-						</button>
-						{activeFiltersCount > 0 && (
-							<div className='absolute -top-2 -right-2 w-5 h-5 pt-[1px] rounded-full bg-[var(--hero-epta)] flex items-center justify-center text-white text-xs font-medium'>
-								{activeFiltersCount}
-							</div>
-						)}
-						{activeFilterModal && (
-							<div className='absolute grid grid-cols-2 p-4 gap-3 right-0  max-[874px]:left-0 top-15 max-md:w-[93vw] max-xl:w-[50vw] w-[25vw] z-10 h-fit rounded-xl bg-[var(--white)] shadow-[var(--shadow)] text-white text-xs'>
-								<OptionInput2
-									Options={study_level}
-									color='white'
-									placeholder={'Уровень обучения'}
-									onChange={data => setSelectedElvl(data)}
-									value={selectedElvl}
-								/>
-								<OptionInput2
-									Options={status_options}
-									color='white'
-									placeholder={'Статус'}
-									onChange={data => setSelectedStatus(data)}
-									value={selectedStatus}
-								/>
-								<div className='flex flex-col col-span-2'>
-									<div className='flex gap-3 w-full justify-center mb-3'>
-										{semester?.map(item => (
-											<RadioButton
-												key={item?.value}
-												name='example'
-												value={item?.value}
-												title={item?.title}
-												icon={item?.icon}
-												checked={selectedSemester === item?.value}
-												onChange={() => setSelectedSemester(item?.value)}
-												fill={true}
-												wfull={true}
-											/>
-										))}
-									</div>
-
-									<div className='flex gap-3 w-full justify-center'>
-										{courses_option?.map((item, index) => {
-											return (
+					{location.pathname === '/catalogt/courses' && (
+						<div className='relative flex gap-4 max-lg:gap-2 h-12'>
+							<button
+								type='button'
+								onClick={() => setActiveFilterModal(prev => !prev)}
+								className='flex gap-2 items-center text-xl font-normal px-4 rounded-lg  text-[var(--black)] bg-[var(--white)] shadow-[var(--shadow)] cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all'
+							>
+								<Filter />
+								Фильтры
+							</button>
+							{activeFiltersCount > 0 && (
+								<div className='absolute -top-2 -right-2 w-5 h-5 pt-[1px] rounded-full bg-[var(--hero-epta)] flex items-center justify-center text-white text-xs font-medium'>
+									{activeFiltersCount}
+								</div>
+							)}
+							{activeFilterModal && (
+								<div className='absolute grid grid-cols-2 p-4 gap-3 right-0  max-[874px]:left-0 top-15 max-md:w-[93vw] max-xl:w-[50vw] w-[25vw] z-10 h-fit rounded-xl bg-[var(--white)] shadow-[var(--shadow)] text-white text-xs'>
+									<OptionInput2
+										Options={study_level}
+										color='white'
+										placeholder={'Уровень обучения'}
+										onChange={data => setSelectedElvl(data)}
+										value={selectedElvl}
+									/>
+									<OptionInput2
+										Options={status_options}
+										color='white'
+										placeholder={'Статус'}
+										onChange={data => setSelectedStatus(data)}
+										value={selectedStatus}
+									/>
+									<div className='flex flex-col col-span-2'>
+										<div className='flex gap-3 w-full justify-center mb-3'>
+											{semester?.map(item => (
 												<RadioButton
 													key={item?.value}
 													name='example'
 													value={item?.value}
 													title={item?.title}
 													icon={item?.icon}
-													checked={selectedCoursesOpt === item?.value}
-													onChange={() => setSelectedCourseOpt(item?.value)}
+													checked={selectedSemester === item?.value}
+													onChange={() => setSelectedSemester(item?.value)}
 													fill={true}
 													wfull={true}
-													disabled={selectedElvl === 1 && index > 1}
 												/>
-											)
-										})}
+											))}
+										</div>
+
+										<div className='flex gap-3 w-full justify-center'>
+											{courses_option?.map((item, index) => {
+												return (
+													<RadioButton
+														key={item?.value}
+														name='example'
+														value={item?.value}
+														title={item?.title}
+														icon={item?.icon}
+														checked={selectedCoursesOpt === item?.value}
+														onChange={() => setSelectedCourseOpt(item?.value)}
+														fill={true}
+														wfull={true}
+														disabled={selectedElvl === 1 && index > 1}
+													/>
+												)
+											})}
+										</div>
+									</div>
+
+									<div className='col-span-2'>
+										<OptionInput2
+											Options={sorting_filters}
+											color='white'
+											placeholder={'Сортировка'}
+											onChange={data => setSelectedSortFilter(data)}
+											value={selectedSortFilter}
+										/>
+									</div>
+
+									<button
+										type='button'
+										onClick={() => filterFunc()}
+										className='col-span-2 py-2 flex gap-2 items-center justify-center text-xl font-medium px-4 rounded-lg bg-[var(--black)] text-[var(--white)] shadow-[var(--shadow)] cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all'
+									>
+										Применить фильтры
+									</button>
+									<div className='w-full flex justify-center col-span-2'>
+										<LinkBTN
+											onClick={() => {
+												deleteAllFilters()
+											}}
+											title={'Сбросить фильтры'}
+											textsize='text-md'
+										/>
 									</div>
 								</div>
-
-								<div className='col-span-2'>
-									<OptionInput2
-										Options={sorting_filters}
-										color='white'
-										placeholder={'Сортировка'}
-										onChange={data => setSelectedSortFilter(data)}
-										value={selectedSortFilter}
-									/>
-								</div>
-
-								<button
-									type='button'
-									onClick={() => filterFunc()}
-									className='col-span-2 py-2 flex gap-2 items-center justify-center text-xl font-medium px-4 rounded-lg bg-[var(--black)] text-[var(--white)] shadow-[var(--shadow)] cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white transition-all'
-								>
-									Применить фильтры
-								</button>
-								<div className='w-full flex justify-center col-span-2'>
-									<LinkBTN
-										onClick={() => {
-											deleteAllFilters()
-										}}
-										title={'Сбросить фильтры'}
-										textsize='text-md'
-									/>
-								</div>
-							</div>
-						)}
-					</div>
+							)}
+						</div>
+					)}
 				</div>
-				{location.pathname === '/catalogt/webinars' && (
-					<div className='flex gap-4 max-lg:gap-2 h-12'>
-						{filter?.map(option => (
-							<RadioButton
-								key={option.value}
-								name='filters'
-								value={option.value}
-								title={option.title}
-								icon={option.icon}
-								checked={selectedFilters === option.value}
-								onChange={() => setSelectedFilters(option.value)}
-							/>
-						))}
-					</div>
-				)}
 
 				{location.pathname === '/catalogt/courses' ||
 				location.pathname === '/catalog/all' ? (
