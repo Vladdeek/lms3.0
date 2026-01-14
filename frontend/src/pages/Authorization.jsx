@@ -75,12 +75,7 @@ const Authorization = ({ isRegister = false }) => {
 					<div className='flex flex-col w-full xl:justify-between'>
 						<p className='text-8xl max-2xl:text-7xl max-sm:text-5xl max-xs:text-4xl  mb-15 max-sm:mb-7.5 text-[var(--hero-epta)] flex gap-3 font-bold w-full'>
 							<DecryptedText
-								text='МелГУ'
-								animateOn='view'
-								revealDirection='center'
-							/>
-							<DecryptedText
-								text='СУО'
+								text='МелГУ.СДО'
 								animateOn='view'
 								revealDirection='center'
 							/>

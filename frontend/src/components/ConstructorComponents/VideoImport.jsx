@@ -258,7 +258,8 @@ export const ConstructorVideoInput = ({
 											: 'text-[var(--middle)]'
 									}`}
 								/>
-								<div className='flex flex-wrap gap-[5px] w-50 justify-center'>
+								{/* ВАЛИДАЦИЯ ЗАГРУЗКИ ВИДЕО */}
+								{/* <div className='flex flex-wrap gap-[5px] w-50 justify-center'>
 									<p
 										className={`${
 											isDragActive
@@ -284,16 +285,17 @@ export const ConstructorVideoInput = ({
 											{ext}
 										</p>
 									))}
-								</div>
+								</div> */}
 
-								<div className='flex flex-col items-center gap-3 h-fit w-1/2'>
-									<button
+								<div className='flex flex-col items-center gap-3 h-fit w-1/2 mb-5'>
+									{/* ЗАГРУЗКА ВИДЕО ЛОКАЛЬНО */}
+									{/* <button
 										type='button'
 										onClick={() => document.getElementById(inputId).click()}
 										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] w-fit cursor-pointer transition-all'
 									>
 										<Upload strokeWidth={3} /> Загрузить видео
-									</button>
+									</button> */}
 									<InputDefault
 										title='Загрузить по ссылке'
 										placeholder='https://example.com'
@@ -303,7 +305,7 @@ export const ConstructorVideoInput = ({
 									/>
 								</div>
 							</div>
-							<input
+							{/* <input
 								id={inputId}
 								type='file'
 								multiple
@@ -311,7 +313,7 @@ export const ConstructorVideoInput = ({
 								className='hidden'
 								onChange={handleFileChange}
 								disabled={uploading}
-							/>
+							/> */}
 						</label>
 					</div>
 				)}

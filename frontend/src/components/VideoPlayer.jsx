@@ -16,31 +16,65 @@ const VideoPlayer = ({ url, course = false }) => {
 		}
 
 		try {
-			const ytMatch = url.match(/(?:youtube\.com.*v=|youtu\.be\/)([^&]+)/)
-			if (ytMatch) {
+			if (!url) return null
+
+			// YouTube
+			const yt = url.match(/(?:youtube\.com.*v=|youtu\.be\/)([^&]+)/)
+			if (yt) {
 				return {
 					type: 'iframe',
-					src: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&controls=0`,
+					src: `https://www.youtube.com/embed/${yt[1]}`,
 				}
 			}
 
-			const ruMatch = url.match(/rutube\.ru\/video\/([a-zA-Z0-9]+)/)
-			if (ruMatch) {
+			// RuTube
+			const ru = url.match(/rutube\.ru\/video\/([a-zA-Z0-9]+)/)
+			if (ru) {
 				return {
 					type: 'iframe',
-					src: `https://rutube.ru/play/embed/${ruMatch[1]}`,
+					src: `https://rutube.ru/play/embed/${ru[1]}`,
 				}
-			} else {
-				return { type: 'video', src: url }
+			}
+
+			// VK Video
+			const vk = url.match(/video(-?\d+)_(\d+)/)
+			if (vk) {
+				return {
+					type: 'iframe',
+					src: `https://vk.com/video_ext.php?oid=${vk[1]}&id=${vk[2]}`,
+				}
+			}
+
+			// ВСЁ ОСТАЛЬНОЕ
+			new URL(url)
+			return {
+				type: 'iframe',
+				src: url,
 			}
 		} catch {
 			return null
 		}
+
+		// if (course === true) {
+		// 	url = url[0]?.videoUrl
+		// }
+		// try {
+		// 	if (!url) return null
+
+		// 	return {
+		// 		type: 'iframe',
+		// 		src: url,
+		// 	}
+		// } catch {
+		// 	return null
+		// }
 	}
 
 	const source = getEmbedUrl(url)
 
-	console.log('source: ', source)
+	console.log('SOURCE VIDEO PLAYER', source)
+
+	//ФУНКЦИИ ДЛЯ СОБСТВЕННОГО ПЛЕЕРА (НЕ НУЖНЫ)
 
 	const togglePlay = () => {
 		if (source?.type === 'video') {
@@ -104,36 +138,47 @@ const VideoPlayer = ({ url, course = false }) => {
 						}  shadow-[var(--shadow)] transition-all`}
 					>
 						{source ? (
-							source?.type === 'iframe' ? (
-								<iframe
-									src={source.src}
-									width='100%'
-									height='100%'
-									frameBorder='0'
-									allow='autoplay; encrypted-media'
-									allowFullScreen
-									className='absolute top-0 left-0 w-full h-full'
-								/>
-							) : (
-								<video
-									ref={videoRef}
-									src={source.src}
-									className={`absolute  left-0 w-full transition-all  ${
-										!fullScreen ? 'h-full top-0' : 'h-[90%] top-[2.5%]'
-									}`}
-									onTimeUpdate={e =>
-										setProgress(e.target.currentTime / duration)
-									}
-									onLoadedMetadata={e => setDuration(e.target.duration)}
-								/>
-							)
+							<iframe
+								src={source.src}
+								width='100%'
+								height='100%'
+								frameBorder='0'
+								allow='autoplay; encrypted-media'
+								allowFullScreen
+								className='absolute top-0 left-0 w-full h-full'
+							/>
 						) : (
+							// ЭТО СВЕРХУ ДОЖНО БЫТЬ ЕБАНЫЙ ИИ В ВСКОДЕ НЕ ДАЕТ ЭТО ТАМ ОСТАВИТЬ
+							// source?.type === 'iframe' ? (
+							// 	<iframe
+							// 		src={source.src}
+							// 		width='100%'
+							// 		height='100%'
+							// 		frameBorder='0'
+							// 		allow='autoplay; encrypted-media'
+							// 		allowFullScreen
+							// 		className='absolute top-0 left-0 w-full h-full'
+							// 	/>
+							// ) : (
+							// 	<video
+							// 		ref={videoRef}
+							// 		src={source.src}
+							// 		className={`absolute  left-0 w-full transition-all  ${
+							// 			!fullScreen ? 'h-full top-0' : 'h-[90%] top-[2.5%]'
+							// 		}`}
+							// 		onTimeUpdate={e =>
+							// 			setProgress(e.target.currentTime / duration)
+							// 		}
+							// 		onLoadedMetadata={e => setDuration(e.target.duration)}
+							// 	/>
+
 							<div className='absolute inset-0 flex items-center justify-center bg-[var(--light-middle)]'>
 								<p className='text-[var(--middle)]'>Неверная ссылка на видео</p>
 							</div>
 						)}
 
-						{source?.type !== 'iframe' && (
+						{/* КУСОК КОДА ДЛЯ СОБСТВЕННОГО ПЛЕЕРА КОТОРЫЙ НАХУЙ НЕ НУЖЕН */}
+						{/* {source?.type !== 'iframe' && (
 							<div className='absolute bottom-2 left-2 right-2 p-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-lg'>
 								{source?.type === 'video' && (
 									<div
@@ -203,7 +248,7 @@ const VideoPlayer = ({ url, course = false }) => {
 									</div>
 								</div>
 							</div>
-						)}
+						)} */}
 					</div>
 				</div>
 			</div>

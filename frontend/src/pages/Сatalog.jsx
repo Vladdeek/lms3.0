@@ -1,4 +1,4 @@
-import { use, useEffect, useMemo, useReducer, useState } from 'react'
+import { use, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { Button, FilterButton, RadioButton } from '../components/Buttons'
 import {
 	Blocks,
@@ -12,6 +12,7 @@ import {
 	History,
 	Filter,
 	HistoryIcon,
+	Check,
 } from 'lucide-react'
 import { CourseCard, WebinarCard } from '../components/Cards'
 import {
@@ -507,7 +508,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 
 	const isStartDTValid = isDateValid && isSTimeValid
 
-	const isFormValid = isNameValid && isUrlValid && isStartDTValid
+	const isFormValid = isNameValid && isUrlValid
 
 	const handleSubmit = async e => {
 		e.preventDefault()
@@ -524,11 +525,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 		const enddate = new Date(`${date}T${etime ? etime : stime}:00Z`)
 		if (!etime) enddate.setHours(enddate.getHours() + 1)
 		formData.append('end_date', enddate.toISOString().slice(0, 19) + 'Z')
+		formData.append('linked_groups', linkedGroupIds)
 
-		formData.append(
-			'teacher_profile_id',
-			'27f1ca7d-70b5-43b3-b310-ffd251670d62'
-		)
 		img !== null && formData.append('image', img)
 
 		try {
@@ -548,10 +546,74 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 			setDate('')
 			setSTime('')
 			setETime('')
+			setLinkedGroups([])
+			setLinkedGroupIds('')
 			setImg(null)
 		} catch (error) {
 			console.error('Ошибка сервера:', error)
 		}
+	}
+	const [step, setStep] = useState(1)
+
+	const access = [
+		{ value: 1, title: 'Доступно всем' },
+		{ value: 2, title: 'Ограниченный доступ' },
+	]
+	const study_level = ['Все', 'Бакалавриат', 'Магистратура']
+	const [selectedAccess, setSelectedAccess] = useState(1)
+	const [selectedElvl, setSelectedElvl] = useState(null)
+
+	const [searchGroups, setSearchGroups] = useState('')
+
+	const [isLoading, setIsLoading] = useState(3)
+	const [isSearchLoading, setIsSearchLoading] = useState(null)
+
+	const [selectedParam, setSelectedParam] = useState('students')
+
+	const [linkedGroups, setLinkedGroups] = useState([])
+	const [linkedGroupIds, setLinkedGroupIds] = useState('')
+	const [unlinkedGroups, setUnlinkedGroups] = useState([])
+
+	useEffect(() => {
+		setLinkedGroupIds(linkedGroups.map(({ id }) => id).join(','))
+	}, [linkedGroups])
+
+	const fetchUnlinkedGroups = async (term = '') => {
+		try {
+			const url = `${API}/webinar/student-group/${term ? `?term=${term}` : ''}`
+
+			const res = await api.get(url, { withCredentials: true })
+			setUnlinkedGroups(res.data)
+		} catch (e) {
+			setGlobalError('Ошибка при загрузке данных')
+		} finally {
+			setIsLoading(null)
+		}
+	}
+
+	useEffect(() => {
+		if (step === 3) {
+			const timer = setTimeout(() => {
+				fetchUnlinkedGroups(searchGroups)
+			}, 500)
+			return () => clearTimeout(timer)
+		}
+	}, [searchGroups, step])
+
+	const handleAdd = async id => {
+		const group = unlinkedGroups.find(g => g.id === id)
+		if (!group) return
+
+		setLinkedGroups(prev => [...prev, group])
+		setUnlinkedGroups(prev => prev.filter(g => g.id !== id))
+	}
+
+	const handleRemove = async id => {
+		const group = linkedGroups.find(g => g.id === id)
+		if (!group) return
+
+		setLinkedGroups(prev => prev.filter(g => g.id !== id))
+		setUnlinkedGroups(prev => [...prev, group])
 	}
 
 	return (
@@ -565,132 +627,287 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 					Создание вебинара
 				</h2>
 
-				<form
-					onSubmit={handleSubmit}
-					className='w-[482px] inline-flex flex-col items-center gap-5'
-				>
-					<InputDefault
-						type='text'
-						placeholder='Название вебинара'
-						title='Введите название вебинара'
-						required={true}
-						InputStatus={false}
-						onStatusChange={setIsNameValid}
-						value={title}
-						onChange={e => setTitle(e.target.value)}
-					/>
-					<InputDefault
-						type='text'
-						placeholder='https://example.ru/...'
-						title='Введите ссылку на вебинара'
-						required={true}
-						InputStatus={false}
-						onStatusChange={setIsUrlValid}
-						value={url}
-						onChange={e => setUrl(e.target.value)}
-					/>
-					<InputDefault
-						type='date'
-						placeholder=''
-						title={'Введите дату проведения вэбинара'}
-						required={true}
-						InputStatus={false}
-						onStatusChange={setIsDateValid}
-						value={date}
-						onChange={e => setDate(e.target.value)}
-					/>
-					<div className='flex flex-col w-full'>
-						<div className='flex gap-3 items-center w-full'>
-							<InputDefault
-								type='time'
-								placeholder=''
-								title={'Время начала'}
-								required={true}
-								InputStatus={false}
-								onStatusChange={setIsSTimeValid}
-								value={stime}
-								onChange={e => setSTime(e.target.value)}
-							/>
-							<div className='flex w-full flex-col'>
-								<div className='inline-flex items-center gap-2'>
-									<p className={`text-[18px] text-[var(--middle)]`}>
-										Время окончания
-									</p>
-									<div className='relative'>
-										<CircleQuestionMark
-											onClick={() =>
-												setHintOpen(prev => (prev === null ? 0 : null))
-											}
-											className='text-blue-500 ml-1 cursor-pointer'
-											size={16}
+				<div className=' flex gap-2 items-center justify-center mb-3'>
+					<p
+						className={`${
+							step === 1
+								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+								: step > 1
+								? 'bg-[var(--hero-epta)] text-white'
+								: 'text-[var(--middle)] bg-[var(--light-middle)]'
+						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+					>
+						1
+					</p>
+					<div
+						className={`h-1 ${
+							step > 1 ? 'bg-[var(--hero-epta)]' : 'bg-[var(--light-middle)]'
+						} w-10 rounded-full`}
+					></div>
+					<p
+						className={`${
+							step === 2
+								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+								: step > 2
+								? 'bg-[var(--hero-epta)] text-white'
+								: 'text-[var(--middle)] bg-[var(--light-middle)]'
+						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+					>
+						2
+					</p>
+					<div
+						className={`h-1 ${
+							step > 2 ? 'bg-[var(--hero-epta)]' : 'bg-[var(--light-middle)]'
+						} w-10 rounded-full`}
+					></div>
+					<p
+						className={`${
+							step === 3
+								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+								: step > 3
+								? 'bg-[var(--hero-epta)] text-white'
+								: 'text-[var(--middle)] bg-[var(--light-middle)]'
+						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+					>
+						3
+					</p>
+				</div>
+
+				<form onSubmit={handleSubmit}>
+					{step === 1 && (
+						<>
+							<div className='w-[482px] inline-flex flex-col items-center gap-5'>
+								<InputDefault
+									type='text'
+									placeholder='Название вебинара'
+									title='Введите название вебинара'
+									required={true}
+									InputStatus={false}
+									onStatusChange={setIsNameValid}
+									value={title}
+									onChange={e => setTitle(e.target.value)}
+								/>
+								<InputDefault
+									type='text'
+									placeholder='https://example.ru/...'
+									title='Введите ссылку на вебинара'
+									required={true}
+									InputStatus={false}
+									onStatusChange={setIsUrlValid}
+									value={url}
+									onChange={e => setUrl(e.target.value)}
+								/>
+								<div className='flex flex-col gap-3'>
+									<div className='inline-flex items-center gap-[10px]'>
+										<p className={`text-[18px] text-[var(--middle)]`}>
+											Загрузите превью
+										</p>
+										<div className='relative'>
+											<CircleQuestionMark
+												onClick={() =>
+													setHintOpen(prev => (prev === null ? 1 : null))
+												}
+												className='text-blue-500 ml-1 cursor-pointer'
+												size={16}
+											/>
+											<div
+												className={`${
+													hintOpen === 1
+														? 'opacity-100 scale-100'
+														: 'opacity-0 scale-0 -translate-x-1/2'
+												} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 text-[var(--black)] rounded-lg`}
+											>
+												<p>
+													При отсутствии загруженного изображения система
+													автоматически сгенерирует превью.
+												</p>
+											</div>
+										</div>
+									</div>
+									<FileInput onFileChange={file => setImg(file)} />
+								</div>
+
+								<input
+									className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+										isFormValid
+											? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+											: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+									}`}
+									type='button'
+									value='Далее'
+									disabled={!isFormValid}
+									onClick={() => setStep(prev => prev + 1)}
+								/>
+							</div>
+						</>
+					)}
+					{step === 2 && (
+						<>
+							<div className='w-[482px] inline-flex flex-col items-center gap-5'>
+								<InputDefault
+									type='date'
+									placeholder=''
+									title={'Введите дату проведения вэбинара'}
+									required={true}
+									InputStatus={false}
+									onStatusChange={setIsDateValid}
+									value={date}
+									onChange={e => setDate(e.target.value)}
+								/>
+								<div className='flex flex-col w-full'>
+									<div className='flex gap-3 items-center w-full'>
+										<InputDefault
+											type='time'
+											placeholder=''
+											title={'Время начала'}
+											required={true}
+											InputStatus={false}
+											onStatusChange={setIsSTimeValid}
+											value={stime}
+											onChange={e => setSTime(e.target.value)}
 										/>
-										<div
-											className={`${
-												hintOpen === 0
-													? 'opacity-100 scale-100'
-													: 'opacity-0 scale-0 -translate-x-1/2'
-											} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 rounded-lg`}
-										>
-											<p>
-												При отсутствии указанной даты окончания система
-												автоматически устанавливает её на час позже времени
-												начала.
-											</p>
+										<div className='flex w-full flex-col'>
+											<div className='inline-flex items-center gap-2'>
+												<p className={`text-[18px] text-[var(--middle)]`}>
+													Время окончания
+												</p>
+												<div className='relative'>
+													<CircleQuestionMark
+														onClick={() =>
+															setHintOpen(prev => (prev === null ? 0 : null))
+														}
+														className='text-blue-500 ml-1 cursor-pointer'
+														size={16}
+													/>
+													<div
+														className={`${
+															hintOpen === 0
+																? 'opacity-100 scale-100'
+																: 'opacity-0 scale-0 -translate-x-1/2'
+														} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5  text-[var(--black)] left-7 h-auto w-75 px-3 py-2 rounded-lg`}
+													>
+														<p>
+															При отсутствии указанной даты окончания система
+															автоматически устанавливает её на час позже
+															времени начала.
+														</p>
+													</div>
+												</div>
+											</div>
+
+											<InputDefault
+												type='time'
+												placeholder=''
+												InputStatus={false}
+												value={etime}
+												onChange={e => setETime(e.target.value)}
+											/>
 										</div>
 									</div>
 								</div>
 
-								<InputDefault
-									type='time'
-									placeholder=''
-									InputStatus={false}
-									value={etime}
-									onChange={e => setETime(e.target.value)}
+								<input
+									className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+										isFormValid
+											? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+											: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+									}`}
+									type='button'
+									value='Далее'
+									disabled={!isSTimeValid}
+									onClick={() => setStep(prev => prev + 1)}
 								/>
 							</div>
-						</div>
-					</div>
-
-					<div className='flex flex-col gap-3'>
-						<div className='inline-flex items-center gap-[10px]'>
-							<p className={`text-[18px] text-[var(--middle)]`}>
-								Загрузите превью
-							</p>
-							<div className='relative'>
-								<CircleQuestionMark
-									onClick={() =>
-										setHintOpen(prev => (prev === null ? 1 : null))
-									}
-									className='text-blue-500 ml-1 cursor-pointer'
-									size={16}
-								/>
-								<div
-									className={`${
-										hintOpen === 1
-											? 'opacity-100 scale-100'
-											: 'opacity-0 scale-0 -translate-x-1/2'
-									} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 rounded-lg`}
-								>
-									<p>
-										При отсутствии загруженного изображения система
-										автоматически сгенерирует превью.
-									</p>
-								</div>
+						</>
+					)}
+					{step === 3 && (
+						<div className='w-[482px] inline-flex flex-col items-center gap-5 '>
+							<div className='flex gap-3 w-full justify-center'>
+								{access?.map((item, index) => {
+									return (
+										<RadioButton
+											key={item?.value}
+											name='example'
+											value={item?.value}
+											title={item?.title}
+											icon={item?.icon}
+											checked={selectedAccess === item?.value}
+											onChange={() => setSelectedAccess(item?.value)}
+											fill={true}
+											wfull={true}
+										/>
+									)
+								})}
 							</div>
-						</div>
-						<FileInput onFileChange={file => setImg(file)} />
-					</div>
 
-					<input
-						className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
-							isFormValid
-								? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
-								: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
-						}`}
-						type='submit'
-						value='Создать вебинар'
-						disabled={!isFormValid}
-					/>
+							<div
+								className={` bg-[var(--light-middle)] rounded-lg shadow-inner p-2 pr-2.75 overflow-y-scroll flex flex-col gap-2 w-full h-[39.5vh] transition-all ${
+									selectedAccess === 1 ? 'opacity-50 pointer-events-none' : ''
+								}`}
+							>
+								<SearchInput
+									width={'100%'}
+									height={48}
+									onChange={e => setSearchGroups(e.target.value)}
+									value={searchGroups}
+								/>
+								{linkedGroups?.map((item, i) => (
+									<motion.div
+										key={i}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: i * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<div
+											key={i}
+											onClick={() => handleRemove(item?.id)}
+											className={`bg-[var(--hero-epta)] rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 transition-all flex justify-between`}
+										>
+											<p className={`font-medium text-white `}>{item?.name}</p>
+											<Check className='text-white' />
+										</div>
+									</motion.div>
+								))}
+								{unlinkedGroups?.map((item, i) => (
+									<motion.div
+										key={i}
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										transition={{
+											duration: 0.3,
+											delay: i * 0.1,
+											ease: 'easeOut',
+										}}
+									>
+										<div
+											key={i}
+											onClick={() => handleAdd(item?.id)}
+											className={`bg-[var(--white)] rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 transition-all flex flex-col `}
+										>
+											<p className={`font-medium text-[var(--black)] `}>
+												{item?.name}
+											</p>
+										</div>
+									</motion.div>
+								))}
+							</div>
+
+							<input
+								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+									isFormValid
+										? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+										: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+								}`}
+								type='submit'
+								value='Создать вебинар'
+								disabled={selectedAccess === 2 && linkedGroups.length === 0}
+							/>
+						</div>
+					)}
 				</form>
 			</div>
 		</div>
@@ -702,7 +919,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	const [selectedFilters, setSelectedFilters] = useState('all')
 	const options = [
 		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
-		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
+		{ value: 1, to: 'webinars', title: 'Видео-конференцию', icon: Radio },
 	]
 	const semester = [
 		{ value: 1, title: '1-й Семестр' },

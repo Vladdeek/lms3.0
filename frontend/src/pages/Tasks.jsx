@@ -154,7 +154,7 @@ const CatalogS = ({ role }) => {
 								/> */}
 					</div>
 				</div>
-				{location.pathname === '/catalogt/webinars' && (
+				{location.pathname === '/catalogs/webinars' && (
 					<div className='flex gap-4 max-lg:gap-2 h-12'>
 						{filter?.map(option => (
 							<RadioButton
