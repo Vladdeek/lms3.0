@@ -489,8 +489,10 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	)
 }
 
-const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
+const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
 	if (!isOpen) return null
+
+	console.log(takeinfo)
 
 	const [isNameValid, setIsNameValid] = useState(false)
 	const [isDateValid, setIsDateValid] = useState(false)
@@ -501,14 +503,79 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 	const [url, setUrl] = useState('')
 	const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
 
-	const [stime, setSTime] = useState()
-	const [etime, setETime] = useState()
+	const [stime, setSTime] = useState(null)
+	const [etime, setETime] = useState(null)
 	const [img, setImg] = useState(null)
 	const [hintOpen, setHintOpen] = useState(null)
 
-	const isStartDTValid = isDateValid && isSTimeValid
+	const isStartDTValid = stime !== null
 
-	const isFormValid = isNameValid && isUrlValid
+	const isFormValid = title !== '' && url !== ''
+
+	const [step, setStep] = useState(1)
+
+	const access = [
+		{ value: 1, title: 'Доступно всем' },
+		{ value: 2, title: 'Ограниченный доступ' },
+	]
+	const study_level = ['Все', 'Бакалавриат', 'Магистратура']
+	const [selectedAccess, setSelectedAccess] = useState(1)
+	const [selectedElvl, setSelectedElvl] = useState(null)
+
+	const [searchGroups, setSearchGroups] = useState('')
+
+	const [isLoading, setIsLoading] = useState(3)
+	const [isSearchLoading, setIsSearchLoading] = useState(null)
+
+	const [selectedParam, setSelectedParam] = useState('students')
+
+	const [linkedGroups, setLinkedGroups] = useState([])
+	const [linkedGroupIds, setLinkedGroupIds] = useState('')
+	const [unlinkedGroups, setUnlinkedGroups] = useState([])
+
+	useEffect(() => {
+		setLinkedGroupIds(linkedGroups.map(({ id }) => id).join(','))
+	}, [linkedGroups])
+
+	const fetchUnlinkedGroups = async (term = '') => {
+		try {
+			const url = `${API}/webinar/student-group/unlinked/${
+				term ? `?term=${term}` : ''
+			}`
+
+			const res = await api.get(url, { withCredentials: true })
+			setUnlinkedGroups(res.data)
+		} catch (e) {
+			setGlobalError('Ошибка при загрузке данных')
+		} finally {
+			setIsLoading(null)
+		}
+	}
+
+	useEffect(() => {
+		if (step === 3) {
+			const timer = setTimeout(() => {
+				fetchUnlinkedGroups(searchGroups)
+			}, 500)
+			return () => clearTimeout(timer)
+		}
+	}, [searchGroups, step])
+
+	const handleAdd = async id => {
+		const group = unlinkedGroups.find(g => g.id === id)
+		if (!group) return
+
+		setLinkedGroups(prev => [...prev, group])
+		setUnlinkedGroups(prev => prev.filter(g => g.id !== id))
+	}
+
+	const handleRemove = async id => {
+		const group = linkedGroups.find(g => g.id === id)
+		if (!group) return
+
+		setLinkedGroups(prev => prev.filter(g => g.id !== id))
+		setUnlinkedGroups(prev => [...prev, group])
+	}
 
 	const handleSubmit = async e => {
 		e.preventDefault()
@@ -553,68 +620,76 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 			console.error('Ошибка сервера:', error)
 		}
 	}
-	const [step, setStep] = useState(1)
 
-	const access = [
-		{ value: 1, title: 'Доступно всем' },
-		{ value: 2, title: 'Ограниченный доступ' },
-	]
-	const study_level = ['Все', 'Бакалавриат', 'Магистратура']
-	const [selectedAccess, setSelectedAccess] = useState(1)
-	const [selectedElvl, setSelectedElvl] = useState(null)
+	const handleEdit = async e => {
+		e.preventDefault()
+		if (!isFormValid) return
 
-	const [searchGroups, setSearchGroups] = useState('')
+		const formData = new FormData()
+		formData.append('name', title)
+		formData.append('link_url', url)
+		formData.append(
+			'start_date',
+			new Date(`${date}T${stime}:00Z`).toISOString().slice(0, 19) + 'Z'
+		)
 
-	const [isLoading, setIsLoading] = useState(3)
-	const [isSearchLoading, setIsSearchLoading] = useState(null)
+		const enddate = new Date(`${date}T${etime ? etime : stime}:00Z`)
+		if (!etime) enddate.setHours(enddate.getHours() + 1)
+		formData.append('end_date', enddate.toISOString().slice(0, 19) + 'Z')
+		formData.append('linked_groups', linkedGroupIds)
 
-	const [selectedParam, setSelectedParam] = useState('students')
+		img !== null && formData.append('image', img)
 
-	const [linkedGroups, setLinkedGroups] = useState([])
-	const [linkedGroupIds, setLinkedGroupIds] = useState('')
-	const [unlinkedGroups, setUnlinkedGroups] = useState([])
-
-	useEffect(() => {
-		setLinkedGroupIds(linkedGroups.map(({ id }) => id).join(','))
-	}, [linkedGroups])
-
-	const fetchUnlinkedGroups = async (term = '') => {
 		try {
-			const url = `${API}/webinar/student-group/${term ? `?term=${term}` : ''}`
+			const res = await api.put(`${API}/webinar/${takeinfo.id}`, formData, {
+				withCredentials: true,
+				headers: {
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
 
-			const res = await api.get(url, { withCredentials: true })
-			setUnlinkedGroups(res.data)
-		} catch (e) {
-			setGlobalError('Ошибка при загрузке данных')
-		} finally {
-			setIsLoading(null)
+			const data = res.data
+
+			onCreate(data)
+			onClose()
+			setTitle('')
+			setUrl('')
+			setDate('')
+			setSTime('')
+			setETime('')
+			setLinkedGroups([])
+			setLinkedGroupIds('')
+			setImg(null)
+		} catch (error) {
+			console.error('Ошибка сервера:', error)
 		}
 	}
+
+	useEffect(() => {
+		setTitle(takeinfo?.name)
+		setUrl(takeinfo?.link_url)
+		const start = new Date(takeinfo.start_date)
+		const end = new Date(takeinfo.end_date)
+		const date = start.toISOString().split('T')[0]
+		const sTime = start.toISOString().slice(11, 16)
+		const eTime = end.toISOString().slice(11, 16)
+		setDate(date)
+		setSTime(sTime)
+		setETime(eTime)
+		setLinkedGroups(takeinfo.linked_groups)
+		takeinfo?.webinar_access === 'restricted'
+			? setSelectedAccess(2)
+			: setSelectedAccess(1)
+	}, [takeinfo])
 
 	useEffect(() => {
 		if (step === 3) {
-			const timer = setTimeout(() => {
-				fetchUnlinkedGroups(searchGroups)
-			}, 500)
-			return () => clearTimeout(timer)
+			if (selectedAccess === 1) {
+				setLinkedGroups([])
+				setLinkedGroupIds('')
+			}
 		}
-	}, [searchGroups, step])
-
-	const handleAdd = async id => {
-		const group = unlinkedGroups.find(g => g.id === id)
-		if (!group) return
-
-		setLinkedGroups(prev => [...prev, group])
-		setUnlinkedGroups(prev => prev.filter(g => g.id !== id))
-	}
-
-	const handleRemove = async id => {
-		const group = linkedGroups.find(g => g.id === id)
-		if (!group) return
-
-		setLinkedGroups(prev => prev.filter(g => g.id !== id))
-		setUnlinkedGroups(prev => [...prev, group])
-	}
+	}, [selectedAccess])
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
@@ -629,10 +704,11 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 
 				<div className=' flex gap-2 items-center justify-center mb-3'>
 					<p
+						onClick={() => setStep(1)}
 						className={`${
 							step === 1
 								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-								: step > 1
+								: isFormValid
 								? 'bg-[var(--hero-epta)] text-white'
 								: 'text-[var(--middle)] bg-[var(--light-middle)]'
 						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
@@ -641,14 +717,15 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 					</p>
 					<div
 						className={`h-1 ${
-							step > 1 ? 'bg-[var(--hero-epta)]' : 'bg-[var(--light-middle)]'
+							isFormValid ? 'bg-[var(--hero-epta)]' : 'bg-[var(--light-middle)]'
 						} w-10 rounded-full`}
 					></div>
 					<p
+						onClick={() => setStep(2)}
 						className={`${
 							step === 2
 								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-								: step > 2
+								: isStartDTValid
 								? 'bg-[var(--hero-epta)] text-white'
 								: 'text-[var(--middle)] bg-[var(--light-middle)]'
 						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
@@ -657,14 +734,17 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 					</p>
 					<div
 						className={`h-1 ${
-							step > 2 ? 'bg-[var(--hero-epta)]' : 'bg-[var(--light-middle)]'
+							isStartDTValid
+								? 'bg-[var(--hero-epta)]'
+								: 'bg-[var(--light-middle)]'
 						} w-10 rounded-full`}
 					></div>
 					<p
+						onClick={() => setStep(3)}
 						className={`${
 							step === 3
 								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-								: step > 3
+								: linkedGroups.length !== 0
 								? 'bg-[var(--hero-epta)] text-white'
 								: 'text-[var(--middle)] bg-[var(--light-middle)]'
 						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
@@ -673,7 +753,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 					</p>
 				</div>
 
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={takeinfo ? handleEdit : handleSubmit}>
 					{step === 1 && (
 						<>
 							<div className='w-[482px] inline-flex flex-col items-center gap-5'>
@@ -903,7 +983,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate }) => {
 										: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
 								}`}
 								type='submit'
-								value='Создать вебинар'
+								value={takeinfo ? 'Сохранить изменения' : 'Создать вебинар'}
 								disabled={selectedAccess === 2 && linkedGroups.length === 0}
 							/>
 						</div>
@@ -1128,6 +1208,27 @@ const Catalog = ({ role, teacher_profile_id }) => {
 		[filters]
 	)
 
+	const [webinarByIdInfo, setWebinarByIdInfo] = useState(null)
+
+	const getWebById = async id => {
+		try {
+			const res = await api.get(`${API}/webinar/${id}`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+			setWebinarByIdInfo(res.data)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	useEffect(() => {
+		webinarByIdInfo !== null && setCreateWebinarOpen(true)
+	}, [webinarByIdInfo])
+
 	return (
 		<>
 			<CreateModal
@@ -1140,6 +1241,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				isOpen={createWebinarOpen}
 				onClose={() => setCreateWebinarOpen(false)}
 				onCreate={handleCreateWebinar}
+				takeinfo={webinarByIdInfo}
 			/>
 			<div
 				className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
@@ -1337,6 +1439,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 											start={web.start_date}
 											end={web.end_date}
 											to={web.link_url}
+											edit={() => getWebById(web?.id)}
 										/>
 									</motion.div>
 								))}

@@ -147,7 +147,7 @@ export const CourseCard = ({
 	)
 }
 
-export const WebinarCard = ({ img_path, title, start, end, to }) => {
+export const WebinarCard = ({ img_path, title, start, end, to, edit }) => {
 	const now = new Date()
 	const startTime = start ? new Date(start) : null
 	const endTime = end ? new Date(end) : null
@@ -209,8 +209,8 @@ export const WebinarCard = ({ img_path, title, start, end, to }) => {
 
 			{location.pathname === '/catalogt/webinars' ? (
 				<button
-					className={`flex justify-center items-center p-2 rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer `}
-					onClick={() => console.log('click')}
+					className={`hidden flex justify-center items-center p-2 rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer `}
+					onClick={edit}
 				>
 					Редактировать
 				</button>

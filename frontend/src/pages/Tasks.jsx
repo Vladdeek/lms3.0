@@ -45,7 +45,7 @@ const CatalogS = ({ role }) => {
 	const [webinars, setWebinars] = useState([])
 	const options = [
 		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
-		{ value: 1, to: 'webinars', title: 'Вебинар', icon: Radio },
+		{ value: 1, to: 'webinars', title: 'Видео-конференция', icon: Radio },
 	]
 	const filter = [
 		{ value: 'all', title: 'Все', icon: LayoutGrid },
