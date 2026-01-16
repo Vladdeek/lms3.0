@@ -45,11 +45,12 @@ const CatalogS = ({ role }) => {
 	const [webinars, setWebinars] = useState([])
 	const options = [
 		{ value: 0, to: 'courses', title: 'Добавленные курсы', icon: LayoutGrid },
-		{ value: 1, to: 'webinars', title: 'Видео-конференция', icon: Radio },
+		{ value: 1, to: 'webinars', title: 'Видео-конференции', icon: Radio },
 	]
 	const filter = [
 		{ value: 'all', title: 'Все', icon: LayoutGrid },
 		{ value: 'pending', title: 'Предстоящие', icon: CalendarDays },
+		{ value: 'open', title: 'Активные', icon: CalendarDays },
 	]
 
 	const location = useLocation()

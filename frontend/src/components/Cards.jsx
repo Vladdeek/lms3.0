@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { isAfter } from 'date-fns'
+import { isAfter, isBefore } from 'date-fns'
 import { useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { Trash } from 'lucide-react'
@@ -152,7 +152,9 @@ export const WebinarCard = ({ img_path, title, start, end, to, edit, del }) => {
 	const now = new Date()
 	const startTime = start ? new Date(start) : null
 	const endTime = end ? new Date(end) : null
-	const isAvailable = startTime ? isAfter(now, startTime) : false
+
+	const isAvailable =
+		startTime && endTime && isAfter(now, startTime) && isBefore(now, endTime)
 
 	const location = useLocation()
 
