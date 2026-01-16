@@ -489,10 +489,10 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	)
 }
 
-const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
+const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 	if (!isOpen) return null
 
-	console.log(takeinfo)
+	const [editMode, setEditMode] = useState(false)
 
 	const [isNameValid, setIsNameValid] = useState(false)
 	const [isDateValid, setIsDateValid] = useState(false)
@@ -534,7 +534,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
 	const [unlinkedGroups, setUnlinkedGroups] = useState([])
 
 	useEffect(() => {
-		setLinkedGroupIds(linkedGroups.map(({ id }) => id).join(','))
+		setLinkedGroupIds(linkedGroups?.map(({ id }) => id).join(','))
 	}, [linkedGroups])
 
 	const fetchUnlinkedGroups = async (term = '') => {
@@ -665,18 +665,49 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
 		}
 	}
 
+	const handleEditAccess = async e => {
+		try {
+			let data = null
+
+			if (linkedGroupIds) {
+				const formData = new FormData()
+				formData.append('linked_groups', linkedGroupIds)
+				data = formData
+			}
+
+			const res = await api.put(
+				`${API}/webinar/access/edit/${takeinfo.id}`,
+				data,
+				{
+					withCredentials: true,
+					headers: {
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				}
+			)
+
+			console.log(res)
+
+			setLinkedGroups([])
+			setLinkedGroupIds('')
+		} catch (error) {
+			console.error('Ошибка сервера:', error)
+		}
+	}
+
 	useEffect(() => {
-		setTitle(takeinfo?.name)
-		setUrl(takeinfo?.link_url)
-		const start = new Date(takeinfo.start_date)
-		const end = new Date(takeinfo.end_date)
-		const date = start.toISOString().split('T')[0]
-		const sTime = start.toISOString().slice(11, 16)
-		const eTime = end.toISOString().slice(11, 16)
-		setDate(date)
-		setSTime(sTime)
-		setETime(eTime)
-		setLinkedGroups(takeinfo.linked_groups)
+		// setTitle(takeinfo?.name)
+		// setUrl(takeinfo?.link_url)
+		// const start = new Date(takeinfo.start_date)
+		// const end = new Date(takeinfo.end_date)
+		// const date = start.toISOString().split('T')[0]
+		// const sTime = start.toISOString().slice(11, 16)
+		// const eTime = end.toISOString().slice(11, 16)
+		// setDate(date)
+		// setSTime(sTime)
+		// setETime(eTime)
+		takeinfo && setStep(3)
+		setLinkedGroups(takeinfo?.linked_groups)
 		takeinfo?.webinar_access === 'restricted'
 			? setSelectedAccess(2)
 			: setSelectedAccess(1)
@@ -691,6 +722,22 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
 		}
 	}, [selectedAccess])
 
+	const isDisabled = selectedAccess === 2 && linkedGroups?.length === 0
+
+	useEffect(() => {
+		if (editmode === true) {
+			if (takeinfo) {
+				setEditMode(true)
+				setStep(3)
+			}
+		} else if (editmode === false) {
+			setEditMode(false)
+			setStep(1)
+			setLinkedGroups([])
+			setLinkedGroupIds('')
+		}
+	}, [editmode, takeinfo])
+
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
 			<div className='bg-[var(--white)] relative p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] z-1001'>
@@ -699,61 +746,67 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
 					className='absolute top-1 right-1 text-[var(--middle)]'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
-					Создание вебинара
+					{editMode ? 'Управление доступом' : 'Создание вебинара'}
 				</h2>
 
 				<div className=' flex gap-2 items-center justify-center mb-3'>
-					<p
-						onClick={() => setStep(1)}
-						className={`${
-							step === 1
-								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-								: isFormValid
-								? 'bg-[var(--hero-epta)] text-white'
-								: 'text-[var(--middle)] bg-[var(--light-middle)]'
-						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
-					>
-						1
-					</p>
-					<div
-						className={`h-1 ${
-							isFormValid ? 'bg-[var(--hero-epta)]' : 'bg-[var(--light-middle)]'
-						} w-10 rounded-full`}
-					></div>
-					<p
-						onClick={() => setStep(2)}
-						className={`${
-							step === 2
-								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-								: isStartDTValid
-								? 'bg-[var(--hero-epta)] text-white'
-								: 'text-[var(--middle)] bg-[var(--light-middle)]'
-						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
-					>
-						2
-					</p>
-					<div
-						className={`h-1 ${
-							isStartDTValid
-								? 'bg-[var(--hero-epta)]'
-								: 'bg-[var(--light-middle)]'
-						} w-10 rounded-full`}
-					></div>
-					<p
-						onClick={() => setStep(3)}
-						className={`${
-							step === 3
-								? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-								: linkedGroups.length !== 0
-								? 'bg-[var(--hero-epta)] text-white'
-								: 'text-[var(--middle)] bg-[var(--light-middle)]'
-						}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
-					>
-						3
-					</p>
+					{!editMode && (
+						<>
+							<p
+								onClick={() => setStep(1)}
+								className={`${
+									step === 1
+										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+										: isFormValid
+										? 'bg-[var(--hero-epta)] text-white'
+										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+							>
+								1
+							</p>
+							<div
+								className={`h-1 ${
+									isFormValid
+										? 'bg-[var(--hero-epta)]'
+										: 'bg-[var(--light-middle)]'
+								} w-10 rounded-full`}
+							></div>
+							<p
+								onClick={() => setStep(2)}
+								className={`${
+									step === 2
+										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+										: isStartDTValid
+										? 'bg-[var(--hero-epta)] text-white'
+										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+							>
+								2
+							</p>
+							<div
+								className={`h-1 ${
+									isStartDTValid
+										? 'bg-[var(--hero-epta)]'
+										: 'bg-[var(--light-middle)]'
+								} w-10 rounded-full`}
+							></div>
+							<p
+								onClick={() => setStep(3)}
+								className={`${
+									step === 3
+										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+										: linkedGroups?.length !== 0
+										? 'bg-[var(--hero-epta)] text-white'
+										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+							>
+								3
+							</p>
+						</>
+					)}
 				</div>
 
-				<form onSubmit={takeinfo ? handleEdit : handleSubmit}>
+				<form onSubmit={editMode ? handleEditAccess : handleSubmit}>
 					{step === 1 && (
 						<>
 							<div className='w-[482px] inline-flex flex-col items-center gap-5'>
@@ -900,6 +953,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
 							</div>
 						</>
 					)}
+
 					{step === 3 && (
 						<div className='w-[482px] inline-flex flex-col items-center gap-5 '>
 							<div className='flex gap-3 w-full justify-center'>
@@ -977,14 +1031,14 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo }) => {
 							</div>
 
 							<input
-								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
-									isFormValid
-										? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
-										: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit transition ${
+									isDisabled
+										? 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+										: 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
 								}`}
 								type='submit'
-								value={takeinfo ? 'Сохранить изменения' : 'Создать вебинар'}
-								disabled={selectedAccess === 2 && linkedGroups.length === 0}
+								value={editMode ? 'Сохранить изменения' : 'Создать вебинар'}
+								disabled={isDisabled}
 							/>
 						</div>
 					)}
@@ -1210,6 +1264,8 @@ const Catalog = ({ role, teacher_profile_id }) => {
 
 	const [webinarByIdInfo, setWebinarByIdInfo] = useState(null)
 
+	const [editMode, setEditMode] = useState(false)
+
 	const getWebById = async id => {
 		try {
 			const res = await api.get(`${API}/webinar/${id}`, {
@@ -1220,6 +1276,22 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				},
 			})
 			setWebinarByIdInfo(res.data)
+			setEditMode(true)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const delWebById = async id => {
+		try {
+			const res = await api.delete(`${API}/webinar/${id}`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+			fetchWebinars()
 		} catch (error) {
 			console.log(error)
 		}
@@ -1228,6 +1300,12 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	useEffect(() => {
 		webinarByIdInfo !== null && setCreateWebinarOpen(true)
 	}, [webinarByIdInfo])
+
+	const openCrtWebModal = () => {
+		setCreateWebinarOpen(true)
+		setWebinarByIdInfo(null)
+		setEditMode(false)
+	}
 
 	return (
 		<>
@@ -1242,6 +1320,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				onClose={() => setCreateWebinarOpen(false)}
 				onCreate={handleCreateWebinar}
 				takeinfo={webinarByIdInfo}
+				editmode={editMode}
 			/>
 			<div
 				className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
@@ -1440,6 +1519,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 											end={web.end_date}
 											to={web.link_url}
 											edit={() => getWebById(web?.id)}
+											del={() => delWebById(web?.id)}
 										/>
 									</motion.div>
 								))}
@@ -1456,7 +1536,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 										}}
 									>
 										<CreateBtn
-											onClick={() => setCreateWebinarOpen(true)}
+											onClick={() => openCrtWebModal()}
 											title='Добавить вебинар'
 											icon={LayoutGrid}
 											width='w-full'

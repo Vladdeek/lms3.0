@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { isAfter } from 'date-fns'
 import { useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { Trash } from 'lucide-react'
 
 export const CourseCard = ({
 	img_path,
@@ -147,7 +148,7 @@ export const CourseCard = ({
 	)
 }
 
-export const WebinarCard = ({ img_path, title, start, end, to, edit }) => {
+export const WebinarCard = ({ img_path, title, start, end, to, edit, del }) => {
 	const now = new Date()
 	const startTime = start ? new Date(start) : null
 	const endTime = end ? new Date(end) : null
@@ -208,12 +209,20 @@ export const WebinarCard = ({ img_path, title, start, end, to, edit }) => {
 			</div>
 
 			{location.pathname === '/catalogt/webinars' ? (
-				<button
-					className={`hidden flex justify-center items-center p-2 rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer `}
-					onClick={edit}
-				>
-					Редактировать
-				</button>
+				<div className='w-full flex gap-1'>
+					<button
+						className={` flex justify-center items-center p-2 w-full rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer `}
+						onClick={edit}
+					>
+						Управление доступом
+					</button>
+					<button
+						className={` flex justify-center items-center p-2 rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-red-600 hover:text-white cursor-pointer `}
+						onClick={del}
+					>
+						<Trash />
+					</button>
+				</div>
 			) : (
 				<NavLink
 					to={isAvailable ? to : '#'}
