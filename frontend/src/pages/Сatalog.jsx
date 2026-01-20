@@ -746,7 +746,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 					className='absolute top-1 right-1 text-[var(--middle)]'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
-					{editMode ? 'Управление доступом' : 'Создание вебинара'}
+					{editMode ? 'Управление доступом' : 'Создание видео-конференции'}
 				</h2>
 
 				<div className=' flex gap-2 items-center justify-center mb-3'>
@@ -812,8 +812,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 							<div className='w-[482px] inline-flex flex-col items-center gap-5'>
 								<InputDefault
 									type='text'
-									placeholder='Название вебинара'
-									title='Введите название вебинара'
+									placeholder='Название видео-конференции'
+									title='Введите название видео-конференции'
 									required={true}
 									InputStatus={false}
 									onStatusChange={setIsNameValid}
@@ -823,7 +823,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 								<InputDefault
 									type='text'
 									placeholder='https://example.ru/...'
-									title='Введите ссылку на вебинара'
+									title='Введите ссылку на видео-конференции'
 									required={true}
 									InputStatus={false}
 									onStatusChange={setIsUrlValid}
@@ -1037,7 +1037,9 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 										: 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
 								}`}
 								type='submit'
-								value={editMode ? 'Сохранить изменения' : 'Создать вебинар'}
+								value={
+									editMode ? 'Сохранить изменения' : 'Создать видео-конференцию'
+								}
 								disabled={isDisabled}
 							/>
 						</div>
@@ -1537,7 +1539,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 									>
 										<CreateBtn
 											onClick={() => openCrtWebModal()}
-											title='Добавить вебинар'
+											title='Добавить видео-конференцию'
 											icon={LayoutGrid}
 											width='w-full'
 											height='aspect-9/16'

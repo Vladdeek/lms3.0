@@ -50,7 +50,7 @@ const CatalogS = ({ role }) => {
 	const filter = [
 		{ value: 'all', title: 'Все', icon: LayoutGrid },
 		{ value: 'pending', title: 'Предстоящие', icon: CalendarDays },
-		{ value: 'open', title: 'Активные', icon: CalendarDays },
+		{ value: 'open', title: 'Активные', icon: Radio },
 	]
 
 	const location = useLocation()
@@ -92,9 +92,7 @@ const CatalogS = ({ role }) => {
 	const fetchWebinars = async () => {
 		try {
 			const res = await api.get(
-				`${API}/webinar${
-					selectedFilters !== 'all' ? `/?webinar_status=${selectedFilters}` : ''
-				}`,
+				`${API}/webinar${`/?webinar_status=${selectedFilters}`}`,
 				{
 					withCredentials: true,
 					headers: {
