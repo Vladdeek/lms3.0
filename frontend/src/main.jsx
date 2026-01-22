@@ -36,6 +36,7 @@ import api, { API } from './API'
 import Moderation from './pages/Moderation'
 import { ErrorProvider } from './components/Errors'
 import SchedulePage from './pages/Schedule'
+import InDevelopment from './pages/Development'
 
 function MainApp() {
 	const [role, setRole] = useState()
@@ -89,11 +90,14 @@ function MainApp() {
 					/>
 					<Route path='/dashboard' element={<Dashboard />} />
 					<Route path='/schedule' element={<SchedulePage role={role} />} />
-					<Route path='/score' element={<ScorePage />} />
+					{/* <Route path='/score' element={<ScorePage /> } /> */}
+					<Route path='/score' element={<InDevelopment />} />
 					<Route
 						path='/course/:courseId?'
 						element={<CoursePage role={role} />}
 					/>
+
+					<Route path='/dev' element={<InDevelopment />} />
 				</Route>
 			</Routes>
 		</Suspense>
@@ -116,5 +120,5 @@ createRoot(document.getElementById('root')).render(
 				<MainApp />
 			</div>
 		</ErrorProvider>
-	</Router>
+	</Router>,
 )

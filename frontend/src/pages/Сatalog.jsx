@@ -118,8 +118,16 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			formData.append('name', title)
 			formData.append('description', description)
 			formData.append('semester', selectedSemester)
-			formData.append('course', selectedCourses + 1)
-			formData.append('study_level', study_level[selectedStudyLevel]?.title)
+			formData.append(
+				'course',
+				selectedCourses === null ? null : selectedCourses + 1,
+			)
+			formData.append(
+				'study_level',
+				selectedStudyLevel === null
+					? null
+					: study_level[selectedStudyLevel]?.title,
+			)
 			formData.append('teacher_profile_id', teacher_profile_id)
 			if (img !== null) formData.append('image', img)
 
@@ -140,7 +148,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				console.error(
 					'Ошибка сервера:',
 					error.response.status,
-					error.response.data
+					error.response.data,
 				)
 			} else {
 				console.error('Ошибка сети:', error.message)
@@ -176,7 +184,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -215,21 +223,21 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			formData.append('name', disciplines[selectedDisciplines]?.discipline)
 			formData.append(
 				'description',
-				disciplines[selectedDisciplines]?.study_plan
+				disciplines[selectedDisciplines]?.study_plan,
 			)
 			formData.append('semester', disciplines[selectedDisciplines]?.semester)
 			formData.append('course', disciplines[selectedDisciplines]?.course)
 			formData.append(
 				'id_plan_strings',
-				disciplines[selectedDisciplines]?.id_plan_strings
+				disciplines[selectedDisciplines]?.id_plan_strings,
 			)
 			formData.append(
 				'study_plan',
-				disciplines[selectedDisciplines]?.study_plan
+				disciplines[selectedDisciplines]?.study_plan,
 			)
 			formData.append(
 				'study_year',
-				disciplines[selectedDisciplines]?.study_year
+				disciplines[selectedDisciplines]?.study_year,
 			)
 
 			if (img !== null) formData.append('image', img)
@@ -242,7 +250,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 					headers: {
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			onCreate(res.data)
@@ -255,7 +263,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				console.error(
 					'Ошибка сервера:',
 					error.response.status,
-					error.response.data
+					error.response.data,
 				)
 			} else {
 				console.error('Ошибка сети:', error.message)
@@ -586,7 +594,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 		formData.append('link_url', url)
 		formData.append(
 			'start_date',
-			new Date(`${date}T${stime}:00Z`).toISOString().slice(0, 19) + 'Z'
+			new Date(`${date}T${stime}:00Z`).toISOString().slice(0, 19) + 'Z',
 		)
 
 		const enddate = new Date(`${date}T${etime ? etime : stime}:00Z`)
@@ -630,7 +638,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 		formData.append('link_url', url)
 		formData.append(
 			'start_date',
-			new Date(`${date}T${stime}:00Z`).toISOString().slice(0, 19) + 'Z'
+			new Date(`${date}T${stime}:00Z`).toISOString().slice(0, 19) + 'Z',
 		)
 
 		const enddate = new Date(`${date}T${etime ? etime : stime}:00Z`)
@@ -683,7 +691,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 					headers: {
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			console.log(res)
@@ -758,8 +766,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 									step === 1
 										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
 										: isFormValid
-										? 'bg-[var(--hero-epta)] text-white'
-										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+											? 'bg-[var(--hero-epta)] text-white'
+											: 'text-[var(--middle)] bg-[var(--light-middle)]'
 								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
 							>
 								1
@@ -777,8 +785,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 									step === 2
 										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
 										: isStartDTValid
-										? 'bg-[var(--hero-epta)] text-white'
-										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+											? 'bg-[var(--hero-epta)] text-white'
+											: 'text-[var(--middle)] bg-[var(--light-middle)]'
 								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
 							>
 								2
@@ -796,8 +804,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 									step === 3
 										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
 										: linkedGroups?.length !== 0
-										? 'bg-[var(--hero-epta)] text-white'
-										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+											? 'bg-[var(--hero-epta)] text-white'
+											: 'text-[var(--middle)] bg-[var(--light-middle)]'
 								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
 							>
 								3
@@ -1159,8 +1167,8 @@ const Catalog = ({ role, teacher_profile_id }) => {
 								status_options[selectedStatus] === 'Опубликован'
 									? 'approved'
 									: status_options[selectedStatus] === 'Не опубликован'
-									? 'in_development'
-									: 'pending',
+										? 'in_development'
+										: 'pending',
 						}),
 
 					study_level: study_level[selectedElvl],
@@ -1210,7 +1218,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -1225,13 +1233,11 @@ const Catalog = ({ role, teacher_profile_id }) => {
 		fetchCourses()
 	}
 	const deleteAllFilters = async () => {
-		setActiveFilterModal(false)
 		setSelectedSortFilter(null)
 		setSelectedSemester(null)
 		setSelectedStatus(null)
 		setSelectedElvl(null)
 		setSelectedCourseOpt(null)
-		fetchCourses()
 	}
 
 	useEffect(() => {
@@ -1242,8 +1248,8 @@ const Catalog = ({ role, teacher_profile_id }) => {
 		location.pathname === '/catalogt/courses'
 			? fetchCourses()
 			: location.pathname === '/catalogt/webinars'
-			? fetchWebinars()
-			: location.pathname === '/catalog/all' && fetchAllCourses()
+				? fetchWebinars()
+				: location.pathname === '/catalog/all' && fetchAllCourses()
 	}, [location.pathname])
 
 	useEffect(() => {
@@ -1261,7 +1267,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	const activeFiltersCount = useMemo(
 		() =>
 			Object.values(filters).filter(v => v !== null && v !== undefined).length,
-		[filters]
+		[filters],
 	)
 
 	const [webinarByIdInfo, setWebinarByIdInfo] = useState(null)
