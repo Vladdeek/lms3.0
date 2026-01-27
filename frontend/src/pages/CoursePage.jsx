@@ -42,7 +42,7 @@ import OneVariantView from '../components/TestView/OneVariantView'
 import SortVariantView from '../components/TestView/SortVariantsView'
 import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { TextViewer } from '../components/Viewer/TextViewer'
-import { useParams } from 'react-router-dom'
+import { NavLink, Outlet, useParams } from 'react-router-dom'
 import api, { API } from '../API'
 
 import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
@@ -53,6 +53,7 @@ import { set } from 'date-fns'
 import Loader from '../components/Loader'
 import { getCookie, token } from '../TOKEN'
 import { setGlobalError } from '../components/Errors'
+import SectionTimeTracker from '../context/TimeTracker'
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
 	const options = [
@@ -120,8 +121,8 @@ const ModuleContent = ({ type, index, title, bg, onClick, isLocked }) => {
 						{type === 'lecture'
 							? 'Лекция'
 							: type === 'practice'
-							? 'Практика'
-							: type === 'test' && 'Тест'}
+								? 'Практика'
+								: type === 'test' && 'Тест'}
 						{index}
 					</p>
 				</div>
@@ -134,8 +135,9 @@ const ModuleContent = ({ type, index, title, bg, onClick, isLocked }) => {
 	)
 }
 
-const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
+const ModuleBlock = ({ ModuleInfo, selectedContent }) => {
 	const [expandedModules, setExpandedModules] = useState({})
+	const { courseId, SectionId } = useParams()
 
 	const toggleModule = index => {
 		setExpandedModules(prev => ({
@@ -163,20 +165,17 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 									<div className=''>
 										{item?.module_sections?.map((lesson, lessonIndex) => {
 											return (
-												<ModuleContent
-													key={lesson?.id}
-													title={lesson?.title}
-													type={lesson?.type}
-													onClick={() =>
-														onContentSelect(
-															lesson?.id,
-															lesson?.type,
-															lesson?.title
-														)
-													}
-													isSelected={selectedContent?.id === lesson?.id}
-													isLocked={lesson?.locked}
-												/>
+												<NavLink
+													to={`/course/${courseId}/lesson/${lesson?.id}`}
+												>
+													<ModuleContent
+														key={lesson?.id}
+														title={lesson?.title}
+														type={lesson?.type}
+														isSelected={selectedContent?.id === lesson?.id}
+														isLocked={lesson?.locked}
+													/>
+												</NavLink>
 											)
 										})}
 									</div>
@@ -210,8 +209,8 @@ const LevelsBar = ({
 								activeIndex === idx
 									? 'bg-[var(--hero-epta)] text-[var(--white)]'
 									: q.filled
-									? 'bg-[var(--white)] text-[var(--black)] border-b-[3px] border-[var(--hero-epta)] shadow-[var(--glow-hero-epta)]'
-									: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
+										? 'bg-[var(--white)] text-[var(--black)] border-b-[3px] border-[var(--hero-epta)] shadow-[var(--glow-hero-epta)]'
+										: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--hero-epta)] hover:text-[var(--white)]'
 							} active:scale-90 cursor-pointer`}
 					>
 						{idx + 1}
@@ -309,7 +308,7 @@ const ContentView = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setSession(res.data.is_active)
@@ -342,7 +341,7 @@ const ContentView = ({
 		})
 
 		setQuestions(prev =>
-			prev.map(item => (item.id === q?.id ? { ...item, filled: true } : item))
+			prev.map(item => (item.id === q?.id ? { ...item, filled: true } : item)),
 		)
 	}
 
@@ -379,7 +378,7 @@ const ContentView = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 		} catch (error) {
 			console.error('Ошибка:', error)
@@ -407,7 +406,7 @@ const ContentView = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			console.log('Отправлено:', res.data)
@@ -693,24 +692,28 @@ const ContentView = ({
 	)
 }
 
-const CourseOverview = ({ content }) => {
-	const [selectedContent, setSelectedContent] = useState(null)
+export const CourseOverview = ({ moderationCourseId }) => {
+	const { courseId, SectionId } = useParams()
+
 	const [selectedType, setSelectedType] = useState(null)
 	const [selectedName, setSelectedName] = useState(null)
+	const [selectedContent, setSelectedContent] = useState(null)
 	const [sectionId, setSectionId] = useState(null)
+	const [content, setContent] = useState([])
+	const [loading, setLoading] = useState(false)
 
-	const handleContentSelect = (SectionId, SectionType, SectionName) => {
+	const handleContentSelect = (SectionType, SectionName) => {
 		setSectionId(SectionId)
 		setSelectedType(SectionType)
 		setSelectedName(SectionName)
 	}
 
 	useEffect(() => {
-		if (!sectionId) return
+		if (!SectionId) return
 
 		const fetchContent = async () => {
 			try {
-				const res = await api.get(`${API}/sections/${sectionId}/content`, {
+				const res = await api.get(`${API}/sections/${SectionId}/content`, {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
@@ -720,7 +723,9 @@ const CourseOverview = ({ content }) => {
 
 				const data = res.data
 				console.log('Fetched content data:', data)
-				setSelectedContent(data)
+				setSelectedType(data?.type)
+				setSelectedName(data?.title)
+				setSelectedContent(data?.content)
 			} catch (error) {
 				setSelectedContent(null)
 				console.error(error)
@@ -729,10 +734,48 @@ const CourseOverview = ({ content }) => {
 		}
 
 		fetchContent()
-	}, [sectionId])
+	}, [SectionId])
+
+	useEffect(() => {
+		const fetchCourses = async () => {
+			setLoading(true)
+
+			try {
+				const res = await api.get(
+					`${API}/courses/${moderationCourseId || courseId}`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'), //хуйня
+						},
+					},
+				)
+
+				setContent(res.data)
+				setGlobalError(null)
+			} catch (error) {
+				console.error(error)
+				setGlobalError(error.response?.status || error.message)
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchCourses()
+	}, [courseId, moderationCourseId])
+
+	if (moderationCourseId && loading) {
+		return (
+			<div className=' flex items-center justify-center h-full'>
+				<Loader />
+			</div>
+		)
+	}
 
 	return (
 		<>
+			{SectionId && <SectionTimeTracker />}
 			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] h-[70vh] gap-5 '>
 				<div
 					className={`flex flex-col gap-3 h-[70vh] ${
@@ -763,7 +806,6 @@ const CourseOverview = ({ content }) => {
 							<div className='flex flex-col gap-3 rounded-xl max-h-[55vh] overflow-y-scroll  p-2'>
 								<ModuleBlock
 									ModuleInfo={content?.modules}
-									onContentSelect={handleContentSelect}
 									selectedContent={selectedContent}
 								/>
 							</div>
@@ -780,7 +822,7 @@ const CourseOverview = ({ content }) => {
 						contentType={selectedType}
 						contentTitle={selectedName}
 						testId={selectedContent?.id}
-						sectionId={sectionId}
+						sectionId={SectionId}
 						clearSelection={() => {
 							setSelectedContent(null)
 						}}
@@ -792,54 +834,19 @@ const CourseOverview = ({ content }) => {
 }
 
 const CoursePage = ({ moderationCourseId }) => {
-	const { courseId } = useParams()
+	const { courseId, SectionId } = useParams()
 	const [courseContent, setCourseContent] = useState()
-
-	const [loading, setLoading] = useState(false)
-
-	useEffect(() => {
-		const fetchCourses = async () => {
-			setLoading(true)
-
-			try {
-				const res = await api.get(
-					`${API}/courses/${moderationCourseId || courseId}`,
-					{
-						withCredentials: true,
-						headers: {
-							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'), //хуйня
-						},
-					}
-				)
-
-				setCourseContent(res.data)
-				setGlobalError(null)
-			} catch (error) {
-				console.error(error)
-				setGlobalError(error.response?.status || error.message)
-			} finally {
-				setLoading(false)
-			}
-		}
-
-		fetchCourses()
-	}, [courseId, moderationCourseId])
-
-	if (moderationCourseId && loading) {
-		return (
-			<div className=' flex items-center justify-center h-full'>
-				<Loader />
-			</div>
-		)
-	}
 
 	return (
 		<>
 			<div className='flex flex-col gap-5 h-[73vh] mb-20'>
 				<div className='flex justify-between items-center mt-10'></div>
 
-				<CourseOverview content={courseContent} />
+				{SectionId ? (
+					<Outlet />
+				) : (
+					<CourseOverview moderationCourseId={moderationCourseId} />
+				)}
 			</div>
 		</>
 	)

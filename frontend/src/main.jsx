@@ -26,7 +26,7 @@ import Dashboard from './pages/Dashboard'
 import Schedule from './pages/Schedule'
 import ScorePage from './pages/ScorePage'
 import StudentsAndGroups from './pages/Students&Groups'
-import CoursePage from './pages/CoursePage'
+import CoursePage, { CourseOverview } from './pages/CoursePage'
 import CatalogS from './pages/Tasks'
 import { useScroll } from 'framer-motion'
 import Authorization from './pages/Authorization'
@@ -92,10 +92,9 @@ function MainApp() {
 					<Route path='/schedule' element={<SchedulePage role={role} />} />
 					{/* <Route path='/score' element={<ScorePage /> } /> */}
 					<Route path='/score' element={<InDevelopment />} />
-					<Route
-						path='/course/:courseId?'
-						element={<CoursePage role={role} />}
-					/>
+					<Route path='/course/:courseId?' element={<CoursePage role={role} />}>
+						<Route path='lesson/:SectionId?' element={<CourseOverview />} />
+					</Route>
 
 					<Route path='/dev' element={<InDevelopment />} />
 				</Route>
