@@ -10,6 +10,7 @@ import {
 	CircleCheck,
 	Lock,
 	LockOpen,
+	Timer,
 } from 'lucide-react'
 import { AltRadioButton, Button } from '../../components/Buttons'
 import { isValidElement, useEffect, useState } from 'react'
@@ -30,6 +31,7 @@ import { is, se } from 'date-fns/locale'
 import { Forbidden403, setGlobalError } from '../../components/Errors'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
+import ActivityStudents from './ActivityStudents'
 
 const SettingsButton = ({
 	courseId,
@@ -212,7 +214,7 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -375,6 +377,7 @@ const ConstructorPage = ({ role }) => {
 	const options = [
 		{ value: 0, title: 'Конструктор', icon: BrickWall },
 		{ value: 1, title: 'Управление доступом', icon: UsersRound },
+		{ value: 2, title: 'Активность студентов', icon: Timer },
 	]
 	const [sectionType, setSectionType] = useState('text')
 
@@ -432,7 +435,7 @@ const ConstructorPage = ({ role }) => {
 			modules: prev.modules.map(m =>
 				m.id === moduleId
 					? { ...m, module_sections: [...(m.module_sections || []), newLesson] }
-					: m
+					: m,
 			),
 		}))
 
@@ -444,10 +447,10 @@ const ConstructorPage = ({ role }) => {
 					? {
 							...m,
 							module_sections: m.module_sections.map(s =>
-								s.id === tempId ? realLesson : s
+								s.id === tempId ? realLesson : s,
 							),
-					  }
-					: m
+						}
+					: m,
 			),
 		}))
 
@@ -459,8 +462,8 @@ const ConstructorPage = ({ role }) => {
 					? {
 							...m,
 							module_sections: m.module_sections.filter(s => s.id !== tempId),
-					  }
-					: m
+						}
+					: m,
 			),
 		}))
 
@@ -515,7 +518,7 @@ const ConstructorPage = ({ role }) => {
 							'Content-Type': 'application/json',
 							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
-					}
+					},
 				)
 
 				setIsEdit(prev => !prev)
@@ -532,7 +535,7 @@ const ConstructorPage = ({ role }) => {
 							'Content-Type': 'application/json',
 							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
-					}
+					},
 				)
 
 				console.log('students updated: ', data)
@@ -580,7 +583,17 @@ const ConstructorPage = ({ role }) => {
 					: showMassage === 'good' && 'Изменения сохранены'}
 			</p>
 			<div className='flex flex-col gap-5 min-h-[calc(100vh-100px)] max-md:mb-65 mb-45'>
-				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center max-[1366px]:mt-5 mt-10'>
+				<div className='flex justify-center w-full mt-10'>
+					<div className='flex  max-[1366px]:order-1  max-[1366px]:w-[435px] max-[1366px]:justify-center bg-[var(--white)] rounded-xl shadow-[var(--shadow)] px-4 py-2 gap-3'>
+						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
+
+						<p className='font-medium text-2xl text-[var(--black)]'>
+							{courseContent?.name}
+						</p>
+					</div>
+				</div>
+
+				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center'>
 					<div className='flex gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
 						{options.map((option, index) => (
 							<AltRadioButton
@@ -595,23 +608,7 @@ const ConstructorPage = ({ role }) => {
 							/>
 						))}
 					</div>
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{
-							duration: 0.3,
-							delay: 0.2,
-							ease: 'easeOut',
-						}}
-					>
-						<div className='flex  max-[1366px]:order-1  max-[1366px]:w-[435px] max-[1366px]:justify-center bg-[var(--white)] rounded-xl shadow-[var(--shadow)] px-4 py-2 gap-3'>
-							<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
 
-							<p className='font-medium text-2xl text-[var(--black)]'>
-								{courseContent?.name}
-							</p>
-						</div>
-					</motion.div>
 					<div className='flex gap-5 max-[1200px]:hidden  max-[1366px]:gap-2  max-[1366px]:order-3 items-center'>
 						{selected === 1 ? (
 							<QrCodeButton
@@ -691,8 +688,10 @@ const ConstructorPage = ({ role }) => {
 						onSectionTypeChange={setSectionType}
 						isEdit={isEdit}
 					/>
+				) : selected === 1 ? (
+					<AccessManagement onChange={setAccessedGroups} />
 				) : (
-					selected === 1 && <AccessManagement onChange={setAccessedGroups} />
+					selected === 2 && <ActivityStudents onChange={setAccessedGroups} />
 				)}
 			</div>
 		</div>

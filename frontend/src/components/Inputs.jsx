@@ -576,13 +576,14 @@ export const OptionInput2 = ({
 	onChange,
 	value,
 	labelKey = 'name',
+	width = 'w-full',
 }) => {
 	const [Selected, setSelected] = useState(
 		value !== undefined && value !== null
 			? value
 			: placeholder.length !== 0
-			? null
-			: 0
+				? null
+				: 0,
 	)
 	const [isOpen, setIsOpen] = useState(false)
 
@@ -604,7 +605,7 @@ export const OptionInput2 = ({
 					color === 'white'
 						? 'bg-[var(--white)] text-[var(--black)]'
 						: 'bg-[var(--black)] text-[var(--white)]'
-				} flex justify-between items-center rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-full`}
+				} flex justify-between items-center rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium ${width}`}
 			>
 				{Selected !== null ? (
 					<span>{Options[Selected]}</span>
