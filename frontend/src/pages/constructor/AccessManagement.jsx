@@ -1,5 +1,9 @@
 import { Ban, ChevronsRight, GripVertical } from 'lucide-react'
-import { FilterButton, RadioButton } from '../../components/Buttons'
+import {
+	AltRadioButton,
+	FilterButton,
+	RadioButton,
+} from '../../components/Buttons'
 import { SearchInput } from '../../components/Inputs'
 import { useEffect, useRef, useState } from 'react'
 import { setGlobalError } from '../../components/Errors'
@@ -24,34 +28,66 @@ const GroupComponent = ({
 	onDragEnd,
 }) => {
 	return (
-		<div
-			className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'
-			draggable
-			onDragStart={onDragStart}
-			onDragEnd={onDragEnd}
-		>
-			<p className='col-span-2 text-center'>{number}</p>
-			<p className='col-span-2 text-center'>{lvl}</p>
-			<p className='col-span-2 text-center'>{course}</p>
-			<p className='col-span-2 text-center'>{studentsLength}</p>
+		<>
+			<div
+				className='max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'
+				draggable
+				onDragStart={onDragStart}
+				onDragEnd={onDragEnd}
+			>
+				<p className='col-span-2 text-center'>{number}</p>
+				<p className='col-span-2 text-center'>{lvl}</p>
+				<p className='col-span-2 text-center'>{course}</p>
+				<p className='col-span-2 text-center'>{studentsLength}</p>
 
-			<p className='col-span-1 text-center flex justify-center gap-3'>
-				<GripVertical
-					className={dragged === number ? 'cursor-grabbing' : 'cursor-grab'}
-				/>
-				{Accessed ? (
-					<Ban
-						className='cursor-pointer'
-						onClick={() => onRemove && onRemove(id)}
+				<p className='col-span-1 text-center flex justify-center gap-3'>
+					<GripVertical
+						className={dragged === number ? 'cursor-grabbing' : 'cursor-grab'}
 					/>
-				) : (
-					<ChevronsRight
-						className='cursor-pointer'
-						onClick={() => onAdd && onAdd(id)}
-					/>
-				)}
-			</p>
-		</div>
+					{Accessed ? (
+						<Ban
+							className='cursor-pointer'
+							onClick={() => onRemove && onRemove(id)}
+						/>
+					) : (
+						<ChevronsRight
+							className='cursor-pointer'
+							onClick={() => onAdd && onAdd(id)}
+						/>
+					)}
+				</p>
+			</div>
+			<div
+				className='min-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-between rounded-lg p-4 text-[var(--black)]'
+				draggable
+				onDragStart={onDragStart}
+				onDragEnd={onDragEnd}
+			>
+				<div className='flex flex-col items-start'>
+					<p className='text-center text-3xl'>{number}</p>
+					<p className='text-center text-xl'>
+						{course}-й курс {lvl && `(${lvl})`}
+					</p>
+					<p className='text-center text-lg text-[var(--middle)]'>
+						Количество студентов - {studentsLength}
+					</p>
+				</div>
+
+				<p className=' text-center flex justify-center gap-3'>
+					{Accessed ? (
+						<Ban
+							className='cursor-pointer'
+							onClick={() => onRemove && onRemove(id)}
+						/>
+					) : (
+						<ChevronsRight
+							className='cursor-pointer'
+							onClick={() => onAdd && onAdd(id)}
+						/>
+					)}
+				</p>
+			</div>
+		</>
 	)
 }
 
@@ -141,6 +177,21 @@ const AccessBlock = ({
 				e.preventDefault()
 			}}
 		>
+			<div className='flex w-full justify-center gap-3'>
+				{options?.map(option => (
+					<AltRadioButton
+						key={option?.value}
+						name='example'
+						value={option?.value}
+						title={option?.title}
+						icon={option?.icon}
+						checked={selected === option?.value}
+						onChange={() => setSelected(option?.value)}
+						width={'100%'}
+					/>
+				))}
+			</div>
+
 			{title ? (
 				<p className='font-medium text-[var(--black)]'>
 					{title === 'students'
@@ -174,7 +225,7 @@ const AccessBlock = ({
 				<FilterButton option={[]} />
 			</div>
 
-			<div className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'>
+			<div className='max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'>
 				{title ? (
 					title === 'students' ? (
 						<>
@@ -388,10 +439,10 @@ const AccessManagement = ({ onChange }) => {
 			selectedParam === 'students'
 				? `${API}/courses/student-group/unlinked/?course_id=${courseId}${
 						term ? `&term=${term}` : ''
-				  }`
+					}`
 				: `${API}/courses/teachers/unlinked/?course_id=${courseId}${
 						term ? `&term=${term}` : ''
-				  }`
+					}`
 
 		try {
 			setIsLoading(isSearchLoading !== null ? null : 0)
@@ -423,10 +474,10 @@ const AccessManagement = ({ onChange }) => {
 			selectedParam === 'students'
 				? `${API}/courses/student-group/linked/?course_id=${courseId}${
 						term ? `&term=${term}` : ''
-				  }`
+					}`
 				: `${API}/courses/teachers/linked/?course_id=${courseId}${
 						term ? `&term=${term}` : ''
-				  }`
+					}`
 
 		try {
 			setIsLoading(isSearchLoading !== null ? null : 1)
@@ -471,7 +522,7 @@ const AccessManagement = ({ onChange }) => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			fetchUnlinkedGroups()
@@ -498,7 +549,7 @@ const AccessManagement = ({ onChange }) => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			fetchUnlinkedGroups()
@@ -517,33 +568,66 @@ const AccessManagement = ({ onChange }) => {
 		handleRemove(number)
 	}
 
+	const [selectedAccessBlock, setSelectedAccessBlock] = useState(0)
+
 	return (
-		<div className=' grid grid-cols-2 gap-5'>
-			<AccessBlock
-				mass={unlinkedGroups}
-				Accessed={false}
-				onAdd={handleAdd}
-				onDropGroup={handleDropToAvailable}
-				onSearchChange={e => setSearchUnlinkedGroups(e.target.value)}
-				searchValue={searchUnlinkedGroups}
-				loading={isLoading === 3 ? true : isLoading === 0}
-				searchLoading={isSearchLoading === 0}
-				onChange={data =>
-					setSelectedParam(data === 0 ? 'students' : 'teachers')
-				}
-			/>
-			<AccessBlock
-				title={selectedParam}
-				mass={linkedGroups}
-				Accessed={true}
-				onRemove={handleRemove}
-				onDropGroup={handleDropToAllowed}
-				onSearchChange={e => setSearchLinkedGroups(e.target.value)}
-				searchValue={searchLinkedGroups}
-				loading={isLoading === 3 ? true : isLoading === 1}
-				searchLoading={isSearchLoading === 1}
-			/>
-		</div>
+		<>
+			<div className='max-lg:hidden grid grid-cols-2 gap-5'>
+				<AccessBlock
+					mass={unlinkedGroups}
+					Accessed={false}
+					onAdd={handleAdd}
+					onDropGroup={handleDropToAvailable}
+					onSearchChange={e => setSearchUnlinkedGroups(e.target.value)}
+					searchValue={searchUnlinkedGroups}
+					loading={isLoading === 3 ? true : isLoading === 0}
+					searchLoading={isSearchLoading === 0}
+					onChange={data =>
+						setSelectedParam(data === 0 ? 'students' : 'teachers')
+					}
+				/>
+				<AccessBlock
+					title={selectedParam}
+					mass={linkedGroups}
+					Accessed={true}
+					onRemove={handleRemove}
+					onDropGroup={handleDropToAllowed}
+					onSearchChange={e => setSearchLinkedGroups(e.target.value)}
+					searchValue={searchLinkedGroups}
+					loading={isLoading === 3 ? true : isLoading === 1}
+					searchLoading={isSearchLoading === 1}
+				/>
+			</div>
+			<div className='min-lg:hidden gap-5'>
+				{selectedAccessBlock === 0 ? (
+					<AccessBlock
+						mass={unlinkedGroups}
+						Accessed={false}
+						onAdd={handleAdd}
+						onDropGroup={handleDropToAvailable}
+						onSearchChange={e => setSearchUnlinkedGroups(e.target.value)}
+						searchValue={searchUnlinkedGroups}
+						loading={isLoading === 3 ? true : isLoading === 0}
+						searchLoading={isSearchLoading === 0}
+						onChange={data =>
+							setSelectedParam(data === 0 ? 'students' : 'teachers')
+						}
+					/>
+				) : (
+					<AccessBlock
+						title={selectedParam}
+						mass={linkedGroups}
+						Accessed={true}
+						onRemove={handleRemove}
+						onDropGroup={handleDropToAllowed}
+						onSearchChange={e => setSearchLinkedGroups(e.target.value)}
+						searchValue={searchLinkedGroups}
+						loading={isLoading === 3 ? true : isLoading === 1}
+						searchLoading={isSearchLoading === 1}
+					/>
+				)}
+			</div>
+		</>
 	)
 }
 

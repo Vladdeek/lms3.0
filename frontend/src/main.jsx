@@ -107,7 +107,7 @@ createRoot(document.getElementById('root')).render(
 	<Router>
 		<ErrorProvider>
 			<div className='relative'>
-				<Snowfall
+				{/* <Snowfall
 					style={{
 						position: 'fixed',
 						width: '100vw',
@@ -115,7 +115,7 @@ createRoot(document.getElementById('root')).render(
 						zIndex: 9999,
 						pointerEvents: 'none',
 					}}
-				/>
+				/> */}
 				<MainApp />
 			</div>
 		</ErrorProvider>

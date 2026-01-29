@@ -594,7 +594,7 @@ const ConstructorPage = ({ role }) => {
 				</div>
 
 				<div className='flex max-[1366px]:flex-col max-[1366px]:w-full max-[1366px]:gap-2 justify-between items-center'>
-					<div className='flex gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
+					<div className='min-md:flex max-md:grid grid-cols-2  gap-5  max-[1366px]:gap-2 max-[1366px]:order-2 items-center '>
 						{options.map((option, index) => (
 							<AltRadioButton
 								key={option.value}
@@ -604,7 +604,7 @@ const ConstructorPage = ({ role }) => {
 								icon={option.icon}
 								checked={selected === option.value}
 								onChange={() => setSelected(option.value)}
-								width={index === 0 ? '200px' : '225px'}
+								width={'200px'}
 							/>
 						))}
 					</div>
