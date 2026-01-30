@@ -13,6 +13,9 @@ import {
 	Filter,
 	HistoryIcon,
 	Check,
+	ChevronDown,
+	ChevronLeft,
+	User,
 } from 'lucide-react'
 import { CourseCard, WebinarCard } from '../components/Cards'
 import {
@@ -25,7 +28,7 @@ import {
 	TextArea,
 } from '../components/Inputs'
 import api, { API, FILE_API } from '../API'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import axios from 'axios'
@@ -1039,7 +1042,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 							</div>
 
 							<input
-								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit transition ${
+								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit transition-all ${
 									isDisabled
 										? 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
 										: 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
@@ -1053,6 +1056,226 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 						</div>
 					)}
 				</form>
+			</div>
+		</div>
+	)
+}
+
+const WebinarHistory = ({ isOpen, onClose }) => {
+	if (!isOpen) return null
+
+	const [isOpenWarning, setIsOpenWarning] = useState(false)
+	const [webinars, setWebinars] = useState([])
+	const [students, setStudents] = useState([])
+	const [activeWebinar, setActiveWebinar] = useState(null)
+	const fetchWebinars = async () => {
+		try {
+			const res = await api.get(`${API}/webinar/?webinar_status=closed`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
+			setWebinars(res.data)
+		} catch (error) {}
+	}
+	const fetchStudents = async () => {
+		try {
+			const res = await api.get(
+				`${API}/webinar/${activeWebinar}/student/attendance`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				},
+			)
+
+			setStudents(res.data)
+		} catch (error) {}
+	}
+	useEffect(() => {
+		activeWebinar === null ? fetchWebinars() : fetchStudents()
+	}, [activeWebinar])
+
+	const cardMotion = {
+		initial: { opacity: 0, y: 10 },
+		animate: { opacity: 1, y: 0 },
+		exit: { opacity: 0, y: -10 },
+		transition: { duration: 0.2, ease: 'easeOut' },
+	}
+
+	return (
+		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
+			<div className='bg-[var(--white)] relative p-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] max-md:h-[90vh] max-md:overflow-y-scroll  z-1001'>
+				<X
+					onClick={onClose}
+					className='absolute top-1.5 right-1.5 text-[var(--middle)] cursor-pointer hover:text-white  hover:bg-red-500 hover:rounded-full hover:p-0.5  transition-all'
+				/>
+				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
+					История видео-конференций
+				</h2>
+				<h3
+					onClick={() => setIsOpenWarning(prev => !prev)}
+					className='text-2xl border-dashed border-2 border-[var(--hero-epta)]  flex flex-col w-200 font-medium text-[var(--hero-epta)] bg-[var(--hero-pale)] p-3 rounded-2xl mb-5 text-center cursor-pointer'
+				>
+					Предупреждение!
+					<span
+						className={`text-start text-md font-normal overflow-hidden transition-all duration-300 ease-in-out
+		${isOpenWarning ? 'max-h-120 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}
+					>
+						Посещение видео-конференции фиксируется только если студент заходит
+						на неё по ссылке из СДО МелГУ. Если вход выполнен через сторонний
+						сервис или по ссылке, отправленной в чате, посещение не может быть
+						учтено, так как у СДО нет интеграций со стриминговыми платформами и
+						доступа к их данным. Учёт посещаемости носит ориентировочный
+						характер и позволяет лишь примерно определить, кто присутствовал на
+						вебинаре.
+					</span>
+					<div
+						className={`w-full flex justify-center ${!isOpenWarning ? '' : 'rotate-x-180'} transition-all`}
+					>
+						<ChevronDown />
+					</div>
+				</h3>
+				<div className='flex flex-col gap-5 max-h-[75vh] overflow-y-scroll hide-scrollbar p-2'>
+					<div className='text-[var(--black)] text-2xl font-normal'>
+						{activeWebinar ? (
+							<div className='grid grid-cols-3'>
+								<div className='col-span-1 flex justify-start items-center'>
+									<ChevronLeft
+										onClick={() => setActiveWebinar(null)}
+										size={36}
+										className='hover:scale-125 transition-all cursor-pointer'
+									/>
+								</div>
+
+								<p className='col-span-1 text-center'>Список посещений</p>
+							</div>
+						) : (
+							<p className='text-center'>Список видео-конференций</p>
+						)}
+					</div>
+					<AnimatePresence mode='wait'>
+						{activeWebinar ? (
+							<motion.div
+								key='students'
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								className='flex flex-col gap-3'
+							>
+								{students?.map(item => (
+									<motion.div
+										key={item.id}
+										{...cardMotion}
+										className='flex gap-3 p-3 rounded-2xl shadow-[var(--shadow)] '
+									>
+										{item?.avatar_url ? (
+											<img
+												className='h-20 w-20 object-cover rounded-xl'
+												src={`${FILE_API}${item?.avatar_url}`}
+												alt=''
+											/>
+										) : (
+											<div className='h-20 w-20 flex items-center justify-center bg-[var(--light-gray)] rounded-xl text-[var(--middle)] p-2'>
+												<User className='w-full h-full' />
+											</div>
+										)}
+
+										<div className='flex justify-between w-full'>
+											<div className='flex flex-col gap-3'>
+												<p className='text-[var(--black)] text-2xl font-medium'>
+													{item?.first_name} {item?.last_name[0]}.{' '}
+													{item?.middle_name[0]}.
+												</p>
+												<p className='text-[var(--middle)] text-xl font-medium'>
+													{item?.group_name}
+												</p>
+											</div>
+
+											<div className='flex flex-col gap-3 items-end justify-end'>
+												<p className='text-[var(--middle)] text-lg font-light'>
+													{item?.attendance_date
+														? new Date(item.attendance_date).toLocaleString(
+																'ru-RU',
+																{
+																	day: 'numeric',
+																	month: 'short',
+																	year: 'numeric',
+																	hour: '2-digit',
+																	minute: '2-digit',
+																},
+															)
+														: '—'}
+												</p>
+											</div>
+										</div>
+									</motion.div>
+								))}
+							</motion.div>
+						) : (
+							<motion.div
+								key='webinars'
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								className='flex flex-col gap-3'
+							>
+								{webinars?.map(item => (
+									<motion.div
+										key={item.id}
+										{...cardMotion}
+										onClick={() => setActiveWebinar(item?.id)}
+										className='flex gap-3 p-3 rounded-2xl shadow-[var(--shadow)] ring-[var(--hero-epta)] hover:ring-1 hover:shadow-[var(--hero-shadow)] cursor-pointer group'
+									>
+										<img
+											className='h-20 w-20 object-cover rounded-xl group-hover:scale-105 transition'
+											src={`${FILE_API}${item?.image_url}`}
+											alt=''
+										/>
+
+										<div className='flex justify-between w-full'>
+											<div className='flex flex-col gap-3'>
+												<p className='text-[var(--black)] text-2xl font-medium'>
+													{item?.name}
+												</p>
+											</div>
+
+											<div className='flex flex-col gap-3 items-end'>
+												<p
+													className={`${
+														item?.students_attended === 0
+															? 'text-[var(--red-status-text)]'
+															: 'text-[var(--green-status-text)]'
+													} text-xl font-medium`}
+												>
+													{item?.students_attended} посещений
+												</p>
+												<p className='text-[var(--middle)] text-lg font-light'>
+													{item?.end_date
+														? new Date(item.end_date).toLocaleString('ru-RU', {
+																day: 'numeric',
+																month: 'short',
+																year: 'numeric',
+																hour: '2-digit',
+																minute: '2-digit',
+															})
+														: '—'}
+												</p>
+											</div>
+										</div>
+									</motion.div>
+								))}
+							</motion.div>
+						)}
+					</AnimatePresence>
+				</div>
+
+				<div className='flex gap-3 w-full justify-center mb-3'></div>
 			</div>
 		</div>
 	)
@@ -1125,6 +1348,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 
 	const [createModalOpen, setCreateModalOpen] = useState(false)
 	const [createWebinarOpen, setCreateWebinarOpen] = useState(false)
+	const [historyWebinarOpen, setHistoryWebinarOpen] = useState(false)
 	const [courses, setCourses] = useState([])
 	const [webinars, setWebinars] = useState([])
 
@@ -1330,6 +1554,10 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				takeinfo={webinarByIdInfo}
 				editmode={editMode}
 			/>
+			<WebinarHistory
+				isOpen={historyWebinarOpen}
+				onClose={() => setHistoryWebinarOpen(false)}
+			/>
 			<div
 				className={`min-h-[calc(100vh-100px)] flex flex-col gap-4 pb-55 pt-[50px] md:py-12`}
 			>
@@ -1348,6 +1576,14 @@ const Catalog = ({ role, teacher_profile_id }) => {
 								/>
 							))}
 					</div>
+					{location.pathname === '/catalogt/webinars' && (
+						<div
+							onClick={() => setHistoryWebinarOpen(true)}
+							className='bg-[var(--white)] text-[var(--black)] flex justify-center items-center px-4 rounded-xl shadow-[var(--shadow)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all '
+						>
+							История видео-конференций
+						</div>
+					)}
 					{location.pathname === '/catalogt/courses' && (
 						<div className='relative flex gap-4 max-lg:gap-2 h-12'>
 							<button

@@ -401,6 +401,7 @@ const CatalogS = ({ role }) => {
 											start={web.start_date}
 											end={web.end_date}
 											to={web.link_url}
+											webinarId={web.id}
 										/>
 									</motion.div>
 								))}

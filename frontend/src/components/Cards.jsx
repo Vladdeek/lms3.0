@@ -3,6 +3,8 @@ import { isAfter, isBefore } from 'date-fns'
 import { useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { Trash } from 'lucide-react'
+import api, { API } from '../API'
+import { getCookie } from '../TOKEN'
 
 export const CourseCard = ({
 	img_path,
@@ -108,16 +110,16 @@ export const CourseCard = ({
 								status === 'approved'
 									? 'text-[var(--green-status-text)] bg-[var(--green-status-bg)]'
 									: status === 'in_development'
-									? 'text-[var(--red-status-text)] bg-[var(--red-status-bg)]'
-									: status === 'pending' &&
-									  'text-[var(--yellow-status-text)] bg-[var(--yellow-status-bg)] '
+										? 'text-[var(--red-status-text)] bg-[var(--red-status-bg)]'
+										: status === 'pending' &&
+											'text-[var(--yellow-status-text)] bg-[var(--yellow-status-bg)] '
 							}`}
 						>
 							{status === 'approved'
 								? 'Опубликован'
 								: status === 'in_development'
-								? 'Не опубликован'
-								: status === 'pending' && 'На рассмотрении'}
+									? 'Не опубликован'
+									: status === 'pending' && 'На рассмотрении'}
 						</p>
 						{education && (
 							<p
@@ -148,7 +150,16 @@ export const CourseCard = ({
 	)
 }
 
-export const WebinarCard = ({ img_path, title, start, end, to, edit, del }) => {
+export const WebinarCard = ({
+	img_path,
+	title,
+	start,
+	end,
+	to,
+	edit,
+	del,
+	webinarId,
+}) => {
 	const now = new Date()
 	const startTime = start ? new Date(start) : null
 	const endTime = end ? new Date(end) : null
@@ -157,6 +168,21 @@ export const WebinarCard = ({ img_path, title, start, end, to, edit, del }) => {
 		startTime && endTime && isAfter(now, startTime) && isBefore(now, endTime)
 
 	const location = useLocation()
+
+	const studentAttendance = async () => {
+		try {
+			const res = await api.post(
+				`${API}/webinar/${webinarId}/student/attendance`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				},
+			)
+		} catch (error) {}
+	}
 
 	return (
 		<div className='aspect-9/16 w-full p-[10px] rounded-xl flex flex-col justify-between shadow-[var(--shadow)] bg-[var(--white)] transition-all cursor-pointer'>
@@ -185,7 +211,7 @@ export const WebinarCard = ({ img_path, title, start, end, to, edit, del }) => {
 							? new Date(startTime).toLocaleTimeString('ru-RU', {
 									hour: '2-digit',
 									minute: '2-digit',
-							  })
+								})
 							: 'Не определен'}
 					</span>
 				</p>
@@ -204,7 +230,7 @@ export const WebinarCard = ({ img_path, title, start, end, to, edit, del }) => {
 							? new Date(endTime).toLocaleTimeString('ru-RU', {
 									hour: '2-digit',
 									minute: '2-digit',
-							  })
+								})
 							: 'Не определен'}
 					</span>
 				</p>
@@ -234,10 +260,14 @@ export const WebinarCard = ({ img_path, title, start, end, to, edit, del }) => {
 							: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
 					}`}
 					onClick={e => {
-						if (!isAvailable) e.preventDefault()
+						if (!isAvailable) {
+							e.preventDefault()
+						} else {
+							studentAttendance()
+						}
 					}}
 				>
-					Присоединиться
+					{isAvailable ? 'Присоединиться' : 'Время истекло'}
 				</NavLink>
 			)}
 		</div>
