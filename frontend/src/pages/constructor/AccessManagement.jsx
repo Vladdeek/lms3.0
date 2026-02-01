@@ -508,59 +508,54 @@ const AccessManagement = ({ onChange }) => {
 
 	const handleAdd = async number => {
 		const url =
-			selectedParam === 'students'
-				? `${API}/courses/students/${courseId}?student_group_id=${number}`
-				: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
+		selectedParam === 'students'
+			? `${API}/courses/students/${courseId}?student_group_id=${number}`
+			: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
 
 		try {
-			await api.post(
-				url,
+		await api.post(
+			url,
+			null,
+			{
+			withCredentials: true,
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
+			},
+			}
+		)
 
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				},
-			)
+		fetchUnlinkedGroups()
+		fetchLinkedGroups()
 
-			fetchUnlinkedGroups()
-			fetchLinkedGroups()
-
-			setGlobalError(null)
+		setGlobalError(null)
 		} catch (error) {
-			console.error(error)
+		console.error(error)
 		}
 	}
 	const handleRemove = async number => {
 		const url =
-			selectedParam === 'students'
-				? `${API}/courses/students/${courseId}?student_group_id=${number}`
-				: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
+		selectedParam === 'students'
+			? `${API}/courses/students/${courseId}?student_group_id=${number}`
+			: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
 		try {
-			await api.delete(
-				url,
+		await api.delete(
+			url, {
+			withCredentials: true,
+			headers: {
+				'X-CSRF-TOKEN': getCookie('csrftoken'),
+			},
+			}
+		)
 
-				{
-					data: {},
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
-				},
-			)
+		fetchUnlinkedGroups()
+		fetchLinkedGroups()
 
-			fetchUnlinkedGroups()
-			fetchLinkedGroups()
-
-			setGlobalError(null)
+		setGlobalError(null)
 		} catch (error) {
-			console.error(error)
+		console.error(error)
 		}
 	}
-
 	const handleDropToAllowed = number => {
 		handleAdd(number)
 	}
