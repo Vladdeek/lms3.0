@@ -156,7 +156,7 @@ const Schedule1 = ({
 	})
 	const weekDays = useMemo(
 		() => Array.from({ length: 6 }, (_, i) => addDays(weekStart, i)),
-		[weekStart]
+		[weekStart],
 	)
 	// Функция для проверки, является ли урок текущим
 	const isCurrentLesson = (lessonDate, lessonTime) => {
@@ -196,7 +196,7 @@ const Schedule1 = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -354,12 +354,12 @@ const Schedule2 = ({
 	// 🔥 Генерация именно текущей недели (6 дней, как у Schedule1)
 	const weekDays = useMemo(
 		() => Array.from({ length: 6 }, (_, i) => addDays(weekStart, i)),
-		[weekStart]
+		[weekStart],
 	)
 
 	// выбор дня — по умолчанию сегодня, если он в текущей неделе
 	const [selectedDay, setSelectedDay] = useState(
-		weekDays.find(d => isSameDay(d, today)) || weekDays[0]
+		weekDays.find(d => isSameDay(d, today)) || weekDays[0],
 	)
 
 	const isCurrentLesson = (lessonDate, lessonTime) => {
@@ -402,7 +402,7 @@ const Schedule2 = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -561,7 +561,7 @@ const SchedulePage = ({ role }) => {
 					headers: {
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			const data = res.data
@@ -646,6 +646,13 @@ const SchedulePage = ({ role }) => {
 						<Loader />
 					</div>
 				)}
+				<div className='w-full flex items-center justify-center text-[var(--black)]'>
+					<p className='font-medium text-lg mt-0.5'>
+						Учебный год:
+						{allScheduleData?.academic_year} Семестр:
+						{allScheduleData?.semester}
+					</p>
+				</div>
 				<div className={`${loading ? 'pointer-events-none opacity-30' : ''}`}>
 					<div className='lg:hidden'>
 						<Schedule2

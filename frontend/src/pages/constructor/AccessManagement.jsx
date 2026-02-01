@@ -13,6 +13,12 @@ import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Loader, { AltLoader } from '../../components/Loader'
 import { getCookie } from '../../TOKEN'
+import BasicPagination from '../../components/Pagination'
+
+const ENTITY = {
+	STUDENTS: 'students',
+	TEACHERS: 'teachers',
+}
 
 const GroupComponent = ({
 	id,
@@ -101,32 +107,46 @@ const TeacherComponent = ({
 	onDragStart,
 	onDragEnd,
 }) => {
-	return (
-		<div
-			className=' bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'
-			draggable
-			onDragStart={onDragStart}
-			onDragEnd={onDragEnd}
-		>
-			<p className='col-span-8 text-start px-4'>{name}</p>
+	const ActionIcon = Accessed ? Ban : ChevronsRight
+	const actionHandler = Accessed ? onRemove : onAdd
 
-			<p className='col-span-1 text-center flex justify-center gap-3'>
-				<GripVertical
-					className={dragged === name ? 'cursor-grabbing' : 'cursor-grab'}
+	return (
+		<>
+			{/* desktop */}
+			<div
+				className='max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'
+				draggable
+				onDragStart={onDragStart}
+				onDragEnd={onDragEnd}
+			>
+				<p className='col-span-8 px-4'>{name}</p>
+
+				<p className='col-span-1 flex justify-center gap-3'>
+					<GripVertical
+						className={dragged === name ? 'cursor-grabbing' : 'cursor-grab'}
+					/>
+					<ActionIcon
+						className='cursor-pointer'
+						onClick={() => actionHandler && actionHandler(id)}
+					/>
+				</p>
+			</div>
+
+			{/* mobile */}
+			<div
+				className='min-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-between rounded-lg p-4 text-[var(--black)]'
+				draggable
+				onDragStart={onDragStart}
+				onDragEnd={onDragEnd}
+			>
+				<p className='text-2xl'>{name}</p>
+
+				<ActionIcon
+					className='cursor-pointer'
+					onClick={() => actionHandler && actionHandler(id)}
 				/>
-				{Accessed ? (
-					<Ban
-						className='cursor-pointer'
-						onClick={() => onRemove && onRemove(id)}
-					/>
-				) : (
-					<ChevronsRight
-						className='cursor-pointer'
-						onClick={() => onAdd && onAdd(id)}
-					/>
-				)}
-			</p>
-		</div>
+			</div>
+		</>
 	)
 }
 
@@ -142,81 +162,126 @@ const AccessBlock = ({
 	loading = false,
 	searchLoading = false,
 	onChange,
+	onChangeChapter,
 }) => {
 	const [dragged, setDragged] = useState(null)
-	const [isLoading, setIsLoading] = useState()
-
-	useEffect(() => {
-		setIsLoading(loading)
-	}, [loading])
-
 	const [selected, setSelected] = useState(0)
+	const [selectedChapter, setSelectedChapter] = useState(0)
 
-	const options = [
-		{ value: 0, title: 'Группы студентов' },
-		{ value: 1, title: 'Преподаватели' },
-	]
+	const entityType =
+		title ?? (selected === 0 ? ENTITY.STUDENTS : ENTITY.TEACHERS)
+	const isStudents = entityType === ENTITY.STUDENTS
+
 	useEffect(() => {
 		onChange?.(selected)
-	}, [selected])
+		onChangeChapter?.(selectedChapter)
+	}, [selected, selectedChapter])
 
-	console.log('mass: ', mass, '\ntitle: ', title)
+	const countPagination = Math.ceil((mass?.length || 0) / 10)
+
+	const headers = {
+		students: ['Номер группы', 'Уровень обр.', 'Курс', 'Кол-во студентов', ''],
+		teachers: ['ФИО преподавателя'],
+	}
+
+	const renderItem = (item, index) => (
+		<motion.div
+			key={item.id}
+			initial={{ scale: 0.8, opacity: 0 }}
+			animate={{ scale: 1, opacity: 1 }}
+			transition={{ duration: 0.3, delay: index * 0.05 }}
+		>
+			{isStudents ? (
+				<GroupComponent
+					id={item.id}
+					number={item.name}
+					lvl={item.educational_level}
+					course={item.course_level}
+					studentsLength={item.count_students}
+					onAdd={onAdd}
+					onRemove={onRemove}
+					dragged={dragged}
+					Accessed={Accessed}
+					onDragStart={e => {
+						e.dataTransfer.setData('groupNumber', item.id)
+						setDragged(item.id)
+					}}
+					onDragEnd={() => setDragged(null)}
+				/>
+			) : (
+				<TeacherComponent
+					id={item.id}
+					name={item.mmis_name}
+					onAdd={onAdd}
+					onRemove={onRemove}
+					dragged={dragged}
+					Accessed={Accessed}
+					onDragStart={e => {
+						e.dataTransfer.setData('groupNumber', item.id)
+						setDragged(item.id)
+					}}
+					onDragEnd={() => setDragged(null)}
+				/>
+			)}
+		</motion.div>
+	)
 
 	return (
 		<div
 			className='w-full bg-[var(--white)] h-250 rounded-xl shadow-[var(--shadow)] p-5 flex flex-col gap-5'
 			onDrop={e => {
 				e.preventDefault()
-				const groupNumber = e.dataTransfer.getData('groupNumber')
-				if (groupNumber) {
-					onDropGroup && onDropGroup(groupNumber)
-				}
+				const id = e.dataTransfer.getData('groupNumber')
+				if (id) onDropGroup?.(id)
 				setDragged(null)
 			}}
-			onDragOver={e => {
-				e.preventDefault()
-			}}
+			onDragOver={e => e.preventDefault()}
 		>
-			<div className='flex w-full justify-center gap-3'>
-				{options?.map(option => (
+			{/* mobile tabs */}
+			<div className='flex gap-3 min-lg:hidden'>
+				{['Недопущенные', 'Допущенные'].map((t, i) => (
 					<AltRadioButton
-						key={option?.value}
-						name='example'
-						value={option?.value}
-						title={option?.title}
-						icon={option?.icon}
-						checked={selected === option?.value}
-						onChange={() => setSelected(option?.value)}
-						width={'100%'}
+						key={i}
+						value={i}
+						title={t}
+						checked={selectedChapter === i}
+						onChange={() => setSelectedChapter(i)}
+						width='100%'
 					/>
 				))}
 			</div>
 
-			{title ? (
-				<p className='font-medium text-[var(--black)]'>
-					{title === 'students'
-						? 'Допущены к прохождению курса'
-						: title === 'teachers' && 'Допущены к редактированию курса'}
-				</p>
-			) : (
-				<div className='flex gap-1'>
-					{options?.map(option => (
+			<div className='flex gap-3 min-lg:hidden'>
+				{['Группы студентов', 'Преподаватели'].map((t, i) => (
+					<RadioButton
+						key={i}
+						value={i}
+						title={t}
+						checked={selected === i}
+						onChange={() => setSelected(i)}
+					/>
+				))}
+			</div>
+
+			{/* desktop tabs */}
+			{!title && (
+				<div className='flex gap-2 max-lg:hidden'>
+					{['Группы студентов', 'Преподаватели'].map((t, i) => (
 						<RadioButton
-							key={option?.value}
-							name='example'
-							value={option?.value}
-							title={option?.title}
-							icon={option?.icon}
-							checked={selected === option?.value}
-							onChange={() => setSelected(option?.value)}
+							key={i}
+							value={i}
+							title={t}
+							checked={selected === i}
+							onChange={() => setSelected(i)}
 						/>
 					))}
 				</div>
 			)}
 
-			<div className='flex gap-3 w-full pr-4'>
+			{/* search */}
+			<div className='flex gap-3'>
 				<SearchInput
-					width={'100%'}
+					width='100%'
 					height={48}
 					onChange={onSearchChange}
 					value={searchValue}
@@ -225,400 +290,139 @@ const AccessBlock = ({
 				<FilterButton option={[]} />
 			</div>
 
-			<div className='max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'>
-				{title ? (
-					title === 'students' ? (
-						<>
-							<p className='col-span-2 text-center'>Номер группы</p>
-							<p className='col-span-2 text-center'>Уровень обр.</p>
-							<p className='col-span-2 text-center'>Курс</p>
-							<p className='col-span-2 text-center'>Кол-во студентов</p>
-
-							<p className='col-span-1 text-center'></p>
-						</>
-					) : (
-						<p className='col-span-2 text-center'>ФИО Преподавателя</p>
-					)
-				) : selected === 0 ? (
-					<>
-						<p className='col-span-2 text-center'>Номер группы</p>
-						<p className='col-span-2 text-center'>Уровень обр.</p>
-						<p className='col-span-2 text-center'>Курс</p>
-						<p className='col-span-2 text-center'>Кол-во студентов</p>
-
-						<p className='col-span-1 text-center'></p>
-					</>
-				) : (
-					<p className='col-span-2 text-center'>ФИО Преподавателя</p>
-				)}
+			{/* headers */}
+			<div className='max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px]'>
+				{headers[entityType].map((h, i) => (
+					<p key={i} className='col-span-2 text-center'>
+						{h}
+					</p>
+				))}
 			</div>
-			{isLoading === true ? (
+
+			{/* list */}
+			{loading ? (
 				<Loader />
 			) : (
-				<div className='flex flex-col gap-3 overflow-y-scroll hide-scrollbar p-2'>
-					{mass &&
-						(title ? (
-							title === 'students' ? (
-								<>
-									{mass.map((item, index) => (
-										<motion.div
-											key={index}
-											initial={{ scale: 0.8, opacity: 0 }}
-											animate={{ scale: 1, opacity: 1 }}
-											transition={{
-												duration: 0.3,
-												delay: index * 0.1,
-												ease: 'easeOut',
-											}}
-										>
-											<GroupComponent
-												id={item?.id}
-												number={item?.name}
-												lvl={item?.educational_level}
-												course={item?.course_level}
-												studentsLength={item?.count_students}
-												onAdd={onAdd}
-												onRemove={onRemove}
-												dragged={dragged}
-												Accessed={Accessed}
-												onDragStart={e => {
-													e.dataTransfer.setData('groupNumber', item?.id)
-													setDragged(item?.id)
-												}}
-												onDragEnd={() => setDragged(null)}
-											/>
-										</motion.div>
-									))}
-								</>
-							) : (
-								<>
-									{mass.map((item, index) => (
-										<motion.div
-											key={index}
-											initial={{ scale: 0.8, opacity: 0 }}
-											animate={{ scale: 1, opacity: 1 }}
-											transition={{
-												duration: 0.3,
-												delay: index * 0.1,
-												ease: 'easeOut',
-											}}
-										>
-											<TeacherComponent
-												id={item?.id}
-												name={item?.mmis_name}
-												onAdd={onAdd}
-												onRemove={onRemove}
-												dragged={dragged}
-												Accessed={Accessed}
-												onDragStart={e => {
-													e.dataTransfer.setData('groupNumber', item?.id)
-													setDragged(item?.id)
-												}}
-												onDragEnd={() => setDragged(null)}
-											/>
-										</motion.div>
-									))}
-								</>
-							)
-						) : selected === 0 ? (
-							<>
-								{mass.map((item, index) => (
-									<motion.div
-										key={index}
-										initial={{ scale: 0.8, opacity: 0 }}
-										animate={{ scale: 1, opacity: 1 }}
-										transition={{
-											duration: 0.3,
-											delay: index * 0.1,
-											ease: 'easeOut',
-										}}
-									>
-										<GroupComponent
-											id={item?.id}
-											number={item?.name}
-											lvl={item?.educational_level}
-											course={item?.course_level}
-											studentsLength={item?.count_students}
-											onAdd={onAdd}
-											onRemove={onRemove}
-											dragged={dragged}
-											Accessed={Accessed}
-											onDragStart={e => {
-												e.dataTransfer.setData('groupNumber', item?.id)
-												setDragged(item?.id)
-											}}
-											onDragEnd={() => setDragged(null)}
-										/>
-									</motion.div>
-								))}
-							</>
-						) : (
-							<>
-								{mass.map((item, index) => (
-									<motion.div
-										key={index}
-										initial={{ scale: 0.8, opacity: 0 }}
-										animate={{ scale: 1, opacity: 1 }}
-										transition={{
-											duration: 0.3,
-											delay: index * 0.1,
-											ease: 'easeOut',
-										}}
-									>
-										<TeacherComponent
-											id={item?.id}
-											name={item?.mmis_name}
-											onAdd={onAdd}
-											onRemove={onRemove}
-											dragged={dragged}
-											Accessed={Accessed}
-											onDragStart={e => {
-												e.dataTransfer.setData('groupNumber', item?.id)
-												setDragged(item?.id)
-											}}
-											onDragEnd={() => setDragged(null)}
-										/>
-									</motion.div>
-								))}
-							</>
-						))}
+				<div className='flex flex-col gap-3 overflow-y-scroll h-full hide-scrollbar p-2'>
+					{mass?.map(renderItem)}
 				</div>
 			)}
+			<BasicPagination count={countPagination} />
 		</div>
 	)
 }
 
 const AccessManagement = ({ onChange }) => {
-	const [linkedGroups, setLinkedGroups] = useState([])
-	const [unlinkedGroups, setUnlinkedGroups] = useState([])
 	const { courseId } = useParams()
 
-	const [searchLinkedGroups, setSearchLinkedGroups] = useState('')
-	const [searchUnlinkedGroups, setSearchUnlinkedGroups] = useState('')
+	const [selectedEntity, setSelectedEntity] = useState(null)
+	const [selectedChapter, setSelectedChapter] = useState(0)
+	const [linked, setLinked] = useState([])
+	const [unlinked, setUnlinked] = useState([])
 
-	const linkedDebounce = useRef(null)
-	const unlinkedDebounce = useRef(null)
+	const [searchLinked, setSearchLinked] = useState('')
+	const [searchUnlinked, setSearchUnlinked] = useState('')
 
-	const [isLoading, setIsLoading] = useState(3)
-	const [isSearchLoading, setIsSearchLoading] = useState(null)
+	const [loading, setLoading] = useState(null)
+	const [searchLoading, setSearchLoading] = useState(null)
 
-	const [selectedParam, setSelectedParam] = useState(null)
-
-	useEffect(() => {
-		if (!selectedParam) return
-
-		setIsSearchLoading(searchUnlinkedGroups === '' ? null : 0)
-
-		if (unlinkedDebounce.current) clearTimeout(unlinkedDebounce.current)
-
-		unlinkedDebounce.current = setTimeout(() => {
-			fetchUnlinkedGroups(searchUnlinkedGroups)
-		}, 500)
-
-		return () => clearTimeout(unlinkedDebounce.current)
-	}, [searchUnlinkedGroups, selectedParam])
-
-	useEffect(() => {
-		if (!selectedParam) return
-
-		setIsSearchLoading(searchLinkedGroups === '' ? null : 1)
-
-		if (linkedDebounce.current) clearTimeout(linkedDebounce.current)
-
-		linkedDebounce.current = setTimeout(() => {
-			fetchLinkedGroups(searchLinkedGroups)
-		}, 500)
-
-		return () => clearTimeout(linkedDebounce.current)
-	}, [searchLinkedGroups, selectedParam])
-
-	const fetchUnlinkedGroups = async (term = '') => {
-		if (!selectedParam) return
-
+	const fetchData = async (type, linkedFlag, term = '') => {
 		const url =
-			selectedParam === 'students'
-				? `${API}/courses/student-group/unlinked/?course_id=${courseId}${
-						term ? `&term=${term}` : ''
-					}`
-				: `${API}/courses/teachers/unlinked/?course_id=${courseId}${
-						term ? `&term=${term}` : ''
-					}`
+			type === ENTITY.STUDENTS
+				? `${API}/courses/student-group/${linkedFlag}/?course_id=${courseId}${term ? `&term=${term}` : ''}`
+				: `${API}/courses/teachers/${linkedFlag}/?course_id=${courseId}${term ? `&term=${term}` : ''}`
 
 		try {
-			setIsLoading(isSearchLoading !== null ? null : 0)
-			console.log('Fetching URL:', url)
+			setLoading(linkedFlag === 'linked' ? 1 : 0)
+			const res = await api.get(url, { withCredentials: true })
+			linkedFlag === 'linked' ? setLinked(res.data) : setUnlinked(res.data)
+		} finally {
+			setLoading(null)
+			setSearchLoading(null)
+		}
+	}
 
-			const res = await api.get(url, {
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+	useEffect(() => {
+		if (!selectedEntity) return
+		fetchData(selectedEntity, 'linked')
+		fetchData(selectedEntity, 'unlinked')
+	}, [selectedEntity])
+
+	const handleAdd = id =>
+		api
+			.post(
+				selectedEntity === ENTITY.STUDENTS
+					? `${API}/courses/students/${courseId}?student_group_id=${id}`
+					: `${API}/courses/teachers/${courseId}?teacher_profile_id=${id}`,
+			)
+			.then(() => {
+				fetchData(selectedEntity, 'linked')
+				fetchData(selectedEntity, 'unlinked')
 			})
 
-			setUnlinkedGroups(res.data)
-			setGlobalError(null)
-		} catch (error) {
-			console.log(error)
-			setGlobalError('Ошибка при загрузке данных')
-		} finally {
-			setIsLoading(null)
-			setIsSearchLoading(null)
-		}
-	}
-
-	const fetchLinkedGroups = async (term = '') => {
-		if (!selectedParam) return
-
-		const url =
-			selectedParam === 'students'
-				? `${API}/courses/student-group/linked/?course_id=${courseId}${
-						term ? `&term=${term}` : ''
-					}`
-				: `${API}/courses/teachers/linked/?course_id=${courseId}${
-						term ? `&term=${term}` : ''
-					}`
-
-		try {
-			setIsLoading(isSearchLoading !== null ? null : 1)
-			console.log('Fetching URL:', url)
-
-			const res = await api.get(url, {
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+	const handleRemove = id =>
+		api
+			.delete(
+				selectedEntity === ENTITY.STUDENTS
+					? `${API}/courses/students/${courseId}?student_group_id=${id}`
+					: `${API}/courses/teachers/${courseId}?teacher_profile_id=${id}`,
+			)
+			.then(() => {
+				fetchData(selectedEntity, 'linked')
+				fetchData(selectedEntity, 'unlinked')
 			})
 
-			setLinkedGroups(res.data)
-			setGlobalError(null)
-		} catch (error) {
-			console.log(error)
-			setGlobalError('Ошибка при загрузке данных')
-		} finally {
-			setIsLoading(null)
-			setIsSearchLoading(null)
-		}
-	}
-
 	useEffect(() => {
-		onChange?.(linkedGroups)
-	}, [linkedGroups])
-
-	const handleAdd = async number => {
-		const url =
-		selectedParam === 'students'
-			? `${API}/courses/students/${courseId}?student_group_id=${number}`
-			: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
-
-		try {
-		await api.post(
-			url,
-			null,
-			{
-			withCredentials: true,
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-			}
-		)
-
-		fetchUnlinkedGroups()
-		fetchLinkedGroups()
-
-		setGlobalError(null)
-		} catch (error) {
-		console.error(error)
-		}
-	}
-	const handleRemove = async number => {
-		const url =
-		selectedParam === 'students'
-			? `${API}/courses/students/${courseId}?student_group_id=${number}`
-			: `${API}/courses/teachers/${courseId}?teacher_profile_id=${number}`
-		try {
-		await api.delete(
-			url, {
-			withCredentials: true,
-			headers: {
-				'X-CSRF-TOKEN': getCookie('csrftoken'),
-			},
-			}
-		)
-
-		fetchUnlinkedGroups()
-		fetchLinkedGroups()
-
-		setGlobalError(null)
-		} catch (error) {
-		console.error(error)
-		}
-	}
-	const handleDropToAllowed = number => {
-		handleAdd(number)
-	}
-	const handleDropToAvailable = number => {
-		handleRemove(number)
-	}
-
-	const [selectedAccessBlock, setSelectedAccessBlock] = useState(0)
+		onChange?.(linked)
+	}, [linked])
 
 	return (
 		<>
-			<div className='max-lg:hidden grid grid-cols-2 gap-5'>
+			<div className='grid grid-cols-2 gap-5 max-lg:hidden'>
 				<AccessBlock
-					mass={unlinkedGroups}
-					Accessed={false}
+					mass={unlinked}
 					onAdd={handleAdd}
-					onDropGroup={handleDropToAvailable}
-					onSearchChange={e => setSearchUnlinkedGroups(e.target.value)}
-					searchValue={searchUnlinkedGroups}
-					loading={isLoading === 3 ? true : isLoading === 0}
-					searchLoading={isSearchLoading === 0}
-					onChange={data =>
-						setSelectedParam(data === 0 ? 'students' : 'teachers')
+					onSearchChange={e => setSearchUnlinked(e.target.value)}
+					searchValue={searchUnlinked}
+					loading={loading === 0}
+					onChange={i =>
+						setSelectedEntity(i === 0 ? ENTITY.STUDENTS : ENTITY.TEACHERS)
 					}
 				/>
+
 				<AccessBlock
-					title={selectedParam}
-					mass={linkedGroups}
-					Accessed={true}
+					title={selectedEntity}
+					mass={linked}
+					Accessed
 					onRemove={handleRemove}
-					onDropGroup={handleDropToAllowed}
-					onSearchChange={e => setSearchLinkedGroups(e.target.value)}
-					searchValue={searchLinkedGroups}
-					loading={isLoading === 3 ? true : isLoading === 1}
-					searchLoading={isSearchLoading === 1}
+					onSearchChange={e => setSearchLinked(e.target.value)}
+					searchValue={searchLinked}
+					loading={loading === 1}
 				/>
 			</div>
-			<div className='min-lg:hidden gap-5'>
-				{selectedAccessBlock === 0 ? (
+			<div className='min-lg:hidden'>
+				{selectedChapter === 0 ? (
 					<AccessBlock
-						mass={unlinkedGroups}
-						Accessed={false}
+						mass={unlinked}
 						onAdd={handleAdd}
-						onDropGroup={handleDropToAvailable}
-						onSearchChange={e => setSearchUnlinkedGroups(e.target.value)}
-						searchValue={searchUnlinkedGroups}
-						loading={isLoading === 3 ? true : isLoading === 0}
-						searchLoading={isSearchLoading === 0}
-						onChange={data =>
-							setSelectedParam(data === 0 ? 'students' : 'teachers')
+						onSearchChange={e => setSearchUnlinked(e.target.value)}
+						searchValue={searchUnlinked}
+						loading={loading === 0}
+						onChange={i =>
+							setSelectedEntity(i === 0 ? ENTITY.STUDENTS : ENTITY.TEACHERS)
 						}
+						onChangeChapter={setSelectedChapter}
 					/>
 				) : (
 					<AccessBlock
-						title={selectedParam}
-						mass={linkedGroups}
-						Accessed={true}
+						title={selectedEntity}
+						mass={linked}
+						Accessed
 						onRemove={handleRemove}
-						onDropGroup={handleDropToAllowed}
-						onSearchChange={e => setSearchLinkedGroups(e.target.value)}
-						searchValue={searchLinkedGroups}
-						loading={isLoading === 3 ? true : isLoading === 1}
-						searchLoading={isSearchLoading === 1}
+						onSearchChange={e => setSearchLinked(e.target.value)}
+						searchValue={searchLinked}
+						loading={loading === 1}
+						onChangeChapter={setSelectedChapter}
 					/>
 				)}
 			</div>

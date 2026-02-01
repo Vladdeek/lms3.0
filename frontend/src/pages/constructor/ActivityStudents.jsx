@@ -330,15 +330,19 @@ const ActivityStudents = () => {
 					</p>
 				</div>
 				<div className='flex flex-col p-2 gap-2'>
-					{students?.map(item => (
-						<TableEl
-							name={`${item?.last_name} ${item?.first_name[0]}.  ${item?.middle_name[0]}.`}
-							group={item?.group_name}
-							lecture={item?.module_section_title}
-							activity={item?.session_time}
-							last_activity={item?.end_date}
-						/>
-					))}
+					{students?.length === 0 ? (
+						<p className='text-center text-2xl text-[var(--middle)]'>Пусто</p>
+					) : (
+						students?.map(item => (
+							<TableEl
+								name={`${item?.last_name} ${item?.first_name[0]}.  ${item?.middle_name[0]}.`}
+								group={item?.group_name}
+								lecture={item?.module_section_title}
+								activity={item?.session_time}
+								last_activity={item?.end_date}
+							/>
+						))
+					)}
 				</div>
 			</div>
 		</div>

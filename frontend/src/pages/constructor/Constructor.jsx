@@ -102,7 +102,7 @@ const CreateModuleButton = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			console.log(data)
@@ -228,7 +228,7 @@ const CreateLessonButton = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			console.log(data)
@@ -588,8 +588,8 @@ const ModuleContent = ({
 							{type === 'lecture'
 								? 'Лекция'
 								: type === 'practice'
-								? 'Практика'
-								: type === 'test' && 'Тест'}
+									? 'Практика'
+									: type === 'test' && 'Тест'}
 							{index}
 						</p>
 					</div>
@@ -783,12 +783,12 @@ const CreateLevelModal = ({ isOpen, onClose, onCreate }) => {
 							{answerType === 'single'
 								? 'Это классический вопрос, где требуется выбрать единственный верный вариант из предложенного списка. Идеально подходит для проверки знания конкретных фактов. В сам вопрос вы можете вставить аудио для прослушивания, изображение для анализа или формулу — на основе этого медиа-контента и будет строиться задание.'
 								: answerType === 'multiple'
-								? 'Здесь из списка вариантов необходимо отметить все верные, их может быть два или более. Этот формат отлично проверяет умение анализировать и выделять ключевые аспекты. Как и в других типах, вы можете дополнить вопрос аудиофрагментом, фотографией или формулой, чтобы задание стало комплексным.'
-								: answerType === 'matching'
-								? 'Данный тип вопроса требует расположить элементы в правильной последовательности, например, расставив исторические события по хронологии или этапы алгоритма по порядку. Для наглядности вы можете добавить в вопрос аудиозапись, изображение или формулу, которые нужно будет проанализировать и использовать для восстановления логической цепочки.'
-								: answerType === 'open'
-								? 'На данный тип вопроса участник сам формулирует ответ. Это может быть объяснение, вывод, мнение или решение задачи. Для контекста можно добавить изображение, аудио, таблицу или формулу.'
-								: ''}
+									? 'Здесь из списка вариантов необходимо отметить все верные, их может быть два или более. Этот формат отлично проверяет умение анализировать и выделять ключевые аспекты. Как и в других типах, вы можете дополнить вопрос аудиофрагментом, фотографией или формулой, чтобы задание стало комплексным.'
+									: answerType === 'matching'
+										? 'Данный тип вопроса требует расположить элементы в правильной последовательности, например, расставив исторические события по хронологии или этапы алгоритма по порядку. Для наглядности вы можете добавить в вопрос аудиозапись, изображение или формулу, которые нужно будет проанализировать и использовать для восстановления логической цепочки.'
+										: answerType === 'open'
+											? 'На данный тип вопроса участник сам формулирует ответ. Это может быть объяснение, вывод, мнение или решение задачи. Для контекста можно добавить изображение, аудио, таблицу или формулу.'
+											: ''}
 						</p>
 					</div>
 				</div>
@@ -866,6 +866,8 @@ const ContentView = ({
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 
+	console.log(content)
+
 	console.log('blocks: ', blocks)
 
 	const giveId = (index, id) => {
@@ -879,8 +881,20 @@ const ContentView = ({
 	}
 
 	useEffect(() => {
-		SectionType === 'test' ? setQuestions(content?.content) : setBlocks(content)
-		onSectionTypeChange(SectionType)
+		if (!content) return
+
+		const sectionType = content.type
+		onSectionTypeChange?.(sectionType)
+
+		if (sectionType === 'test') {
+			setQuestions(content.content || [])
+			setBlocks([])
+		} else {
+			setBlocks(content.content || [])
+			setQuestions([])
+		}
+
+		setActiveIndex(0)
 	}, [content])
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
@@ -897,7 +911,7 @@ const ContentView = ({
 		console.log('handleBlockChange: ', data)
 		setBlocks(prev => {
 			const updated = prev.map((b, i) =>
-				i === index ? { ...b, content: data } : b
+				i === index ? { ...b, content: data } : b,
 			)
 			onBlocksChange?.(updated)
 			return updated
@@ -1307,7 +1321,7 @@ const Constructor = ({
 							'Content-Type': 'application/json',
 							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
-					}
+					},
 				)
 
 				setSelectedContent(data)

@@ -122,8 +122,8 @@ const ModuleContent = ({ type, index, title, bg, onClick, isLocked }) => {
 						{type === 'lecture'
 							? 'Лекция'
 							: type === 'practice'
-							? 'Практика'
-							: type === 'test' && 'Тест'}
+								? 'Практика'
+								: type === 'test' && 'Тест'}
 						{index}
 					</p>
 				</div>
@@ -173,7 +173,7 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 														onContentSelect(
 															lesson?.id,
 															lesson?.type,
-															lesson?.title
+															lesson?.title,
 														)
 													}
 													isSelected={selectedContent?.id === lesson?.id}
@@ -239,10 +239,10 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-scroll hide-scrollbar'>
 			<ModuleContent bg={true} type={contentType} title={contentTitle} />
 			<div className='flex flex-col gap-5'>
-				{content?.length !== 0 ? (
+				{content.content?.length !== 0 ? (
 					contentType !== 'test' ? (
 						<>
-							{content?.map((item, i) => {
+							{content.content?.map((item, i) => {
 								let element
 								switch (item?.type) {
 									case 'text':
@@ -480,7 +480,7 @@ const ModerationComponent = ({ moderationCourseId }) => {
 							'Content-Type': 'application/json',
 							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
-					}
+					},
 				)
 				const data = res.data
 
