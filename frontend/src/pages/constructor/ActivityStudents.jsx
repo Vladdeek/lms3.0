@@ -307,7 +307,7 @@ const ActivityStudents = () => {
 					)}
 				</div>
 			</div>
-			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl w-full md:min-h-[calc(80vh-100px)] overflow-hidden flex flex-col p-2'>
+			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl w-full md:min-h-[calc(77.5vh-100px)] overflow-hidden flex flex-col p-2'>
 				<div className='max-lg:hidden w-full flex bg-[var(--white)] rounded-lg items-center justify-center shadow-[var(--shadow)] text-[var(--black)] h-12 px-4'>
 					<p className='w-1/4 h-full flex items-center justify-center overflow-hidden'>
 						<span className='truncate'>ФИО</span>

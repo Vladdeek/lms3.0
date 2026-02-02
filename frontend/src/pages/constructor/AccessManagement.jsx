@@ -163,10 +163,13 @@ const AccessBlock = ({
 	searchLoading = false,
 	onChange,
 	onChangeChapter,
+	onChangePage,
+	pagecounts,
 }) => {
 	const [dragged, setDragged] = useState(null)
 	const [selected, setSelected] = useState(0)
 	const [selectedChapter, setSelectedChapter] = useState(0)
+	const [page, setPage] = useState(1)
 
 	const entityType =
 		title ?? (selected === 0 ? ENTITY.STUDENTS : ENTITY.TEACHERS)
@@ -175,9 +178,8 @@ const AccessBlock = ({
 	useEffect(() => {
 		onChange?.(selected)
 		onChangeChapter?.(selectedChapter)
-	}, [selected, selectedChapter])
-
-	const countPagination = Math.ceil((mass?.length || 0) / 10)
+		onChangePage?.(page)
+	}, [selected, selectedChapter, page])
 
 	const headers = {
 		students: ['Номер группы', 'Уровень обр.', 'Курс', 'Кол-во студентов', ''],
@@ -228,7 +230,7 @@ const AccessBlock = ({
 
 	return (
 		<div
-			className='w-full bg-[var(--white)] h-250 rounded-xl shadow-[var(--shadow)] p-5 flex flex-col gap-5'
+			className='w-full bg-[var(--white)] h-[72.5vh] rounded-xl shadow-[var(--shadow)] p-5 flex flex-col gap-5'
 			onDrop={e => {
 				e.preventDefault()
 				const id = e.dataTransfer.getData('groupNumber')
@@ -307,7 +309,7 @@ const AccessBlock = ({
 					{mass?.map(renderItem)}
 				</div>
 			)}
-			<BasicPagination count={countPagination} />
+			<BasicPagination count={pagecounts} onPageChange={setPage} />
 		</div>
 	)
 }
@@ -325,12 +327,14 @@ const AccessManagement = ({ onChange }) => {
 
 	const [loading, setLoading] = useState(null)
 	const [searchLoading, setSearchLoading] = useState(null)
+	const [linkedPage, setLinkedPage] = useState(1)
+	const [unlinkedPage, setUnlinkedPage] = useState(1)
 
 	const fetchData = async (type, linkedFlag, term = '') => {
 		const url =
 			type === ENTITY.STUDENTS
-				? `${API}/courses/student-group/${linkedFlag}/?course_id=${courseId}${term ? `&term=${term}` : ''}`
-				: `${API}/courses/teachers/${linkedFlag}/?course_id=${courseId}${term ? `&term=${term}` : ''}`
+				? `${API}/courses/student-group/${linkedFlag}/?course_id=${courseId}&page=${linkedFlag === 'linked' ? linkedPage : unlinkedPage}&size=${25}${term ? `&term=${term}` : ''}`
+				: `${API}/courses/teachers/${linkedFlag}/?course_id=${courseId}&page=${linkedFlag === 'linked' ? linkedPage : unlinkedPage}&size=${25}${term ? `&term=${term}` : ''}`
 
 		try {
 			setLoading(linkedFlag === 'linked' ? 1 : 0)
@@ -344,9 +348,21 @@ const AccessManagement = ({ onChange }) => {
 
 	useEffect(() => {
 		if (!selectedEntity) return
+
+		const timer = setTimeout(() => {
+			fetchData(selectedEntity, 'linked', searchLinked)
+			fetchData(selectedEntity, 'unlinked', searchUnlinked)
+			setLinkedPage(1)
+			setUnlinkedPage(1)
+		}, 500) // ← задержка, например 500 мс
+
+		return () => clearTimeout(timer)
+	}, [selectedEntity, searchLinked, searchUnlinked])
+
+	useEffect(() => {
 		fetchData(selectedEntity, 'linked')
 		fetchData(selectedEntity, 'unlinked')
-	}, [selectedEntity])
+	}, [linkedPage, unlinkedPage])
 
 	const handleAdd = id =>
 		api
@@ -380,7 +396,7 @@ const AccessManagement = ({ onChange }) => {
 		<>
 			<div className='grid grid-cols-2 gap-5 max-lg:hidden'>
 				<AccessBlock
-					mass={unlinked}
+					mass={unlinked?.items}
 					onAdd={handleAdd}
 					onSearchChange={e => setSearchUnlinked(e.target.value)}
 					searchValue={searchUnlinked}
@@ -388,22 +404,26 @@ const AccessManagement = ({ onChange }) => {
 					onChange={i =>
 						setSelectedEntity(i === 0 ? ENTITY.STUDENTS : ENTITY.TEACHERS)
 					}
+					onChangePage={setUnlinkedPage}
+					pagecounts={unlinked?.pages}
 				/>
 
 				<AccessBlock
 					title={selectedEntity}
-					mass={linked}
+					mass={linked?.items}
 					Accessed
 					onRemove={handleRemove}
 					onSearchChange={e => setSearchLinked(e.target.value)}
 					searchValue={searchLinked}
 					loading={loading === 1}
+					onChangePage={setLinkedPage}
+					pagecounts={linked?.pages}
 				/>
 			</div>
 			<div className='min-lg:hidden'>
 				{selectedChapter === 0 ? (
 					<AccessBlock
-						mass={unlinked}
+						mass={unlinked?.items}
 						onAdd={handleAdd}
 						onSearchChange={e => setSearchUnlinked(e.target.value)}
 						searchValue={searchUnlinked}
@@ -412,17 +432,21 @@ const AccessManagement = ({ onChange }) => {
 							setSelectedEntity(i === 0 ? ENTITY.STUDENTS : ENTITY.TEACHERS)
 						}
 						onChangeChapter={setSelectedChapter}
+						onChangePage={setUnlinkedPage}
+						pagecounts={unlinked?.pages}
 					/>
 				) : (
 					<AccessBlock
 						title={selectedEntity}
-						mass={linked}
+						mass={linked?.items}
 						Accessed
 						onRemove={handleRemove}
 						onSearchChange={e => setSearchLinked(e.target.value)}
 						searchValue={searchLinked}
 						loading={loading === 1}
 						onChangeChapter={setSelectedChapter}
+						onChangePage={setLinkedPage}
+						pagecounts={linked?.pages}
 					/>
 				)}
 			</div>
