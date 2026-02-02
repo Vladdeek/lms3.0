@@ -284,27 +284,27 @@ const LevelsBar = ({
 									answerStatus === 'correct'
 										? 'border-b-[3px] border-[var(--correct-lvl)] shadow-[var(--correct-glow)]'
 										: answerStatus === 'partial'
-										? 'border-b-[3px] border-[var(--middle-correct-lvl)] shadow-[var(--middle-correct-glow)]'
-										: answerStatus === 'not-correct'
-										? 'border-b-[3px] border-[var(--not-correct-lvl)] shadow-[var(--not-correct-glow)]'
-										: 'border-b-[3px] border-[var(--middle)]'
+											? 'border-b-[3px] border-[var(--middle-correct-lvl)] shadow-[var(--middle-correct-glow)]'
+											: answerStatus === 'not-correct'
+												? 'border-b-[3px] border-[var(--not-correct-lvl)] shadow-[var(--not-correct-glow)]'
+												: 'border-b-[3px] border-[var(--middle)]'
 								}
                 ${
 									activeIndex === idx
 										? answerStatus === 'correct'
 											? 'bg-[var(--correct-lvl)] text-white'
 											: answerStatus === 'partial'
-											? 'bg-[var(--middle-correct-lvl)] text-white'
-											: answerStatus === 'not-correct'
-											? 'bg-[var(--not-correct-lvl)] text-white'
-											: 'bg-[var(--middle)] text-[var(--white)]'
+												? 'bg-[var(--middle-correct-lvl)] text-white'
+												: answerStatus === 'not-correct'
+													? 'bg-[var(--not-correct-lvl)] text-white'
+													: 'bg-[var(--middle)] text-[var(--white)]'
 										: answerStatus === 'correct'
-										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--correct-lvl)] hover:text-[var(--white)]'
-										: answerStatus === 'partial'
-										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle-correct-lvl)] hover:text-[var(--white)]'
-										: answerStatus === 'not-correct'
-										? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--not-correct-lvl)] hover:text-[var(--white)]'
-										: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle)] hover:text-[var(--white)]'
+											? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--correct-lvl)] hover:text-[var(--white)]'
+											: answerStatus === 'partial'
+												? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle-correct-lvl)] hover:text-[var(--white)]'
+												: answerStatus === 'not-correct'
+													? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--not-correct-lvl)] hover:text-[var(--white)]'
+													: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle)] hover:text-[var(--white)]'
 								}
                 active:scale-90`}
 						>
@@ -422,7 +422,7 @@ const StudentsAndGroups = () => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -462,7 +462,7 @@ const StudentsAndGroups = () => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -485,7 +485,7 @@ const StudentsAndGroups = () => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			setGlobalError(null)
@@ -539,7 +539,7 @@ const StudentsAndGroups = () => {
 							Выберите группу студентов
 						</p>
 						<OptionInput
-							Options={groups}
+							Options={groups?.items}
 							labelKey='name'
 							onChange={setSelectedGroupe}
 						/>

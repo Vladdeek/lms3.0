@@ -11,8 +11,8 @@ const FooterLink = ({ to, title, index }) => {
 				index === 0
 					? 'font-medium text-[var(--black)]'
 					: index > 0 && index < 10
-					? 'font-normal text-[var(--middle)]'
-					: index === 10 && 'font-normal text-[var(--black)]'
+						? 'font-normal text-[var(--middle)]'
+						: index === 10 && 'font-normal text-[var(--black)]'
 			}`}
 		>
 			<p className='text-end'>
@@ -28,8 +28,8 @@ const FooterLink = ({ to, title, index }) => {
 					index === 0
 						? 'bg-[var(--black)]'
 						: index > 0 && index < 10
-						? 'bg-[var(--middle)]'
-						: index === 10 && 'bg-[var(--black)]'
+							? 'bg-[var(--middle)]'
+							: index === 10 && 'bg-[var(--black)]'
 				} h-[1px] w-0 group-hover:w-full transition-all`}
 			></div>
 		</NavLink>
@@ -55,8 +55,8 @@ const Footer = () => {
 		],
 		[
 			{ title: 'Контакты', to: '/' },
-			{ title: '+7 (990) 052 06-70', to: '/' },
-			{ title: 'vladryazanov2709@gmail.com', to: '/' },
+			{ title: '+7 (990) XXX XX-XX', to: '/' },
+			{ title: 'xxxxxx@email.ru', to: '/' },
 		],
 	]
 	return (
