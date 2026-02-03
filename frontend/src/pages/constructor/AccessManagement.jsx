@@ -213,7 +213,7 @@ const AccessBlock = ({
 			) : (
 				<TeacherComponent
 					id={item.id}
-					name={item.mmis_name}
+					name={item.mmis_teacher_name}
 					onAdd={onAdd}
 					onRemove={onRemove}
 					dragged={dragged}

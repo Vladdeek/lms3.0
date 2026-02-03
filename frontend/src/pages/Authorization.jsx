@@ -28,6 +28,7 @@ const Authorization = ({ isRegister = false }) => {
 	const [showMessage, setShowMessage] = useState(null)
 
 	const showMessageFunc = message => {
+		console.log('message', message)
 		setShowMessage(message)
 		const timer = setTimeout(() => {
 			setShowMessage(null)
@@ -49,15 +50,11 @@ const Authorization = ({ isRegister = false }) => {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
-
-			const result = response.data
-			if (result?.detail === 'Пользователь не найден')
-				showMessageFunc(result?.detail)
-			else {
-				navigate('/')
-			}
+			navigate('/')
 		} catch (error) {
-			console.error('Ошибка:', error)
+			if (error?.response?.data?.detail === 'Пользователь не найден') {
+			}
+			showMessageFunc(error?.response?.data?.detail)
 		}
 	}
 

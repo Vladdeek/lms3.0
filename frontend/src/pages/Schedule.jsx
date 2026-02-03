@@ -24,11 +24,12 @@ import { setGlobalError } from '../components/Errors'
 const ScheduleCard1 = ({
 	lessonIndex,
 	isCurrent,
-	time_start,
-	time_end,
+	start_time,
+	end_time,
 	title,
 	description,
 	auditory_name,
+	subgroup,
 }) => {
 	return (
 		<div
@@ -39,19 +40,22 @@ const ScheduleCard1 = ({
 		>
 			<p className=' xl:text-sm text-xs text-[var(--black)]'>
 				<span className='px-2 pb-0.75 pt-1.25 rounded-md bg-[var(--hero-epta)] text-white w-fit'>
-					{time_start}
+					{start_time}
 				</span>
 				—
 				<span className='px-2 pb-0.75 pt-1.25 rounded-md bg-[var(--hero-epta)] text-white w-fit'>
-					{time_end}
+					{end_time}
 				</span>
 			</p>
 
 			<p className='text-[var(--black)] font-bold xl:text-lg text-md'>
 				{title}
 			</p>
+			<p className='text-[var(--middle)] font-light xl:text-sm text-xs'>
+				{description}
+			</p>
 			<p className='text-[var(--middle)] font-light xl:text-sm text-xs mb-3'>
-				{description} <span></span>
+				{subgroup}
 			</p>
 			<p className='absolute bottom-2 w-fit flex gap-1 items-center right-2  text-[var(--middle)] font-light'>
 				ауд.
@@ -82,11 +86,12 @@ const DayCard1 = ({ isCurrentDay, day, month, weekDay }) => {
 const ScheduleCard2 = ({
 	lessonIndex,
 	isCurrent,
-	time_start,
-	time_end,
+	start_time,
+	end_time,
 	title,
 	description,
 	auditory_name,
+	subgroup,
 }) => {
 	return (
 		<div
@@ -97,17 +102,16 @@ const ScheduleCard2 = ({
 		>
 			<p className=' xl:text-sm text-xs text-[var(--black)]'>
 				<span className='px-2 pb-0.75 pt-1.25 rounded-md bg-[var(--hero-epta)] text-white w-fit'>
-					{time_start}
+					{start_time}
 				</span>
 				—
 				<span className='px-2 pb-0.75 pt-1.25 rounded-md bg-[var(--hero-epta)] text-white w-fit'>
-					{time_end}
+					{end_time}
 				</span>
 			</p>
 			<p className='text-[var(--black)] font-bold text-lg'>{title}</p>
-			<p className='text-[var(--middle)] font-light text-sm mb-3'>
-				{description}
-			</p>
+			<p className='text-[var(--middle)] font-light text-sm'>{description}</p>
+			<p className='text-[var(--middle)] font-light text-sm mb-3'>{subgroup}</p>
 			<p className='absolute bottom-1 w-fit flex gap-1 items-center right-1  text-[var(--middle)] font-light'>
 				ауд.
 				<span className=' text-white w-fit rounded-lg bg-[var(--hero-epta)] px-2 py-[1px] font-medium text-sm'>
@@ -147,6 +151,8 @@ const Schedule1 = ({
 	role,
 	onClick,
 	onSelected,
+	academic_year,
+	semester,
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
 	const [selected, setSelected] = useState(false)
@@ -200,7 +206,7 @@ const Schedule1 = ({
 			)
 
 			setGlobalError(null)
-			setTeachers(res.data.map(t => t.mmis_name))
+			setTeachers(res.data.map(t => t.mmis_teacher_name))
 
 			setIsLoading(null)
 			setIsSearchLoading(null)
@@ -264,23 +270,35 @@ const Schedule1 = ({
 						</div>
 					</>
 				)}
-
 				<div
-					className={`w-full ${
-						role !== 'student' ? 'justify-center' : 'justify-end'
-					}  flex items-center gap-5 text-[var(--black)]`}
+					className={`flex flex-col w-full justify-center ${
+						role !== 'student' ? 'items-center ' : 'items-end '
+					} `}
 				>
-					<ChevronLeft
-						size={48}
-						onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
-						className={`${!prev_active && 'opacity-50 cursor-not-allowed'}`}
-					/>
-					<p className='font-medium text-2xl mt-0.5'>Неделя {WeekNumber}</p>
-					<ChevronRight
-						size={48}
-						onClick={() => next_active && setWeekOffset(prev => prev + 1)}
-						className={`${!next_active && 'opacity-50 cursor-not-allowed'}`}
-					/>
+					<div
+						className={`w-full ${
+							role !== 'student' ? 'justify-center' : 'justify-end'
+						}  flex items-center gap-5 text-[var(--black)]`}
+					>
+						<ChevronLeft
+							size={48}
+							onClick={() => prev_active && setWeekOffset(prev => prev - 1)}
+							className={`${!prev_active && 'opacity-50 cursor-not-allowed'}`}
+						/>
+						<p className='font-medium text-2xl mt-0.5'>Неделя {WeekNumber}</p>
+						<ChevronRight
+							size={48}
+							onClick={() => next_active && setWeekOffset(prev => prev + 1)}
+							className={`${!next_active && 'opacity-50 cursor-not-allowed'}`}
+						/>
+					</div>
+					<p
+						className={`font-light text-[var(--middle)] text-md mt-0.5 ${
+							role !== 'student' ? 'text-center' : 'text-end'
+						} `}
+					>
+						Учебный год: {academic_year} Семестр: {semester}
+					</p>
 				</div>
 			</div>
 
@@ -301,17 +319,18 @@ const Schedule1 = ({
 							<div className='flex flex-col gap-3'>
 								{daySchedule.length > 0 ? (
 									daySchedule.map((lesson, lessonIndex) => {
-										const isCurrent = isCurrentLesson(day, lesson.time_start)
+										const isCurrent = isCurrentLesson(day, lesson.start_time)
 
 										return (
 											<ScheduleCard1
 												lessonIndex={lessonIndex}
 												isCurrent={isCurrent}
-												time_start={lesson.time_start}
-												time_end={lesson.time_end}
+												start_time={lesson.start_time}
+												end_time={lesson.end_time}
 												title={lesson.title}
 												description={lesson.description}
 												auditory_name={lesson.auditory_name}
+												subgroup={lesson.subgroup}
 											/>
 										)
 									})
@@ -341,6 +360,8 @@ const Schedule2 = ({
 	role,
 	onClick,
 	onSelected,
+	semester,
+	academic_year,
 }) => {
 	const [weekOffset, setWeekOffset] = useState(selectedOffset)
 	const today = startOfToday()
@@ -406,14 +427,13 @@ const Schedule2 = ({
 			)
 
 			setGlobalError(null)
-			setTeachers(res.data.map(t => t.mmis_name))
+			setTeachers(res.data.map(t => t.mmis_teacher_name))
 
 			setIsLoading(null)
 			setIsSearchLoading(null)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
+	console.log(teachers)
 	useEffect(() => {
 		if (searchTeachers === '') {
 			fetchTeachers()
@@ -484,6 +504,9 @@ const Schedule2 = ({
 						className={`${!next_active && 'opacity-50 cursor-not-allowed'}`}
 					/>
 				</div>
+				<p className='font-light text-[var(--middle)] text-md mt-0.5 text-center'>
+					Учебный год: {academic_year} Семестр: {semester}
+				</p>
 			</div>
 			<div className='grid grid-cols-6 gap-2'>
 				{/* Дни недели */}
@@ -509,18 +532,19 @@ const Schedule2 = ({
 				<div className='col-span-6 flex flex-col gap-3 mt-1'>
 					{selectedDaySchedule?.length > 0 ? (
 						selectedDaySchedule.map((lesson, lessonIndex) => {
-							const isCurrent = isCurrentLesson(selectedDay, lesson?.time_start)
+							const isCurrent = isCurrentLesson(selectedDay, lesson?.start_time)
 
 							return (
 								<ScheduleCard2
 									key={lessonIndex}
 									lessonIndex={lessonIndex}
 									isCurrent={isCurrent}
-									time_start={lesson.time_start}
-									time_end={lesson.time_end}
+									start_time={lesson.start_time}
+									end_time={lesson.end_time}
 									title={lesson.title}
 									description={lesson.description}
 									auditory_name={lesson.auditory_name}
+									subgroup={lesson.subgroup}
 								/>
 							)
 						})
@@ -570,53 +594,66 @@ const SchedulePage = ({ role }) => {
 
 			const normalized = {}
 
-			Object.entries(data?.schedule).forEach(([date, lessons]) => {
+			Object.entries(data?.schedule || {}).forEach(([date, lessons]) => {
 				const shortDate = date.split('T')[0]
 
-				// Если роль преподаватель — сначала группируем
-				let preparedLessons = lessons
+				// Объединяем уроки по ключевым полям
+				const map = {}
 
-				if (role === 'teacher' || teacher) {
-					const map = {}
+				lessons.forEach(lesson => {
+					const key = [
+						lesson.start_time,
+						lesson.end_time,
+						lesson.subject_name,
+						lesson.lesson_type,
+						lesson.teacher_full_name,
+						lesson.classroom,
+					].join('|')
 
-					lessons.forEach(lesson => {
-						// ключ по важным параметрам
-						const key = [
-							lesson.time_start,
-							lesson.time_end,
-							lesson.subject,
-							lesson.lesson_type,
-							lesson.teacher_name,
-							lesson.auditory_name,
-						].join('|')
-
-						if (!map[key]) {
-							map[key] = {
-								...lesson,
-								group_names: [lesson.group_name], // ← собираем группы
-							}
-						} else {
-							map[key].group_names.push(lesson.group_name)
+					if (!map[key]) {
+						map[key] = {
+							...lesson,
+							group_names: [lesson.group_name],
+							subgroups: lesson.subgroup != null ? [lesson.subgroup] : [],
 						}
-					})
+					} else {
+						// Если есть подгруппа, добавляем
+						if (lesson.subgroup != null)
+							map[key].subgroups.push(lesson.subgroup)
+						// Группы собираем всегда
+						map[key].group_names.push(lesson.group_name)
+					}
+				})
 
-					preparedLessons = Object.values(map)
-				}
+				// Формируем финальный массив для даты
+				normalized[shortDate] = Object.values(map).map(lesson => {
+					// Формируем строку подгрупп
+					const subgroupsStr =
+						lesson.subgroups.length > 0
+							? lesson.subgroups
+									.sort((a, b) => a - b)
+									.map(sg => `${sg}-я подгруппа`)
+									.join(', ')
+							: null
 
-				normalized[shortDate] = preparedLessons.map(lesson => ({
-					time_start: lesson.time_start.slice(0, 5),
-					time_end: lesson.time_end.slice(0, 5),
-					title: `${lesson.subject} (${lesson.lesson_type})`,
-					description:
-						role === 'student'
-							? lesson.teacher_name
-							: `${lesson.group_names?.join(', ')}`,
-					auditory_name: lesson.auditory_name,
-					raw: lesson,
-				}))
+					return {
+						start_time: lesson.start_time.slice(0, 5),
+						end_time: lesson.end_time.slice(0, 5),
+						title: `${lesson.subject_name} (${lesson.lesson_type})`,
+						description:
+							role === 'student'
+								? lesson.teacher_full_name
+								: lesson.group_names.join(', '),
+						auditory_name: lesson.classroom,
+						subgroup: subgroupsStr,
+						raw: lesson,
+					}
+				})
 			})
 
 			setScheduleData(normalized)
+			console.log('noralized: ', normalized)
+
 			setLoading(false)
 		} catch (e) {
 			console.error(e)
@@ -646,13 +683,7 @@ const SchedulePage = ({ role }) => {
 						<Loader />
 					</div>
 				)}
-				<div className='w-full flex items-center justify-center text-[var(--black)]'>
-					<p className='font-medium text-lg mt-0.5'>
-						Учебный год:
-						{allScheduleData?.academic_year} Семестр:
-						{allScheduleData?.semester}
-					</p>
-				</div>
+
 				<div className={`${loading ? 'pointer-events-none opacity-30' : ''}`}>
 					<div className='lg:hidden'>
 						<Schedule2
@@ -667,6 +698,8 @@ const SchedulePage = ({ role }) => {
 								setTeacher(data)
 							}}
 							onSelected={data => setSelected(data)}
+							academic_year={allScheduleData?.academic_year}
+							semester={allScheduleData?.semester}
 						/>
 					</div>
 					<div className='max-lg:hidden'>
@@ -682,6 +715,8 @@ const SchedulePage = ({ role }) => {
 								setTeacher(data)
 							}}
 							onSelected={data => setSelected(data)}
+							academic_year={allScheduleData?.academic_year}
+							semester={allScheduleData?.semester}
 						/>
 					</div>
 				</div>
