@@ -146,7 +146,7 @@ const ActivityStudents = () => {
 			...(term && { term }),
 
 			...(selectedGroup && {
-				group_name: selectedGroup,
+				group_name: groups[selectedGroup],
 			}),
 
 			...(lessonKey && {
@@ -185,7 +185,7 @@ const ActivityStudents = () => {
 					},
 				)
 
-				setGroups(res.data.map(item => item.name))
+				setGroups(res.data.items.map(item => item.name))
 			} catch (error) {}
 		}
 		fetchLinkedGroups()
@@ -223,7 +223,7 @@ const ActivityStudents = () => {
 						placeholder={'Группа'}
 						onChange={data => setSelectedGroup(data)}
 						value={selectedGroup}
-						width='w-[141px]'
+						width='w-[175px]'
 					/>
 					<FilterOptionInput
 						Options={Object.keys(lessons)}
