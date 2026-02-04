@@ -523,6 +523,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 
 	const isFormValid = title !== '' && url !== ''
 
+	const lastStep = isFormValid && stime
+
 	const [step, setStep] = useState(1)
 
 	const access = [
@@ -820,7 +822,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 				<form onSubmit={editMode ? handleEditAccess : handleSubmit}>
 					{step === 1 && (
 						<>
-							<div className='w-[482px] inline-flex flex-col items-center gap-5'>
+							<div className='sm:w-[482px] w-full inline-flex flex-col items-center gap-5'>
 								<InputDefault
 									type='text'
 									placeholder='Название видео-конференции'
@@ -887,7 +889,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 					)}
 					{step === 2 && (
 						<>
-							<div className='w-[482px] inline-flex flex-col items-center gap-5'>
+							<div className='sm:w-[482px] w-full inline-flex flex-col items-center gap-5'>
 								<InputDefault
 									type='date'
 									placeholder=''
@@ -966,7 +968,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 					)}
 
 					{step === 3 && (
-						<div className='w-[482px] inline-flex flex-col items-center gap-5 '>
+						<div className='sm:w-[482px] w-full inline-flex flex-col items-center gap-5 '>
 							<div className='flex gap-3 w-full justify-center'>
 								{access?.map((item, index) => {
 									return (
@@ -1031,7 +1033,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 										<div
 											key={i}
 											onClick={() => handleAdd(item?.id)}
-											className={`bg-[var(--white)] rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 transition-all flex flex-col `}
+											className={`bg-[var(--white)] rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 max-md:py-4 max-md:text-center max-md:text-2xl transition-all flex flex-col `}
 										>
 											<p className={`font-medium text-[var(--black)] `}>
 												{item?.name}
@@ -1042,8 +1044,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 							</div>
 
 							<input
-								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit transition-all ${
-									isDisabled
+								className={`px-[51px] py-[14.5px] font-medium text-md sm:text-xl rounded-lg w-fit transition-all ${
+									!lastStep
 										? 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
 										: 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
 								}`}
@@ -1051,7 +1053,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 								value={
 									editMode ? 'Сохранить изменения' : 'Создать видео-конференцию'
 								}
-								disabled={isDisabled}
+								disabled={!lastStep}
 							/>
 						</div>
 					)}
@@ -1120,7 +1122,7 @@ const WebinarHistory = ({ isOpen, onClose }) => {
 				</h2>
 				<h3
 					onClick={() => setIsOpenWarning(prev => !prev)}
-					className='text-2xl border-dashed border-2 border-[var(--hero-epta)]  flex flex-col w-200 font-medium text-[var(--hero-epta)] bg-[var(--hero-pale)] p-3 rounded-2xl mb-5 text-center cursor-pointer'
+					className='text-2xl border-dashed border-2 border-[var(--hero-epta)]  flex flex-col w-fit md:w-185 font-medium text-[var(--hero-epta)] bg-[var(--hero-pale)] p-3 rounded-2xl mb-5 text-center cursor-pointer'
 				>
 					Предупреждение!
 					<span
@@ -1579,7 +1581,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 					{location.pathname === '/catalogt/webinars' && (
 						<div
 							onClick={() => setHistoryWebinarOpen(true)}
-							className='bg-[var(--white)] text-[var(--black)] flex justify-center items-center px-4 rounded-xl shadow-[var(--shadow)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all '
+							className='bg-[var(--white)] text-[var(--black)] flex justify-center items-center min-[873px]px-4 max-[873px]:h-12.5 rounded-xl shadow-[var(--shadow)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all '
 						>
 							История видео-конференций
 						</div>

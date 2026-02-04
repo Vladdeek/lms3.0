@@ -406,8 +406,6 @@ const CourseOverview = ({ content }) => {
 				setSelectedContent(data)
 			} catch (error) {
 				setSelectedContent(null)
-				console.error(error)
-				setGlobalError(error.response ? String(error.response.status) : '500')
 			}
 		}
 
@@ -487,10 +485,7 @@ const ModerationComponent = ({ moderationCourseId }) => {
 				setGlobalError(null)
 				setCourseContent(data)
 				setLoading(false)
-			} catch (error) {
-				console.error(error)
-				setGlobalError(error.response ? String(error.response.status) : '500')
-			}
+			} catch (error) {}
 		}
 
 		fetchCourses()

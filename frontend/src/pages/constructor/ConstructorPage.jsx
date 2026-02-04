@@ -104,10 +104,7 @@ const SettingsButton = ({
 			})
 
 			onChange?.('good')
-		} catch (error) {
-			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setGlobalError(error.response?.status)
-		}
+		} catch (error) {}
 	}
 
 	return (
@@ -220,10 +217,7 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 			setGlobalError(null)
 
 			setLocked(res.data?.locked)
-		} catch (error) {
-			console.error(error)
-			setGlobalError(error.response?.status?.toString() || '500')
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {
@@ -242,10 +236,7 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 
 			console.log('put locked: ', res.data)
 			fetchIsLocked()
-		} catch (error) {
-			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setGlobalError(error.response?.status)
-		}
+		} catch (error) {}
 	}
 
 	const [StartData, setStartData] = useState()
@@ -382,6 +373,23 @@ const ConstructorPage = ({ role }) => {
 	const [sectionType, setSectionType] = useState('text')
 
 	const [isEdit, setIsEdit] = useState(false)
+	useEffect(() => {
+		const media = window.matchMedia('(max-width: 1200px)')
+
+		const handleChange = e => {
+			if (e.matches) {
+				setIsEdit(false)
+			}
+		}
+
+		if (media.matches) {
+			setIsEdit(false)
+		}
+
+		media.addEventListener('change', handleChange)
+
+		return () => media.removeEventListener('change', handleChange)
+	}, [])
 
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
@@ -401,10 +409,7 @@ const ConstructorPage = ({ role }) => {
 
 				setGlobalError(null)
 				setCourseContent(res.data)
-			} catch (error) {
-				console.error(error)
-				setGlobalError(error.response?.status || error.message)
-			}
+			} catch (error) {}
 		}
 
 		if (courseId) fetchCourses()
@@ -541,8 +546,6 @@ const ConstructorPage = ({ role }) => {
 				console.log('students updated: ', data)
 			}
 		} catch (error) {
-			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setGlobalError(error.response?.status || 500)
 			setIsLoading(false)
 		}
 	}
@@ -561,10 +564,7 @@ const ConstructorPage = ({ role }) => {
 
 			showMassageFunc('public')
 			console.log(data)
-		} catch (error) {
-			console.error('Ошибка сервера:', error.response?.status || error.message)
-			setGlobalError(error.response?.status || 500)
-		}
+		} catch (error) {}
 	}
 
 	const tryChangeContent = id => {

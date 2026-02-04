@@ -122,10 +122,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 			a.click()
 			window.URL.revokeObjectURL(url)
 			document.body.removeChild(a)
-		} catch (error) {
-			console.error('Ошибка:', error)
-			setGlobalError(error.response ? String(error.response.status) : '500')
-		}
+		} catch (error) {}
 	}
 
 	const getFileIcon = file => {

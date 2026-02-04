@@ -410,10 +410,7 @@ const ModuleTitle = ({
 			onRemoveModule(id)
 			setGlobalError(null)
 			setDeleteModalActive(false)
-		} catch (error) {
-			console.error('Ошибка при удалении модуля:', error)
-			setGlobalError(error.response ? String(error.response.status) : '500')
-		}
+		} catch (error) {}
 	}
 	return (
 		<>
@@ -528,10 +525,7 @@ const ModuleContent = ({
 			setDeleteModalActive(false)
 			window.location.reload()
 			setGlobalError(null)
-		} catch (error) {
-			console.error('Ошибка при удалении секции:', error)
-			setGlobalError(error.response ? String(error.response.status) : '500')
-		}
+		} catch (error) {}
 	}
 
 	return (
@@ -1354,7 +1348,11 @@ const Constructor = ({
 			onSelectedContentChange?.(SectionId?.id)
 			setSelectedContent(null)
 		} else {
-			showMassageFunc('Сначала сохраните изменения')
+			showMassageFunc(
+				selectedContent?.type === 'test'
+					? 'Сначала завершите редактирование'
+					: 'Сначала сохраните изменения',
+			)
 		}
 	}
 
@@ -1391,7 +1389,9 @@ const Constructor = ({
 		<div className='relative'>
 			<p
 				className={`absolute transition-all bg-[var(--red-status-bg)] text-[var(--red-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
-					showMassage ? '-top-27 opacity-100' : '-top-47 opacity-50'
+					showMassage
+						? '2xl:-top-27 -top-47  opacity-100'
+						: '2xl:-top-47  -top-65  opacity-50'
 				} `}
 			>
 				{showMassage}

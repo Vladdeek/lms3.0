@@ -39,7 +39,7 @@ export const ConstructorPhotoInput = ({
 			return {
 				isValid: false,
 				error: `Недопустимый формат файла. Допустимые форматы: ${validFormats.join(
-					', '
+					', ',
 				)}`,
 			}
 		}
@@ -176,15 +176,12 @@ export const ConstructorPhotoInput = ({
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			const result = response.data
 			console.log(result)
-		} catch (error) {
-			console.error('Ошибка при удалении фото:', error)
-			setGlobalError(error.response ? String(error.response.status) : '500')
-		}
+		} catch (error) {}
 	}
 
 	const handleDragOver = e => {
@@ -261,14 +258,14 @@ export const ConstructorPhotoInput = ({
 								isDragActive
 									? 'border-[var(--hero-epta)]'
 									: !isFileValid
-									? 'border-[var(--hard-lvl-text)]'
-									: 'border-[var(--middle)]'
+										? 'border-[var(--hard-lvl-text)]'
+										: 'border-[var(--middle)]'
 							} ${
 								isDragActive
 									? 'bg-[var(--hero-pale)]'
 									: !isFileValid
-									? 'bg-[var(--hard-lvl-bg)]'
-									: 'bg-[var(--light-gray)]'
+										? 'bg-[var(--hard-lvl-bg)]'
+										: 'bg-[var(--light-gray)]'
 							} rounded-xl transition-all`}
 						>
 							<label
@@ -277,8 +274,8 @@ export const ConstructorPhotoInput = ({
 									isDragActive
 										? 'bg-[var(--hero-pale)] border-[var(--hero-epta)]'
 										: !isFileValid
-										? 'bg-[var(--hard-lvl-bg)] border-[var(--hard-lvl-text)]'
-										: 'bg-[var(--light-gray)] border-[var(--middle)]'
+											? 'bg-[var(--hard-lvl-bg)] border-[var(--hard-lvl-text)]'
+											: 'bg-[var(--light-gray)] border-[var(--middle)]'
 								}`}
 								onDragOver={handleDragOver}
 								onDragLeave={handleDragLeave}
@@ -292,8 +289,8 @@ export const ConstructorPhotoInput = ({
 											isDragActive
 												? 'text-[var(--hero-epta)]'
 												: !isFileValid
-												? 'text-[var(--hard-lvl-text)]'
-												: 'text-[var(--middle)]'
+													? 'text-[var(--hard-lvl-text)]'
+													: 'text-[var(--middle)]'
 										}`}
 									/>
 									<div className='flex flex-wrap gap-[5px] w-50 justify-center'>
@@ -302,8 +299,8 @@ export const ConstructorPhotoInput = ({
 												isDragActive
 													? 'bg-[var(--hero-epta)] text-[var(--white)]'
 													: !isFileValid
-													? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
-													: 'bg-[var(--light-middle)] text-[var(--black)]'
+														? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
+														: 'bg-[var(--light-middle)] text-[var(--black)]'
 											} `}
 										>
 											до {maxFileSizeInMB} мб
@@ -315,8 +312,8 @@ export const ConstructorPhotoInput = ({
 													isDragActive
 														? 'bg-[var(--hero-epta)] text-[var(--white)]'
 														: !isFileValid
-														? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
-														: 'bg-[var(--light-middle)] text-[var(--black)]'
+															? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
+															: 'bg-[var(--light-middle)] text-[var(--black)]'
 												} `}
 											>
 												{ext}

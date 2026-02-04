@@ -656,8 +656,6 @@ const SchedulePage = ({ role }) => {
 
 			setLoading(false)
 		} catch (e) {
-			console.error(e)
-			setGlobalError(e.response ? String(e.response.status) : '500')
 			setLoading(false)
 		}
 	}

@@ -405,10 +405,7 @@ const StudentsAndGroups = () => {
 
 			setCourses(res.data)
 			setGlobalError(null)
-		} catch (error) {
-			console.log('error: ', error.response.status)
-			setGlobalError(error.response.status.toString())
-		}
+		} catch (error) {}
 	}
 
 	const fetchGroups = async () => {

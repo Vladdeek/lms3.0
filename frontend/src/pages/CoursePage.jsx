@@ -728,8 +728,6 @@ export const CourseOverview = ({ moderationCourseId }) => {
 				setSelectedContent(data?.content)
 			} catch (error) {
 				setSelectedContent(null)
-				console.error(error)
-				setGlobalError(error.response ? String(error.response.status) : '500')
 			}
 		}
 
@@ -755,8 +753,6 @@ export const CourseOverview = ({ moderationCourseId }) => {
 				setContent(res.data)
 				setGlobalError(null)
 			} catch (error) {
-				console.error(error)
-				setGlobalError(error.response?.status || error.message)
 			} finally {
 				setLoading(false)
 			}
