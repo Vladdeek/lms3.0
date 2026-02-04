@@ -71,7 +71,7 @@ const ModerationCourseCard = ({
 							{fullname
 								? `${fullname?.last_name || ''} ${fullname?.first_name || ''} ${
 										fullname?.middle_name || ''
-								  }`
+									}`
 								: 'ФИО автора не определено'}
 						</p>
 					</div>
@@ -91,7 +91,7 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 	const handleSubmit = async () => {
 		if (!courseId) return
 		const formData = new FormData()
-		formData.append('course_status', access ? 'approved' : 'pending')
+		formData.append('course_status', access ? 'approved' : 'in_development')
 
 		try {
 			const res = await api.put(`${API}/courses/${courseId}`, formData, {
@@ -213,8 +213,15 @@ const Moderation = ({ role }) => {
 				onClose={() => setModalOpen(false)}
 				onChange={() => setStatus()}
 			/>
-			<div className='w-full h-[80vh] grid grid-cols-[1fr_4fr]  gap-5 mt-10'>
-				<div className='w-full bg-[var(--white)] rounded-2xl flex flex-col items-center gap-3 overflow-y-scroll hide-scrollbar p-4'>
+			<div className='w-full h-[80vh] mt-10 xl:grid xl:grid-cols-[1fr_4fr] gap-5'>
+				<div
+					className={`
+    w-full bg-[var(--white)] rounded-2xl
+    flex flex-col items-center gap-3
+    overflow-y-scroll hide-scrollbar p-4
+    ${active !== null ? 'hidden xl:flex' : 'flex'}
+  `}
+				>
 					<p className='font-medium text-xl text-[var(--black)]'>Новые курсы</p>
 					<div className='flex flex-col-reverse gap-3 w-full items-center'>
 						{courses?.map((item, index) => (
@@ -241,17 +248,32 @@ const Moderation = ({ role }) => {
 						))}
 					</div>
 				</div>
-				<div className='w-full h-full flex items-center justify-center bg-[var(--white)] rounded-2xl'>
+				<div
+					className={`
+    w-full h-full bg-[var(--white)] rounded-2xl
+    items-center justify-center
+    ${active === null ? 'hidden xl:flex' : 'flex'}
+  `}
+				>
 					{active === null ? (
 						<p className='text-xl text-[var(--middle)]'>Выберите курс</p>
 					) : (
 						<div className='relative w-full h-full mx-5 flex flex-col gap-5 '>
-							<button
-								onClick={() => setModalOpen(true)}
-								className='absolute font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97 top-4 right-0'
-							>
-								Рецензировать
-							</button>
+							<div className='absolute top-4 w-full flex justify-between'>
+								<button
+									onClick={() => setModalOpen(true)}
+									className='font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97 top-4 right-0'
+								>
+									Рецензировать
+								</button>
+								<button
+									onClick={() => setModalOpen(true)}
+									className='absolute font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97 top-4 right-0'
+								>
+									Рецензировать
+								</button>
+							</div>
+
 							<div className='mt-1'>
 								<ModerationComponent moderationCourseId={courses[active]?.id} />
 							</div>

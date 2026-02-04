@@ -20,12 +20,14 @@ import axios from 'axios'
 export const FileView = ({ onStatusChange, Files }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
-	const [files, setFiles] = useState(Files)
+	const [files, setFiles] = useState(null)
 	const [isDragActive, setIsDragActive] = useState(false)
 	const maxSize = 100 * 1024 * 1024 // 100 MB
 	const maxFiles = 10
 
-	console.log(files)
+	useEffect(() => {
+		setFiles(Files)
+	}, [Files])
 
 	const handleFileChange = e => {
 		const newFiles = Array.from(e.target.files)
@@ -74,7 +76,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 			JSON.stringify({
 				file_name: files[id]?.name.split('.')[0],
 				file_path: files[id]?.file_path.split(`${FILE_API}`)[1],
-			})
+			}),
 		)
 
 		try {
@@ -91,7 +93,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 					responseType: 'blob',
-				}
+				},
 			)
 
 			// Скачиваем файл

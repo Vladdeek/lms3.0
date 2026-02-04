@@ -567,6 +567,15 @@ const ConstructorPage = ({ role }) => {
 		}
 	}
 
+	const tryChangeContent = id => {
+		if (isEdit === true) {
+			showMassageFunc('plzsave')
+			return
+		} else {
+			setSelectedContentId(id)
+		}
+	}
+
 	return role === 'student' ? (
 		<>
 			<Forbidden403 />
@@ -580,8 +589,11 @@ const ConstructorPage = ({ role }) => {
 			>
 				{showMassage === 'public'
 					? 'Отправлено на рассмотрение'
-					: showMassage === 'good' && 'Изменения сохранены'}
+					: showMassage === 'good'
+						? 'Изменения сохранены'
+						: showMassage === 'plzsave' && 'Сначала сохраните изменения'}
 			</p>
+
 			<div className='flex flex-col gap-5 min-h-[calc(100vh-100px)] max-md:mb-65 mb-45'>
 				<div className='flex justify-center w-full mt-10'>
 					<div className='flex  max-[1366px]:order-1  max-[1366px]:w-[435px] max-[1366px]:justify-center bg-[var(--white)] rounded-xl shadow-[var(--shadow)] px-4 py-2 gap-3'>
@@ -631,7 +643,7 @@ const ConstructorPage = ({ role }) => {
 							imageUrl={courseContent?.image_path}
 							onChange={showMassageFunc}
 						/>
-						{selected === 0 &&
+						{selectedContentId !== null &&
 							sectionType &&
 							sectionType !== 'test' &&
 							(isEdit ? (
@@ -683,7 +695,7 @@ const ConstructorPage = ({ role }) => {
 						deleteModule={onRemoveModule}
 						deleteSection={onRemoveLesson}
 						onBlocksChange={setBlocks}
-						onSelectedContentChange={setSelectedContentId}
+						onSelectedContentChange={data => tryChangeContent(data)}
 						isLoading={isLoading}
 						onSectionTypeChange={setSectionType}
 						isEdit={isEdit}

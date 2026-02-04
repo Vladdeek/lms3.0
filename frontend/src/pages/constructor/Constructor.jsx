@@ -417,7 +417,7 @@ const ModuleTitle = ({
 						</p>
 						<div className='flex gap-3'>
 							<button
-								onClick={() => deleteModule(sectionId)}
+								onClick={() => deleteModule(moduleId)}
 								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
 							>
 								Удалить
@@ -434,7 +434,7 @@ const ModuleTitle = ({
 					</div>
 				</div>
 			)}
-			<div className='flex justify-between items-center'>
+			<div className='flex justify-between items-center relative'>
 				<div className='flex gap-3 text-[var(--middle)] items-center'>
 					<div className='flex items-center gap-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-xl px-3 py-2 text-[var(--black)]'>
 						<Package size={20} />
@@ -443,9 +443,9 @@ const ModuleTitle = ({
 						</p>
 					</div>
 					<p className='font-bold text-base'>/</p>
-					<p className='font-normal text-base'>{title}</p>
+					<p className='font-normal text-base truncate w-1/2'>{title}</p>
 				</div>
-				<div className='flex gap-3'>
+				<div className='flex gap-3 absolute right-0 z-10000'>
 					<Button
 						icon={isExpanded ? ChevronUp : ChevronDown}
 						style='white'
@@ -454,7 +454,7 @@ const ModuleTitle = ({
 					/>
 					<Trash
 						size={32}
-						className={`${'text-[var(--black)] hover:bg-red-500 hover:text-white'}  p-2 shadow-[var(--shadow)] rounded-lg cursor-pointer transition-all z-10`}
+						className={`text-[var(--black)] hover:bg-red-500 hover:text-white bg-[var(--white)]  p-2 shadow-[var(--shadow)] rounded-lg cursor-pointer transition-all`}
 						onClick={() => setDeleteModalActive(true)}
 					/>
 				</div>
@@ -559,10 +559,10 @@ const ModuleContent = ({
 					!bg && selectedSectionId === sectionId
 						? 'bg-[var(--hero-epta)] shadow-[var(--shadow)]'
 						: 'hover:bg-[var(--light-middle)] cursor-pointer '
-				} rounded-lg cursor-default  transition-all  pl-3 pr-1.25`}
+				} rounded-lg cursor-default relative  transition-all  pl-3 pr-1.25`}
 			>
 				<div
-					className={`flex gap-3 ${
+					className={`flex gap-3 min-w-0  ${
 						selectedSectionId === sectionId && !bg
 							? 'text-white'
 							: 'text-[var(--middle)]'
@@ -594,20 +594,26 @@ const ModuleContent = ({
 						</p>
 					</div>
 					<p className='font-bold text-base'>/</p>
-					<p className={`font-normal  ${bg ? 'text-base' : 'text-sm w-2/5'}`}>
+					<p
+						title={title}
+						className={`font-normal truncate ${bg ? 'text-base' : 'text-sm'}`}
+					>
 						{title}
 					</p>
 				</div>
 				{!bg && (
-					<Trash
-						size={32}
-						className={`${
-							selectedSectionId === sectionId
-								? 'text-white hover:bg-white hover:text-red-500'
-								: 'text-[var(--black)] hover:bg-red-500 hover:text-white'
-						}  p-2 rounded-md cursor-pointer transition-all z-10`}
-						onClick={() => setDeleteModalActive(true)}
-					/>
+					<>
+						<div className='w-[32px] h-[32px]'></div>
+						<Trash
+							size={32}
+							className={`${
+								selectedSectionId === sectionId
+									? 'text-white bg-[var(--hero-epta)] hover:bg-white hover:text-red-500'
+									: 'text-[var(--black)] hover:bg-red-500 bg-[var(--white)] hover:text-white'
+							} p-2 absolute right-1 rounded-md w-[32px] cursor-pointer transition-all z-10`}
+							onClick={() => setDeleteModalActive(true)}
+						/>
+					</>
 				)}
 			</div>
 		</>
@@ -1298,12 +1304,25 @@ const Constructor = ({
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
 
-	console.log(selectedContent)
+	const [showMassage, setShowMassage] = useState(null)
+
+	const showMassageFunc = status => {
+		setShowMassage(status)
+		const timer = setTimeout(() => {
+			setShowMassage(null)
+		}, 5000)
+
+		return () => clearTimeout(timer)
+	}
 
 	const handleContentSelect = SectionId => {
-		setSection(SectionId)
-		onSelectedContentChange?.(SectionId?.id)
-		setSelectedContent(null)
+		if (isEdit === false) {
+			setSection(SectionId)
+			onSelectedContentChange?.(SectionId?.id)
+			setSelectedContent(null)
+		} else {
+			showMassageFunc('Сначала сохраните изменения')
+		}
 	}
 
 	useEffect(() => {
@@ -1330,12 +1349,20 @@ const Constructor = ({
 				console.error('Ошибка при загрузке контента:', error)
 			}
 		}
-
-		fetchContent()
+		if (isEdit === false) {
+			fetchContent()
+		}
 	}, [section])
 
 	return (
-		<>
+		<div className='relative'>
+			<p
+				className={`absolute transition-all bg-[var(--red-status-bg)] text-[var(--red-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
+					showMassage ? '-top-27 opacity-100' : '-top-47 opacity-50'
+				} `}
+			>
+				{showMassage}
+			</p>
 			<div className='grid min-[1200px]:grid-cols-[1fr_3fr] gap-3 2xl:gap-5 md:min-h-[calc(80vh-100px)] '>
 				<div
 					className={`${
@@ -1417,7 +1444,7 @@ const Constructor = ({
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }
 
