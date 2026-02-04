@@ -15,10 +15,11 @@ export const RadioButton = ({
 	fill = false,
 	wfull = false,
 	disabled = false,
+	className,
 }) => {
 	return (
 		<label
-			className={` ${
+			className={`${className} ${
 				disabled && 'opacity-50'
 			} flex items-center gap-2 px-4 py-2 ${
 				wfull && 'w-full justify-center'

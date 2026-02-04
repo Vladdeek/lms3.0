@@ -85,6 +85,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 	const study_level = [
 		{ value: 0, title: 'Бакалавриат' },
+		{ value: 2, title: 'Специалитет' },
 		{ value: 1, title: 'Магистратура' },
 	]
 	const [selectedStudyLevel, setSelectedStudyLevel] = useState(null)
@@ -92,19 +93,27 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	const courses = [
 		{
 			value: 0,
-			title: '1-й курс',
+			title: '1-й',
 		},
 		{
 			value: 1,
-			title: '2-й курс',
+			title: '2-й',
 		},
 		{
 			value: 2,
-			title: '3-й курс',
+			title: '3-й',
 		},
 		{
 			value: 3,
-			title: '4-й курс',
+			title: '4-й',
+		},
+		{
+			value: 4,
+			title: '5-й',
+		},
+		{
+			value: 5,
+			title: '6-й',
 		},
 	]
 	const [selectedCourses, setSelectedCourses] = useState(null)
@@ -337,7 +346,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 							))}
 						</div>
 
-						<div className='flex gap-3 w-full justify-center mb-3'>
+						<div className='flex gap-3 w-full justify-center mb-1'>
 							{study_level?.map(item => (
 								<RadioButton
 									key={item?.value}
@@ -353,23 +362,28 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 							))}
 						</div>
 
-						<div className='flex gap-3 w-full justify-center mb-3'>
-							{courses?.map((item, index) => {
-								return (
-									<RadioButton
-										key={item?.value}
-										name='example'
-										value={item?.value}
-										title={item?.title}
-										icon={item?.icon}
-										checked={selectedCourses === item?.value}
-										onChange={() => setSelectedCourses(item?.value)}
-										fill={true}
-										wfull={true}
-										disabled={selectedStudyLevel === 1 && index > 1}
-									/>
-								)
-							})}
+						<div className='flex flex-col gap-1 w-full justify-center mb-3'>
+							<p className='text-[var(--middle)] text-start text-lg'>
+								Выберите курс
+							</p>
+							<div className='flex w-full gap-1'>
+								{courses?.map((item, index) => {
+									return (
+										<RadioButton
+											key={item?.value}
+											name='example'
+											value={item?.value}
+											title={item?.title}
+											icon={item?.icon}
+											checked={selectedCourses === item?.value}
+											onChange={() => setSelectedCourses(item?.value)}
+											fill={true}
+											wfull={true}
+											disabled={selectedStudyLevel === 1 && index > 2}
+										/>
+									)
+								})}
+							</div>
 						</div>
 
 						<div className='flex flex-col gap-3'>
@@ -1313,10 +1327,12 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	]
 	const [selectedElvl, setSelectedElvl] = useState(null)
 	const courses_option = [
-		{ value: 1, title: '1-й курс' },
-		{ value: 2, title: '2-й курс' },
-		{ value: 3, title: '3-й курс' },
-		{ value: 4, title: '4-й курс' },
+		{ value: 1, title: '1-й' },
+		{ value: 2, title: '2-й' },
+		{ value: 3, title: '3-й' },
+		{ value: 4, title: '4-й' },
+		{ value: 5, title: '5-й' },
+		{ value: 6, title: '6-й' },
 	]
 	const [selectedCoursesOpt, setSelectedCourseOpt] = useState(null)
 
@@ -1634,23 +1650,29 @@ const Catalog = ({ role, teacher_profile_id }) => {
 											))}
 										</div>
 
-										<div className='flex gap-3 w-full justify-center'>
-											{courses_option?.map((item, index) => {
-												return (
-													<RadioButton
-														key={item?.value}
-														name='example'
-														value={item?.value}
-														title={item?.title}
-														icon={item?.icon}
-														checked={selectedCoursesOpt === item?.value}
-														onChange={() => setSelectedCourseOpt(item?.value)}
-														fill={true}
-														wfull={true}
-														disabled={selectedElvl === 1 && index > 1}
-													/>
-												)
-											})}
+										<div className='flex flex-col w-full gap-1 justify-center'>
+											<p className='text-[var(--black)] text-center font-medium text-md'>
+												Выберите курс
+											</p>
+											<div className='w-full flex gap-1'>
+												{courses_option?.map((item, index) => {
+													return (
+														<RadioButton
+															key={item?.value}
+															name='example'
+															value={item?.value}
+															title={item?.title}
+															icon={item?.icon}
+															checked={selectedCoursesOpt === item?.value}
+															onChange={() => setSelectedCourseOpt(item?.value)}
+															fill={true}
+															wfull={true}
+															className={'whitespace-nowrap'}
+															disabled={selectedElvl === 1 && index > 1}
+														/>
+													)
+												})}
+											</div>
 										</div>
 									</div>
 
