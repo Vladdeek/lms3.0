@@ -19,15 +19,24 @@ const api = axios.create({
 api.interceptors.response.use(
 	r => r,
 	error => {
-		// Silent refresh
-		if (error.response?.status === 498) {
+		const status = error.response?.status
+		const detail = error.response?.data?.detail
+
+		// silent refresh (оставляем)
+		if (status === 498) {
 			return api(error.config)
 		}
 
-		// отправляем ошибку в error provider
-		setGlobalError(error.response?.status || '500')
+		// ЕСЛИ ПРИШЕЛ TEXT ERROR С БЭКА
+		if (detail) {
+			setGlobalError(detail) // <-- отправляем строку
+			return Promise.reject(error)
+		}
+
+		// стандартные ошибки по статусу
+		setGlobalError(status || '500')
 
 		return Promise.reject(error)
-	}
+	},
 )
 export default api

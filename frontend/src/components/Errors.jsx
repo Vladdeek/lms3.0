@@ -130,9 +130,11 @@ export const ErrorProvider = ({ children }) => {
 		registerErrorHandler(setError)
 	}, [])
 
+	const isHttpCode = value => /^\d+$/.test(String(value))
+
 	return (
 		<ErrorContext.Provider value={{ error, setError }}>
-			<div className='relative'>
+			<div className=''>
 				{error === '404' ? (
 					<div className='h-screen'>
 						<NotFoundError404 />
@@ -147,7 +149,7 @@ export const ErrorProvider = ({ children }) => {
 
 						{error && (
 							<div
-								className={`absolute left-1/2 transform -translate-x-1/2 bg-[var(--red-status-bg)] p-2 rounded-xl shadow-[var(--shadow)] transition-all duration-300 z-1000 ${
+								className={`fixed left-1/2 transform -translate-x-1/2 bg-[var(--red-status-bg)] p-2 rounded-xl shadow-[var(--shadow)] transition-all duration-300 z-1000 ${
 									showError ? 'opacity-100 top-5' : 'opacity-0 -top-50'
 								}`}
 							>
@@ -161,10 +163,12 @@ export const ErrorProvider = ({ children }) => {
 										className='absolute right-0 top-0 cursor-pointer text-[var(--red-status-text)]'
 									/>
 									<p className='text-center font-medium text-[var(--red-status-text)] rounded-lg text-base'>
-										Ошибка {error}
+										{isHttpCode(error) ? `Ошибка ${error}` : 'Ошибка'}
 									</p>
 									<p className='bg-[var(--hard-lvl-bg)] text-[var(--red-status-text)] rounded-lg text-sm p-2 w-75 text-center'>
-										{ErrorsDescription[error]}
+										{isHttpCode(error)
+											? ErrorsDescription[error] || 'Произошла ошибка'
+											: error}
 									</p>
 								</div>
 							</div>
