@@ -41,7 +41,7 @@ const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
 		<button
 			onClick={onClick}
-			className={`flex flex-col ${width} max-md:w-full items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer max-md:h-75 max-md:mb-30 ${height}`}
+			className={`flex flex-col ${width} max-md:w-full items-center justify-center border-1 border-[var(--middle)] text-[var(--middle)] rounded-xl group hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)] transition-all cursor-pointer max-md:h-[81.75%]  max-md:mb-30 ${height}`}
 		>
 			<Blocks size={112} strokeWidth={0.5} />
 			<span className='text-base font-medium px-4 py-3 rounded-lg mt-4 transition-all'>
@@ -1581,7 +1581,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 					{location.pathname === '/catalogt/webinars' && (
 						<div
 							onClick={() => setHistoryWebinarOpen(true)}
-							className='bg-[var(--white)] text-[var(--black)] flex justify-center items-center min-[873px]px-4 max-[873px]:h-12.5 rounded-xl shadow-[var(--shadow)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all '
+							className='bg-[var(--white)] text-[var(--black)] flex justify-center items-center min-[873px]:px-4 max-[873px]:h-12.5 rounded-xl shadow-[var(--shadow)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all '
 						>
 							История видео-конференций
 						</div>
