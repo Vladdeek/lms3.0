@@ -36,6 +36,7 @@ import { getCookie, token } from '../TOKEN'
 import { setGlobalError } from '../components/Errors'
 import { se } from 'date-fns/locale'
 import { LinkBTN } from '../components/Links'
+import { AltLoader } from '../components/Loader'
 
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
@@ -121,6 +122,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 	const isForm2Valid = selectedDisciplines !== null
 
 	const handleSubmit1 = async e => {
+		setIsCreateLoading(true)
 		e.preventDefault()
 
 		if (!isForm1Valid) return
@@ -155,6 +157,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			setTitle('')
 			setDescription('')
 			setImg(null)
+			setIsCreateLoading(false)
 		} catch (error) {
 			if (error.response) {
 				console.error(
@@ -225,7 +228,10 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 		selectedStudyLevel === 1 && selectedCourses > 1 && setSelectedCourses(null)
 	}, [selectedStudyLevel])
 
+	const [isCreateLoading, setIsCreateLoading] = useState(false)
+
 	const handleSubmit2 = async e => {
+		setIsCreateLoading(true)
 		e.preventDefault()
 
 		if (!isForm2Valid) return
@@ -270,6 +276,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 			setTitle('')
 			setDescription('')
 			setImg(null)
+			setIsCreateLoading(false)
 		} catch (error) {
 			if (error.response) {
 				console.error(
@@ -415,16 +422,24 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 							</div>
 							<FileInput onFileChange={file => setImg(file)} />
 						</div>
-						<input
-							className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
-								isForm1Valid
-									? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
-									: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
-							}`}
-							type='submit'
-							value='Создать курс'
-							disabled={!isForm1Valid}
-						/>
+						{isCreateLoading === false ? (
+							<input
+								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+									isForm1Valid
+										? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+										: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+								}`}
+								type='submit'
+								value='Создать курс'
+								disabled={!isForm1Valid}
+							/>
+						) : (
+							<div
+								className={`px-[95px] py-[3.5px] font-medium text-xl rounded-lg transition bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed`}
+							>
+								<AltLoader />
+							</div>
+						)}
 					</form>
 				) : selected === 1 ? (
 					<form
@@ -495,16 +510,24 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 							))}
 						</div>
 
-						<input
-							className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
-								isForm2Valid
-									? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
-									: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
-							}`}
-							type='submit'
-							value='Создать курс'
-							disabled={!isForm2Valid}
-						/>
+						{isCreateLoading === false ? (
+							<input
+								className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
+									isForm2Valid
+										? 'bg-[var(--black)] text-[var(--white)] cursor-pointer'
+										: 'bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed'
+								}`}
+								type='submit'
+								value='Создать курс'
+								disabled={!isForm2Valid}
+							/>
+						) : (
+							<div
+								className={`px-[95px] py-[3.5px] font-medium text-xl rounded-lg transition bg-[var(--light-middle)] text-[var(--middle)] cursor-not-allowed`}
+							>
+								<AltLoader />
+							</div>
+						)}
 					</form>
 				) : (
 					<></>
