@@ -26,9 +26,9 @@ export const RadioButton = ({
 				checked
 					? `${
 							fill ? 'bg-[var(--hero-epta)]' : 'bg-[var(--white)]'
-					  } border-[var(--hero-epta)] ${
+						} border-[var(--hero-epta)] ${
 							fill ? 'text-white' : 'text-[var(--hero-epta)]'
-					  } `
+						} `
 					: 'bg-transparent border-[var(--middle)] text-[var(--middle)] hover:border-[var(--hero-epta)] hover:text-[var(--hero-epta)]'
 			}`}
 		>
@@ -124,7 +124,9 @@ const StyledWrapper = styled.div`
 		outline: 0.1em solid transparent;
 		outline-offset: 0.2em;
 		box-shadow: 0 0 1em 0 var(--color-background);
-		animation: ripple 1s linear infinite, colorize 1s infinite;
+		animation:
+			ripple 1s linear infinite,
+			colorize 1s infinite;
 		transition: 0.5s;
 	}
 
@@ -249,14 +251,18 @@ export const Button = ({
 					style === 'black'
 						? 'var(--black)'
 						: style === 'white'
-						? 'var(--white)'
-						: 'transparent',
+							? 'var(--white)'
+							: style === 'hero'
+								? 'var(--hero-epta)'
+								: 'transparent',
 				color:
 					style === 'black'
 						? 'var(--white)'
 						: style === 'white'
-						? 'var(--black)'
-						: 'var(--black)',
+							? 'var(--black)'
+							: style === 'hero'
+								? 'white'
+								: 'var(--black)',
 				border: style === 'outline' ? '1px solid var(--black)' : 'none',
 				boxShadow: style !== 'outline' ? 'var(--shadow)' : 'none',
 				width: size || width,

@@ -70,6 +70,14 @@ import CustomAudioPlayer from '../../components/AudioPlayer'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
 import { setGlobalError } from '../../components/Errors'
+import SortVariantView from '../../components/TestView/SortVariantsView'
+import MoreVariantView from '../../components/TestView/MoreVariantsView'
+import OpenQuestionView from '../../components/TestView/OpenQuestionView'
+import OneVariantView from '../../components/TestView/OneVariantView'
+import VariantModerationView from '../../components/TestModerationView/VariantsModertionView'
+import SortVariantModerationView from '../../components/TestModerationView/SortVariantsModertionView'
+import OpenQuestionModerationView from '../../components/TestModerationView/OpenQuestionModertionView'
+import { isEditor } from 'slate'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -815,6 +823,7 @@ const ConstructorLevels = ({
 	setQuestions,
 	activeIndex,
 	setActiveIndex,
+	isEdit,
 }) => {
 	const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -846,9 +855,10 @@ const ConstructorLevels = ({
 						{idx + 1}
 					</div>
 				))}
+
 				<div
 					onClick={() => setCreateModalOpen(true)}
-					className='w-10 h-10 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-md hover:bg-[var(--hero-epta)] hover:text-white flex justify-center items-center p-2 transition-all cursor-pointer active:scale-90'
+					className={`${isEdit === false && 'hidden'} w-10 h-10 bg-[var(--white)] shadow-[var(--shadow)] text-[var(--black)] rounded-md hover:bg-[var(--hero-epta)] hover:text-white flex justify-center items-center p-2 transition-all cursor-pointer active:scale-90`}
 				>
 					<Plus />
 				</div>
@@ -965,41 +975,64 @@ const ContentView = ({
 							setQuestions={setQuestions}
 							activeIndex={activeIndex}
 							setActiveIndex={setActiveIndex}
+							isEdit={isEdit}
 						/>
 						{isLoading ? (
 							<Loader />
 						) : (
 							questions?.length > 0 && (
-								<>
-									{questions[activeIndex]?.type === 'single' && (
-										<OneVariant
-											sectionId={sectionId}
-											testId={questions[activeIndex]?.id}
-											onChange={data => giveId(activeIndex, data)}
-										/>
-									)}
-									{questions[activeIndex]?.type === 'multiple' && (
-										<MoreVariant
-											sectionId={sectionId}
-											testId={questions[activeIndex]?.id}
-											onChange={data => giveId(activeIndex, data)}
-										/>
-									)}
-									{questions[activeIndex]?.type === 'matching' && (
-										<SortVariants
-											sectionId={sectionId}
-											testId={questions[activeIndex]?.id}
-											onChange={data => giveId(activeIndex, data)}
-										/>
-									)}
-									{questions[activeIndex]?.type === 'open' && (
-										<OpenQuestion
-											sectionId={sectionId}
-											testId={questions[activeIndex]?.id}
-											onChange={data => giveId(activeIndex, data)}
-										/>
-									)}
-								</>
+								<div
+									className={`${isEdit === false && 'flex w-full justify-center'}`}
+								>
+									{questions[activeIndex]?.type === 'single' &&
+										(isEdit === true ? (
+											<OneVariant
+												sectionId={sectionId}
+												testId={questions[activeIndex]?.id}
+												onChange={data => giveId(activeIndex, data)}
+											/>
+										) : (
+											<VariantModerationView
+												testId={questions[activeIndex]?.id}
+											/>
+										))}
+									{questions[activeIndex]?.type === 'multiple' &&
+										(isEdit === true ? (
+											<MoreVariant
+												sectionId={sectionId}
+												testId={questions[activeIndex]?.id}
+												onChange={data => giveId(activeIndex, data)}
+											/>
+										) : (
+											<VariantModerationView
+												testId={questions[activeIndex]?.id}
+											/>
+										))}
+									{questions[activeIndex]?.type === 'matching' &&
+										(isEdit === true ? (
+											<SortVariants
+												sectionId={sectionId}
+												testId={questions[activeIndex]?.id}
+												onChange={data => giveId(activeIndex, data)}
+											/>
+										) : (
+											<SortVariantModerationView
+												testId={questions[activeIndex]?.id}
+											/>
+										))}
+									{questions[activeIndex]?.type === 'open' &&
+										(isEdit === true ? (
+											<OpenQuestion
+												sectionId={sectionId}
+												testId={questions[activeIndex]?.id}
+												onChange={data => giveId(activeIndex, data)}
+											/>
+										) : (
+											<OpenQuestionModerationView
+												testId={questions[activeIndex]?.id}
+											/>
+										))}
+								</div>
 							)
 						)}
 					</>

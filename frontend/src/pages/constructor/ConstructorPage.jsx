@@ -643,26 +643,30 @@ const ConstructorPage = ({ role }) => {
 							imageUrl={courseContent?.image_path}
 							onChange={showMassageFunc}
 						/>
-						{selectedContentId !== null &&
-							sectionType &&
-							sectionType !== 'test' &&
-							(isEdit ? (
-								<Button
-									title='Сохранить'
-									style='outline'
-									type='button'
-									onClick={e =>
-										handleSubmit(e, blocks, selectedContentId, accessedGroups)
-									}
-								/>
-							) : (
-								<Button
-									title='Редактировать'
-									style='outline'
-									type='button'
-									onClick={() => setIsEdit(prev => !prev)}
-								/>
-							))}
+						{selectedContentId !== null && sectionType === 'test' ? (
+							<Button
+								title={!isEdit ? 'Редактировать' : 'Редактирование'}
+								style={!isEdit ? 'outline' : 'hero'}
+								type='button'
+								onClick={() => setIsEdit(prev => !prev)}
+							/>
+						) : isEdit ? (
+							<Button
+								title='Сохранить'
+								style='outline'
+								type='button'
+								onClick={e =>
+									handleSubmit(e, blocks, selectedContentId, accessedGroups)
+								}
+							/>
+						) : (
+							<Button
+								title='Редактировать'
+								style='outline'
+								type='button'
+								onClick={() => setIsEdit(prev => !prev)}
+							/>
+						)}
 
 						{courseContent?.course_status === 'pending' ? (
 							<p className='bg-[var(--middle)] text-[var(--light-gray)] font-medium py-3 px-5  rounded-lg'>
