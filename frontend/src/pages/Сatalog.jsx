@@ -1317,7 +1317,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 		'По названию курса (Я-А)',
 	]
 	const [selectedSemester, setSelectedSemester] = useState(null)
-	const study_level = ['Все', 'Бакалавриат', 'Магистратура']
+	const study_level = ['Все', 'Бакалавриат', 'Специалитет', 'Магистратура']
 	const [selectedStatus, setSelectedStatus] = useState(null)
 	const status_options = [
 		'Все',
@@ -1471,16 +1471,35 @@ const Catalog = ({ role, teacher_profile_id }) => {
 	}
 
 	const filterFunc = async () => {
-		setActiveFilterModal(false)
 		fetchCourses()
+		setActiveFilterModal(false)
 	}
-	const deleteAllFilters = async () => {
+	const deleteAllFilters = () => {
 		setSelectedSortFilter(null)
 		setSelectedSemester(null)
 		setSelectedStatus(null)
 		setSelectedElvl(null)
 		setSelectedCourseOpt(null)
 	}
+
+	const isAllFiltersEmpty =
+		!selectedSortFilter &&
+		!selectedSemester &&
+		!selectedStatus &&
+		!selectedElvl &&
+		!selectedCoursesOpt
+
+	useEffect(() => {
+		if (!isAllFiltersEmpty) return
+
+		filterFunc()
+	}, [
+		selectedSortFilter,
+		selectedSemester,
+		selectedStatus,
+		selectedElvl,
+		selectedCoursesOpt,
+	])
 
 	useEffect(() => {
 		fetchWebinars()
