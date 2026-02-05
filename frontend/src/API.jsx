@@ -1,15 +1,18 @@
 let API = ''
 let FILE_API = ''
+let WS_API = ''
 if (import.meta.env.VITE_ENV === 'dev') {
 	API = import.meta.env.VITE_API_URL
 	FILE_API = import.meta.env.VITE_IMG_URL
+	WS_API = `${API}ws`
 } else if (import.meta.env.VITE_ENV === 'prod') {
 	API = import.meta.env.VITE_API_URL_VDS
 	FILE_API = import.meta.env.VITE_IMG_URL_VDS
+	WS_API = `${API}ws`
 } else {
 	throw new Error('Ошибка при чтении переменной среды ENV')
 }
-export { API, FILE_API }
+export { API, FILE_API, WS_API }
 
 import axios from 'axios'
 import { setGlobalError } from './components/Errors'
@@ -25,6 +28,11 @@ api.interceptors.response.use(
 		// silent refresh (оставляем)
 		if (status === 498) {
 			return api(error.config)
+		}
+
+		if (status === 401) {
+			window.location.href = '/auth'
+			return Promise.reject(error)
 		}
 
 		// ЕСЛИ ПРИШЕЛ TEXT ERROR С БЭКА

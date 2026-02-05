@@ -11,10 +11,13 @@
 	--light-light-gray: #fbfbfb;
 
 	--yellow-status-text: #946f33;
+	--yellow-status-middle-text: #bda47c;
 	--yellow-status-bg: #fff5da;
 	--green-status-text: #339436;
+	--green-status-middle-text: #7dbe7f;
 	--green-status-bg: #daffe6;
 	--red-status-text: #943333;
+	--red-status-middle-text: #ce8e8e;
 	--red-status-bg: #ffdada;
 
 	--easy-lvl-bg: #e6f4ea; /* светло-зелёный */
@@ -71,10 +74,15 @@
 	--light-gray: #1a1a1a;
 
 	--yellow-status-text: #ffd36b;
+	--yellow-status-middle-text: #c6a96a;
 	--yellow-status-bg: #3a2d1a;
+
 	--green-status-text: #7fd49f;
+	--green-status-middle-text: #6fbf8a;
 	--green-status-bg: #1e3b2a;
+
 	--red-status-text: #ff7b7b;
+	--red-status-middle-text: #d98b8b;
 	--red-status-bg: #682c2c;
 
 	--easy-lvl-bg: #1e3b2a; /* тёмно-зелёный фон */

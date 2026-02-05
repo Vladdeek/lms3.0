@@ -1,5 +1,11 @@
 import axios from 'axios'
-import { CircleQuestionMark, FileInput, ImageOff, X } from 'lucide-react'
+import {
+	ArrowLeft,
+	CircleQuestionMark,
+	FileInput,
+	ImageOff,
+	X,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import api, { API, FILE_API } from '../API'
 import { setGlobalError } from '../components/Errors'
@@ -88,26 +94,52 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 
 	const [access, setAccess] = useState(true)
 
+	// const handleSubmit = async () => {
+	// 	if (!courseId) return
+	// 	const formData = new FormData()
+	// 	formData.append('course_status', access ? 'approved' : 'in_development')
+
+	// 	try {
+	// 		const res = await api.put(`${API}/courses/${courseId}`, formData, {
+	// 			withCredentials: true,
+	// 			headers: {
+	// 				'X-CSRF-TOKEN': getCookie('csrftoken'),
+	// 			},
+	// 		})
+
+	// 		const data = res.data
+
+	// 		onClose?.()
+	// 		onChange?.('good')
+	// 	} catch (error) {
+	// 		console.error('Ошибка сервера:', error)
+	// 	}
+	// }
 	const handleSubmit = async () => {
 		if (!courseId) return
-		const formData = new FormData()
-		formData.append('course_status', access ? 'approved' : 'in_development')
 
 		try {
-			const res = await api.put(`${API}/courses/${courseId}`, formData, {
-				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
+			const res = await api.post(
+				`${API}/courses/${courseId}/revise`,
+				{
+					course_status: access ? 'approved' : 'in_development',
+					description: description,
+					notification_type: access ? 'good' : 'bad',
 				},
-			})
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				},
+			)
 
 			const data = res.data
 
 			onClose?.()
 			onChange?.('good')
-		} catch (error) {
-			console.error('Ошибка сервера:', error)
-		}
+		} catch (error) {}
 	}
 
 	return (
@@ -155,8 +187,9 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 					/>
 
 					<button
-						className={`px-4 py-3 font-normal text-xl rounded-lg w-fit transition-all bg-[var(--black)] text-[var(--white)] cursor-pointer hover:bg-[var(--hero-epta)] active:scale-97`}
+						className={`px-4 py-3 font-normal text-xl rounded-lg w-fit transition-all ${access === false && description.length === 0 ? 'bg-[var(--middle)] text-[var(--light-middle)]' : 'bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] active:scale-97 cursor-pointer'}   `}
 						onClick={() => handleSubmit()}
+						disabled={access === false && description.length === 0}
 					>
 						Подтвердить
 					</button>
@@ -261,14 +294,14 @@ const Moderation = ({ role }) => {
 						<div className='relative w-full h-full mx-5 flex flex-col gap-5 '>
 							<div className='absolute top-4 w-full flex justify-between'>
 								<button
-									onClick={() => setModalOpen(true)}
-									className='font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97 top-4 right-0'
+									onClick={() => setActive(null)}
+									className='font-medium min-xl:opacity-0 rounded-lg bg-[var(--white)] text-[var(--black)] w-fit px-5 py-2 hover:text-white cursor-pointer transition-all active:scale-97'
 								>
-									Рецензировать
+									<ArrowLeft />
 								</button>
 								<button
 									onClick={() => setModalOpen(true)}
-									className='absolute font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97 top-4 right-0'
+									className='font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97'
 								>
 									Рецензировать
 								</button>

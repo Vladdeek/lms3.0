@@ -16,6 +16,13 @@ import {
 	ChevronDown,
 	X,
 	Menu,
+	ArrowLeft,
+	TriangleAlert,
+	OctagonX,
+	Smile,
+	Laugh,
+	SmileIcon,
+	ThumbsUp,
 } from 'lucide-react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { isWithinInterval } from 'date-fns'
@@ -27,13 +34,178 @@ import Moderation from '../pages/Moderation'
 import { getCookie, token } from '../TOKEN'
 import { setGlobalError } from './Errors'
 
-const NotificationCard = ({ title, description }) => {
+import { cloneElement } from 'react'
+
+const GradientIcon = ({ Icon, id, palette, size = '125%' }) => (
+	<svg width={size} height={size} className='rotate-y-180' viewBox='0 0 24 24'>
+		<defs>
+			<linearGradient id={id} x1='0%' y1='0%' x2='100%' y2='100%'>
+				<stop offset='0%' stopColor={palette.bg} />
+				<stop offset='100%' stopColor={palette.description} />
+			</linearGradient>
+		</defs>
+
+		<Icon stroke={`url(#${id})`} strokeWidth={2} fill='none' />
+	</svg>
+)
+
+const NotificationCard = ({ key, title, description, type }) => {
+	const colors = {
+		default: {
+			bg: 'var(--white)',
+			title: 'var(--black)',
+			description: 'var(--middle)',
+		},
+		bad: {
+			bg: 'var(--red-status-bg)',
+			title: 'var(--red-status-text)',
+			description: 'var(--red-status-middle-text)',
+			icon: OctagonX,
+		},
+		good: {
+			bg: 'var(--green-status-bg)',
+			title: 'var(--green-status-text)',
+			description: 'var(--green-status-middle-text)',
+			icon: ThumbsUp,
+		},
+		middle: {
+			bg: 'var(--yellow-status-bg)',
+			title: 'var(--yellow-status-text)',
+			description: 'var(--yellow-status-middle-text)',
+			icon: TriangleAlert,
+		},
+	}
+	const palette = colors[type] || colors.default
+
+	const splitDescription = description.split('\n')
+
 	return (
-		<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-lg px-3 py-2'>
-			<p className='text-lg font-medium text-[var(--black)]'>{title}</p>
-			<p className='text-base font-normal text-[var(--middle)]'>
-				{description}
+		<div
+			className={`${'bg-[' + palette.bg + ']'} relative overflow-hidden  shadow-[var(--shadow)] rounded-lg px-3 py-2`}
+		>
+			{palette.icon && (
+				<div className='absolute h-full top-0 -right-[2.5%] opacity-25'>
+					<GradientIcon
+						palette={palette}
+						Icon={palette.icon}
+						id={`grad-${type}`}
+					/>
+				</div>
+			)}
+
+			<p
+				className={`text-lg max-md:text-2xl font-medium ${'text-[' + palette.title + ']'}`}
+			>
+				{title}
 			</p>
+			<div className='flex flex-col relative'>
+				{splitDescription.map((item, idx) => (
+					<p
+						key={idx}
+						className={`text-base max-md:text-xl gap-1 font-normal ${'text-[' + palette.description + ']'}`}
+					>
+						{item}
+					</p>
+				))}
+			</div>
+		</div>
+	)
+}
+
+const Notification = () => {
+	const [isOpen, setIsOpen] = useState(false)
+
+	const [notifications, setNotifications] = useState([])
+
+	const fetchNot = async () => {
+		try {
+			const res = await api.get(`${API}/notifications`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
+			setNotifications(res.data)
+		} catch (error) {}
+	}
+
+	useEffect(() => {
+		fetchNot()
+	}, [])
+
+	return (
+		<div className='relative'>
+			<button
+				onClick={() => {
+					setIsOpen(prev => !prev)
+				}}
+				className={`relative rounded-lg p-[14px] hover:bg-[var(--hero-epta)] hover:text-white text-[var(--black)] shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer ${
+					isOpen && 'bg-[var(--hero-epta)] text-white'
+				}`}
+			>
+				<Bell size={20} />
+				{notifications?.length !== 0 && (
+					<p
+						className={`h-5 w-5 p-1 flex justify-center items-center ring-1 ring-[var(--white)] rounded-full absolute shadow-[var(--shadow)] -top-[6px] -right-[6px] bg-[var(--hero-epta)] text-white ${
+							notifications?.length > 9 ? 'text-[9px]' : 'text-[11px]'
+						}`}
+					>
+						<span className='text-center pe-px'>
+							{notifications?.length > 9 ? '9+' : notifications?.length}
+						</span>
+					</p>
+				)}
+			</button>
+			{isOpen && (
+				<div className='max-md:hidden absolute bg-[var(--white)] top-14 -right-5 shadow-[var(--shadow)] rounded-2xl p-4 h-fit max-h-150  w-125 z-100'>
+					<div className='flex flex-col gap-3'>
+						{notifications?.map((item, idx) => (
+							<NotificationCard
+								key={idx}
+								title={item?.title}
+								description={item?.description}
+								type={item?.notification_type}
+							/>
+						))}
+						{notifications?.length === 0 && (
+							<p className='text-center text-[var(--middle)] text-xl py-5'>
+								Пусто
+							</p>
+						)}
+					</div>
+				</div>
+			)}
+
+			<div
+				className={`min-md:hidden fixed bg-[var(--white)]  shadow-[var(--shadow)] rounded-b-2xl p-4 h-0 opacity-0 ${isOpen && 'h-[75vh] opacity-100 top-0'} left-0 -top-30 w-full z-100 transition-all`}
+			>
+				<div className='flex flex-col gap-3 relative'>
+					<p className='text-center text-2xl font-medium'>Уведомления</p>
+					<X
+						size={32}
+						className='absolute right-0 top-0'
+						onClick={() => setIsOpen(false)}
+					/>
+					{notifications?.map(item => (
+						<NotificationCard
+							title={item?.title}
+							description={item?.description}
+						/>
+					))}
+					{notifications?.length === 0 && (
+						<p className='text-center text-[var(--middle)] text-xl py-5'>
+							Пусто
+						</p>
+					)}
+				</div>
+				<div
+					size={32}
+					className='absolute bg-[var(--light-middle)] h-2 w-20 rounded-full bottom-4 left-1/2 -translate-x-1/2'
+					onClick={() => setIsOpen(false)}
+				/>
+			</div>
 		</div>
 	)
 }
@@ -64,62 +236,6 @@ const ToggleTheme = () => {
 		>
 			{!isLight ? <Sun size={20} /> : <Moon size={20} />}
 		</button>
-	)
-}
-
-const Notification = () => {
-	const [isOpen, setIsOpen] = useState(false)
-
-	const Notifications = [
-		{
-			title: 'Обновление',
-			description: 'Добавили такой-то такой-то функционал',
-		},
-		{
-			title: 'Обновление',
-			description: 'Добавили такой-то такой-то функционал',
-		},
-		{
-			title: 'Предупреждение',
-			description: 'Нужно пройти тест',
-		},
-	]
-	return (
-		<div className='relative'>
-			<button
-				onClick={() => {
-					setIsOpen(prev => !prev)
-				}}
-				className={`relative rounded-lg p-[14px] hover:bg-[var(--hero-epta)] hover:text-white text-[var(--black)] shadow-[var(--shadow)] transition-all flex items-center justify-center cursor-pointer ${
-					isOpen && 'bg-[var(--hero-epta)] text-white'
-				}`}
-			>
-				<Bell size={20} />
-				{Notifications?.length !== 0 && (
-					<p
-						className={`h-5 w-5 p-1 flex justify-center items-center ring-1 ring-[var(--white)] rounded-full absolute shadow-[var(--shadow)] -top-[6px] -right-[6px] bg-[var(--hero-epta)] text-white ${
-							Notifications?.length > 9 ? 'text-[9px]' : 'text-[11px]'
-						}`}
-					>
-						<span className='text-center pe-px'>
-							{Notifications?.length > 9 ? '9+' : Notifications?.length}
-						</span>
-					</p>
-				)}
-			</button>
-			{isOpen && (
-				<div className='absolute bg-[var(--white)] top-14 -right-5 shadow-[var(--shadow)] rounded-2xl p-4 h-fit max-h-150  w-125'>
-					<div className='flex flex-col gap-3'>
-						{Notifications?.map(item => (
-							<NotificationCard
-								title={item?.title}
-								description={item?.description}
-							/>
-						))}
-					</div>
-				</div>
-			)}
-		</div>
 	)
 }
 
@@ -223,7 +339,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			navigate('/auth')
@@ -271,14 +387,14 @@ export const Header = ({ links = [], UserInfo = null }) => {
 						'Content-Type': 'application/json',
 						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			name === 'moderator'
 				? navigate('/moderation')
 				: name === 'student'
-				? navigate('/catalogs/courses')
-				: name === 'teacher' && navigate('/catalogt/courses')
+					? navigate('/catalogs/courses')
+					: name === 'teacher' && navigate('/catalogt/courses')
 			res.data && window.location.reload()
 		} catch (error) {
 			console.log(error) // 401, 403, 422, 500 — что угодно
@@ -484,8 +600,10 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 				<div className='flex max-md:w-full md:justify-end z-10'>
 					<div className='flex max-md:flex-row-reverse items-center max-md:w-full max-md:justify-between gap-5'>
-						<ToggleTheme />
-						{/* <Notification Notifications={1} /> TO-DO Уведомления */}
+						<div className='flex gap-3'>
+							<ToggleTheme />
+							<Notification />
+						</div>
 
 						{/* <Wrapper
 							{...toProps}
@@ -567,9 +685,9 @@ export const Header = ({ links = [], UserInfo = null }) => {
 											{UserInfo?.current_user_role === 'student'
 												? `Студент (${UserInfo?.student_group_name})`
 												: UserInfo?.current_user_role === 'teacher'
-												? 'Преподаватель'
-												: UserInfo?.current_user_role === 'moderator' &&
-												  'Модератор'}
+													? 'Преподаватель'
+													: UserInfo?.current_user_role === 'moderator' &&
+														'Модератор'}
 										</span>
 									</p>
 								</>
