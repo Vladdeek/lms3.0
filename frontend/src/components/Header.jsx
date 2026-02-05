@@ -179,7 +179,7 @@ const Notification = () => {
 			)}
 
 			<div
-				className={`min-md:hidden fixed bg-[var(--white)]  shadow-[var(--shadow)] rounded-b-2xl p-4 h-0 opacity-0 ${isOpen && 'h-[75vh] opacity-100 top-0'} left-0 -top-30 w-full z-100 transition-all`}
+				className={`min-md:hidden fixed bg-[var(--white)]  shadow-[var(--shadow)] rounded-b-2xl p-4 h-0 opacity-0  ${isOpen && 'h-[75vh] opacity-100 top-0 '} left-0 -top-100 w-full z-100 transition-all`}
 			>
 				<div className='flex flex-col gap-3 relative'>
 					<p className='text-center text-2xl font-medium'>Уведомления</p>
@@ -188,10 +188,12 @@ const Notification = () => {
 						className='absolute right-0 top-0'
 						onClick={() => setIsOpen(false)}
 					/>
-					{notifications?.map(item => (
+					{notifications?.map((item, idx) => (
 						<NotificationCard
+							key={idx}
 							title={item?.title}
 							description={item?.description}
+							type={item?.notification_type}
 						/>
 					))}
 					{notifications?.length === 0 && (
