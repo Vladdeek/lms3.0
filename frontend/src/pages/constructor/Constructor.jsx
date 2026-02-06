@@ -1531,7 +1531,7 @@ const Constructor = ({
 				<div
 					className={`${
 						selectedContent && 'max-[1200px]:hidden'
-					} bg-[var(--white)] shadow-[var(--shadow)] max-[1200px]:w-full rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between max-h-[70vh] overflow-y-scroll`}
+					} bg-[var(--white)] shadow-[var(--shadow)] max-[1200px]:w-full rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between max-h-[72vh] overflow-y-scroll`}
 				>
 					<div className='flex flex-col gap-3'>
 						<div className='flex flex-col gap-3 px-2'>
