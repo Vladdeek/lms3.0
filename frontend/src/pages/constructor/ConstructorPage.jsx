@@ -552,20 +552,25 @@ const ConstructorPage = ({ role }) => {
 	}
 
 	const handleStatus = async () => {
-		try {
-			const formData = new FormData()
-			formData.append('course_status', 'pending')
+		if (isEdit === true) {
+			showMassageFunc('plzsave')
+			return
+		} else {
+			try {
+				const formData = new FormData()
+				formData.append('course_status', 'pending')
 
-			const { data } = await api.put(`${API}/courses/${courseId}`, formData, {
-				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
-			})
+				const { data } = await api.put(`${API}/courses/${courseId}`, formData, {
+					withCredentials: true,
+					headers: {
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				})
 
-			showMassageFunc('public')
-			console.log(data)
-		} catch (error) {}
+				showMassageFunc('public')
+				console.log(data)
+			} catch (error) {}
+		}
 	}
 
 	const tryChangeContent = id => {
@@ -579,6 +584,15 @@ const ConstructorPage = ({ role }) => {
 
 	useUnsavedChangesGuard(isEdit)
 
+	const selectedFunc = value => {
+		console.log(value)
+		if (isEdit === false) {
+			setSelected(value)
+		} else {
+			showMassageFunc('plzsave')
+		}
+	}
+
 	return role === 'student' ? (
 		<>
 			<Forbidden403 />
@@ -586,7 +600,7 @@ const ConstructorPage = ({ role }) => {
 	) : (
 		<div className='relative'>
 			<p
-				className={`absolute transition-all bg-[var(--green-status-bg)] text-[var(--green-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 text-2xl ${
+				className={`absolute transition-all ${showMassage === 'plzsave' ? 'bg-[var(--red-status-bg)] text-[var(--red-status-text)]' : 'bg-[var(--green-status-bg)] text-[var(--green-status-text)]'}   px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 text-2xl ${
 					showMassage ? 'top-5 opacity-100' : '-top-25 opacity-50'
 				} `}
 			>
@@ -618,7 +632,7 @@ const ConstructorPage = ({ role }) => {
 								title={option.title}
 								icon={option.icon}
 								checked={selected === option.value}
-								onChange={() => setSelected(option.value)}
+								onChange={() => selectedFunc(option.value)}
 								width={'200px'}
 							/>
 						))}
