@@ -32,6 +32,7 @@ import { Forbidden403, setGlobalError } from '../../components/Errors'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
 import ActivityStudents from './ActivityStudents'
+import { useUnsavedChangesGuard } from '../../context/SaveChangesHook'
 
 const SettingsButton = ({
 	courseId,
@@ -576,6 +577,8 @@ const ConstructorPage = ({ role }) => {
 		}
 	}
 
+	useUnsavedChangesGuard(isEdit)
+
 	return role === 'student' ? (
 		<>
 			<Forbidden403 />
@@ -583,7 +586,7 @@ const ConstructorPage = ({ role }) => {
 	) : (
 		<div className='relative'>
 			<p
-				className={`absolute transition-all bg-[var(--green-status-bg)] text-[var(--green-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
+				className={`absolute transition-all bg-[var(--green-status-bg)] text-[var(--green-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 text-2xl ${
 					showMassage ? 'top-5 opacity-100' : '-top-25 opacity-50'
 				} `}
 			>
@@ -643,29 +646,42 @@ const ConstructorPage = ({ role }) => {
 							imageUrl={courseContent?.image_path}
 							onChange={showMassageFunc}
 						/>
-						{selectedContentId !== null && sectionType === 'test' ? (
-							<Button
-								title={!isEdit ? 'Редактировать' : 'Редактирование'}
-								style={!isEdit ? 'outline' : 'hero'}
-								type='button'
-								onClick={() => setIsEdit(prev => !prev)}
-							/>
-						) : isEdit ? (
-							<Button
-								title='Сохранить'
-								style='outline'
-								type='button'
-								onClick={e =>
-									handleSubmit(e, blocks, selectedContentId, accessedGroups)
-								}
-							/>
-						) : (
-							<Button
-								title='Редактировать'
-								style='outline'
-								type='button'
-								onClick={() => setIsEdit(prev => !prev)}
-							/>
+						{selectedContentId !== null && (
+							<>
+								{sectionType === 'test' ? (
+									<Button
+										title={!isEdit ? 'Редактировать' : 'Редактирование'}
+										style={!isEdit ? 'outline' : 'hero'}
+										type='button'
+										onClick={() => setIsEdit(prev => !prev)}
+									/>
+								) : (
+									<>
+										{isEdit ? (
+											<Button
+												title='Сохранить'
+												style='outline'
+												type='button'
+												onClick={e =>
+													handleSubmit(
+														e,
+														blocks,
+														selectedContentId,
+														accessedGroups,
+													)
+												}
+											/>
+										) : (
+											<Button
+												title='Редактировать'
+												style='outline'
+												type='button'
+												onClick={() => setIsEdit(prev => !prev)}
+											/>
+										)}
+									</>
+								)}
+							</>
 						)}
 
 						{courseContent?.course_status === 'pending' ? (

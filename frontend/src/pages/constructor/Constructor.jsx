@@ -1388,7 +1388,7 @@ const Constructor = ({
 	return (
 		<div className='relative'>
 			<p
-				className={`absolute transition-all bg-[var(--red-status-bg)] text-[var(--red-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 ${
+				className={`absolute transition-all bg-[var(--red-status-bg)] text-[var(--red-status-text)]  px-6 py-2 rounded-lg shadow-[var(--shadow)] left-1/2 -translate-x-1/2 text-2xl ${
 					showMassage
 						? '2xl:-top-27 -top-47  opacity-100'
 						: '2xl:-top-47  -top-65  opacity-50'
