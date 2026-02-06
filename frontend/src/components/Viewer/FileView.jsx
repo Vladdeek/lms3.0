@@ -223,7 +223,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 						<div className='flex items-center gap-2'>
 							{getFileIcon(file.name)}
 							<div>
-								<p className='text-sm font-medium truncate w-full'>
+								<p className='text-sm font-medium truncate text-[var(--black)] w-full'>
 									{file.name}
 								</p>
 								<p className='text-xs text-[var(--middle)]'>

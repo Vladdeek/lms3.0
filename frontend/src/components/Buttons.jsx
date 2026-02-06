@@ -309,7 +309,7 @@ export const SubmitButton = ({
 	)
 }
 
-export const EllipsisButton = ({ options, onOptionClick, bg }) => {
+export const EllipsisButton = ({ options, onOptionClick, bg, active }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isVisible, setIsVisible] = useState(false)
 	const buttonRef = useRef(null)
@@ -392,13 +392,13 @@ export const EllipsisButton = ({ options, onOptionClick, bg }) => {
 	}, [isOpen])
 
 	return (
-		<div className='relative' ref={buttonRef}>
+		<div className={`relative `} ref={buttonRef}>
 			<button
 				onClick={toggleMenu}
-				className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer text-[var(--black)] p-[6px] ${
+				className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer $  p-[6px] ${
 					bg
-						? 'bg-[var(--white)] shadow-[var(--shadow)]'
-						: 'bg-transparent hover:bg-[var(--white)]'
+						? `bg-[var(--white)] shadow-[var(--shadow)] ${active ? 'text-white' : 'text-[var(--black)]'}`
+						: `bg-transparent hover:bg-[var(--white)] hover:text-[var(--black)] ${active ? 'text-white hover:text-[var(--black)]' : 'text-[var(--black)]'}`
 				} `}
 				aria-label='Дополнительные опции'
 			>

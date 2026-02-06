@@ -4,6 +4,7 @@ import {
 	ArrowRightFromLine,
 	AudioLines,
 	BookMarked,
+	Check,
 	CheckSquare,
 	ChevronDown,
 	ChevronsDown,
@@ -27,6 +28,7 @@ import {
 	MousePointerClick,
 	NotebookPen,
 	Package,
+	Pen,
 	Plus,
 	Presentation,
 	SquareFunction,
@@ -56,7 +58,7 @@ import OpenQuestion from '../../components/ConstructorTest/OpenQuestion'
 import api, { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import Loader from '../../components/Loader'
+import Loader, { AltLoader } from '../../components/Loader'
 import { ButtonView } from '../../components/Viewer/ButtonView'
 import FormulaView from '../../components/Viewer/FormulaView'
 import { CalloutView } from '../../components/Viewer/CalloutView'
@@ -258,7 +260,7 @@ const CreateLessonButton = ({
 
 	const steps = [
 		<>
-			<div className='grid grid-cols-2 gap-2'>
+			<div className='grid grid-cols-3 gap-2'>
 				{lessonTypes.map((item, index) => (
 					<button
 						key={index}
@@ -290,7 +292,7 @@ const CreateLessonButton = ({
 				<Button title='Далее' style='black' onClick={() => setStep(1)} />
 			</div>
 		</>,
-		<>
+		<div className=''>
 			<InputDefault
 				title={'Название занятия'}
 				placeholder={'Введите название'}
@@ -300,8 +302,13 @@ const CreateLessonButton = ({
 				onChange={e => setLessonTitle(e.target.value)}
 				onStatusChange={setIsNameValid}
 			/>
-			<div className='flex justify-between gap-2 mt-2'>
-				<Button title='назад' style='outline' onClick={() => setStep(0)} />
+			<div className='flex min-[1200px]:flex-wrap-reverse justify-between min-[1700px]:flex-nowrap gap-2 mt-2'>
+				<Button
+					width={'100%'}
+					title='назад'
+					style='outline'
+					onClick={() => setStep(0)}
+				/>
 				<Button
 					title='Добавить занятие'
 					style='black'
@@ -310,7 +317,7 @@ const CreateLessonButton = ({
 					disabled={!isNameValid}
 				/>
 			</div>
-		</>,
+		</div>,
 	]
 
 	return (
@@ -365,25 +372,39 @@ const ModuleTitle = ({
 	moduleId,
 	onRemoveModule,
 }) => {
+	const [deleteModalActive, setDeleteModalActive] = useState(false)
+	const [editModeActive, setEditModeActive] = useState(false)
+	const [changedValue, setChangedValue] = useState('')
+	const [isLoading, setIsLoading] = useState(false)
+
+	useEffect(() => {
+		if (changedValue === '') {
+			setChangedValue(title)
+		}
+	}, [title])
+
 	const options = [
+		// {
+		// 	title: 'Переместить вверх',
+		// 	icon: <ChevronsUp size={20} />,
+		// 	action: 'up',
+		// },
+		// {
+		// 	title: 'Переместить вниз',
+		// 	icon: <ChevronsDown size={20} />,
+		// 	action: 'down',
+		// },
 		{
-			title: 'Переместить вверх',
-			icon: <ChevronsUp size={20} />,
-			action: 'up',
+			title: 'Редактировать',
+			icon: <Pen size={20} />,
+			action: () => setEditModeActive(true),
 		},
-		{
-			title: 'Переместить вниз',
-			icon: <ChevronsDown size={20} />,
-			action: 'down',
-		},
-		{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
 		{
 			title: 'Удалить',
 			icon: <Trash size={20} />,
-			action: () => deleteModule(moduleId),
+			action: () => setDeleteModalActive(true),
 		},
 	]
-	const [deleteModalActive, setDeleteModalActive] = useState(false)
 
 	useEffect(() => {
 		if (deleteModalActive) {
@@ -398,6 +419,7 @@ const ModuleTitle = ({
 	}, [deleteModalActive])
 
 	const deleteModule = async id => {
+		setIsLoading(true)
 		try {
 			await api.delete(`${API}/modules/${id}`, {
 				withCredentials: true,
@@ -410,6 +432,26 @@ const ModuleTitle = ({
 			onRemoveModule(id)
 			setGlobalError(null)
 			setDeleteModalActive(false)
+			setIsLoading(false)
+		} catch (error) {}
+	}
+	const handleEditName = async id => {
+		try {
+			await api.put(
+				`${API}/modules/${id}`,
+				{ name: changedValue },
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				},
+			)
+
+			setEditModeActive(false)
+			setIsLoading(false)
+			window.location.reload()
 		} catch (error) {}
 	}
 	return (
@@ -417,25 +459,33 @@ const ModuleTitle = ({
 			{deleteModalActive && (
 				<div className='fixed inset-0 z-[1000] flex items-center justify-center backdrop-blur-xs'>
 					<div className='p-4 h-30 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
-						<p className='text-[var(--black)]'>
-							Вы уверены что хотите удалить это занятие?
-						</p>
-						<div className='flex gap-3'>
-							<button
-								onClick={() => deleteModule(moduleId)}
-								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
-							>
-								Удалить
-							</button>
-							<button
-								onClick={() => {
-									setDeleteModalActive(false)
-								}}
-								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-[var(--black)] hover:bg-[var(--white)] border-1 border-transparent hover:border-[var(--middle)] shadow-[var(--shadow)] transition-all cursor-pointer'
-							>
-								Отмена
-							</button>
-						</div>
+						{isLoading ? (
+							<div className='w-91 flex justify-center items-center'>
+								<AltLoader />
+							</div>
+						) : (
+							<>
+								<p className='text-[var(--black)]'>
+									Вы уверены что хотите удалить это занятие?
+								</p>
+								<div className='flex gap-3'>
+									<button
+										onClick={() => deleteModule(moduleId)}
+										className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
+									>
+										Удалить
+									</button>
+									<button
+										onClick={() => {
+											setDeleteModalActive(false)
+										}}
+										className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-[var(--black)] hover:bg-[var(--white)] border-1 border-transparent hover:border-[var(--middle)] shadow-[var(--shadow)] transition-all cursor-pointer'
+									>
+										Отмена
+									</button>
+								</div>
+							</>
+						)}
 					</div>
 				</div>
 			)}
@@ -448,19 +498,44 @@ const ModuleTitle = ({
 						</p>
 					</div>
 					<p className='font-bold text-base'>/</p>
-					<p className='font-normal text-base truncate w-1/2'>{title}</p>
+					{editModeActive ? (
+						<form
+							action={() => handleEditName(moduleId)}
+							className='min-[2275px]:w-full min-[2100px]:w-1/2 w-1/3 flex bg-[var(--white)] pr-1 pl-2 py-1 rounded-md ring-1 focus-within:text-[var(--black)] focus-within:ring-3 transition-all ring-[var(--hero-epta)]'
+						>
+							<input
+								type='text'
+								value={changedValue}
+								className='w-full outline-none focus-within:'
+								onChange={e => setChangedValue(e.target.value)}
+							/>
+							<button
+								type='submit'
+								className='text-[var(--black)] hover:text-[var(--green-status-text)] hover:bg-[var(--green-status-bg)] px-1  rounded-sm cursor-pointer transition-all'
+							>
+								<Check size={20} />
+							</button>
+						</form>
+					) : (
+						<p
+							title={changedValue}
+							className={`font-normal truncate text-base`}
+						>
+							{changedValue}
+						</p>
+					)}
 				</div>
-				<div className='flex gap-3 absolute right-0 z-10000'>
+				<div className='flex gap-3 absolute right-0 z-1000'>
 					<Button
 						icon={isExpanded ? ChevronUp : ChevronDown}
 						style='white'
 						size={32}
 						onClick={onToggle}
 					/>
-					<Trash
-						size={32}
-						className={`text-[var(--black)] hover:bg-red-500 hover:text-white bg-[var(--white)]  p-2 shadow-[var(--shadow)] rounded-lg cursor-pointer transition-all`}
-						onClick={() => setDeleteModalActive(true)}
+					<EllipsisButton
+						options={options}
+						onOptionClick={options => options.action(sectionId)}
+						bg={true}
 					/>
 				</div>
 			</div>
@@ -479,6 +554,15 @@ const ModuleContent = ({
 	selectedSectionId,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
+	const [editModeActive, setEditModeActive] = useState(false)
+	const [changedValue, setChangedValue] = useState('')
+	const [isLoading, setIsLoading] = useState(false)
+
+	useEffect(() => {
+		if (changedValue === '') {
+			setChangedValue(title)
+		}
+	}, [title])
 
 	useEffect(() => {
 		if (deleteModalActive) {
@@ -492,26 +576,31 @@ const ModuleContent = ({
 		}
 	}, [deleteModalActive])
 
-	// const options = [
-	// 	{
-	// 		title: 'Переместить вверх',
-	// 		icon: <ChevronsUp size={20} />,
-	// 		action: 'up',
-	// 	},
-	// 	{
-	// 		title: 'Переместить вниз',
-	// 		icon: <ChevronsDown size={20} />,
-	// 		action: 'down',
-	// 	},
-	// 	{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
-	// 	{
-	// 		title: 'Удалить',
-	// 		icon: <Trash size={20} />,
-	// 		action: () => deleteSection(sectionId),
-	// 	},
-	// ]
+	const options = [
+		{
+			title: 'Переместить вверх',
+			icon: <ChevronsUp size={20} />,
+			action: 'up',
+		},
+		{
+			title: 'Переместить вниз',
+			icon: <ChevronsDown size={20} />,
+			action: 'down',
+		},
+		{
+			title: 'Редактировать',
+			icon: <Pen size={20} />,
+			action: () => setEditModeActive(true),
+		},
+		{
+			title: 'Удалить',
+			icon: <Trash size={20} />,
+			action: () => setDeleteModalActive(true),
+		},
+	]
 
 	const deleteSection = async id => {
+		setIsLoading(true)
 		try {
 			await api.delete(`${API}/sections/${id}`, {
 				withCredentials: true,
@@ -523,8 +612,28 @@ const ModuleContent = ({
 
 			onRemoveLesson(id)
 			setDeleteModalActive(false)
-			window.location.reload()
+			setIsLoading(false)
 			setGlobalError(null)
+		} catch (error) {}
+	}
+
+	const handleEditName = async id => {
+		try {
+			await api.put(
+				`${API}/sections/${id}`,
+				{ title: changedValue },
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				},
+			)
+
+			setEditModeActive(false)
+			setIsLoading(false)
+			window.location.reload()
 		} catch (error) {}
 	}
 
@@ -533,25 +642,33 @@ const ModuleContent = ({
 			{deleteModalActive && (
 				<div className='fixed inset-0 z-[1000] flex items-center justify-center backdrop-blur-xs'>
 					<div className='p-4 h-30 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
-						<p className='text-[var(--black)]'>
-							Вы уверены что хотите удалить это занятие?
-						</p>
-						<div className='flex gap-3'>
-							<button
-								onClick={() => deleteSection(sectionId)}
-								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
-							>
-								Удалить
-							</button>
-							<button
-								onClick={() => {
-									setDeleteModalActive(false)
-								}}
-								className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-[var(--black)] hover:bg-[var(--white)] border-1 border-transparent hover:border-[var(--middle)] shadow-[var(--shadow)] transition-all cursor-pointer'
-							>
-								Отмена
-							</button>
-						</div>
+						{isLoading ? (
+							<div className='w-91 flex justify-center items-center'>
+								<AltLoader />
+							</div>
+						) : (
+							<>
+								<p className='text-[var(--black)]'>
+									Вы уверены что хотите удалить это занятие?
+								</p>
+								<div className='flex gap-3'>
+									<button
+										onClick={() => deleteSection(sectionId)}
+										className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-white hover:bg-red-500 transition-all cursor-pointer'
+									>
+										Удалить
+									</button>
+									<button
+										onClick={() => {
+											setDeleteModalActive(false)
+										}}
+										className='bg-[var(--black)] text-[var(--white)] rounded-xl px-4 py-2 hover:text-[var(--black)] hover:bg-[var(--white)] border-1 border-transparent hover:border-[var(--middle)] shadow-[var(--shadow)] transition-all cursor-pointer'
+									>
+										Отмена
+									</button>
+								</div>
+							</>
+						)}
 					</div>
 				</div>
 			)}
@@ -596,26 +713,40 @@ const ModuleContent = ({
 						</p>
 					</div>
 					<p className='font-bold text-base'>/</p>
-					<p
-						title={title}
-						className={`font-normal truncate ${bg ? 'text-base' : 'text-sm'}`}
-					>
-						{title}
-					</p>
+					{editModeActive ? (
+						<form
+							action={() => handleEditName(sectionId)}
+							className='w-full flex bg-[var(--white)] pr-1 pl-2 py-1 rounded-md'
+						>
+							<input
+								type='text'
+								value={changedValue}
+								className='w-full outline-none'
+								onChange={e => setChangedValue(e.target.value)}
+							/>
+							<button
+								type='submit'
+								className='text-[var(--black)] hover:text-[var(--green-status-text)] hover:bg-[var(--green-status-bg)] px-1  rounded-sm cursor-pointer transition-all'
+							>
+								<Check size={20} />
+							</button>
+						</form>
+					) : (
+						<p
+							title={changedValue}
+							className={`font-normal truncate ${bg ? 'text-base' : 'text-sm'}`}
+						>
+							{changedValue}
+						</p>
+					)}
 				</div>
 				{!bg && (
-					<>
-						<div className='w-[32px] h-[32px]'></div>
-						<Trash
-							size={32}
-							className={`${
-								selectedSectionId === sectionId
-									? 'text-white bg-[var(--hero-epta)] hover:bg-white hover:text-red-500'
-									: 'text-[var(--black)] hover:bg-red-500 bg-[var(--white)] hover:text-white'
-							} p-2 absolute right-1 rounded-md w-[32px] cursor-pointer transition-all z-10`}
-							onClick={() => setDeleteModalActive(true)}
-						/>
-					</>
+					<EllipsisButton
+						options={options}
+						onOptionClick={options => options.action(sectionId)}
+						bg={false}
+						active={selectedSectionId === sectionId}
+					/>
 				)}
 			</div>
 		</>

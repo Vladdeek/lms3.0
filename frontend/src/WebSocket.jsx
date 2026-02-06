@@ -1,60 +1,103 @@
 import { WS_API } from './API'
 import { useEffect, useState } from 'react'
 
+/*
+  Singleton — один экземпляр на всё приложение.
+  Это важно! Нельзя создавать новый сокет в каждом компоненте.
+*/
 class WSService {
-	constructor(url = WS_API) {
-		this.url = url
-		this.socket = null
-		this.listeners = []
-	}
+	socket = null
+	listeners = []
+	reconnectTimer = null
+	isConnecting = false
 
-	connect() {
-		this.socket = new WebSocket(this.url)
+	// запуск соединения
+	connect(url = WS_API) {
+		// если уже подключены или подключаемся — ничего не делаем
+		if (this.socket || this.isConnecting) return
 
-		this.socket.onopen = () => console.log('WS открыт')
-		this.socket.onmessage = e => {
-			const data = JSON.parse(e.data)
-			this.listeners.forEach(fn => fn(data))
+		this.isConnecting = true
+		this.socket = new WebSocket(url)
+
+		// соединение установлено
+		this.socket.onopen = () => {
+			console.log('WS подключен')
+			this.isConnecting = false
 		}
+
+		// получили сообщение от сервера
+		this.socket.onmessage = event => {
+			try {
+				const data = JSON.parse(event.data)
+
+				// рассылаем сообщение всем подписчикам
+				this.listeners.forEach(listener => listener(data))
+			} catch (err) {
+				console.error('Ошибка парсинга WS сообщения', err)
+			}
+		}
+
+		// соединение закрылось (интернет умер, сервер рестартнулся и тд)
 		this.socket.onclose = () => {
-			console.log('WS закрыт, переподключение через 1 сек')
-			setTimeout(() => this.connect(), 1000)
+			console.log('WS отключен → пробуем переподключиться через 1 сек')
+
+			this.socket = null
+			this.isConnecting = false
+
+			// авто-переподключение
+			this.reconnectTimer = setTimeout(() => {
+				this.connect(url)
+			}, 1000)
 		}
-		this.socket.onerror = err => console.error('WS ошибка', err)
+
+		this.socket.onerror = err => {
+			console.error('WS ошибка', err)
+			this.socket?.close()
+		}
 	}
 
-	send(data) {
-		if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-			this.socket.send(JSON.stringify(data))
-		} else {
-			console.warn('WS не готов, сообщение не отправлено')
-		}
-	}
+	/*
+    Подписка на события от сервера
+    Каждый компонент может слушать сообщения
+  */
+	subscribe(callback) {
+		this.listeners.push(callback)
 
-	subscribe(fn) {
-		this.listeners.push(fn)
+		// возвращаем функцию отписки (React будет вызывать при unmount)
 		return () => {
-			this.listeners = this.listeners.filter(listener => listener !== fn)
+			this.listeners = this.listeners.filter(l => l !== callback)
 		}
 	}
 }
 
-export default function useWebSocket(url) {
+/*
+  Экспортируем ГОТОВЫЙ экземпляр (singleton)
+  Это ключевой момент.
+*/
+
+const wsService = new WSService()
+
+export default function useWebSocket() {
 	const [messages, setMessages] = useState([])
-	const ws = new WSService(url)
 
 	useEffect(() => {
-		ws.connect()
+		// запускаем соединение (если уже запущено — ничего не произойдет)
+		wsService.connect()
 
-		const unsubscribe = ws.subscribe(msg => setMessages(prev => [...prev, msg]))
+		/*
+      Подписываемся на входящие сообщения.
+      Каждый раз когда сервер что-то прислал —
+      добавляем сообщение в state.
+    */
+		const unsubscribe = wsService.subscribe(message => {
+			setMessages(prev => [...prev, message])
+		})
 
-		return () => {
-			unsubscribe()
-		}
-	}, [url])
+		// отписка при размонтировании компонента
+		return unsubscribe
+	}, [])
 
 	return {
-		messages,
-		send: data => ws.send(data),
+		messages, // весь поток сообщений от сервера
 	}
 }
