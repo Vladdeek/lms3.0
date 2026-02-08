@@ -229,8 +229,8 @@ export const ConstructorVideoInput = ({
 							isDragActive
 								? 'bg-[var(--hero-pale)]'
 								: !isFileValid
-								? 'bg-[var(--hard-lvl-bg)]'
-								: 'bg-[var(--light-gray)]'
+									? 'bg-[var(--hard-lvl-bg)]'
+									: 'bg-[var(--light-gray)]'
 						} rounded-xl transition-all`}
 					>
 						<label
@@ -242,8 +242,8 @@ export const ConstructorVideoInput = ({
 								isDragActive
 									? 'border-[var(--hero-epta)]'
 									: !isFileValid
-									? 'border-[var(--hard-lvl-text)]'
-									: 'border-[var(--middle)]'
+										? 'border-[var(--hard-lvl-text)]'
+										: 'border-[var(--middle)]'
 							}`}
 						>
 							<div className='flex flex-col items-center justify-center w-full h-full gap-5'>
@@ -254,19 +254,18 @@ export const ConstructorVideoInput = ({
 										isDragActive
 											? 'text-[var(--hero-epta)]'
 											: !isFileValid
-											? 'text-[var(--hard-lvl-text)]'
-											: 'text-[var(--middle)]'
+												? 'text-[var(--hard-lvl-text)]'
+												: 'text-[var(--middle)]'
 									}`}
 								/>
-								{/* ВАЛИДАЦИЯ ЗАГРУЗКИ ВИДЕО */}
-								{/* <div className='flex flex-wrap gap-[5px] w-50 justify-center'>
+								<div className='flex flex-wrap gap-[5px] w-50 justify-center'>
 									<p
 										className={`${
 											isDragActive
 												? 'bg-[var(--hero-epta)] text-[var(--white)]'
 												: !isFileValid
-												? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
-												: 'bg-[var(--light-middle)] text-[var(--black)]'
+													? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
+													: 'bg-[var(--light-middle)] text-[var(--black)]'
 										} rounded-lg text-sm font-normal py-1 whitespace-nowrap px-3`}
 									>
 										до {maxFileSizeInMB} мб
@@ -278,24 +277,23 @@ export const ConstructorVideoInput = ({
 												isDragActive
 													? 'bg-[var(--hero-epta)] text-[var(--white)]'
 													: !isFileValid
-													? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
-													: 'bg-[var(--light-middle)] text-[var(--black)]'
+														? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
+														: 'bg-[var(--light-middle)] text-[var(--black)]'
 											} rounded-lg text-sm font-normal py-1 whitespace-nowrap px-3`}
 										>
 											{ext}
 										</p>
 									))}
-								</div> */}
+								</div>
 
-								<div className='flex flex-col items-center gap-3 h-fit w-1/2 mb-5'>
-									{/* ЗАГРУЗКА ВИДЕО ЛОКАЛЬНО */}
-									{/* <button
+								<div className='flex flex-col items-center gap-3 h-fit w-1/2'>
+									<button
 										type='button'
 										onClick={() => document.getElementById(inputId).click()}
 										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] w-fit cursor-pointer transition-all'
 									>
 										<Upload strokeWidth={3} /> Загрузить видео
-									</button> */}
+									</button>
 									<InputDefault
 										title='Загрузить по ссылке'
 										placeholder='https://example.com'
@@ -305,7 +303,7 @@ export const ConstructorVideoInput = ({
 									/>
 								</div>
 							</div>
-							{/* <input
+							<input
 								id={inputId}
 								type='file'
 								multiple
@@ -313,7 +311,7 @@ export const ConstructorVideoInput = ({
 								className='hidden'
 								onChange={handleFileChange}
 								disabled={uploading}
-							/> */}
+							/>
 						</label>
 					</div>
 				)}
