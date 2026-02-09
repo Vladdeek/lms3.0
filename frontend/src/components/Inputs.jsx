@@ -2,10 +2,12 @@ import {
 	Check,
 	ChevronDown,
 	CircleCheck,
+	Download,
 	Eye,
 	EyeClosed,
 	FileText,
 	ImagePlus,
+	Paperclip,
 	ScanSearch,
 	Search,
 } from 'lucide-react'
@@ -366,7 +368,7 @@ export const FileInput = ({
 				</div>
 				<div className='flex flex-wrap gap-[5px] w-2/5'>
 					<p
-						className={`rounded-lg text-sm font-normal p-1 whitespace-nowrap ${
+						className={`rounded-lg text-xs font-normal p-1 whitespace-nowrap ${
 							fileInfo && fileInfo.size <= 10
 								? 'bg-[var(--hero-epta)] text-white'
 								: 'bg-[var(--bg)] text-[var(--black)]'
@@ -377,7 +379,7 @@ export const FileInput = ({
 					{['.png', '.jpg', '.webp', '.gif'].map(ext => (
 						<p
 							key={ext}
-							className={`rounded-lg text-sm font-normal p-1 whitespace-nowrap ${
+							className={`rounded-lg text-xs font-normal p-1 whitespace-nowrap ${
 								fileInfo && fileInfo.name.endsWith(ext)
 									? 'bg-[var(--hero-epta)] text-white'
 									: 'bg-[var(--bg)] text-[var(--black)]'
@@ -388,7 +390,7 @@ export const FileInput = ({
 					))}
 				</div>
 				<p
-					className={`w-2/5 text-[var(--black)] text-sm font-normal ${
+					className={`w-2/5 text-xs text-[var(--black)] font-normal ${
 						fileInfo && 'truncate'
 					}  text-center`}
 				>
@@ -412,6 +414,156 @@ export const FileInput = ({
 					id='dropzone-file'
 					type='file'
 					accept='.png,.jpg,.jpeg,.webp,.gif'
+					className='hidden'
+					onChange={handleFileChange}
+				/>
+			</label>
+		</div>
+	)
+}
+
+export const FileInputDocument = ({
+	title,
+	required,
+	onStatusChange,
+	onFileChange,
+	fileUrl,
+}) => {
+	const [inputStatus, setInputStatus] = useState(false)
+	const [fileInfo, setFileInfo] = useState(null)
+	const [isDragActive, setIsDragActive] = useState(false)
+
+	// Форматы документов
+	const validFormats = [
+		'application/pdf',
+		'application/msword',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		'application/vnd.ms-excel',
+		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+		'application/zip',
+		'application/x-rar-compressed',
+		'text/plain',
+	]
+
+	const maxSize = 20 * 1024 * 1024 // 20MB
+
+	const formatBytes = bytes => (bytes / 1024 / 1024).toFixed(2)
+
+	const validateFile = file => {
+		if (!file) {
+			setInputStatus(false)
+			return
+		}
+
+		// формат
+		if (!validFormats.includes(file.type)) {
+			setInputStatus(false)
+			onStatusChange?.(false)
+			setFileInfo(null)
+			return
+		}
+
+		// размер
+		if (file.size > maxSize) {
+			setInputStatus(false)
+			onStatusChange?.(false)
+			setFileInfo(null)
+			return
+		}
+
+		// всё ок
+		setInputStatus(true)
+		onStatusChange?.(true)
+		setFileInfo({
+			name: file.name,
+			size: formatBytes(file.size),
+		})
+		onFileChange?.(file)
+	}
+
+	const handleFileChange = e => validateFile(e.target.files[0])
+
+	const handleDrop = e => {
+		e.preventDefault()
+		setIsDragActive(false)
+		validateFile(e.dataTransfer.files[0])
+	}
+
+	const handleDragOver = e => {
+		e.preventDefault()
+		setIsDragActive(true)
+	}
+
+	const handleDragLeave = () => setIsDragActive(false)
+
+	return (
+		<div className='flex flex-col justify-center w-full gap-3'>
+			{title && (
+				<div className='inline-flex items-center gap-[10px]'>
+					<p className='text-[18px] text-[var(--middle)]'>{title}</p>
+					{required && (
+						<CircleCheck
+							color={!inputStatus ? 'var(--middle)' : 'var(--hero-epta)'}
+							size={16}
+						/>
+					)}
+				</div>
+			)}
+
+			<label
+				htmlFor='file-upload'
+				className={`cursor-pointer rounded-lg bg-[var(--white)] shadow-[var(--shadow)] p-[10px] flex gap-[10px] items-center w-full transition ring-1 ${
+					isDragActive
+						? 'ring-[var(--hero-epta)] shadow-[2px_1px_8px_2px_var(--glow-hero-epta)]'
+						: 'ring-transparent'
+				}`}
+				onDragOver={handleDragOver}
+				onDragLeave={handleDragLeave}
+				onDrop={handleDrop}
+			>
+				{/* Иконка файла */}
+				<div className='w-1/5 flex justify-center items-center'>
+					<Download size={32} strokeWidth={1.5} color='var(--middle)' />
+				</div>
+
+				{/* ограничения */}
+				<div className='flex flex-wrap gap-[5px] w-2/5 text-[var(--black)]'>
+					<p className='rounded-lg text-xs p-1 bg-[var(--bg)]'>до 10 мб</p>
+					{['.docx'].map(ext => (
+						<p
+							key={ext}
+							className={`rounded-lg text-xs p-1 whitespace-nowrap ${
+								fileInfo && fileInfo.name.endsWith(ext)
+									? 'bg-[var(--hero-epta)] text-white'
+									: 'bg-[var(--bg)]'
+							}`}
+						>
+							{ext}
+						</p>
+					))}
+				</div>
+
+				{/* текст */}
+				<p
+					className={`w-3/5 text-xs text-center text-[var(--black)] ${fileInfo && 'truncate'}`}
+				>
+					{fileInfo ? (
+						<>
+							{fileInfo.name}
+							<br />({fileInfo.size} МБ)
+						</>
+					) : (
+						<>
+							Перетащите файл сюда
+							<br />
+							или нажмите для загрузки
+						</>
+					)}
+				</p>
+
+				<input
+					id='file-upload'
+					type='file'
 					className='hidden'
 					onChange={handleFileChange}
 				/>

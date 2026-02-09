@@ -292,10 +292,10 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
-			<div className='bg-[var(--white)] relative p-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] max-md:h-[90vh] max-md:overflow-y-scroll  z-1001'>
+			<div className='bg-[var(--white)] relative p-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] max-h-fit h-[90vh] overflow-y-scroll hide-scrollbar  z-1001'>
 				<X
 					onClick={onClose}
-					className='absolute top-1.5 right-1.5 text-[var(--middle)] cursor-pointer hover:text-white  hover:bg-red-500 hover:rounded-full hover:p-0.5  transition-all'
+					className='absolute top-1 right-1 text-[var(--middle)] cursor-pointer hover:text-white  hover:bg-red-500 hover:rounded-full hover:p-0.5  transition-all'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
 					Создание курса
@@ -373,7 +373,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 							<p className='text-[var(--middle)] text-start text-lg'>
 								Выберите курс
 							</p>
-							<div className='flex w-full gap-1'>
+							<div className='grid grid-cols-3 w-full gap-2'>
 								{courses?.map((item, index) => {
 									return (
 										<RadioButton

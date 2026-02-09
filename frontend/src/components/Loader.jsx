@@ -7,7 +7,7 @@ export const BlockLoader = ({ width, height }) => {
 	return <div style={{ width, height }} className='rounded-md shimmer'></div>
 }
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 export const AltLoader = () => {
@@ -283,5 +283,27 @@ const StyledWrapper = styled.div`
 		}
 	}
 `
+
+export const Loading = ({ className }) => {
+	const states = ['', '.', '..', '...']
+	const [step, setStep] = useState(0)
+
+	useEffect(() => {
+		const i = setInterval(() => {
+			setStep(prev => (prev + 1) % states.length)
+		}, 500)
+
+		return () => clearInterval(i)
+	}, [])
+
+	return (
+		<p className={className}>
+			Загрузка
+			<span style={{ display: 'inline-block', width: '4ch' }}>
+				{states[step]}
+			</span>
+		</p>
+	)
+}
 
 export default Loader

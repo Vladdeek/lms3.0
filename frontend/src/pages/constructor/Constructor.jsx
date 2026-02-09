@@ -1007,10 +1007,6 @@ const ContentView = ({
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 
-	console.log(content)
-
-	console.log('blocks: ', blocks)
-
 	const giveId = (index, id) => {
 		setQuestions(prev => {
 			const updated = [...prev]
@@ -1049,7 +1045,6 @@ const ContentView = ({
 	}
 
 	const handleBlockChange = (index, data) => {
-		console.log('handleBlockChange: ', data)
 		setBlocks(prev => {
 			const updated = prev.map((b, i) =>
 				i === index ? { ...b, content: data } : b,

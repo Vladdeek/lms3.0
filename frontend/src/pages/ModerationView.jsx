@@ -414,7 +414,7 @@ const CourseOverview = ({ content }) => {
 
 	return (
 		<>
-			<div className='grid grid-cols-[1fr_3fr] gap-5 h-full '>
+			<div className='grid grid-cols-[1fr_3fr] gap-5 h-[75vh]  '>
 				<div className='flex flex-col gap-3 '>
 					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
@@ -423,7 +423,7 @@ const CourseOverview = ({ content }) => {
 						</p>
 					</div>
 					<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between h-full'>
-						<div className='flex flex-col gap-3'>
+						<div className='flex flex-col gap-3 overflow-y-scroll h-[65.5vh]'>
 							<div className='flex flex-col gap-3 px-2'>
 								<div className='flex justify-between w-full'>
 									<p className='font-medium text-[20px] text-[var(--black)]'>

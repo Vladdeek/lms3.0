@@ -11,6 +11,7 @@ import {
 	Lock,
 	LockOpen,
 	Timer,
+	Paperclip,
 } from 'lucide-react'
 import { AltRadioButton, Button } from '../../components/Buttons'
 import { isValidElement, useEffect, useState } from 'react'
@@ -21,6 +22,7 @@ import {
 	InputDefault,
 	TextArea,
 	Checkbox,
+	FileInputDocument,
 } from '../../components/Inputs'
 import QRCode from '../../components/QrCode'
 import { useParams } from 'react-router-dom'
@@ -33,6 +35,7 @@ import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
 import ActivityStudents from './ActivityStudents'
 import { useUnsavedChangesGuard } from '../../context/SaveChangesHook'
+import Attachment from './Attachmint'
 
 const SettingsButton = ({
 	courseId,
@@ -138,6 +141,7 @@ const SettingsButton = ({
 						photoUrl={`${FILE_API}${image}`}
 						onFileChange={file => setImage(file)}
 					/>
+					<FileInputDocument title={'Прикрепить файл'} />
 					<div className='flex gap-3 w-full'>
 						<Button
 							title={'Удалить курс'}
@@ -370,6 +374,7 @@ const ConstructorPage = ({ role }) => {
 		{ value: 0, title: 'Конструктор', icon: BrickWall },
 		{ value: 1, title: 'Управление доступом', icon: UsersRound },
 		{ value: 2, title: 'Активность студентов', icon: Timer },
+		{ value: 3, title: 'Приложения к курсу', icon: Paperclip },
 	]
 	const [sectionType, setSectionType] = useState('text')
 
@@ -510,42 +515,25 @@ const ConstructorPage = ({ role }) => {
 		return () => clearTimeout(timer)
 	}
 
-	const handleSubmit = async (e, content, sectionId, accessedGroups) => {
+	const handleSubmit = async (e, content, sectionId) => {
 		if (e?.preventDefault) e.preventDefault()
 
 		try {
-			if (selected === 0) {
-				const { data } = await api.put(
-					`${API}/sections/${sectionId}/content`,
-					content,
-					{
-						withCredentials: true,
-						headers: {
-							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
-						},
+			const { data } = await api.put(
+				`${API}/sections/${sectionId}/content`,
+				content,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				)
+				},
+			)
 
-				setIsEdit(prev => !prev)
-				console.log('save: ', data)
-				showMassageFunc('good')
-			} else if (selected === 1) {
-				const addStudents = false
-				const { data } = await api.put(
-					`${API}/courses/students/${courseId}?add_student=${addStudents}`,
-					{ groups: accessedGroups },
-					{
-						withCredentials: true,
-						headers: {
-							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
-						},
-					},
-				)
-
-				console.log('students updated: ', data)
-			}
+			setIsEdit(prev => !prev)
+			console.log('save: ', data)
+			showMassageFunc('good')
 		} catch (error) {
 			setIsLoading(false)
 		}
@@ -736,8 +724,10 @@ const ConstructorPage = ({ role }) => {
 					/>
 				) : selected === 1 ? (
 					<AccessManagement onChange={setAccessedGroups} />
+				) : selected === 2 ? (
+					<ActivityStudents onChange={setAccessedGroups} />
 				) : (
-					selected === 2 && <ActivityStudents onChange={setAccessedGroups} />
+					selected === 3 && <Attachment onChange={setAccessedGroups} />
 				)}
 			</div>
 		</div>

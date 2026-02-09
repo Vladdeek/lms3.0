@@ -1,10 +1,11 @@
 import { ImagePlus, Upload, X } from 'lucide-react'
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import api, { API, FILE_API } from '../../API'
 import { motion } from 'framer-motion'
 import { maxPhotoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { Loading } from '../Loader'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
@@ -104,6 +105,31 @@ export const ConstructorPhotoInput = ({
 		})
 	}
 
+	const [progress, setProgress] = useState(null)
+
+	useEffect(() => {
+		progress >= 100 && setProgress(null)
+	}, [imgUrl])
+	const fakeProgressRef = useRef(null)
+
+	const startFakeProgress = () => {
+		if (fakeProgressRef.current) return
+
+		fakeProgressRef.current = setInterval(() => {
+			setProgress(prev => {
+				if (prev >= 99) return prev
+				return prev + 2
+			})
+		}, 1500)
+	}
+
+	const stopFakeProgress = () => {
+		if (fakeProgressRef.current) {
+			clearInterval(fakeProgressRef.current)
+			fakeProgressRef.current = null
+		}
+	}
+
 	const uploadFileToAPI = async fileToUpload => {
 		const validation = await validateFile(fileToUpload)
 
@@ -120,21 +146,43 @@ export const ConstructorPhotoInput = ({
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
 
-			const response = await api.post(`${API}/files/`, formData, {
+			const responsePromise = api.post(`${API}/files/`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
+				onUploadProgress: progressEvent => {
+					const percent = Math.round(
+						(progressEvent.loaded * 100) / progressEvent.total,
+					)
+
+					// максимум 75%
+					const cappedPercent = Math.round(percent * 0.79)
+					setProgress(cappedPercent)
+				},
 			})
 
-			const result = response.data
+			// Ждём когда upload закончится (axios завершит отправку тела запроса)
+			responsePromise.then(() => {}) // просто чтобы не было warning
 
-			setImgUrl(prevUrls => [
-				...prevUrls,
-				{
-					photoUrl: `${FILE_API}${result?.file_path}`,
-				},
-			])
+			// Запускаем фейковый прогресс пока сервер думает
+			startFakeProgress()
+
+			const response = await responsePromise
+
+			// Сервер ответил → стопаем фейковый прогресс и ставим 100
+			stopFakeProgress()
+			setProgress(100)
+
+			const result = response.data
+			setTimeout(() => {
+				setImgUrl(prevUrls => [
+					...prevUrls,
+					{
+						photoUrl: `${FILE_API}${result?.file_path}`,
+					},
+				])
+			}, 500)
 
 			return result
 		} catch (error) {
@@ -320,16 +368,34 @@ export const ConstructorPhotoInput = ({
 											</p>
 										))}
 									</div>
-									<div className='h-fit'>
-										<button
-											className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-											onClick={() => document.getElementById(inputId).click()}
-											type='button'
-										>
-											<Upload strokeWidth={3} />
-											Загрузить фото
-										</button>
-									</div>
+									{progress !== null ? (
+										<div className='w-full flex flex-col  rounded-lg h-fit overflow-hidden py-[1px]'>
+											<div
+												className={`flex flex-col items-start justify-between p-3 file  w-full`}
+											>
+												<div className='flex gap-3 justify-center w-full'>
+													<p className='text-[var(--black)]'>{progress}%</p>
+													<Loading />
+												</div>
+
+												<div
+													className='bg-[var(--hero-epta)] rounded-full transition-all ease-linear delay-0 duration-750 h-2'
+													style={{ width: `${progress}%` }}
+												></div>
+											</div>
+										</div>
+									) : (
+										<div className='h-fit'>
+											<button
+												className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+												onClick={() => document.getElementById(inputId).click()}
+												type='button'
+											>
+												<Upload strokeWidth={3} />
+												Загрузить фото
+											</button>
+										</div>
+									)}
 								</div>
 
 								<input

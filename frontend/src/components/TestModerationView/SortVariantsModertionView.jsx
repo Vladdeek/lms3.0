@@ -33,7 +33,7 @@ const PairItem = forwardRef(({ pair, index, side, height, length }, ref) => {
 			ref={ref}
 			draggable={isRight}
 			style={{ height: height ? `${height}px` : undefined }}
-			className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-white cursor-default select-none`}
+			className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg text-[var(--black)] bg-[var(--white)] cursor-default select-none`}
 		>
 			<span className='col-span-4 flex items-center w-full'>
 				{side === 'left' ? pair : pair}
@@ -128,7 +128,7 @@ const SortVariantModerationView = ({ testId, onAnswerSelect }) => {
 	// высоты правой колонки
 	useEffect(() => {
 		const newHeights = rightRefs.current.map(ref =>
-			ref ? ref.getBoundingClientRect().height : 0
+			ref ? ref.getBoundingClientRect().height : 0,
 		)
 		setHeights(newHeights)
 	}, [right_option])
@@ -144,7 +144,7 @@ const SortVariantModerationView = ({ testId, onAnswerSelect }) => {
 				/>
 			)}
 			<div className='flex flex-col items-center gap-5'>
-				<p className='font-medium text-lg'>{question}</p>
+				<p className='font-medium text-lg text-[var(--black)]'>{question}</p>
 
 				<p className='font-light text-[var(--middle)] text-sm'>
 					Это вопрос на установление соответствия, где нужно правильно
@@ -182,12 +182,12 @@ const SortVariantModerationView = ({ testId, onAnswerSelect }) => {
 						{left_option.map((pair, idx) => (
 							<div
 								key={idx}
-								className='grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-white select-none'
+								className='grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-[var(--white)]  select-none'
 								style={{
 									height: heights[idx] ? `${heights[idx]}px` : undefined,
 								}}
 							>
-								<span className='col-span-4 flex items-center w-full'>
+								<span className='col-span-4 flex items-center w-full text-[var(--black)]'>
 									{pair}
 								</span>
 							</div>

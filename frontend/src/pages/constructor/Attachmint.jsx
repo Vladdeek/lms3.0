@@ -1,4 +1,7 @@
 import {
+	ChevronDown,
+	Eye,
+	EyeClosed,
 	FileArchive,
 	FileCode,
 	FileImage,
@@ -8,18 +11,30 @@ import {
 	FileQuestionMark,
 	FileSpreadsheet,
 	FileText,
+	Filter,
+	FilterIcon,
+	Funnel,
+	Group,
+	Trash,
 	Trash2,
 	Upload,
 	X,
 } from 'lucide-react'
+import { RadioButton } from '../../components/Buttons'
 import { useEffect, useId, useRef, useState } from 'react'
+import {
+	FilterOptionInput,
+	OptionInput2,
+	SearchInput,
+} from '../../components/Inputs'
 import api, { API, FILE_API } from '../../API'
-import { maxFilesSizeInMB } from './Constants'
+import { useParams } from 'react-router-dom'
+import { use } from 'react'
 import { getCookie } from '../../TOKEN'
-import axios from 'axios'
-import { Loading } from '../Loader'
+import { maxFilesSizeInMB } from '../../components/ConstructorComponents/Constants'
+import { Loading } from '../../components/Loader'
 
-export const ConstructorFileInput = ({
+const ConstructorFileInput = ({
 	onStatusChange,
 	DelComponent,
 	onChange,
@@ -31,7 +46,7 @@ export const ConstructorFileInput = ({
 		takeValues && takeValues.length > 0 ? takeValues : [],
 	)
 	const [isDragActive, setIsDragActive] = useState(false)
-	const maxFileSizeInMB = maxFilesSizeInMB
+	const maxFileSizeInMB = 50
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
 
@@ -297,22 +312,11 @@ export const ConstructorFileInput = ({
 		)
 	}
 
+	const [isShow, setIsShow] = useState(false)
+
 	return (
 		<div className='flex gap-2'>
-			{DelComponent && (
-				<button
-					className='self-start bg-[var(--white)] shadow-[var(--shadow)] p-1 rounded-lg hover:brightness-95 active:brightness-90 cursor-pointer transition-all text-[var(--black)]'
-					onClick={DelComponent}
-				>
-					<X />
-				</button>
-			)}
-
-			<div
-				className={`${
-					files?.length > 0 && 'shadow-[var(--shadow)] p-4 rounded-xl'
-				} flex flex-col justify-center w-full gap-3`}
-			>
+			<div className={` flex flex-col-reverse justify-center w-full gap-3`}>
 				{files?.length > 0 && (
 					<div className='w-full flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
 						{files.map((file, index) => (
@@ -335,23 +339,28 @@ export const ConstructorFileInput = ({
 										</p>
 									</div>
 								</div>
-								{DelComponent ? (
-									<X
-										size={20}
-										onClick={() => removeFile(index)}
-										className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-									/>
-								) : (
+								<div className='flex gap-3'>
+									{/* <button
+										className={`cursor-pointer hover:bg-[var(--light-middle)] rounded-lg p-1 w-auto aspect-square transition-all ${isShow && 'rotate-x-180'}`}
+										onClick={() => setIsShow(prev => !prev)}
+									>
+										{isShow ? <Eye size={20} /> : <EyeClosed size={20} />}
+									</button> */}
 									<Trash2
 										size={20}
 										onClick={() => removeFile(index)}
 										className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
 									/>
-								)}
+								</div>
 							</div>
 						))}
 					</div>
 				)}
+
+				<p className='text-sm text-[var(--middle)]'>
+					{formatFileSize(files.reduce((total, file) => total + file.size, 0))}{' '}
+					из {formatFileSize(maxSize)}
+				</p>
 
 				{files?.length < maxFiles && (
 					<div
@@ -402,7 +411,6 @@ export const ConstructorFileInput = ({
 										максимум {maxFileSizeInMB} МБ файлов в сумме
 									</p>
 								</div>
-
 								{progress !== null ? (
 									<div className='w-full flex flex-col  rounded-lg h-fit overflow-hidden py-[1px]'>
 										<div
@@ -447,16 +455,134 @@ export const ConstructorFileInput = ({
 						</label>
 					</div>
 				)}
-
-				{files?.length > 0 && (
-					<p className='text-sm text-[var(--middle)]'>
-						{formatFileSize(
-							files.reduce((total, file) => total + file.size, 0),
-						)}{' '}
-						из {formatFileSize(maxSize)}
-					</p>
-				)}
 			</div>
 		</div>
 	)
 }
+
+const Attachment = () => {
+	const { courseId } = useParams()
+
+	const [groups, setGroups] = useState([])
+	const [lessons, setLessons] = useState({})
+
+	const [selectedGroup, setSelectedGroup] = useState(null)
+	const [selectedLesson, setSelectedLesson] = useState(null)
+	const [selectedFilter, setSelectedFilter] = useState(null)
+
+	const [searchStudents, setSearchStudents] = useState('')
+	const [isSearchLoading, setIsSearchLoading] = useState(null)
+	const [students, setStudents] = useState([])
+
+	const studentsDebounce = useRef(null)
+
+	useEffect(() => {
+		if (!courseId) return
+
+		if (studentsDebounce.current) {
+			clearTimeout(studentsDebounce.current)
+		}
+
+		studentsDebounce.current = setTimeout(() => {
+			fetchStudents(searchStudents)
+		}, 500)
+
+		return () => clearTimeout(studentsDebounce.current)
+	}, [searchStudents, courseId])
+
+	const fetchStudents = async (term = '') => {
+		if (!courseId) return
+
+		const lessonKeys = Object.keys(lessons)
+
+		const lessonKey =
+			selectedLesson !== null && selectedLesson !== undefined
+				? lessonKeys[selectedLesson]
+				: null
+
+		console.log(lessonKey) // "123123"
+		console.log(lessons[lessonKey]) // нужный id
+
+		const params = {
+			...(term && { term }),
+
+			...(selectedGroup && {
+				group_name: groups[selectedGroup],
+			}),
+
+			...(lessonKey && {
+				module_section_id: lessons[lessonKey],
+			}),
+			...(selectedFilter && filter[selectedFilter]),
+		}
+
+		try {
+			const res = await api.get(`${API}/courses/${courseId}/time`, {
+				params,
+				withCredentials: true,
+				headers: {
+					'X-CSRF-TOKEN': getCookie('csrftoken'),
+				},
+			})
+
+			setStudents(res.data)
+		} catch (e) {
+			console.error('fetchStudents error', e)
+		} finally {
+			setIsSearchLoading(false)
+		}
+	}
+	useEffect(() => {
+		const fetchLinkedGroups = async () => {
+			try {
+				const res = await api.get(
+					`${API}/courses/student-group/linked/?course_id=${courseId}`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': getCookie('csrftoken'),
+						},
+					},
+				)
+
+				setGroups(res.data.items.map(item => item.name))
+			} catch (error) {}
+		}
+		fetchLinkedGroups()
+	}, [])
+	useEffect(() => {
+		const fetchLessons = async () => {
+			try {
+				const res = await api.get(`${API}/courses/${courseId}/lessons`, {
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': getCookie('csrftoken'),
+					},
+				})
+
+				setLessons(res.data)
+			} catch (error) {}
+		}
+		fetchLessons()
+	}, [])
+
+	useEffect(() => {
+		fetchStudents()
+	}, [selectedGroup, selectedFilter, selectedLesson])
+
+	const [isOpen, setIsOpen] = useState(false)
+
+	return (
+		<div>
+			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl w-full md:min-h-[calc(77.5vh-100px)] overflow-hidden flex flex-col p-2'>
+				<p className='text-2xl font-medium my-2 mx-4'>
+					Прикрепленные файлы к курсу
+				</p>
+				<ConstructorFileInput />
+			</div>
+		</div>
+	)
+}
+export default Attachment

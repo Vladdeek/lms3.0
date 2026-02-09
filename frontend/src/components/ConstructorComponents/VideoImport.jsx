@@ -1,11 +1,13 @@
 import { Film, Upload, X } from 'lucide-react'
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { InputDefault } from '../Inputs'
 import VideoPlayer from '../VideoPlayer'
 import api, { API, FILE_API } from '../../API'
 import { maxVideoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { progress } from 'framer-motion'
+import { Loading } from '../Loader'
 
 export const ConstructorVideoInput = ({
 	onStatusChange,
@@ -67,22 +69,67 @@ export const ConstructorVideoInput = ({
 		}
 	}
 
+	const [progress, setProgress] = useState(null)
+
+	const fakeProgressRef = useRef(null)
+
+	const startFakeProgress = () => {
+		if (fakeProgressRef.current) return
+
+		fakeProgressRef.current = setInterval(() => {
+			setProgress(prev => {
+				if (prev >= 99) return prev
+				return prev + 1
+			})
+		}, 1500)
+	}
+
+	const stopFakeProgress = () => {
+		if (fakeProgressRef.current) {
+			clearInterval(fakeProgressRef.current)
+			fakeProgressRef.current = null
+		}
+	}
+
 	const uploadFileToAPI = async fileToUpload => {
 		setUploading(true)
+		setProgress(0)
+
 		try {
 			const formData = new FormData()
 			formData.append('file', fileToUpload)
 
-			const response = await api.post(`${API}/files/`, formData, {
+			const request = api.post(`${API}/files/`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
+				onUploadProgress: progressEvent => {
+					const percent = Math.round(
+						(progressEvent.loaded * 100) / progressEvent.total,
+					)
+
+					// максимум 75%
+					const capped = Math.round(percent * 0.75)
+					setProgress(capped)
+				},
 			})
+
+			// через 1 секунду начинаем фейковый прогресс (обычно upload уже закончен)
+			setTimeout(() => {
+				startFakeProgress()
+			}, 1000)
+
+			const response = await request
+
+			// сервер ответил → стопаем fake и ставим 100
+			stopFakeProgress()
+			setProgress(100)
 
 			const result = response.data
 			const uploadedUrl = `${FILE_API}${result?.file_path}`
 
+			// НОРМАЛЬНЫЙ return (наконец-то)
 			return {
 				file: fileToUpload,
 				fileId: result.id,
@@ -97,8 +144,9 @@ export const ConstructorVideoInput = ({
 				isUrl: false,
 			}
 		} catch (error) {
+			stopFakeProgress()
+			setProgress(null)
 			console.error('Ошибка загрузки файла:', error)
-
 			throw error
 		} finally {
 			setUploading(false)
@@ -214,7 +262,7 @@ export const ConstructorVideoInput = ({
 			<div className='flex justify-center w-full gap-3'>
 				{previews.map((p, i) => (
 					<div key={i} className='relative w-1/2 aspect-16/9 group'>
-						<VideoPlayer url={p.videoUrl || p.fileUrl} />
+						<VideoPlayer url={p?.videoUrl || p?.fileUrl} />
 
 						<X
 							onClick={() => removePreview(i)}
@@ -287,13 +335,32 @@ export const ConstructorVideoInput = ({
 								</div>
 
 								<div className='flex flex-col items-center gap-3 h-fit w-1/2'>
-									<button
-										type='button'
-										onClick={() => document.getElementById(inputId).click()}
-										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] w-fit cursor-pointer transition-all'
-									>
-										<Upload strokeWidth={3} /> Загрузить видео
-									</button>
+									{progress !== null ? (
+										<div className='w-full flex flex-col  rounded-lg h-fit overflow-hidden py-[1px]'>
+											<div
+												className={`flex flex-col items-start justify-between p-3 file  w-full`}
+											>
+												<div className='flex gap-3 justify-center w-full'>
+													<p className='text-[var(--black)]'>{progress}%</p>
+													<Loading />
+												</div>
+
+												<div
+													className='bg-[var(--hero-epta)] rounded-full transition-all ease-linear delay-0 duration-750 h-2'
+													style={{ width: `${progress}%` }}
+												></div>
+											</div>
+										</div>
+									) : (
+										<button
+											type='button'
+											onClick={() => document.getElementById(inputId).click()}
+											className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] w-fit cursor-pointer transition-all'
+										>
+											<Upload strokeWidth={3} /> Загрузить видео
+										</button>
+									)}
+
 									<InputDefault
 										title='Загрузить по ссылке'
 										placeholder='https://example.com'

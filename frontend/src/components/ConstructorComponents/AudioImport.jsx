@@ -1,9 +1,9 @@
 import { FileAudio, Trash2, Upload, X } from 'lucide-react'
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import CustomAudioPlayer from '../AudioPlayer'
 import api, { API, FILE_API } from '../../API'
 import { maxAudioSizeInMB } from './Constants'
-import Loader, { AltLoader } from '../Loader'
+import Loader, { AltLoader, Loading } from '../Loader'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 
@@ -31,33 +31,75 @@ export const AudioInput = ({
 
 	const [isFileValid, setIsFileValid] = useState(true)
 
+	const [progress, setProgress] = useState(null)
+
+	const fakeProgressRef = useRef(null)
+
+	const startFakeProgress = () => {
+		if (fakeProgressRef.current) return
+
+		fakeProgressRef.current = setInterval(() => {
+			setProgress(prev => {
+				if (prev >= 99) return prev
+				return prev + 1
+			})
+		}, 1500)
+	}
+
+	const stopFakeProgress = () => {
+		if (fakeProgressRef.current) {
+			clearInterval(fakeProgressRef.current)
+			fakeProgressRef.current = null
+		}
+	}
+
 	const uploadFileToAPI = async fileToUpload => {
 		const file = fileToUpload
 		try {
 			const formData = new FormData()
 			formData.append('file', file)
 
-			const response = await api.post(`${API}/files/`, formData, {
+			const responsePromise = api.post(`${API}/files/`, formData, {
 				withCredentials: true,
 				headers: {
 					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
+				onUploadProgress: progressEvent => {
+					const percent = Math.round(
+						(progressEvent.loaded * 100) / progressEvent.total,
+					)
+
+					// максимум 75%
+					const cappedPercent = Math.round(percent * 0.75)
+					setProgress(cappedPercent)
+				},
 			})
+			// Ждём когда upload закончится (axios завершит отправку тела запроса)
+			responsePromise.then(() => {}) // просто чтобы не было warning
+
+			// Запускаем фейковый прогресс пока сервер думает
+			startFakeProgress()
+
+			const response = await responsePromise
+
+			// Сервер ответил → стопаем фейковый прогресс и ставим 100
+			stopFakeProgress()
+			setProgress(100)
 
 			const result = response.data
-
-			onFileChange?.({
-				file: [
-					{
-						name: fileToUpload?.name,
-						size: fileToUpload?.size,
-						type: fileToUpload?.type,
-					},
-				],
-				fileId: result?.id,
-				fileUrl: `${FILE_API}${result?.file_path}`,
-			})
-
+			setTimeout(() => {
+				onFileChange?.({
+					file: [
+						{
+							name: fileToUpload?.name,
+							size: fileToUpload?.size,
+							type: fileToUpload?.type,
+						},
+					],
+					fileId: result?.id,
+					fileUrl: `${FILE_API}${result?.file_path}`,
+				})
+			}, 500)
 			return result
 		} catch (error) {
 			throw error
@@ -166,8 +208,8 @@ export const AudioInput = ({
 							isDragActive
 								? 'bg-[var(--hero-pale)]'
 								: !isFileValid
-								? 'bg-[var(--hard-lvl-bg)]'
-								: 'bg-[var(--light-gray)]'
+									? 'bg-[var(--hard-lvl-bg)]'
+									: 'bg-[var(--light-gray)]'
 						} rounded-xl transition-all w-full`}
 					>
 						<label
@@ -176,8 +218,8 @@ export const AudioInput = ({
 								isDragActive
 									? 'border-[var(--hero-epta)]'
 									: !isFileValid
-									? 'border-[var(--hard-lvl-text)]'
-									: 'border-[var(--middle)]'
+										? 'border-[var(--hard-lvl-text)]'
+										: 'border-[var(--middle)]'
 							}`}
 							onDragOver={handleDragOver}
 							onDragLeave={handleDragLeave}
@@ -191,8 +233,8 @@ export const AudioInput = ({
 										isDragActive
 											? 'text-[var(--hero-epta)]'
 											: !isFileValid
-											? 'text-[var(--hard-lvl-text)]'
-											: 'text-[var(--middle)]'
+												? 'text-[var(--hard-lvl-text)]'
+												: 'text-[var(--middle)]'
 									}`}
 								/>
 
@@ -201,21 +243,41 @@ export const AudioInput = ({
 										isDragActive
 											? 'bg-[var(--hero-epta)] text-[var(--white)]'
 											: !isFileValid
-											? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
-											: 'bg-[var(--light-middle)] text-[var(--black)]'
+												? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
+												: 'bg-[var(--light-middle)] text-[var(--black)]'
 									} `}
 								>
 									до {maxFileSizeInMB} МБ, только аудиофайлы
 								</p>
 
-								<button
-									className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-									onClick={() => document.getElementById(inputId).click()}
-									type='button'
-								>
-									<Upload strokeWidth={3} />
-									Загрузить аудио
-								</button>
+								{progress !== null ? (
+									<div className='w-full flex flex-col  rounded-lg h-fit overflow-hidden py-[1px]'>
+										<div
+											className={`flex flex-col items-start justify-between p-3 file  w-full`}
+										>
+											<div className='flex gap-3 justify-center w-full'>
+												<p className='text-[var(--black)]'>{progress}%</p>
+												<Loading />
+											</div>
+
+											<div
+												className='bg-[var(--hero-epta)] rounded-full transition-all ease-linear delay-0 duration-750 h-2'
+												style={{ width: `${progress}%` }}
+											></div>
+										</div>
+									</div>
+								) : (
+									<div className='h-fit'>
+										<button
+											className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+											onClick={() => document.getElementById(inputId).click()}
+											type='button'
+										>
+											<Upload strokeWidth={3} />
+											Загрузить аудио
+										</button>
+									</div>
+								)}
 							</div>
 
 							<input
