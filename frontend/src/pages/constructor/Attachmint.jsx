@@ -98,9 +98,7 @@ const ConstructorFileInput = ({
 
 			const responsePromise = api.post(`${API}/files/`, formData, {
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 				onUploadProgress: progressEvent => {
 					const percent = Math.round(
 						(progressEvent.loaded * 100) / progressEvent.total,
@@ -520,9 +518,7 @@ const Attachment = () => {
 			const res = await api.get(`${API}/courses/${courseId}/time`, {
 				params,
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 			})
 
 			setStudents(res.data)
@@ -541,7 +537,6 @@ const Attachment = () => {
 						withCredentials: true,
 						headers: {
 							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
 					},
 				)
@@ -558,7 +553,6 @@ const Attachment = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 

@@ -399,7 +399,6 @@ const StudentsAndGroups = () => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -417,7 +416,6 @@ const StudentsAndGroups = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -436,7 +434,6 @@ const StudentsAndGroups = () => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -457,7 +454,6 @@ const StudentsAndGroups = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -480,7 +476,6 @@ const StudentsAndGroups = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)

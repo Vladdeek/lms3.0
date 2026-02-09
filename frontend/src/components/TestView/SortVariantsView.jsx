@@ -37,7 +37,7 @@ const PairItem = forwardRef(
 			height,
 			length,
 		},
-		ref
+		ref,
 	) => {
 		const isRight = side === 'right'
 
@@ -91,7 +91,7 @@ const PairItem = forwardRef(
 				)}
 			</div>
 		)
-	}
+	},
 )
 
 const SortVariantView = ({ testId, onAnswerSelect, Answered }) => {
@@ -123,7 +123,6 @@ const SortVariantView = ({ testId, onAnswerSelect, Answered }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 
@@ -135,12 +134,12 @@ const SortVariantView = ({ testId, onAnswerSelect, Answered }) => {
 				setLeft_option(
 					data?.student_answer === null
 						? data?.answer_data?.left_options
-						: data?.student_answer?.left_options || []
+						: data?.student_answer?.left_options || [],
 				)
 				setRight_option(
 					data?.student_answer === null
 						? data?.answer_data?.right_options
-						: data?.student_answer?.right_options || []
+						: data?.student_answer?.right_options || [],
 				)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
@@ -155,7 +154,7 @@ const SortVariantView = ({ testId, onAnswerSelect, Answered }) => {
 	// высоты правой колонки
 	useEffect(() => {
 		const newHeights = rightRefs.current.map(ref =>
-			ref ? ref.getBoundingClientRect().height : 0
+			ref ? ref.getBoundingClientRect().height : 0,
 		)
 		setHeights(newHeights)
 	}, [right_option])

@@ -90,7 +90,6 @@ export const FileView = ({ onStatusChange, Files }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 					responseType: 'blob',
 				},

@@ -70,7 +70,7 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 
 	useEffect(() => {
 		console.log(
-			JSON.stringify({ question_id: testId, student_answer: selected })
+			JSON.stringify({ question_id: testId, student_answer: selected }),
 		)
 		selected !== null &&
 			onAnswerSelect({
@@ -97,7 +97,6 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 

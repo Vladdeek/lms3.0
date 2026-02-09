@@ -16,9 +16,24 @@ export { API, FILE_API, WS_API }
 
 import axios from 'axios'
 import { setGlobalError } from './components/Errors'
+import { getCookie } from './TOKEN'
+
 const api = axios.create({
 	withCredentials: true,
 })
+/* 🔥 ДОБАВЛЯЕМ CSRF В КАЖДЫЙ ЗАПРОС */
+api.interceptors.request.use(config => {
+	const csrf = getCookie('csrftoken')
+
+	if (csrf) {
+		config.headers['X-CSRF-TOKEN'] = csrf
+		// если вдруг Django будет ныть — поменяешь на:
+		// config.headers['X-CSRFToken'] = csrf
+	}
+
+	return config
+})
+
 api.interceptors.response.use(
 	r => r,
 	error => {

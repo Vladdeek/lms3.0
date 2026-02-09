@@ -103,7 +103,7 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 	// 		const res = await api.put(`${API}/courses/${courseId}`, formData, {
 	// 			withCredentials: true,
 	// 			headers: {
-	// 				'X-CSRF-TOKEN': getCookie('csrftoken'),
+	//
 	// 			},
 	// 		})
 
@@ -130,7 +130,6 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -210,7 +209,6 @@ const Moderation = ({ role }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 

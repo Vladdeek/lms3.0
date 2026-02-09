@@ -36,7 +36,6 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -65,9 +64,8 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			const data = res.data
@@ -92,9 +90,8 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			const data = res.data

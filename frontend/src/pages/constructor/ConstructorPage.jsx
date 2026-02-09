@@ -70,7 +70,6 @@ const SettingsButton = ({
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 				validateStatus: status => status < 500, // чтобы не выбрасывало ошибки на 4xx
 			})
@@ -102,9 +101,7 @@ const SettingsButton = ({
 		try {
 			const res = await api.put(`${API}/courses/${courseId}`, formData, {
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 			})
 
 			onChange?.('good')
@@ -214,7 +211,6 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -235,7 +231,6 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -407,7 +402,6 @@ const ConstructorPage = ({ role }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 
@@ -526,7 +520,6 @@ const ConstructorPage = ({ role }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -550,9 +543,7 @@ const ConstructorPage = ({ role }) => {
 
 				const { data } = await api.put(`${API}/courses/${courseId}`, formData, {
 					withCredentials: true,
-					headers: {
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
+					headers: {},
 				})
 
 				showMassageFunc('public')

@@ -36,9 +36,7 @@ export const AudioInput = ({
 
 			const response = await api.post(`${API}/files/`, formData, {
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 			})
 
 			const result = response.data

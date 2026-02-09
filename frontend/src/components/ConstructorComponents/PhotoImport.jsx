@@ -148,9 +148,7 @@ export const ConstructorPhotoInput = ({
 
 			const responsePromise = api.post(`${API}/files/`, formData, {
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 				onUploadProgress: progressEvent => {
 					const percent = Math.round(
 						(progressEvent.loaded * 100) / progressEvent.total,
@@ -222,7 +220,6 @@ export const ConstructorPhotoInput = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)

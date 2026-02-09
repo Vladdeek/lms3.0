@@ -37,7 +37,7 @@ const PairItem = forwardRef(
 			height,
 			length,
 		},
-		ref
+		ref,
 	) => {
 		const isRight = side === 'right'
 
@@ -91,7 +91,7 @@ const PairItem = forwardRef(
 				)}
 			</div>
 		)
-	}
+	},
 )
 
 const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
@@ -123,7 +123,6 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 
@@ -147,7 +146,7 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 	// высоты правой колонки
 	useEffect(() => {
 		const newHeights = rightRefs.current.map(ref =>
-			ref ? ref.getBoundingClientRect().height : 0
+			ref ? ref.getBoundingClientRect().height : 0,
 		)
 		setHeights(newHeights)
 	}, [right_option])

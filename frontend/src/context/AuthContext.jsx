@@ -49,7 +49,7 @@
 // 				{
 // 					withCredentials: true,
 // 					headers: {
-// 						'X-CSRF-TOKEN': getCookie('csrftoken'),
+//
 // 					},
 // 				}
 // 			)

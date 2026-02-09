@@ -94,7 +94,6 @@ const Dashboard = () => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 

@@ -110,7 +110,6 @@ const CreateModuleButton = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -236,7 +235,6 @@ const CreateLessonButton = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -425,7 +423,6 @@ const ModuleTitle = ({
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -444,7 +441,6 @@ const ModuleTitle = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -606,7 +602,6 @@ const ModuleContent = ({
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -626,7 +621,6 @@ const ModuleContent = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -1006,6 +1000,8 @@ const ContentView = ({
 	const [questions, setQuestions] = useState([])
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
+	const [removedBlocks, setRemovedBlocks] = useState([])
+	console.log('block:', blocks, '\nremoveBlocks:', removedBlocks)
 
 	const giveId = (index, id) => {
 		setQuestions(prev => {
@@ -1038,8 +1034,15 @@ const ContentView = ({
 
 	const removeBlock = index => {
 		setBlocks(prev => {
+			const removedItem = prev[index] // что удаляем
 			const updated = prev.filter((_, i) => i !== index)
-			onBlocksChange?.(updated)
+
+			// обновляем список удалённых
+			setRemovedBlocks(prevRemoved => [...prevRemoved, removedItem])
+
+			// отдаём наружу оба массива если надо
+			onBlocksChange?.(updated, [...removedBlocks, removedItem])
+
 			return updated
 		})
 	}
@@ -1495,7 +1498,6 @@ const Constructor = ({
 						withCredentials: true,
 						headers: {
 							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
 					},
 				)

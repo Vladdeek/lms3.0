@@ -93,7 +93,6 @@ const OneVariantView = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 
@@ -102,7 +101,7 @@ const OneVariantView = ({
 				setAnswers(data?.question_options || [])
 				setMedia(data?.media)
 				setSelectedName(
-					data?.student_answer === null ? null : data?.student_answer
+					data?.student_answer === null ? null : data?.student_answer,
 				)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)

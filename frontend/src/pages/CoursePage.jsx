@@ -282,7 +282,6 @@ const ContentView = ({
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -306,7 +305,6 @@ const ContentView = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -351,7 +349,6 @@ const ContentView = ({
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 		} catch (error) {
@@ -376,7 +373,6 @@ const ContentView = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -404,7 +400,6 @@ const ContentView = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -717,7 +712,6 @@ export const CourseOverview = ({ moderationCourseId }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 
@@ -745,7 +739,7 @@ export const CourseOverview = ({ moderationCourseId }) => {
 						withCredentials: true,
 						headers: {
 							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'), //хуйня
+							//хуйня
 						},
 					},
 				)

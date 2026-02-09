@@ -397,7 +397,6 @@ const CourseOverview = ({ content }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 
@@ -476,7 +475,6 @@ const ModerationComponent = ({ moderationCourseId }) => {
 						withCredentials: true,
 						headers: {
 							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
 					},
 				)

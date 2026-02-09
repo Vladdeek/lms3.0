@@ -159,9 +159,7 @@ const ActivityStudents = () => {
 			const res = await api.get(`${API}/courses/${courseId}/time`, {
 				params,
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 			})
 
 			setStudents(res.data)
@@ -180,7 +178,6 @@ const ActivityStudents = () => {
 						withCredentials: true,
 						headers: {
 							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': getCookie('csrftoken'),
 						},
 					},
 				)
@@ -197,7 +194,6 @@ const ActivityStudents = () => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				})
 

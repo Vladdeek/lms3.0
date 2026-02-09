@@ -147,9 +147,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 			const res = await api.post(`${API}/courses`, formData, {
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 			})
 
 			onCreate(res.data)
@@ -177,7 +175,6 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -197,7 +194,6 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -265,9 +261,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 				formData,
 				{
 					withCredentials: true,
-					headers: {
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
+					headers: {},
 				},
 			)
 
@@ -649,9 +643,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 		try {
 			const res = await api.post(`${API}/webinar`, formData, {
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 			})
 
 			const data = res.data
@@ -693,9 +685,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 		try {
 			const res = await api.put(`${API}/webinar/${takeinfo.id}`, formData, {
 				withCredentials: true,
-				headers: {
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
-				},
+				headers: {},
 			})
 
 			const data = res.data
@@ -730,9 +720,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 				data,
 				{
 					withCredentials: true,
-					headers: {
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
-					},
+					headers: {},
 				},
 			)
 
@@ -1113,7 +1101,6 @@ const WebinarHistory = ({ isOpen, onClose }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -1128,7 +1115,6 @@ const WebinarHistory = ({ isOpen, onClose }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -1442,7 +1428,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -1459,7 +1444,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -1481,7 +1465,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
 				},
 			)
@@ -1564,7 +1547,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 			setWebinarByIdInfo(res.data)
@@ -1580,7 +1562,6 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 			fetchWebinars()

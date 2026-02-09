@@ -156,30 +156,30 @@ const MoreVariant = ({
 	const handleAnswerChange = (id, text) => {
 		setAnswers(prev =>
 			prev.map(answer =>
-				answer.option_code === id ? { ...answer, name: text } : answer
-			)
+				answer.option_code === id ? { ...answer, name: text } : answer,
+			),
 		)
 	}
 
 	const handleCorrectChange = (id, isCorrect) => {
 		setAnswers(prev =>
 			prev.map(answer =>
-				answer.option_code === id ? { ...answer, correct: isCorrect } : answer
-			)
+				answer.option_code === id ? { ...answer, correct: isCorrect } : answer,
+			),
 		)
 	}
 
 	const handleCheckChange = (id, checked) => {
 		setAnswers(prev =>
 			prev.map(answer =>
-				answer.option_code === id ? { ...answer, checked } : answer
-			)
+				answer.option_code === id ? { ...answer, checked } : answer,
+			),
 		)
 	}
 
 	const handleAddAnswer = () => {
 		const maxId = Math.max(
-			...answers.map(answer => parseInt(answer.option_code))
+			...answers.map(answer => parseInt(answer.option_code)),
 		)
 		const newId = (maxId + 1).toString()
 		setAnswers(prev => [
@@ -207,7 +207,6 @@ const MoreVariant = ({
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': getCookie('csrftoken'),
 				},
 			})
 
@@ -258,9 +257,8 @@ const MoreVariant = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			const data = res.data
@@ -295,9 +293,8 @@ const MoreVariant = ({
 					withCredentials: true,
 					headers: {
 						'Content-Type': 'application/json',
-						'X-CSRF-TOKEN': getCookie('csrftoken'),
 					},
-				}
+				},
 			)
 
 			const data = res.data
