@@ -36,12 +36,46 @@ const FooterLink = ({ to, title, index }) => {
 	)
 }
 
+const AltFooterLink = ({ to, title, index }) => {
+	const isTitle = index === 0
+	const isLast = index === 10
+
+	const textColor =
+		isTitle || isLast
+			? 'text-[var(--black)] font-medium'
+			: 'text-[var(--middle)]'
+	const lineColor =
+		isTitle || isLast ? 'bg-[var(--black)]' : 'bg-[var(--middle)]'
+
+	return (
+		<a
+			href={to}
+			target='_blank'
+			rel='noopener noreferrer'
+			className={`group inline-block cursor-pointer pointer-events-auto ${textColor}`}
+		>
+			<p className='text-end'>
+				{title.split('\n').map((line, i) => (
+					<React.Fragment key={i}>
+						{line}
+						<br />
+					</React.Fragment>
+				))}
+			</p>
+
+			<div
+				className={`${lineColor} h-[1px] w-0 group-hover:w-full transition-all`}
+			/>
+		</a>
+	)
+}
+
 const Footer = () => {
 	const FooterLinks = [
 		[
-			{ title: 'Каталог', to: '/' },
-			{ title: 'Добавление курса', to: '/' },
-			{ title: 'Видео-конференции', to: '/' },
+			{ title: 'Каталог', to: '/catalogs' },
+			{ title: 'Добавление курса', to: '/catalogs/courses' },
+			{ title: 'Видео-конференции', to: '/catalogs/webinars' },
 		],
 		[
 			{ title: 'Проверка заданий', to: '/' },
@@ -53,18 +87,15 @@ const Footer = () => {
 			{ title: 'Студенту', to: '/' },
 			{ title: 'Сотруднику', to: '/' },
 		],
-		[
-			{ title: 'Контакты', to: '/' },
-			{ title: '+7 (990) XXX XX-XX', to: '/' },
-			{ title: 'xxxxxx@email.ru', to: '/' },
-		],
 	]
+
+	const teh = 'Техническая поддержка'
 	return (
 		<footer className='flex flex-col bottom-0 bg-[var(--white)] -mx-10 pt-7 pb-5 px-10 mt-10'>
 			<div className=' grid grid-cols-[1fr_3fr]  gap-5  w-full border-b-1 border-[var(--middle)] mb-3 pb-3'>
 				<div className='flex flex-col gap-5'>
 					<p className='uppercase text-4xl max-xl:text-2xl font-bold text-[var(--black)]'>
-						МелГУ СУО
+						МелГУ СДО
 					</p>
 					<p className='text-sm max-xl:text-xs font-normal text-[var(--middle)]'>
 						Учись, общайся и достигай целей без границ. Доступ к лекциям,
@@ -81,21 +112,29 @@ const Footer = () => {
 					))}
 
 					<div className='flex flex-col gap-4 items-end max-xl:hidden'>
-						<div className='p-3 w-fit rounded-lg bg-[var(--hero-epta)] text-white'>
+						<a
+							href='https://t.me/VersaCRM_bot?start=1'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='p-3 w-fit rounded-lg bg-[var(--hero-epta)] text-white'
+						>
 							<MessageCircleQuestionMark size={24} />
-						</div>
-						<FooterLink title={`Техническая \n поддержка`} index={1} />
+						</a>
+						<AltFooterLink
+							title={`Техническая \n поддержка`}
+							index={1}
+							to={'https://t.me/VersaCRM_bot?start=1'}
+						/>
 						<p className='text-end text-base font-normal text-[var(--middle)]'></p>
 					</div>
 				</div>
 			</div>
 			<div className='flex justify-between items-center'>
 				<div className='flex gap-5'>
-					<p className='font-medium text-[var(--black)]'>МелГУ СУО</p>
+					<p className='font-medium text-[var(--black)]'>МелГУ СДО</p>
 					<FooterLink title={`Все права защищены`} index={10} />
 				</div>
 				<div className='flex gap-5 max-xl:flex-row-reverse items-center'>
-					<FooterLink title={`Техническая поддержка`} index={10} />
 					<FooterLink title={`Политика конфиденциальности`} index={10} />
 				</div>
 			</div>
