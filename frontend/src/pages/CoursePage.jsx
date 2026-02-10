@@ -868,12 +868,12 @@ const CoursePage = ({ moderationCourseId }) => {
 				)}
 			</div>
 			{Files.length !== 0 && (
-				<>
-					<p className='text-[var(--black)] text-center text-xl font-medium'>
+				<div className=''>
+					<p className='text-[var(--black)] text-center text-xl font-medium mb-3'>
 						Прикрепленный материал
 					</p>
-					<FileView Files={Files} haveType={true} />
-				</>
+					<FileView Files={Files} haveType={true} pinedFiles={true} />
+				</div>
 			)}
 		</>
 	)

@@ -59,6 +59,7 @@ export const AltRadioButton = ({
 }) => {
 	return (
 		<label
+			title={title}
 			className={`flex items-center shadow-[var(--shadow)] bg-[var(--white)] gap-2 px-4 py-[9px] h-fit w-fit rounded-xl truncate text-ellipsis cursor-pointer transition-all ${
 				checked
 					? 'text-[var(--hero-epta)]'

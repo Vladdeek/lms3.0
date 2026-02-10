@@ -17,7 +17,7 @@ import api, { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 
-export const FileView = ({ onStatusChange, Files, haveType }) => {
+export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [files, setFiles] = useState(null)
@@ -210,8 +210,10 @@ export const FileView = ({ onStatusChange, Files, haveType }) => {
 	}
 
 	return (
-		<div className='flex gap-2 justify-center'>
-			<div className='w-4/5 lg:w-2/3 flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden shadow-[var(--shadow)]'>
+		<div className='flex gap-2 justify-center w-full'>
+			<div
+				className={`${pinedFiles ? 'w-full' : 'w-4/5 lg:w-2/3'}  flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden shadow-[var(--shadow)]`}
+			>
 				{files?.map((file, index) => (
 					<div
 						key={index}
