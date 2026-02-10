@@ -40,6 +40,7 @@ const ConstructorFileInput = ({
 	onChange,
 	takeValues,
 }) => {
+	const { courseId } = useParams()
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [files, setFiles] = useState(
@@ -67,8 +68,12 @@ const ConstructorFileInput = ({
 	const [progress, setProgress] = useState(null)
 
 	useEffect(() => {
-		progress >= 100 && setProgress(null)
-	}, [files])
+		if (progress >= 100) {
+			const t = setTimeout(() => setProgress(null), 600)
+			return () => clearTimeout(t)
+		}
+	}, [progress])
+
 	const fakeProgressRef = useRef(null)
 
 	const startFakeProgress = () => {
@@ -89,6 +94,31 @@ const ConstructorFileInput = ({
 		}
 	}
 
+	const fetchFiles = async () => {
+		try {
+			const res = await api.get(`${API}/courses/${courseId}/attachments`, {
+				withCredentials: true,
+				headers: {},
+			})
+
+			const result = res.data || []
+
+			const mapped = result.map(file => ({
+				file_path: `${file.file_path}`,
+				name: file.original_name,
+				size: file.file_size,
+				type: file.file_extension,
+				id: file.id,
+			}))
+
+			setFiles(mapped)
+		} catch (e) {}
+	}
+
+	useEffect(() => {
+		fetchFiles()
+	}, [])
+
 	const uploadFileToAPI = async fileToUpload => {
 		try {
 			const formData = new FormData()
@@ -96,48 +126,29 @@ const ConstructorFileInput = ({
 
 			setProgress(0)
 
-			const responsePromise = api.post(`${API}/files/`, formData, {
-				withCredentials: true,
-				headers: {},
-				onUploadProgress: progressEvent => {
-					const percent = Math.round(
-						(progressEvent.loaded * 100) / progressEvent.total,
-					)
-
-					// максимум 75%
-					const cappedPercent = Math.round(percent * 0.75)
-					setProgress(cappedPercent)
-				},
-			})
-
-			// Ждём когда upload закончится (axios завершит отправку тела запроса)
-			responsePromise.then(() => {}) // просто чтобы не было warning
-
-			// Запускаем фейковый прогресс пока сервер думает
 			startFakeProgress()
 
-			const response = await responsePromise
+			const response = await api.post(
+				`${API}/courses/${courseId}/attachments`,
+				formData,
+				{
+					withCredentials: true,
+					onUploadProgress: e => {
+						const percent = Math.round((e.loaded * 100) / e.total)
+						setProgress(Math.round(percent * 0.75))
+					},
+				},
+			)
 
-			// Сервер ответил → стопаем фейковый прогресс и ставим 100
 			stopFakeProgress()
 			setProgress(100)
 
-			const result = response.data
-
 			setTimeout(() => {
-				setFiles(prevUrls => [
-					...prevUrls,
-					{
-						file_path: `${FILE_API}${result?.file_path}`,
-						name: fileToUpload.name,
-						size: fileToUpload.size,
-						type: fileToUpload.type,
-					},
-				])
-			}, 500)
+				fetchFiles()
+			}, 250)
 		} catch (error) {
 			stopFakeProgress()
-			setProgress(0)
+			setProgress(null)
 			throw error
 		}
 	}
@@ -208,13 +219,18 @@ const ConstructorFileInput = ({
 		validateFiles(newFiles)
 	}
 
-	const removeFile = index => {
-		const updatedFiles = files.filter((_, i) => i !== index)
-		setFiles(updatedFiles)
+	const removeFile = (id, path) => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path,
+					id: id,
+				},
+				withCredentials: true,
+			})
 
-		const newStatus = updatedFiles.length > 0
-		setInputStatus(newStatus)
-		onStatusChange?.(newStatus)
+			fetchFiles()
+		} catch (error) {}
 	}
 
 	const formatFileSize = bytes => {
@@ -226,7 +242,7 @@ const ConstructorFileInput = ({
 	}
 
 	const getFileIcon = file => {
-		const lowerType = file.split('.').pop().toLowerCase()
+		const lowerType = file
 		const formatMap = {
 			image: {
 				formats: [
@@ -327,7 +343,7 @@ const ConstructorFileInput = ({
 								} w-full`}
 							>
 								<div className='flex items-center gap-2 text-[var(--black)]'>
-									{getFileIcon(file?.name)}
+									{getFileIcon(file?.type)}
 									<div>
 										<p className='text-sm font-medium truncate w-full'>
 											{file?.name}
@@ -338,15 +354,9 @@ const ConstructorFileInput = ({
 									</div>
 								</div>
 								<div className='flex gap-3'>
-									{/* <button
-										className={`cursor-pointer hover:bg-[var(--light-middle)] rounded-lg p-1 w-auto aspect-square transition-all ${isShow && 'rotate-x-180'}`}
-										onClick={() => setIsShow(prev => !prev)}
-									>
-										{isShow ? <Eye size={20} /> : <EyeClosed size={20} />}
-									</button> */}
 									<Trash2
 										size={20}
-										onClick={() => removeFile(index)}
+										onClick={() => removeFile(file.id, file.file_path)}
 										className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
 									/>
 								</div>
@@ -579,4 +589,5 @@ const Attachment = () => {
 		</div>
 	)
 }
+
 export default Attachment

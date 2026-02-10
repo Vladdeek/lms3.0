@@ -827,9 +827,38 @@ const CoursePage = ({ moderationCourseId }) => {
 	const { courseId, SectionId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
+	const [Files, setFiles] = useState([])
+
+	const fetchFiles = async () => {
+		try {
+			const res = await api.get(`${API}/courses/${courseId}/attachments`, {
+				withCredentials: true,
+				headers: {},
+			})
+
+			const result = res.data || []
+
+			const mapped = result.map(file => ({
+				file_path: `${file.file_path}`,
+				name: file.original_name,
+				size: file.file_size,
+				type: file.file_extension,
+				id: file.id,
+			}))
+
+			setFiles(mapped)
+		} catch (e) {}
+	}
+
+	useEffect(() => {
+		fetchFiles()
+	}, [])
+
 	return (
 		<>
-			<div className='flex flex-col gap-5 h-[73vh] mb-20'>
+			<div
+				className={`flex flex-col gap-5 h-[73vh] ${Files.length === 0 ? 'mb-20' : 'mb-12'} `}
+			>
 				<div className='flex justify-between items-center mt-10'></div>
 
 				{SectionId ? (
@@ -838,6 +867,14 @@ const CoursePage = ({ moderationCourseId }) => {
 					<CourseOverview moderationCourseId={moderationCourseId} />
 				)}
 			</div>
+			{Files.length !== 0 && (
+				<>
+					<p className='text-[var(--black)] text-center text-xl font-medium'>
+						Прикрепленный материал
+					</p>
+					<FileView Files={Files} haveType={true} />
+				</>
+			)}
 		</>
 	)
 }

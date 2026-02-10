@@ -17,7 +17,7 @@ import api, { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 
-export const FileView = ({ onStatusChange, Files }) => {
+export const FileView = ({ onStatusChange, Files, haveType }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [files, setFiles] = useState(null)
@@ -125,7 +125,7 @@ export const FileView = ({ onStatusChange, Files }) => {
 	}
 
 	const getFileIcon = file => {
-		const lowerType = file.split('.').pop().toLowerCase()
+		const lowerType = haveType ? file : file.split('.').pop().toLowerCase()
 		const formatMap = {
 			image: {
 				formats: [
@@ -211,16 +211,16 @@ export const FileView = ({ onStatusChange, Files }) => {
 
 	return (
 		<div className='flex gap-2 justify-center'>
-			<div className='w-4/5 lg:w-2/3 flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden py-[1px]'>
+			<div className='w-4/5 lg:w-2/3 flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden shadow-[var(--shadow)]'>
 				{files?.map((file, index) => (
 					<div
 						key={index}
-						className={`flex items-center justify-between p-3 file ${
+						className={`flex items-center justify-between  p-3 file ${
 							index % 2 === 0 ? 'bg-[var(--white)]' : 'bg-[var(--light-gray)]'
 						} w-full`}
 					>
 						<div className='flex items-center gap-2'>
-							{getFileIcon(file.name)}
+							{getFileIcon(haveType ? file.type : file.name)}
 							<div>
 								<p className='text-sm font-medium truncate text-[var(--black)] w-full'>
 									{file.name}
