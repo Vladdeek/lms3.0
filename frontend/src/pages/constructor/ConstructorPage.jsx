@@ -138,7 +138,7 @@ const SettingsButton = ({
 						photoUrl={`${FILE_API}${image}`}
 						onFileChange={file => setImage(file)}
 					/>
-					<FileInputDocument title={'Прикрепить файл'} />
+
 					<div className='flex gap-3 w-full'>
 						<Button
 							title={'Удалить курс'}
