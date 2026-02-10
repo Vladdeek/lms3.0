@@ -369,6 +369,7 @@ const ModuleTitle = ({
 	onToggle,
 	moduleId,
 	onRemoveModule,
+	children,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
 	const [editModeActive, setEditModeActive] = useState(false)
@@ -485,55 +486,89 @@ const ModuleTitle = ({
 					</div>
 				</div>
 			)}
-			<div className='flex justify-between items-center relative'>
-				<div className='flex gap-3 text-[var(--middle)] items-center'>
-					<div className='flex items-center gap-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-xl px-3 py-2 text-[var(--black)]'>
-						<Package size={20} />
-						<p className='font-medium text-base whitespace-nowrap'>
-							Модуль {index}
-						</p>
+			<div className='flex flex-col items-center bg-[var(--white)] rounded-xl shadow-[var(--shadow)] pb-1'>
+				<div className='flex flex-col w-full text-[var(--middle)]'>
+					{/* HEADER */}
+					<div className='flex justify-between items-center gap-1 w-full pt-0.5 pr-1'>
+						<div className='flex items-center w-full gap-2 px-3 pt-1 pb-1 text-[var(--black)]'>
+							<Package size={20} />
+							<p className='font-medium pt-1 text-base whitespace-nowrap'>
+								Модуль {index}
+							</p>
+						</div>
+
+						<EllipsisButton
+							options={options}
+							onOptionClick={opt => opt.action(sectionId)}
+							active={true}
+						/>
 					</div>
-					<p className='font-bold text-base'>/</p>
-					{editModeActive ? (
-						<form
-							action={() => handleEditName(moduleId)}
-							className='min-[2275px]:w-full min-[2100px]:w-1/2 w-1/3 flex bg-[var(--white)] pr-1 pl-2 py-1 rounded-md ring-1 focus-within:text-[var(--black)] focus-within:ring-3 transition-all ring-[var(--hero-epta)]'
-						>
-							<input
-								type='text'
-								value={changedValue}
-								className='w-full outline-none focus-within:'
-								onChange={e => setChangedValue(e.target.value)}
-							/>
-							<button
-								type='submit'
-								className='text-[var(--black)] hover:text-[var(--green-status-text)] hover:bg-[var(--green-status-bg)] px-1  rounded-sm cursor-pointer transition-all'
+
+					{/* NAME */}
+					<div className='px-3'>
+						{editModeActive ? (
+							<form
+								action={() => handleEditName(moduleId)}
+								className='
+            flex bg-[var(--white)]
+            pr-1 pl-2 py-1 rounded-md
+            ring-1 ring-[var(--hero-epta)]
+            focus-within:ring-3 focus-within:text-[var(--black)]
+            transition-all
+            w-1/3 min-[2100px]:w-1/2 min-[2275px]:w-full
+          '
 							>
-								<Check size={20} />
-							</button>
-						</form>
-					) : (
-						<p
-							title={changedValue}
-							className={`font-normal truncate text-base`}
-						>
-							{changedValue}
-						</p>
-					)}
+								<input
+									type='text'
+									value={changedValue}
+									onChange={e => setChangedValue(e.target.value)}
+									className='w-full outline-none'
+								/>
+
+								<button
+									type='submit'
+									className='
+              text-[var(--black)]
+              hover:text-[var(--green-status-text)]
+              hover:bg-[var(--green-status-bg)]
+              px-1 rounded-sm cursor-pointer transition-all
+            '
+								>
+									<Check size={20} />
+								</button>
+							</form>
+						) : (
+							<p
+								title={changedValue}
+								className='font-normal text-base truncate'
+							>
+								{changedValue}
+							</p>
+						)}
+					</div>
 				</div>
-				<div className='flex gap-3 absolute right-0 z-1000'>
-					<Button
-						icon={isExpanded ? ChevronUp : ChevronDown}
-						style='white'
-						size={32}
-						onClick={onToggle}
+
+				{/* CHILDREN */}
+				{isExpanded && (
+					<div className='flex flex-col gap-2 p-2 w-full'>{children}</div>
+				)}
+				<button
+					onClick={() => onToggle()}
+					className='
+          w-auto h-full p-1.5 aspect-square
+          hover:bg-[var(--light-middle)]
+          rounded-lg cursor-pointer
+          text-[var(--black)] transition-all
+        '
+				>
+					<ChevronUp
+						className={`
+  ${!isExpanded ? 'rotate-x-180' : ''}
+  transition-all duration-500
+`}
+						size={18}
 					/>
-					<EllipsisButton
-						options={options}
-						onOptionClick={options => options.action(sectionId)}
-						bg={true}
-					/>
-				</div>
+				</button>
 			</div>
 		</>
 	)
@@ -571,6 +606,27 @@ const ModuleContent = ({
 			document.body.style.overflow = ''
 		}
 	}, [deleteModalActive])
+
+	const isSelected = selectedSectionId === sectionId
+	const activeNoBg = isSelected && !bg
+
+	const wrapperClass = `
+  flex justify-between items-center
+  rounded-lg relative transition-all
+  p-1 cursor-default w-full border-[var(--hero-epta)]
+  ${
+		activeNoBg
+			? 'border-l-3  text-[var(--black)] shadow-[var(--shadow)]'
+			: 'hover:bg-[var(--light-middle)] bg-[var(--white)] shadow-[var(--shadow)] cursor-pointer'
+	}
+`
+
+	const columnTextColor = activeNoBg
+		? 'text-[var(--middle)]'
+		: 'text-[var(--middle)]'
+	const headerTextColor = activeNoBg
+		? 'text-[var(--black)]'
+		: 'text-[var(--black)]'
 
 	const options = [
 		{
@@ -666,82 +722,76 @@ const ModuleContent = ({
 					</div>
 				</div>
 			)}
-			<div
-				onClick={selectedSectionId !== sectionId && onClick}
-				className={`flex justify-between items-center ${
-					!bg && selectedSectionId === sectionId
-						? 'bg-[var(--hero-epta)] shadow-[var(--shadow)]'
-						: 'hover:bg-[var(--light-middle)] cursor-pointer '
-				} rounded-lg cursor-default relative  transition-all  pl-3 pr-1.25`}
-			>
+			<div onClick={isSelected ? undefined : onClick} className={wrapperClass}>
 				<div
-					className={`flex gap-3 min-w-0  ${
-						selectedSectionId === sectionId && !bg
-							? 'text-white'
-							: 'text-[var(--middle)]'
-					}  items-center`}
+					className={`flex flex-col gap-1 w-full rounded-xl ${columnTextColor}`}
 				>
-					<div
-						className={`flex items-center gap-4 ${
-							selectedSectionId === sectionId && !bg
-								? 'text-white'
-								: 'text-[var(--black)]'
-						}  px-3 py-2 rounded-lg ${
-							bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
-						}`}
-					>
-						{type === 'lecture' ? (
-							<BookMarked size={20} />
-						) : type === 'practice' ? (
-							<NotebookPen size={20} />
-						) : (
-							type === 'test' && <LaptopMinimalCheck size={20} />
-						)}
-						<p className='font-medium text-base whitespace-nowrap'>
-							{type === 'lecture'
-								? 'Лекция'
-								: type === 'practice'
-									? 'Практика'
-									: type === 'test' && 'Тест'}
-							{index}
-						</p>
-					</div>
-					<p className='font-bold text-base'>/</p>
-					{editModeActive ? (
-						<form
-							action={() => handleEditName(sectionId)}
-							className='w-full flex bg-[var(--white)] pr-1 pl-2 py-1 rounded-md'
+					{/* HEADER */}
+					<div className='flex justify-between pt-0.5 w-full pr-0.5'>
+						<div
+							className={`
+          flex items-center gap-2 w-full
+          px-2 rounded-lg
+          ${headerTextColor}
+          ${bg ? 'bg-[var(--white)] shadow-[var(--shadow)]' : ''}
+        `}
 						>
-							<input
-								type='text'
-								value={changedValue}
-								className='w-full outline-none'
-								onChange={e => setChangedValue(e.target.value)}
+							{type === 'lecture' && <BookMarked size={20} />}
+							{type === 'practice' && <NotebookPen size={20} />}
+							{type === 'test' && <LaptopMinimalCheck size={20} />}
+
+							<p className='font-medium pt-1 text-base whitespace-nowrap truncate min-w-0'>
+								{type === 'lecture' && 'Лекция'}
+								{type === 'practice' && 'Практика'}
+								{type === 'test' && 'Тест'}
+							</p>
+						</div>
+
+						{!bg && (
+							<EllipsisButton
+								options={options}
+								onOptionClick={opt => opt.action(sectionId)}
+								active={isSelected}
 							/>
-							<button
-								type='submit'
-								className='text-[var(--black)] hover:text-[var(--green-status-text)] hover:bg-[var(--green-status-bg)] px-1  rounded-sm cursor-pointer transition-all'
+						)}
+					</div>
+
+					{/* NAME */}
+					<div className='w-full'>
+						{editModeActive ? (
+							<form
+								action={() => handleEditName(sectionId)}
+								className='w-full flex bg-[var(--white)] text-[var(--black)] pr-1 pl-2 py-1 rounded-md'
 							>
-								<Check size={20} />
-							</button>
-						</form>
-					) : (
-						<p
-							title={changedValue}
-							className={`font-normal truncate ${bg ? 'text-base' : 'text-sm'}`}
-						>
-							{changedValue}
-						</p>
-					)}
+								<input
+									type='text'
+									value={changedValue}
+									onChange={e => setChangedValue(e.target.value)}
+									className='w-full outline-none'
+								/>
+
+								<button
+									type='submit'
+									className='
+            text-[var(--black)]
+            hover:text-[var(--green-status-text)]
+            hover:bg-[var(--green-status-bg)]
+            px-1 rounded-sm cursor-pointer transition-all
+          '
+								>
+									<Check size={20} />
+								</button>
+							</form>
+						) : (
+							<p
+								title={changedValue}
+								className={`font-normal w-full whitespace-normal px-2 ${bg ? 'text-base' : 'text-sm'}`}
+							>
+								{changedValue}
+							</p>
+						)}
+					</div>
 				</div>
-				{!bg && (
-					<EllipsisButton
-						options={options}
-						onOptionClick={options => options.action(sectionId)}
-						bg={false}
-						active={selectedSectionId === sectionId}
-					/>
-				)}
 			</div>
 		</>
 	)
@@ -793,54 +843,49 @@ const ModuleBlock = ({
 										isExpanded={isExpanded}
 										onToggle={() => toggleModule(index)}
 										onRemoveModule={deleteModule}
-									/>
-									{isExpanded && module.module_sections && (
-										<div>
-											<div className='mb-2 flex flex-col gap-1'>
-												{module.module_sections.map((section, sectionIndex) => {
-													return (
-														<motion.div
-															key={section.id}
-															initial={{ scale: 0.8, opacity: 0 }}
-															animate={{ scale: 1, opacity: 1 }}
-															transition={{
-																duration: 0.3,
-																delay: sectionIndex * 0.1,
-																ease: 'easeOut',
-															}}
-														>
-															<ModuleContent
-																title={section.title}
-																type={section.type}
-																sectionId={section.id}
-																onClick={() => onContentSelect(section)}
-																isSelected={selectedContent?.id === section.id}
-																onRemoveLesson={deleteSection}
-																selectedSectionId={sectionId}
-															/>
-														</motion.div>
-													)
-												})}
-											</div>
-											<motion.div
-												key={module.module_sections.length + 1}
-												initial={{ scale: 0.8, opacity: 0 }}
-												animate={{ scale: 1, opacity: 1 }}
-												transition={{
-													duration: 0.3,
-													delay: module.module_sections.length * 0.1,
-													ease: 'easeOut',
-												}}
-											>
-												<CreateLessonButton
-													moduleId={module.id}
-													onAddLesson={onAddLesson}
-													onReplaceLesson={onReplaceLesson}
-													onRemoveLesson={onRemoveLesson}
-												/>
-											</motion.div>
-										</div>
-									)}
+									>
+										{module.module_sections.map((section, sectionIndex) => {
+											return (
+												<motion.div
+													key={section.id}
+													initial={{ scale: 0.8, opacity: 0 }}
+													animate={{ scale: 1, opacity: 1 }}
+													transition={{
+														duration: 0.3,
+														delay: sectionIndex * 0.1,
+														ease: 'easeOut',
+													}}
+												>
+													<ModuleContent
+														title={section.title}
+														type={section.type}
+														sectionId={section.id}
+														onClick={() => onContentSelect(section)}
+														isSelected={selectedContent?.id === section.id}
+														onRemoveLesson={deleteSection}
+														selectedSectionId={sectionId}
+													/>
+												</motion.div>
+											)
+										})}
+										<motion.div
+											key={module.module_sections.length + 1}
+											initial={{ scale: 0.8, opacity: 0 }}
+											animate={{ scale: 1, opacity: 1 }}
+											transition={{
+												duration: 0.3,
+												delay: module.module_sections.length * 0.1,
+												ease: 'easeOut',
+											}}
+										>
+											<CreateLessonButton
+												moduleId={module.id}
+												onAddLesson={onAddLesson}
+												onReplaceLesson={onReplaceLesson}
+												onRemoveLesson={onRemoveLesson}
+											/>
+										</motion.div>
+									</ModuleTitle>
 								</div>
 							</motion.div>
 						)
@@ -1034,13 +1079,8 @@ const ContentView = ({
 
 	const removeBlock = index => {
 		setBlocks(prev => {
-			const removedItem = prev[index] // что удаляем
 			const updated = prev.filter((_, i) => i !== index)
 
-			// обновляем список удалённых
-			setRemovedBlocks(prevRemoved => [...prevRemoved, removedItem])
-
-			// отдаём наружу оба массива если надо
 			onBlocksChange?.(updated, [...removedBlocks, removedItem])
 
 			return updated
@@ -1079,7 +1119,7 @@ const ContentView = ({
 		<div className='h-fit overflow-y-scroll hide-scrollbar hide-scrollbar'>
 			<div className=' flex flex-col gap-3 rounded-xl p-2'>
 				<div className='flex gap-3 items-center'>
-					<div className='[1200px]:hidden'>
+					<div className='min-[1200px]:hidden'>
 						<Button
 							icon={ArrowLeftFromLine}
 							style='white'
@@ -1088,7 +1128,28 @@ const ContentView = ({
 						/>
 					</div>
 
-					<ModuleContent bg={true} type={SectionType} title={SectionName} />
+					<div className='flex gap-2 items-center w-full'>
+						<div
+							className={`
+          flex items-center gap-2 w-fit
+          px-2 py-1.5 rounded-lg
+          text-[var(--black)]
+         bg-[var(--white)] shadow-[var(--shadow)]
+        `}
+						>
+							{SectionType === 'lecture' && <BookMarked size={20} />}
+							{SectionType === 'practice' && <NotebookPen size={20} />}
+							{SectionType === 'test' && <LaptopMinimalCheck size={20} />}
+
+							<p className='font-medium pt-1 text-base whitespace-nowrap truncate min-w-0'>
+								{SectionType === 'lecture' && 'Лекция'}
+								{SectionType === 'practice' && 'Практика'}
+								{SectionType === 'test' && 'Тест'}
+							</p>
+						</div>
+						<p className='text-[var(--middle)] text-xl'>/</p>
+						<p className='text-[var(--black)] text-lg w-full'>{SectionName}</p>
+					</div>
 				</div>
 
 				{SectionType === 'test' ? (
@@ -1549,7 +1610,7 @@ const Constructor = ({
 							</div> */}
 						</div>
 
-						<div className='flex flex-col gap-3 rounded-xl p-2'>
+						<div className='flex flex-col gap-3 rounded-xl'>
 							<ModuleBlock
 								ModuleInfo={content?.modules}
 								onContentSelect={handleContentSelect}

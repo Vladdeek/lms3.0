@@ -398,7 +398,7 @@ export const EllipsisButton = ({ options, onOptionClick, bg, active }) => {
 				className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer $  p-[6px] ${
 					bg
 						? `bg-[var(--white)] shadow-[var(--shadow)] ${active ? 'text-white' : 'text-[var(--black)]'}`
-						: `bg-transparent hover:bg-[var(--white)] hover:text-[var(--black)] ${active ? 'text-white hover:text-[var(--black)]' : 'text-[var(--black)]'}`
+						: `bg-transparent  text-[var(--black)] hover:text-[var(--black)] ${active ? 'hover:text-[var(--black)] hover:bg-[var(--light-middle)]' : 'text-[var(--black)] hover:bg-[var(--white)]'}`
 				} `}
 				aria-label='Дополнительные опции'
 			>
@@ -407,11 +407,9 @@ export const EllipsisButton = ({ options, onOptionClick, bg, active }) => {
 
 			{isOpen && (
 				<div
-					ref={menuRef}
-					className='fixed bg-[var(--white)] rounded-lg z-[9999] shadow-[var(--shadow)] min-w-[150px] transition-opacity duration-200'
+					className='absolute top-9 right-0 bg-[var(--white)] rounded-lg z-[10] shadow-[var(--shadow)] min-w-[150px] transition-opacity duration-200'
 					style={{
 						opacity: isVisible ? 1 : 0,
-						pointerEvents: isVisible ? 'auto' : 'none',
 					}}
 				>
 					{options.map((item, index) => (
