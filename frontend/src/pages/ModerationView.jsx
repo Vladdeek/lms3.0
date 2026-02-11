@@ -165,6 +165,8 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 		})
 	}, [selectedContent, ModuleInfo])
 
+	const [selectedContentId, setSelectedContentId] = useState(null)
+
 	return (
 		<div className='h-fit overflow-y-scroll hide-scrollbar p-2'>
 			<div className='flex flex-col gap-3 rounded-xl'>
@@ -179,16 +181,17 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 							isExpanded={isExpanded}
 							onToggle={() => toggleModule(index)}
 						>
-							{module.module_sections?.map(lesson => (
+							{module.module_sections?.map((lesson, idx) => (
 								<ModuleContent
 									key={lesson.id}
 									title={lesson.title}
 									type={lesson.type}
 									isLocked={lesson.locked}
-									isSelected={selectedContent?.id === lesson.id}
-									onClick={() =>
+									isSelected={selectedContentId === idx}
+									onClick={() => {
 										onContentSelect(lesson.id, lesson.type, lesson.title)
-									}
+										setSelectedContentId(idx)
+									}}
 								/>
 							))}
 						</ModuleTitle>
