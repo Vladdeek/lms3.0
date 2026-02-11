@@ -247,8 +247,8 @@ const Moderation = ({ role }) => {
 			<div className='w-full h-[85vh] mt-10 xl:grid xl:grid-cols-[1fr_4fr] gap-5 '>
 				<div
 					className={`
-    w-full bg-[var(--white)] rounded-2xl
-    flex flex-col items-center gap-3
+    w-full h-full bg-[var(--white)] rounded-2xl
+    flex flex-col items-center gap-3 shadow-[var(--shadow)]
     overflow-y-scroll hide-scrollbar p-4
     ${active !== null ? 'hidden xl:flex' : 'flex'}
   `}
@@ -283,7 +283,7 @@ const Moderation = ({ role }) => {
 					className={`
     w-full h-full bg-[var(--white)] rounded-2xl px-4
     flex flex-col min-h-0
-    items-center justify-center
+    items-center justify-center shadow-[var(--shadow)]
     ${active === null ? 'hidden xl:flex' : 'flex'}
   `}
 				>
@@ -294,7 +294,7 @@ const Moderation = ({ role }) => {
 							<div className='absolute top-4 w-full flex justify-between'>
 								<button
 									onClick={() => setActive(null)}
-									className='font-medium min-xl:opacity-0 rounded-lg bg-[var(--white)] text-[var(--black)] w-fit px-5 py-2 hover:text-white cursor-pointer transition-all active:scale-97'
+									className='font-medium min-xl:opacity-0 rounded-lg bg-[var(--white)] text-[var(--black)] w-fit px-5 py-2 hover:bg-[var(--light-middle)]  cursor-pointer transition-all active:scale-97'
 								>
 									<ArrowLeft />
 								</button>
