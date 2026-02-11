@@ -244,7 +244,7 @@ const Moderation = ({ role }) => {
 				onClose={() => setModalOpen(false)}
 				onChange={() => setStatus()}
 			/>
-			<div className='w-full h-[80vh] mt-10 xl:grid xl:grid-cols-[1fr_4fr] gap-5'>
+			<div className='w-full h-[85vh] mt-10 xl:grid xl:grid-cols-[1fr_4fr] gap-5 '>
 				<div
 					className={`
     w-full bg-[var(--white)] rounded-2xl
@@ -281,7 +281,8 @@ const Moderation = ({ role }) => {
 				</div>
 				<div
 					className={`
-    w-full h-full bg-[var(--white)] rounded-2xl
+    w-full h-full bg-[var(--white)] rounded-2xl px-4
+    flex flex-col min-h-0
     items-center justify-center
     ${active === null ? 'hidden xl:flex' : 'flex'}
   `}
@@ -289,7 +290,7 @@ const Moderation = ({ role }) => {
 					{active === null ? (
 						<p className='text-xl text-[var(--middle)]'>Выберите курс</p>
 					) : (
-						<div className='relative w-full h-full mx-5 flex flex-col gap-5 '>
+						<div className='relative w-full mx-5 h-full flex flex-col gap-5 '>
 							<div className='absolute top-4 w-full flex justify-between'>
 								<button
 									onClick={() => setActive(null)}
@@ -305,7 +306,7 @@ const Moderation = ({ role }) => {
 								</button>
 							</div>
 
-							<div className='mt-1'>
+							<div className='mt-1 flex-1 mb-4'>
 								<ModerationComponent moderationCourseId={courses[active]?.id} />
 							</div>
 						</div>

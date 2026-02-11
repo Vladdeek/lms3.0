@@ -56,81 +56,82 @@ import SortVariantModerationView from '../components/TestModerationView/SortVari
 import OpenQuestionModerationView from '../components/TestModerationView/OpenQuestionModertionView'
 import { setGlobalError } from '../components/Errors'
 
-const ModuleTitle = ({ title, index, isExpanded, onToggle }) => {
-	const options = [
-		{
-			title: 'Переместить вверх',
-			icon: <ChevronsUp size={20} />,
-			action: 'up',
-		},
-		{
-			title: 'Переместить вниз',
-			icon: <ChevronsDown size={20} />,
-			action: 'down',
-		},
-		{ title: 'Дублировать', icon: <Copy size={20} />, action: 'copy' },
-		{ title: 'Удалить', icon: <Trash size={20} />, action: 'del' },
-	]
+const ModuleTitle = ({ title, index, isExpanded, onToggle, children }) => {
 	return (
-		<div className='flex justify-between items-center'>
-			<div className='flex gap-3 text-[var(--middle)] items-center'>
-				<div className='flex items-center gap-4 bg-[var(--white)] shadow-[var(--shadow)] rounded-xl px-3 py-2 text-[var(--black)]'>
-					<Package size={20} />
-					<p className='font-medium text-base whitespace-nowrap'>
-						Модуль {index}
+		<div className='flex flex-col items-center bg-[var(--white)] rounded-xl shadow-[var(--shadow)] pb-1'>
+			<div className='flex flex-col w-full text-[var(--middle)]'>
+				{/* HEADER */}
+				<div className='flex justify-between items-center gap-1 w-full pt-0.5 pr-1'>
+					<div className='flex items-center w-full gap-2 px-3 pt-1 pb-1 text-[var(--black)]'>
+						<Package size={20} />
+						<p className='font-medium pt-1 text-base whitespace-nowrap'>
+							Модуль {index}
+						</p>
+					</div>
+				</div>
+
+				{/* NAME */}
+				<div className='px-3'>
+					<p title={title} className='font-normal text-base truncate'>
+						{title}
 					</p>
 				</div>
-				<p className='font-bold text-base'>/</p>
-				<p className='font-normal text-base'>{title}</p>
 			</div>
-			<div className='flex gap-3'>
-				<Button
-					icon={isExpanded ? ChevronUp : ChevronDown}
-					style='white'
-					size={32}
-					onClick={onToggle}
+
+			{/* CHILDREN */}
+			{isExpanded && (
+				<div className='flex flex-col gap-2 p-2 w-full'>{children}</div>
+			)}
+
+			<button
+				onClick={onToggle}
+				className='w-auto h-full p-1.5 aspect-square hover:bg-[var(--light-middle)] rounded-lg cursor-pointer text-[var(--black)] transition-all'
+			>
+				<ChevronUp
+					className={`${!isExpanded ? 'rotate-x-180' : ''} transition-all duration-500`}
+					size={18}
 				/>
-			</div>
+			</button>
 		</div>
 	)
 }
 
-const ModuleContent = ({ type, index, title, bg, onClick, isLocked }) => {
+const ModuleContent = ({ type, title, onClick, isLocked, isSelected }) => {
+	const wrapperClass = `
+    flex justify-between items-center
+    rounded-lg relative transition-all
+    p-1 w-full border-[var(--hero-epta)]
+    ${
+			isLocked
+				? 'opacity-50 cursor-not-allowed'
+				: isSelected
+					? 'border-l-4 shadow-[var(--shadow)] bg-[var(--white)]'
+					: 'hover:bg-[var(--light-middle)] bg-[var(--white)] shadow-[var(--shadow)] cursor-pointer'
+		}
+  `
+
 	return (
-		<div
-			onClick={!isLocked && onClick}
-			className={`flex justify-between items-center ${
-				!bg && isLocked
-					? 'px-3 opacity-50 cursor-not-allowed'
-					: 'hover:bg-[var(--light-middle)] cursor-pointer px-3'
-			} rounded-lg cursor-default  transition-all  `}
-		>
-			<div className='flex gap-3 text-[var(--middle)] items-center'>
-				<div
-					className={`flex items-center gap-4 text-[var(--black)] px-3 py-2 rounded-lg ${
-						bg && 'bg-[var(--white)] shadow-[var(--shadow)]'
-					}`}
-				>
-					{type === 'lecture' ? (
-						<BookMarked size={20} />
-					) : type === 'practice' ? (
-						<NotebookPen size={20} />
-					) : (
-						type === 'test' && <LaptopMinimalCheck size={20} />
-					)}
-					<p className='font-medium text-base whitespace-nowrap'>
-						{type === 'lecture'
-							? 'Лекция'
-							: type === 'practice'
-								? 'Практика'
-								: type === 'test' && 'Тест'}
-						{index}
+		<div onClick={!isLocked ? onClick : undefined} className={wrapperClass}>
+			<div className='flex flex-col gap-1 w-full rounded-xl text-[var(--middle)]'>
+				<div className='flex justify-between pt-0.5 w-full pr-0.5'>
+					<div className='flex items-center gap-2 w-full px-2 rounded-lg text-[var(--black)]'>
+						{type === 'lecture' && <BookMarked size={20} />}
+						{type === 'practice' && <NotebookPen size={20} />}
+						{type === 'test' && <LaptopMinimalCheck size={20} />}
+
+						<p className='font-medium pt-1 text-base whitespace-nowrap'>
+							{type === 'lecture' && 'Лекция'}
+							{type === 'practice' && 'Практика'}
+							{type === 'test' && 'Тест'}
+						</p>
+					</div>
+				</div>
+
+				<div className='w-full'>
+					<p className='font-normal w-full whitespace-normal px-2 text-sm'>
+						{title}
 					</p>
 				</div>
-				<p className='font-bold text-base'>/</p>
-				<p className={`font-normal  ${bg ? 'text-base' : 'text-sm w-3/5'}`}>
-					{title}
-				</p>
 			</div>
 		</div>
 	)
@@ -146,45 +147,51 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 		}))
 	}
 
+	// авто раскрытие модуля при выборе урока
+	useEffect(() => {
+		if (!selectedContent) return
+
+		ModuleInfo?.forEach((module, moduleIndex) => {
+			const hasSelectedLesson = module.module_sections?.some(
+				lesson => lesson.id === selectedContent.id,
+			)
+
+			if (hasSelectedLesson) {
+				setExpandedModules(prev => ({
+					...prev,
+					[moduleIndex]: true,
+				}))
+			}
+		})
+	}, [selectedContent, ModuleInfo])
+
 	return (
-		<div className='h-fit overflow-y-scroll hide-scrollbar hide-scrollbar p-2'>
-			<div className=' flex flex-col gap-3 rounded-xl'>
-				{ModuleInfo?.map((item, index) => {
+		<div className='h-fit overflow-y-scroll hide-scrollbar p-2'>
+			<div className='flex flex-col gap-3 rounded-xl'>
+				{ModuleInfo?.map((module, index) => {
 					const isExpanded = expandedModules[index] === true
 
 					return (
-						<div key={index} className='flex flex-col gap-3'>
-							<ModuleTitle
-								title={item.name}
-								index={index + 1}
-								isExpanded={isExpanded}
-								onToggle={() => toggleModule(index)}
-							/>
-							{isExpanded && (
-								<>
-									<div className=''>
-										{item?.module_sections?.map((lesson, lessonIndex) => {
-											return (
-												<ModuleContent
-													key={lesson?.id}
-													title={lesson?.title}
-													type={lesson?.type}
-													onClick={() =>
-														onContentSelect(
-															lesson?.id,
-															lesson?.type,
-															lesson?.title,
-														)
-													}
-													isSelected={selectedContent?.id === lesson?.id}
-													isLocked={lesson?.locked}
-												/>
-											)
-										})}
-									</div>
-								</>
-							)}
-						</div>
+						<ModuleTitle
+							key={module.id}
+							title={module.name}
+							index={index + 1}
+							isExpanded={isExpanded}
+							onToggle={() => toggleModule(index)}
+						>
+							{module.module_sections?.map(lesson => (
+								<ModuleContent
+									key={lesson.id}
+									title={lesson.title}
+									type={lesson.type}
+									isLocked={lesson.locked}
+									isSelected={selectedContent?.id === lesson.id}
+									onClick={() =>
+										onContentSelect(lesson.id, lesson.type, lesson.title)
+									}
+								/>
+							))}
+						</ModuleTitle>
 					)
 				})}
 			</div>
@@ -236,7 +243,7 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 	}
 
 	return (
-		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-scroll hide-scrollbar'>
+		<div className='bg-[var(--white)] shadow-[var(--shadow)] flex flex-col gap-3 rounded-xl p-5 overflow-y-auto hide-scrollbar h-full min-h-0'>
 			<ModuleContent bg={true} type={contentType} title={contentTitle} />
 			<div className='flex flex-col gap-5'>
 				{content.content?.length !== 0 ? (
@@ -413,7 +420,7 @@ const CourseOverview = ({ content }) => {
 
 	return (
 		<>
-			<div className='grid grid-cols-[1fr_3fr] gap-5 h-[75vh]  '>
+			<div className='grid grid-cols-[320px_1fr] gap-5 h-full min-h-0'>
 				<div className='flex flex-col gap-3 '>
 					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
@@ -499,7 +506,7 @@ const ModerationComponent = ({ moderationCourseId }) => {
 
 	return (
 		<>
-			<div className='flex flex-col gap-5 h-[73vh]'>
+			<div className='flex flex-col gap-5 h-full min-h-0'>
 				<div className='flex justify-between items-center mt-10'></div>
 
 				<CourseOverview content={courseContent} />
