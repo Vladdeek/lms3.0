@@ -317,7 +317,7 @@ const AccessBlock = ({
 const AccessManagement = ({ onChange }) => {
 	const { courseId } = useParams()
 
-	const [selectedEntity, setSelectedEntity] = useState(null)
+	const [selectedEntity, setSelectedEntity] = useState(ENTITY.STUDENTS)
 	const [selectedChapter, setSelectedChapter] = useState(0)
 	const [linked, setLinked] = useState([])
 	const [unlinked, setUnlinked] = useState([])
@@ -358,11 +358,6 @@ const AccessManagement = ({ onChange }) => {
 
 		return () => clearTimeout(timer)
 	}, [selectedEntity, searchLinked, searchUnlinked])
-
-	useEffect(() => {
-		fetchData(selectedEntity, 'linked')
-		fetchData(selectedEntity, 'unlinked')
-	}, [linkedPage, unlinkedPage])
 
 	const handleAdd = id =>
 		api
