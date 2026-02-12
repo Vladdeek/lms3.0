@@ -216,7 +216,6 @@ const StudentCard4Table = ({ num, FullName, scores }) => {
 }
 
 const TaskCard = ({ title, type, isActive, onClick }) => {
-	console.log('type: ', type)
 	return (
 		<div
 			onClick={onClick}
@@ -268,7 +267,6 @@ const LevelsBar = ({
 	setActiveIndex,
 	studentAnswers,
 }) => {
-	console.log('questions: ', studentAnswers)
 	return (
 		<>
 			<div className='flex gap-3'>
@@ -320,8 +318,6 @@ const LevelsBar = ({
 const TestView = ({ content }) => {
 	const [activeIndex, setActiveIndex] = useState(0)
 
-	console.log('content: ', content)
-
 	return (
 		<div className='w-full flex flex-col  gap-3'>
 			<TaskCard
@@ -338,8 +334,6 @@ const TestView = ({ content }) => {
 			<div className='flex justify-center'>
 				{(() => {
 					const q = content?.questions
-
-					console.log('q: ', q)
 
 					if (
 						q[activeIndex]?.question_type === 'multiple' ||
@@ -422,9 +416,7 @@ const StudentsAndGroups = () => {
 
 			setGlobalError(null)
 			setGroups(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const fetchStudents = async () => {
@@ -439,9 +431,7 @@ const StudentsAndGroups = () => {
 
 			setGlobalError(null)
 			setStudents(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const fetchStudentLessons = async () => {
@@ -460,9 +450,7 @@ const StudentsAndGroups = () => {
 
 			setGlobalError(null)
 			setTasks(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const fetchLesson = async () => {
@@ -482,9 +470,7 @@ const StudentsAndGroups = () => {
 
 			setGlobalError(null)
 			setLessons(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {
@@ -580,7 +566,6 @@ const StudentsAndGroups = () => {
 							</div>
 						) : (
 							tasks?.map((item, index) => {
-								console.log('in type: ', index, item)
 								return (
 									<motion.div
 										key={index}

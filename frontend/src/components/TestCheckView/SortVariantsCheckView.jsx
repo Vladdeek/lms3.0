@@ -127,7 +127,6 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 				})
 
 				const data = res.data
-				console.log('sort data:', data)
 				setQuestion(data?.title)
 				setMedia(data?.media)
 				setScore(data?.score)

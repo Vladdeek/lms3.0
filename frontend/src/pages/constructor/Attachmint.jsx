@@ -51,8 +51,6 @@ const ConstructorFileInput = ({
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
 
-	console.log('files: ', files)
-
 	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
@@ -119,38 +117,33 @@ const ConstructorFileInput = ({
 		fetchFiles()
 	}, [])
 
-	const uploadFileToAPI = async fileToUpload => {
+	const uploadFileToAPI = async file => {
 		try {
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}/attachments`,
+			})
 			const formData = new FormData()
-			formData.append('file', fileToUpload)
-
-			setProgress(0)
-
-			startFakeProgress()
-
-			const response = await api.post(
-				`${API}/courses/${courseId}/attachments`,
-				formData,
-				{
-					withCredentials: true,
-					onUploadProgress: e => {
-						const percent = Math.round((e.loaded * 100) / e.total)
-						setProgress(Math.round(percent * 0.75))
-					},
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
+			formData.append('file', file)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
 				},
-			)
+			})
+			const fileUrl = `${data.url}/${data.fields.key}`
 
-			stopFakeProgress()
 			setProgress(100)
-
 			setTimeout(() => {
-				fetchFiles()
-			}, 250)
-		} catch (error) {
-			stopFakeProgress()
-			setProgress(null)
-			throw error
-		}
+				setProgress(null)
+			}, 500)
+			fetchFiles()
+		} catch (error) {}
 	}
 
 	const validateFiles = async newFiles => {
@@ -194,10 +187,7 @@ const ConstructorFileInput = ({
 
 			try {
 				await Promise.all(uploadPromises)
-				console.log('Все файлы успешно загружены')
-			} catch (error) {
-				console.error('Ошибка при загрузке файлов:', error)
-			}
+			} catch (error) {}
 		}
 	}
 
@@ -507,9 +497,6 @@ const Attachment = () => {
 			selectedLesson !== null && selectedLesson !== undefined
 				? lessonKeys[selectedLesson]
 				: null
-
-		console.log(lessonKey) // "123123"
-		console.log(lessons[lessonKey]) // нужный id
 
 		const params = {
 			...(term && { term }),

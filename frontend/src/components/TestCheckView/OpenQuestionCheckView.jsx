@@ -31,8 +31,6 @@ const OpenQuestionCheckView = ({ value, question, media }) => {
 
 	if (isLoading) return <Loader />
 
-	console.log(`value: ${value},\nquestion: ${question},\nmedia: ${media}`)
-
 	return (
 		<>
 			{fullScreenPhoto !== null && (

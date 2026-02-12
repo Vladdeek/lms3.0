@@ -96,8 +96,6 @@ const SettingsButton = ({
 		formData.append('description', description)
 		formData.append('image', img)
 
-		console.log('formData: ', [...formData.entries()])
-
 		try {
 			const res = await api.put(`${API}/courses/${courseId}`, formData, {
 				withCredentials: true,
@@ -234,7 +232,6 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 				},
 			})
 
-			console.log('put locked: ', res.data)
 			fetchIsLocked()
 		} catch (error) {}
 	}
@@ -247,8 +244,6 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 	const validateStart = StartData && StartTime
 	const validateEnd = EndData && EndTime
 	const validateAll = validateEnd && validateStart
-
-	console.log('Locked: ', Locked)
 
 	return (
 		<div className='relative z-10'>
@@ -405,8 +400,6 @@ const ConstructorPage = ({ role }) => {
 					},
 				})
 
-				console.log('get: ', res.data)
-
 				setGlobalError(null)
 				setCourseContent(res.data)
 			} catch (error) {}
@@ -509,6 +502,27 @@ const ConstructorPage = ({ role }) => {
 		return () => clearTimeout(timer)
 	}
 
+	useEffect(() => {
+		if (!blocks) return
+
+		const timer = setTimeout(() => {
+			try {
+				const { data } = api.put(
+					`${API}/sections/${selectedContentId}/content`,
+					blocks,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+			} catch (error) {}
+		}, 10000)
+
+		return () => clearTimeout(timer)
+	}, [blocks])
+
 	const handleSubmit = async (e, content, sectionId) => {
 		if (e?.preventDefault) e.preventDefault()
 
@@ -525,7 +539,6 @@ const ConstructorPage = ({ role }) => {
 			)
 
 			setIsEdit(prev => !prev)
-			console.log('save: ', data)
 			showMassageFunc('good')
 		} catch (error) {
 			setIsLoading(false)
@@ -547,7 +560,6 @@ const ConstructorPage = ({ role }) => {
 				})
 
 				showMassageFunc('public')
-				console.log(data)
 			} catch (error) {}
 		}
 	}
@@ -564,7 +576,6 @@ const ConstructorPage = ({ role }) => {
 	useUnsavedChangesGuard(isEdit)
 
 	const selectedFunc = value => {
-		console.log(value)
 		if (isEdit === false) {
 			setSelected(value)
 		} else {

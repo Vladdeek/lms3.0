@@ -369,7 +369,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 			setUserRolesLoading(false)
 			setUserRoles(res.data)
 		} catch (error) {
-			console.log(error) // 401, 403, 422, 500 — что угодно
+			// 401, 403, 422, 500 — что угодно
 		}
 	}
 
@@ -395,7 +395,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 					: name === 'teacher' && navigate('/catalogt/courses')
 			res.data && window.location.reload()
 		} catch (error) {
-			console.log(error) // 401, 403, 422, 500 — что угодно
+			// 401, 403, 422, 500 — что угодно
 		}
 	}
 

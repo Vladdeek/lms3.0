@@ -214,14 +214,10 @@ const Moderation = ({ role }) => {
 
 			setGlobalError(null)
 
-			console.log('courses: ', res)
-
 			setCourses(res.data)
 
 			setActive(null)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {

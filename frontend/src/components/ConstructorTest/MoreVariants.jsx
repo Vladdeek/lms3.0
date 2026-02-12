@@ -264,9 +264,7 @@ const MoreVariant = ({
 			const data = res.data
 			onChange?.(data?.id)
 			fetchTest(data?.id)
-		} catch (error) {
-			console.error(error)
-		}
+		} catch (error) {}
 	}
 
 	const handleEdit = async () => {
@@ -299,9 +297,7 @@ const MoreVariant = ({
 
 			const data = res.data
 			fetchTest(data?.id)
-		} catch (error) {
-			console.error(error)
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {

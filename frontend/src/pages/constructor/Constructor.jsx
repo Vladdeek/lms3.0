@@ -113,12 +113,9 @@ const CreateModuleButton = ({
 					},
 				},
 			)
-
-			console.log(data)
 			onReplaceModule(tempId, data)
 			setGlobalError(null) // очищаем ошибку, если всё ок
 		} catch (error) {
-			console.error(error)
 			onRemoveModule(tempId)
 
 			// ловим статус или сетевую ошибку
@@ -238,12 +235,9 @@ const CreateLessonButton = ({
 					},
 				},
 			)
-
-			console.log(data)
 			onReplaceLesson(moduleId, tempId, data)
 			setGlobalError(null)
 		} catch (error) {
-			console.error(error)
 			onRemoveLesson(moduleId, tempId)
 		}
 	}
@@ -1046,7 +1040,6 @@ const ContentView = ({
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 	const [removedBlocks, setRemovedBlocks] = useState([])
-	console.log('block:', blocks, '\nremoveBlocks:', removedBlocks)
 
 	const giveId = (index, id) => {
 		setQuestions(prev => {
@@ -1268,7 +1261,6 @@ const ContentView = ({
 									)
 									break
 								case 'video':
-									console.log('video: ', block)
 									content = isEdit ? (
 										<ConstructorVideoInput
 											key={i}
@@ -1310,7 +1302,6 @@ const ContentView = ({
 									)
 									break
 								case 'audio':
-									console.log('audio: ', block)
 									content = isEdit ? (
 										<AudioInput
 											key={i}

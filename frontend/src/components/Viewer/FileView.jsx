@@ -72,13 +72,6 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 	}
 
 	const downloadAPI = async id => {
-		console.log(
-			JSON.stringify({
-				file_name: files[id]?.name.split('.')[0],
-				file_path: files[id]?.file_path.split(`${FILE_API}`)[1],
-			}),
-		)
-
 		try {
 			const response = await api.post(
 				`${API}/files/download`,
@@ -115,7 +108,6 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 			}
 
 			a.download = filename
-			console.log('Filename from header:', filename)
 
 			document.body.appendChild(a)
 			a.click()

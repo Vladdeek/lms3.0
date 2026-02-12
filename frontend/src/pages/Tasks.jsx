@@ -153,9 +153,7 @@ const CatalogS = ({ role }) => {
 
 			setGlobalError(null)
 			setCourses(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const filterFunc = async () => {
@@ -183,9 +181,7 @@ const CatalogS = ({ role }) => {
 
 			setGlobalError(null)
 			setWebinars(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 	useEffect(() => {
 		fetchWebinars()

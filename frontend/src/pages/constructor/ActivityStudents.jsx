@@ -139,9 +139,6 @@ const ActivityStudents = () => {
 				? lessonKeys[selectedLesson]
 				: null
 
-		console.log(lessonKey) // "123123"
-		console.log(lessons[lessonKey]) // нужный id
-
 		const params = {
 			...(term && { term }),
 

@@ -180,13 +180,10 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 			setGlobalError(null)
 			setYear(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const fetchDisciplines = async (year, semester) => {
-		console.log(year, semester, 'in fetchDisciplines')
 		try {
 			const res = await api.get(
 				`${API}/courses/disciplines/by-load?year=${year}&semester=${semester}`,
@@ -200,9 +197,7 @@ const CreateModal = ({ isOpen, onClose, onCreate, teacher_profile_id }) => {
 
 			setGlobalError(null)
 			setDisciplines(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 	useEffect(() => {
 		if (selected === 1) {
@@ -723,8 +718,6 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 					headers: {},
 				},
 			)
-
-			console.log(res)
 
 			setLinkedGroups([])
 			setLinkedGroupIds('')
@@ -1433,9 +1426,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 
 			setGlobalError(null)
 			setCourses(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const fetchAllCourses = async () => {
@@ -1450,9 +1441,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			setGlobalError(null)
 
 			setCourses(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const fetchWebinars = async () => {
@@ -1471,9 +1460,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 
 			setGlobalError(null)
 			setWebinars(res.data)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const filterFunc = async () => {
@@ -1551,9 +1538,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 			})
 			setWebinarByIdInfo(res.data)
 			setEditMode(true)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const delWebById = async id => {
@@ -1565,9 +1550,7 @@ const Catalog = ({ role, teacher_profile_id }) => {
 				},
 			})
 			fetchWebinars()
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {

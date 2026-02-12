@@ -144,7 +144,6 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 	}
 
 	const handleCreate = async () => {
-		console.log('score in: ', score)
 		try {
 			const res = await api.post(
 				`${API}/questions/test/${sectionId}`,
@@ -170,9 +169,7 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 			const data = res.data
 			onChange?.(data?.id)
 			fetchTest(data?.id)
-		} catch (error) {
-			console.error(error)
-		}
+		} catch (error) {}
 	}
 
 	const handleEdit = async () => {
@@ -200,9 +197,7 @@ const SortVariants = ({ sectionId, testId, onChange }) => {
 
 			const data = res.data
 			fetchTest(data?.id)
-		} catch (error) {
-			console.error(error)
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {

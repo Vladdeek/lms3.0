@@ -6,6 +6,8 @@ import { maxAudioSizeInMB } from './Constants'
 import Loader, { AltLoader, Loading } from '../Loader'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useParams } from 'react-router-dom'
+import { Fbo } from '@react-three/drei'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -20,7 +22,6 @@ export const AudioInput = ({
 	const [audioUrl, setAudioUrl] = useState(null)
 
 	useEffect(() => {
-		console.log('audio: ', takeValues?.file)
 		setFile(takeValues?.file)
 		setAudioUrl(takeValues?.fileUrl)
 	}, [takeValues])
@@ -32,77 +33,46 @@ export const AudioInput = ({
 	const [isFileValid, setIsFileValid] = useState(true)
 
 	const [progress, setProgress] = useState(null)
+	const { courseId } = useParams()
 
-	const fakeProgressRef = useRef(null)
-
-	const startFakeProgress = () => {
-		if (fakeProgressRef.current) return
-
-		fakeProgressRef.current = setInterval(() => {
-			setProgress(prev => {
-				if (prev >= 99) return prev
-				return prev + 1
-			})
-		}, 1500)
-	}
-
-	const stopFakeProgress = () => {
-		if (fakeProgressRef.current) {
-			clearInterval(fakeProgressRef.current)
-			fakeProgressRef.current = null
-		}
-	}
-
-	const uploadFileToAPI = async fileToUpload => {
-		const file = fileToUpload
+	const uploadFileToAPI = async file => {
 		try {
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}`,
+			})
 			const formData = new FormData()
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
 			formData.append('file', file)
-
-			const responsePromise = api.post(`${API}/files/`, formData, {
-				withCredentials: true,
-				headers: {},
-				onUploadProgress: progressEvent => {
-					const percent = Math.round(
-						(progressEvent.loaded * 100) / progressEvent.total,
-					)
-
-					// максимум 75%
-					const cappedPercent = Math.round(percent * 0.75)
-					setProgress(cappedPercent)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
 				},
 			})
-			// Ждём когда upload закончится (axios завершит отправку тела запроса)
-			responsePromise.then(() => {}) // просто чтобы не было warning
+			const fileUrl = `${data.url}/${data.fields.key}`
 
-			// Запускаем фейковый прогресс пока сервер думает
-			startFakeProgress()
-
-			const response = await responsePromise
-
-			// Сервер ответил → стопаем фейковый прогресс и ставим 100
-			stopFakeProgress()
 			setProgress(100)
-
-			const result = response.data
 			setTimeout(() => {
-				onFileChange?.({
-					file: [
-						{
-							name: fileToUpload?.name,
-							size: fileToUpload?.size,
-							type: fileToUpload?.type,
-						},
-					],
-					fileId: result?.id,
-					fileUrl: `${FILE_API}${result?.file_path}`,
-				})
+				setProgress(null)
 			}, 500)
-			return result
-		} catch (error) {
-			throw error
-		} finally {
-		}
+
+			setAudioUrl(fileUrl)
+			onFileChange?.({
+				file: [
+					{
+						name: file?.name,
+						size: file?.size,
+						type: file?.type,
+					},
+				],
+				fileUrl: fileUrl,
+			})
+		} catch (error) {}
 	}
 
 	const handleFileChange = e => {
