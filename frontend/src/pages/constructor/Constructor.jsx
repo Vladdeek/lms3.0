@@ -1377,7 +1377,7 @@ const ContentView = ({
 								</motion.div>
 							)
 						})}
-						{isEdit ? (
+						{isEdit && (
 							<motion.div
 								key={blocks?.length}
 								initial={{ scale: 0.8, opacity: 0 }}
@@ -1390,28 +1390,6 @@ const ContentView = ({
 							>
 								<ConstructorMenu onAdd={addBlock} />
 							</motion.div>
-						) : (
-							SectionType === 'practice' && (
-								<motion.div
-									key={content?.length}
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									transition={{
-										duration: 0.3,
-										delay: content?.length * 0.1,
-										ease: 'easeOut',
-									}}
-								>
-									<div className='w-full flex flex-col justify-center gap-3'>
-										<p className='text-center font-medium text-xl'>
-											Прикрепить файл для проверки (отображение у студента)
-										</p>
-										<ConstructorFileInput />
-
-										<SubmitButton title={'Отправить на проверку'} />
-									</div>
-								</motion.div>
-							)
 						)}
 					</>
 				)}
