@@ -160,35 +160,27 @@ export const ConstructorPhotoInput = ({
 		uploadFileToAPI(files[0])
 	}
 
-	const removePreview = index => {
+	const removePreview = (index, path) => {
 		setImgUrl(prev => prev.filter((_, i) => i !== index))
 		if (setImgUrl.length === 1) {
 			setInputStatus(false)
 			onStatusChange?.(false)
+			removeFile(path)
 		}
 		//deletePhoto(index)
 	}
 
-	const deletePhoto = async id => {
+	const removeFile = path => {
 		try {
-			const response = await api.delete(
-				`${API}/files/`,
-				{
-					data: {
-						file_path: imgUrl[id]?.photoUrl
-							.split(`${FILE_API}`)[1]
-							.replace(/\\/g, '\\'),
-					},
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
 				},
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			)
-
-			const result = response.data
+				withCredentials: true,
+			})
 		} catch (error) {}
 	}
 
@@ -240,7 +232,7 @@ export const ConstructorPhotoInput = ({
 
 							<X
 								size={20}
-								onClick={() => removePreview(index)}
+								onClick={() => removePreview(index, previewData.photoUrl)}
 								className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
 							/>
 						</div>

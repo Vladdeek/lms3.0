@@ -505,22 +505,45 @@ const ConstructorPage = ({ role }) => {
 	useEffect(() => {
 		if (!blocks) return
 
-		const timer = setTimeout(() => {
-			try {
-				const { data } = api.put(
-					`${API}/sections/${selectedContentId}/content`,
-					blocks,
-					{
-						withCredentials: true,
-						headers: {
-							'Content-Type': 'application/json',
-						},
-					},
-				)
-			} catch (error) {}
-		}, 10000)
+		const strictTypes = ['video', 'image', 'files', 'audio']
 
-		return () => clearTimeout(timer)
+		const shouldSaveImmediately = blocks.some(block => {
+			if (!strictTypes.includes(block.type)) return false
+
+			// Если content массив и есть элементы → сохраняем сразу
+			if (Array.isArray(block.content)) {
+				return block.content.length > 0
+			}
+
+			// Если content объект (например audio) → не null → сохраняем сразу
+			if (typeof block.content === 'object' && block.content !== null) {
+				return true
+			}
+
+			return false
+		})
+
+		if (shouldSaveImmediately) {
+			// 🔥 Мгновенный автосейв для строгих типов
+			try {
+				api.put(`${API}/sections/${selectedContentId}/content`, blocks, {
+					withCredentials: true,
+					headers: { 'Content-Type': 'application/json' },
+				})
+			} catch (error) {}
+		} else {
+			// ⏱ Остальные блоки сохраняем с таймером 10 сек
+			const timer = setTimeout(() => {
+				try {
+					api.put(`${API}/sections/${selectedContentId}/content`, blocks, {
+						withCredentials: true,
+						headers: { 'Content-Type': 'application/json' },
+					})
+				} catch (error) {}
+			}, 10000)
+
+			return () => clearTimeout(timer)
+		}
 	}, [blocks])
 
 	const handleSubmit = async (e, content, sectionId) => {

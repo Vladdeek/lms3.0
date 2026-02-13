@@ -178,7 +178,7 @@ export const ConstructorVideoInput = ({
 			}
 	}
 
-	const removePreview = index => {
+	const removePreview = (index, path, isFile) => {
 		if (!previews[index].isUrl) {
 			URL.revokeObjectURL(previews[index].preview)
 		}
@@ -187,7 +187,26 @@ export const ConstructorVideoInput = ({
 			setInputStatus(false)
 			onStatusChange?.(false)
 			onChange?.([])
+			if (isFile) {
+				removeFile(path)
+			}
+			{
+			}
 		}
+	}
+
+	const removeFile = path => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	const handleDragOver = e => {
@@ -220,16 +239,21 @@ export const ConstructorVideoInput = ({
 			</button>
 
 			<div className='flex justify-center w-full gap-3'>
-				{previews.map((p, i) => (
-					<div key={i} className='relative w-1/2 aspect-16/9 group'>
-						<VideoPlayer url={p?.videoUrl || p?.fileUrl} />
+				{previews.map((p, i) => {
+					const isFile = !!p?.fileUrl
+					const url = isFile ? p.fileUrl : p.videoUrl
 
-						<X
-							onClick={() => removePreview(i)}
-							className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-						/>
-					</div>
-				))}
+					return (
+						<div key={i} className='relative w-1/2 aspect-16/9 group'>
+							<VideoPlayer url={url} />
+
+							<X
+								onClick={() => removePreview(i, url, isFile)}
+								className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+							/>
+						</div>
+					)
+				})}
 
 				{previews.length < maxFiles && (
 					<div

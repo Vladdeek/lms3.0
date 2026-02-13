@@ -162,6 +162,21 @@ export const ConstructorFileInput = ({
 		const newStatus = updatedFiles.length > 0
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
+		delFile(files[index].file_path)
+	}
+
+	const delFile = path => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	const formatFileSize = bytes => {

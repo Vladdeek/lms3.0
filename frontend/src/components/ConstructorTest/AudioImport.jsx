@@ -4,6 +4,7 @@ import CustomAudioPlayer from '../AudioPlayer'
 import api, { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useParams } from 'react-router-dom'
 
 export const AudioInput = ({
 	onStatusChange,
@@ -29,30 +30,41 @@ export const AudioInput = ({
 		uploadFileToAPI(newFile)
 	}
 
-	const uploadFileToAPI = async fileToUpload => {
+	const [progress, setProgress] = useState(null)
+	const { courseId } = useParams()
+
+	const uploadFileToAPI = async file => {
 		try {
-			const formData = new FormData()
-			formData.append('file', fileToUpload)
-
-			const response = await api.post(`${API}/files/`, formData, {
-				withCredentials: true,
-				headers: {},
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}`,
 			})
+			const formData = new FormData()
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
+			formData.append('file', file)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
+				},
+			})
+			const fileUrl = `${data.url}/${data.fields.key}`
 
-			const result = response.data
+			setProgress(100)
+			setTimeout(() => {
+				setProgress(null)
+			}, 500)
 
 			setAudioUrl({
-				audioUrl: `${FILE_API}${result?.file_path}`,
-				fileName: fileToUpload?.name,
-				fileSize: fileToUpload?.size,
+				audioUrl: fileUrl,
+				fileName: file?.name,
+				fileSize: file?.size,
 			})
-
-			return result
-		} catch (error) {
-			console.error('Ошибка загрузки файла:', error)
-
-			throw error
-		}
+		} catch (error) {}
 	}
 
 	const handleDragOver = e => {
@@ -80,6 +92,20 @@ export const AudioInput = ({
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
 		onFileChange?.(null)
+		delFile(audioUrl?.audioUrl)
+	}
+	const delFile = path => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	return (

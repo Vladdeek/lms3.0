@@ -121,13 +121,28 @@ export const AudioInput = ({
 		validateFile(newFile)
 	}
 
-	const removeFile = () => {
+	const removeFile = path => {
 		setFile(null)
 		setAudioUrl(null)
 		const newStatus = false
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
 		onFileChange?.(null)
+		delFile(path)
+	}
+
+	const delFile = path => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	return (
@@ -158,7 +173,7 @@ export const AudioInput = ({
 							</div>
 
 							<button
-								onClick={removeFile}
+								onClick={() => removeFile(audioUrl)}
 								className='text-[var(--middle)] cursor-pointer hover:bg-red-500 hover:text-[var(--white)] h-9 w-9 flex justify-center items-center rounded-md transition-colors'
 							>
 								<Trash2 size={24} />
