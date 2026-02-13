@@ -33,6 +33,7 @@ import { use } from 'react'
 import { getCookie } from '../../TOKEN'
 import { maxFilesSizeInMB } from '../../components/ConstructorComponents/Constants'
 import { Loading } from '../../components/Loader'
+import axios from 'axios'
 
 const ConstructorFileInput = ({
 	onStatusChange,
@@ -64,33 +65,6 @@ const ConstructorFileInput = ({
 	}
 
 	const [progress, setProgress] = useState(null)
-
-	useEffect(() => {
-		if (progress >= 100) {
-			const t = setTimeout(() => setProgress(null), 600)
-			return () => clearTimeout(t)
-		}
-	}, [progress])
-
-	const fakeProgressRef = useRef(null)
-
-	const startFakeProgress = () => {
-		if (fakeProgressRef.current) return
-
-		fakeProgressRef.current = setInterval(() => {
-			setProgress(prev => {
-				if (prev >= 99) return prev
-				return prev + 1
-			})
-		}, 1500)
-	}
-
-	const stopFakeProgress = () => {
-		if (fakeProgressRef.current) {
-			clearInterval(fakeProgressRef.current)
-			fakeProgressRef.current = null
-		}
-	}
 
 	const fetchFiles = async () => {
 		try {
@@ -138,12 +112,27 @@ const ConstructorFileInput = ({
 			})
 			const fileUrl = `${data.url}/${data.fields.key}`
 
+			const response = await api.post(
+				`${API}/courses/${courseId}/attachments`,
+				{
+					file_path: data.fields.key,
+					original_name: file.name,
+					mime_type: file.type,
+					file_size: file.size,
+				},
+				{
+					withCredentials: true,
+				},
+			)
+
 			setProgress(100)
 			setTimeout(() => {
 				setProgress(null)
 			}, 500)
 			fetchFiles()
-		} catch (error) {}
+		} catch (error) {
+			console.error(error.response?.data || error)
+		}
 	}
 
 	const validateFiles = async newFiles => {
@@ -211,7 +200,7 @@ const ConstructorFileInput = ({
 
 	const removeFile = (id, path) => {
 		try {
-			const response = api.delete(`${API}/files/`, {
+			const response = api.delete(`${API}/courses/${courseId}/attachments`, {
 				data: {
 					file_path: path,
 					id: id,
