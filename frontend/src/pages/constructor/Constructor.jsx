@@ -1080,9 +1080,7 @@ const ContentView = ({
 	const removeBlock = index => {
 		setBlocks(prev => {
 			const updated = prev.filter((_, i) => i !== index)
-
-			onBlocksChange?.(updated, [...removedBlocks, removedItem])
-
+			onBlocksChange?.(updated)
 			return updated
 		})
 	}
