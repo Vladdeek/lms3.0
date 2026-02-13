@@ -568,6 +568,20 @@ const ConstructorPage = ({ role }) => {
 		}
 	}
 
+	const handleBlocksChange = (updatedBlocks, options = {}) => {
+		setBlocks(updatedBlocks)
+
+		// 🔥 если нужно мгновенно сохранить (удалили медиа блок)
+		if (options.forceSave) {
+			try {
+				api.put(`${API}/sections/${selectedContentId}/content`, updatedBlocks, {
+					withCredentials: true,
+					headers: { 'Content-Type': 'application/json' },
+				})
+			} catch (error) {}
+		}
+	}
+
 	const handleStatus = async () => {
 		if (isEdit === true) {
 			showMassageFunc('plzsave')
@@ -741,7 +755,7 @@ const ConstructorPage = ({ role }) => {
 						courseId={courseId}
 						deleteModule={onRemoveModule}
 						deleteSection={onRemoveLesson}
-						onBlocksChange={setBlocks}
+						onBlocksChange={handleBlocksChange}
 						onSelectedContentChange={data => tryChangeContent(data)}
 						isLoading={isLoading}
 						onSectionTypeChange={setSectionType}

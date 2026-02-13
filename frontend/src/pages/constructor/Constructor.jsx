@@ -1070,14 +1070,81 @@ const ContentView = ({
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
 
+	const blockHadContent = block => {
+		if (!block) return false
+
+		switch (block.type) {
+			case 'video':
+				return Array.isArray(block.content) && block.content.length > 0
+
+			case 'image':
+				return Array.isArray(block.content) && block.content.length > 0
+
+			case 'files':
+				return Array.isArray(block.content) && block.content.length > 0
+
+			case 'audio':
+				return block.content !== null
+
+			default:
+				return false
+		}
+	}
+
+	const getBlockFilePaths = block => {
+		if (!block) return []
+
+		switch (block.type) {
+			case 'video':
+				return block.content?.map(i => i.fileUrl).filter(Boolean) || []
+
+			case 'image':
+				return block.content?.map(i => i.photoUrl).filter(Boolean) || []
+
+			case 'files':
+				return block.content?.map(i => i.file_path).filter(Boolean) || []
+
+			case 'audio':
+				return block.content?.fileUrl ? [block.content.fileUrl] : []
+
+			default:
+				return []
+		}
+	}
+
 	const removeBlock = index => {
 		setBlocks(prev => {
+			const removedBlock = prev[index]
 			const updated = prev.filter((_, i) => i !== index)
 
-			onBlocksChange?.(updated, [...removedBlocks, removedItem])
+			const hadContent = blockHadContent(removedBlock)
+
+			// если блок был с файлами — удаляем их с сервера
+			if (hadContent) {
+				const paths = getBlockFilePaths(removedBlock)
+				paths.forEach(path => removeFile(path))
+			}
+
+			// пробрасываем наверх
+			// forceSave = true если удалили заполненный медиа блок
+			onBlocksChange?.(updated, { forceSave: hadContent })
 
 			return updated
 		})
+	}
+
+	const removeFile = path => {
+		try {
+			const response = api.delete(`${API}/files`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	const handleBlockChange = (index, data) => {
