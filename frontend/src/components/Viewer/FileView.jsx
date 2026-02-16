@@ -78,8 +78,6 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 				'',
 			)}`,
 		)
-		console.log(data)
-
 		window.open(data, '_blank')
 	}
 
