@@ -14,6 +14,7 @@ import { motion } from 'framer-motion'
 import Loader, { AltLoader } from '../../components/Loader'
 import { getCookie } from '../../TOKEN'
 import BasicPagination from '../../components/Pagination'
+import { Span } from 'slate'
 
 const ENTITY = {
 	STUDENTS: 'students',
@@ -106,6 +107,7 @@ const TeacherComponent = ({
 	Accessed,
 	onDragStart,
 	onDragEnd,
+	isCreator,
 }) => {
 	const ActionIcon = Accessed ? Ban : ChevronsRight
 	const actionHandler = Accessed ? onRemove : onAdd
@@ -114,12 +116,17 @@ const TeacherComponent = ({
 		<>
 			{/* desktop */}
 			<div
-				className='max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]'
+				className={`${isCreator ? 'opacity-50 pointer-events-none' : ''} max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px] text-[var(--black)]`}
 				draggable
-				onDragStart={onDragStart}
-				onDragEnd={onDragEnd}
+				onDragStart={!isCreator ? onDragStart : undefined}
+				onDragEnd={!isCreator ? onDragEnd : undefined}
 			>
-				<p className='col-span-8 px-4'>{name}</p>
+				<p className='col-span-8 px-4'>
+					{name}{' '}
+					{isCreator && (
+						<span className='text-[var(--middle)]'>(создатель)</span>
+					)}
+				</p>
 
 				<p className='col-span-1 flex justify-center gap-3'>
 					<GripVertical
@@ -127,23 +134,28 @@ const TeacherComponent = ({
 					/>
 					<ActionIcon
 						className='cursor-pointer'
-						onClick={() => actionHandler && actionHandler(id)}
+						onClick={() => !isCreator && actionHandler && actionHandler(id)}
 					/>
 				</p>
 			</div>
 
 			{/* mobile */}
 			<div
-				className='min-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-between rounded-lg p-4 text-[var(--black)]'
+				className={`${isCreator ? 'opacity-50 pointer-events-none' : ''} min-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] flex items-center justify-between rounded-lg p-4 text-[var(--black)]`}
 				draggable
-				onDragStart={onDragStart}
-				onDragEnd={onDragEnd}
+				onDragStart={!isCreator ? onDragStart : undefined}
+				onDragEnd={!isCreator ? onDragEnd : undefined}
 			>
-				<p className='text-2xl'>{name}</p>
+				<p className='text-2xl'>
+					{name}{' '}
+					{isCreator && (
+						<span className='text-[var(--middle)]'>(создатель)</span>
+					)}
+				</p>
 
 				<ActionIcon
 					className='cursor-pointer'
-					onClick={() => actionHandler && actionHandler(id)}
+					onClick={() => !isCreator && actionHandler && actionHandler(id)}
 				/>
 			</div>
 		</>
@@ -223,6 +235,7 @@ const AccessBlock = ({
 						setDragged(item.id)
 					}}
 					onDragEnd={() => setDragged(null)}
+					isCreator={item.is_creator}
 				/>
 			)}
 		</motion.div>
@@ -295,7 +308,7 @@ const AccessBlock = ({
 			{/* headers */}
 			<div className='max-xl:hidden bg-[var(--white)] shadow-[var(--shadow)] grid grid-cols-9 rounded-lg py-[10px]'>
 				{headers[entityType].map((h, i) => (
-					<p key={i} className='col-span-2 text-center'>
+					<p key={i} className='col-span-2 text-center text-[var(--black)]'>
 						{h}
 					</p>
 				))}
