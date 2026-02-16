@@ -6,6 +6,7 @@ import { maxPhotoSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 import { Loading } from '../Loader'
+import { useParams } from 'react-router-dom'
 
 export const ConstructorPhotoInput = ({
 	onStatusChange,
@@ -59,7 +60,6 @@ export const ConstructorPhotoInput = ({
 		if (file.type.startsWith('image/')) {
 			try {
 				const dimensions = await getImageDimensions(file)
-				console.log(dimensions)
 
 				if (dimensions.width > 4000 || dimensions.height > 4000) {
 					return {
@@ -106,32 +106,10 @@ export const ConstructorPhotoInput = ({
 	}
 
 	const [progress, setProgress] = useState(null)
+	const { courseId } = useParams()
 
-	useEffect(() => {
-		progress >= 100 && setProgress(null)
-	}, [imgUrl])
-	const fakeProgressRef = useRef(null)
-
-	const startFakeProgress = () => {
-		if (fakeProgressRef.current) return
-
-		fakeProgressRef.current = setInterval(() => {
-			setProgress(prev => {
-				if (prev >= 99) return prev
-				return prev + 2
-			})
-		}, 1500)
-	}
-
-	const stopFakeProgress = () => {
-		if (fakeProgressRef.current) {
-			clearInterval(fakeProgressRef.current)
-			fakeProgressRef.current = null
-		}
-	}
-
-	const uploadFileToAPI = async fileToUpload => {
-		const validation = await validateFile(fileToUpload)
+	const uploadFileToAPI = async file => {
+		const validation = await validateFile(file)
 
 		if (!validation.isValid) {
 			setIsFileValid(false)
@@ -143,51 +121,37 @@ export const ConstructorPhotoInput = ({
 		}
 
 		try {
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}`,
+			})
 			const formData = new FormData()
-			formData.append('file', fileToUpload)
-
-			const responsePromise = api.post(`${API}/files/`, formData, {
-				withCredentials: true,
-				headers: {},
-				onUploadProgress: progressEvent => {
-					const percent = Math.round(
-						(progressEvent.loaded * 100) / progressEvent.total,
-					)
-
-					// максимум 75%
-					const cappedPercent = Math.round(percent * 0.79)
-					setProgress(cappedPercent)
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
+			formData.append('file', file)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
 				},
 			})
+			const fileUrl = `${data.url}/${data.fields.key}`
 
-			// Ждём когда upload закончится (axios завершит отправку тела запроса)
-			responsePromise.then(() => {}) // просто чтобы не было warning
-
-			// Запускаем фейковый прогресс пока сервер думает
-			startFakeProgress()
-
-			const response = await responsePromise
-
-			// Сервер ответил → стопаем фейковый прогресс и ставим 100
-			stopFakeProgress()
 			setProgress(100)
-
-			const result = response.data
 			setTimeout(() => {
-				setImgUrl(prevUrls => [
-					...prevUrls,
-					{
-						photoUrl: `${FILE_API}${result?.file_path}`,
-					},
-				])
+				setProgress(null)
 			}, 500)
 
-			return result
-		} catch (error) {
-			console.error('Ошибка загрузки файла:', error)
-
-			throw error
-		}
+			setImgUrl(prevUrls => [
+				...prevUrls,
+				{
+					photoUrl: fileUrl,
+				},
+			])
+		} catch (error) {}
 	}
 
 	const handleFileChange = e => {
@@ -196,36 +160,27 @@ export const ConstructorPhotoInput = ({
 		uploadFileToAPI(files[0])
 	}
 
-	const removePreview = index => {
+	const removePreview = (index, path) => {
 		setImgUrl(prev => prev.filter((_, i) => i !== index))
 		if (setImgUrl.length === 1) {
 			setInputStatus(false)
 			onStatusChange?.(false)
+			removeFile(path)
 		}
 		//deletePhoto(index)
 	}
 
-	const deletePhoto = async id => {
+	const removeFile = path => {
 		try {
-			const response = await api.delete(
-				`${API}/files/`,
-				{
-					data: {
-						file_path: imgUrl[id]?.photoUrl
-							.split(`${FILE_API}`)[1]
-							.replace(/\\/g, '\\'),
-					},
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
 				},
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			)
-
-			const result = response.data
-			console.log(result)
+				withCredentials: true,
+			})
 		} catch (error) {}
 	}
 
@@ -277,7 +232,7 @@ export const ConstructorPhotoInput = ({
 
 							<X
 								size={20}
-								onClick={() => removePreview(index)}
+								onClick={() => removePreview(index, previewData.photoUrl)}
 								className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
 							/>
 						</div>

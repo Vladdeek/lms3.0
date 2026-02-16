@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react'
+import { API, FILE_API } from '../API'
 
 const VideoPlayer = ({ url, course = false }) => {
 	const [playing, setPlaying] = useState(false)
@@ -48,13 +49,11 @@ const VideoPlayer = ({ url, course = false }) => {
 		// ВСЁ ОСТАЛЬНОЕ → НАТИВНОЕ VIDEO (локальная статика, mp4 и тд)
 		return {
 			type: 'video',
-			src: url,
+			src: `${url}`,
 		}
 	}
 
 	const source = getEmbedUrl(url)
-
-	console.log('source: ', source)
 
 	const togglePlay = () => {
 		if (source?.type === 'video') {

@@ -52,7 +52,6 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 				})
 
 				const data = res.data
-				console.log(data)
 				setQuestion(data?.title)
 				data?.student_answer !== null && setAnswer(data?.student_answer)
 				setMedia(data?.media)

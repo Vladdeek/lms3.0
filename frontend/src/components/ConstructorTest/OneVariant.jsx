@@ -235,7 +235,6 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			})
 
 			const data = res.data
-			console.log('data:', data)
 
 			if (data) setIsLoading(false)
 			setQuestion(data?.title)
@@ -288,9 +287,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 			const data = res.data
 			onChange?.(data?.id)
 			fetchTest(data?.id)
-		} catch (error) {
-			console.error(error)
-		}
+		} catch (error) {}
 	}
 
 	const handleEdit = async () => {
@@ -328,9 +325,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 
 			const data = res.data
 			fetchTest(data?.id)
-		} catch (error) {
-			console.error(error)
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {

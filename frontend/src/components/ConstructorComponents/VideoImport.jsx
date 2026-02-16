@@ -8,6 +8,7 @@ import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 import { progress } from 'framer-motion'
 import { Loading } from '../Loader'
+import { useParams } from 'react-router-dom'
 
 export const ConstructorVideoInput = ({
 	onStatusChange,
@@ -16,6 +17,7 @@ export const ConstructorVideoInput = ({
 	takeValues,
 }) => {
 	const inputId = useId()
+	const { courseId } = useParams()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [previews, setPreviews] = useState([])
 	const [videoUrl, setVideoUrl] = useState('')
@@ -71,84 +73,44 @@ export const ConstructorVideoInput = ({
 
 	const [progress, setProgress] = useState(null)
 
-	const fakeProgressRef = useRef(null)
-
-	const startFakeProgress = () => {
-		if (fakeProgressRef.current) return
-
-		fakeProgressRef.current = setInterval(() => {
-			setProgress(prev => {
-				if (prev >= 99) return prev
-				return prev + 1
-			})
-		}, 1500)
-	}
-
-	const stopFakeProgress = () => {
-		if (fakeProgressRef.current) {
-			clearInterval(fakeProgressRef.current)
-			fakeProgressRef.current = null
-		}
-	}
-
-	const uploadFileToAPI = async fileToUpload => {
+	const uploadFileToAPI = async file => {
 		setUploading(true)
 		setProgress(0)
 
 		try {
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}`,
+			})
+
 			const formData = new FormData()
-			formData.append('file', fileToUpload)
-
-			const request = api.post(`${API}/files/`, formData, {
-				withCredentials: true,
-				headers: {},
-				onUploadProgress: progressEvent => {
-					const percent = Math.round(
-						(progressEvent.loaded * 100) / progressEvent.total,
-					)
-
-					// максимум 75%
-					const capped = Math.round(percent * 0.75)
-					setProgress(capped)
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
+			formData.append('file', file)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
 				},
 			})
 
-			// через 1 секунду начинаем фейковый прогресс (обычно upload уже закончен)
-			setTimeout(() => {
-				startFakeProgress()
-			}, 1000)
+			const fileUrl = `${data.url}/${data.fields.key}`
 
-			const response = await request
-
-			// сервер ответил → стопаем fake и ставим 100
-			stopFakeProgress()
 			setProgress(100)
+			setTimeout(() => {
+				setProgress(null)
+			}, 500)
 
-			const result = response.data
-			const uploadedUrl = `${FILE_API}${result?.file_path}`
-
-			// НОРМАЛЬНЫЙ return (наконец-то)
 			return {
-				file: fileToUpload,
-				fileId: result.id,
-				fileUrl: uploadedUrl,
-				preview: URL.createObjectURL(fileToUpload),
-				info: {
-					name: fileToUpload.name,
-					size: (fileToUpload.size / 1024 / 1024).toFixed(2),
-					type: fileToUpload.type,
-					duration: 0,
-				},
+				file: file,
+				fileUrl: fileUrl,
+				preview: URL.createObjectURL(file),
 				isUrl: false,
 			}
-		} catch (error) {
-			stopFakeProgress()
-			setProgress(null)
-			console.error('Ошибка загрузки файла:', error)
-			throw error
-		} finally {
-			setUploading(false)
-		}
+		} catch (error) {}
 	}
 
 	const handleUrlChange = e => {
@@ -216,7 +178,7 @@ export const ConstructorVideoInput = ({
 			}
 	}
 
-	const removePreview = index => {
+	const removePreview = (index, path, isFile) => {
 		if (!previews[index].isUrl) {
 			URL.revokeObjectURL(previews[index].preview)
 		}
@@ -225,7 +187,26 @@ export const ConstructorVideoInput = ({
 			setInputStatus(false)
 			onStatusChange?.(false)
 			onChange?.([])
+			if (isFile) {
+				removeFile(path)
+			}
+			{
+			}
 		}
+	}
+
+	const removeFile = path => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	const handleDragOver = e => {
@@ -258,16 +239,21 @@ export const ConstructorVideoInput = ({
 			</button>
 
 			<div className='flex justify-center w-full gap-3'>
-				{previews.map((p, i) => (
-					<div key={i} className='relative w-1/2 aspect-16/9 group'>
-						<VideoPlayer url={p?.videoUrl || p?.fileUrl} />
+				{previews.map((p, i) => {
+					const isFile = !!p?.fileUrl
+					const url = isFile ? p.fileUrl : p.videoUrl
 
-						<X
-							onClick={() => removePreview(i)}
-							className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-						/>
-					</div>
-				))}
+					return (
+						<div key={i} className='relative w-1/2 aspect-16/9 group'>
+							<VideoPlayer url={url} />
+
+							<X
+								onClick={() => removePreview(i, url, isFile)}
+								className='absolute top-2 right-2 bg-[var(--white)] text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+							/>
+						</div>
+					)
+				})}
 
 				{previews.length < maxFiles && (
 					<div

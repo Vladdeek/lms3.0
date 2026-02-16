@@ -47,7 +47,6 @@ const OpenQuestionModerationView = ({ testId }) => {
 				})
 
 				const data = res.data
-				console.log('data')
 
 				setQuestion(data?.title)
 				setMedia(data?.media)

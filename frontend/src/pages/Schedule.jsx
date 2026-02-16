@@ -209,9 +209,7 @@ const Schedule1 = ({
 
 			setIsLoading(null)
 			setIsSearchLoading(null)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 	useEffect(() => {
 		if (searchTeachers === '') {
@@ -431,7 +429,6 @@ const Schedule2 = ({
 			setIsSearchLoading(null)
 		} catch (error) {}
 	}
-	console.log(teachers)
 	useEffect(() => {
 		if (searchTeachers === '') {
 			fetchTeachers()
@@ -648,7 +645,6 @@ const SchedulePage = ({ role }) => {
 			})
 
 			setScheduleData(normalized)
-			console.log('noralized: ', normalized)
 
 			setLoading(false)
 		} catch (e) {

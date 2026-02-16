@@ -203,7 +203,6 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 }
 
 const LevelsBar = ({ questions, activeIndex, setActiveIndex }) => {
-	console.log('questions: ', questions)
 	return (
 		<>
 			<div className='flex flex-wrap gap-3'>
@@ -411,7 +410,6 @@ const CourseOverview = ({ content }) => {
 				})
 
 				const data = res.data
-				console.log('Fetched content data:', data)
 				setSelectedContent(data)
 			} catch (error) {
 				setSelectedContent(null)

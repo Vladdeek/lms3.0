@@ -19,8 +19,6 @@ const CustomAudioPlayer = ({ audioUrl = null, volumeOn, course = false }) => {
 	const [isLooping, setIsLooping] = useState(false)
 	const [isShuffled, setIsShuffled] = useState(false)
 
-	console.log('rl:', audioUrl)
-
 	const audioRef = useRef(null)
 	const progressBarRef = useRef(null)
 

@@ -31,10 +31,10 @@ const StudentCheckbox = ({ info }) => {
 				info?.correct === 'correct'
 					? 'bg-[var(--correct-lvl)] text-white shadow-[var(--correct-glow)]'
 					: info?.correct === 'incorrect'
-					? 'bg-[var(--not-correct-lvl)] text-white shadow-[var(--not-correct-glow)]'
-					: info?.correct === 'not-attempted'
-					? 'bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)]'
-					: 'bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)]'
+						? 'bg-[var(--not-correct-lvl)] text-white shadow-[var(--not-correct-glow)]'
+						: info?.correct === 'not-attempted'
+							? 'bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)]'
+							: 'bg-[var(--white)] text-[var(--black)] shadow-[var(--shadow)]'
 			}`}
 		>
 			{info && <span>{info?.name}</span>}
@@ -47,8 +47,6 @@ const VariantCheckView = ({ answers, media, question, type }) => {
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
 	if (isLoading) return <Loader />
-
-	console.log('answer in: ', answers)
 
 	return (
 		<>

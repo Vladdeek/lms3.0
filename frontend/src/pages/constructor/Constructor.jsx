@@ -113,12 +113,9 @@ const CreateModuleButton = ({
 					},
 				},
 			)
-
-			console.log(data)
 			onReplaceModule(tempId, data)
 			setGlobalError(null) // очищаем ошибку, если всё ок
 		} catch (error) {
-			console.error(error)
 			onRemoveModule(tempId)
 
 			// ловим статус или сетевую ошибку
@@ -238,12 +235,9 @@ const CreateLessonButton = ({
 					},
 				},
 			)
-
-			console.log(data)
 			onReplaceLesson(moduleId, tempId, data)
 			setGlobalError(null)
 		} catch (error) {
-			console.error(error)
 			onRemoveLesson(moduleId, tempId)
 		}
 	}
@@ -1046,7 +1040,6 @@ const ContentView = ({
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 	const [removedBlocks, setRemovedBlocks] = useState([])
-	console.log('block:', blocks, '\nremoveBlocks:', removedBlocks)
 
 	const giveId = (index, id) => {
 		setQuestions(prev => {
@@ -1077,12 +1070,81 @@ const ContentView = ({
 
 	const addBlock = type => setBlocks(prev => [...prev, { type, content: null }])
 
+	const blockHadContent = block => {
+		if (!block) return false
+
+		switch (block.type) {
+			case 'video':
+				return Array.isArray(block.content) && block.content.length > 0
+
+			case 'image':
+				return Array.isArray(block.content) && block.content.length > 0
+
+			case 'files':
+				return Array.isArray(block.content) && block.content.length > 0
+
+			case 'audio':
+				return block.content !== null
+
+			default:
+				return false
+		}
+	}
+
+	const getBlockFilePaths = block => {
+		if (!block) return []
+
+		switch (block.type) {
+			case 'video':
+				return block.content?.map(i => i.fileUrl).filter(Boolean) || []
+
+			case 'image':
+				return block.content?.map(i => i.photoUrl).filter(Boolean) || []
+
+			case 'files':
+				return block.content?.map(i => i.file_path).filter(Boolean) || []
+
+			case 'audio':
+				return block.content?.fileUrl ? [block.content.fileUrl] : []
+
+			default:
+				return []
+		}
+	}
+
 	const removeBlock = index => {
 		setBlocks(prev => {
+			const removedBlock = prev[index]
 			const updated = prev.filter((_, i) => i !== index)
-			onBlocksChange?.(updated)
+
+			const hadContent = blockHadContent(removedBlock)
+
+			// если блок был с файлами — удаляем их с сервера
+			if (hadContent) {
+				const paths = getBlockFilePaths(removedBlock)
+				paths.forEach(path => removeFile(path))
+			}
+
+			// пробрасываем наверх
+			// forceSave = true если удалили заполненный медиа блок
+			onBlocksChange?.(updated, { forceSave: hadContent })
+
 			return updated
 		})
+	}
+
+	const removeFile = path => {
+		try {
+			const response = api.delete(`${API}/files`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	const handleBlockChange = (index, data) => {
@@ -1266,7 +1328,6 @@ const ContentView = ({
 									)
 									break
 								case 'video':
-									console.log('video: ', block)
 									content = isEdit ? (
 										<ConstructorVideoInput
 											key={i}
@@ -1308,7 +1369,6 @@ const ContentView = ({
 									)
 									break
 								case 'audio':
-									console.log('audio: ', block)
 									content = isEdit ? (
 										<AudioInput
 											key={i}

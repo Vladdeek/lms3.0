@@ -907,8 +907,6 @@ export const OptionSearch = ({
 		}
 	}, [selectedIndex])
 
-	console.log(Options)
-
 	return (
 		<div className='relative select-none'>
 			<div

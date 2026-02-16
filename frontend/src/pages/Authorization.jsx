@@ -28,7 +28,6 @@ const Authorization = ({ isRegister = false }) => {
 	const [showMessage, setShowMessage] = useState(null)
 
 	const showMessageFunc = message => {
-		console.log('message', message)
 		setShowMessage(message)
 		const timer = setTimeout(() => {
 			setShowMessage(null)

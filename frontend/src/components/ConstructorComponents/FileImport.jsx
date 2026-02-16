@@ -18,6 +18,7 @@ import { maxFilesSizeInMB } from './Constants'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 import { Loading } from '../Loader'
+import { useParams } from 'react-router-dom'
 
 export const ConstructorFileInput = ({
 	onStatusChange,
@@ -35,8 +36,6 @@ export const ConstructorFileInput = ({
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
 
-	console.log('files: ', files)
-
 	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
@@ -50,81 +49,44 @@ export const ConstructorFileInput = ({
 	}
 
 	const [progress, setProgress] = useState(null)
+	const { courseId } = useParams()
 
-	useEffect(() => {
-		progress >= 100 && setProgress(null)
-	}, [files])
-	const fakeProgressRef = useRef(null)
-
-	const startFakeProgress = () => {
-		if (fakeProgressRef.current) return
-
-		fakeProgressRef.current = setInterval(() => {
-			setProgress(prev => {
-				if (prev >= 99) return prev
-				return prev + 1
-			})
-		}, 1500)
-	}
-
-	const stopFakeProgress = () => {
-		if (fakeProgressRef.current) {
-			clearInterval(fakeProgressRef.current)
-			fakeProgressRef.current = null
-		}
-	}
-
-	const uploadFileToAPI = async fileToUpload => {
+	const uploadFileToAPI = async file => {
 		try {
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}`,
+			})
 			const formData = new FormData()
-			formData.append('file', fileToUpload)
-
-			setProgress(0)
-
-			const responsePromise = api.post(`${API}/files/`, formData, {
-				withCredentials: true,
-				headers: {},
-				onUploadProgress: progressEvent => {
-					const percent = Math.round(
-						(progressEvent.loaded * 100) / progressEvent.total,
-					)
-
-					// максимум 75%
-					const cappedPercent = Math.round(percent * 0.75)
-					setProgress(cappedPercent)
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
+			formData.append('file', file)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
 				},
 			})
+			const fileUrl = `${data.url}/${data.fields.key}`
 
-			// Ждём когда upload закончится (axios завершит отправку тела запроса)
-			responsePromise.then(() => {}) // просто чтобы не было warning
-
-			// Запускаем фейковый прогресс пока сервер думает
-			startFakeProgress()
-
-			const response = await responsePromise
-
-			// Сервер ответил → стопаем фейковый прогресс и ставим 100
-			stopFakeProgress()
 			setProgress(100)
-
-			const result = response.data
-
 			setTimeout(() => {
-				setFiles(prevUrls => [
-					...prevUrls,
-					{
-						file_path: `${FILE_API}${result?.file_path}`,
-						name: fileToUpload.name,
-						size: fileToUpload.size,
-						type: fileToUpload.type,
-					},
-				])
+				setProgress(null)
 			}, 500)
-		} catch (error) {
-			stopFakeProgress()
-			setProgress(0)
-			throw error
-		}
+
+			setFiles(prevUrls => [
+				...prevUrls,
+				{
+					file_path: fileUrl,
+					name: file.name,
+					size: file.size,
+					type: file.type,
+				},
+			])
+		} catch (error) {}
 	}
 
 	const validateFiles = async newFiles => {
@@ -200,6 +162,21 @@ export const ConstructorFileInput = ({
 		const newStatus = updatedFiles.length > 0
 		setInputStatus(newStatus)
 		onStatusChange?.(newStatus)
+		delFile(files[index].file_path)
+	}
+
+	const delFile = path => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	const formatFileSize = bytes => {

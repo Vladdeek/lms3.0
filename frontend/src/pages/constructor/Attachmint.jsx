@@ -33,6 +33,7 @@ import { use } from 'react'
 import { getCookie } from '../../TOKEN'
 import { maxFilesSizeInMB } from '../../components/ConstructorComponents/Constants'
 import { Loading } from '../../components/Loader'
+import axios from 'axios'
 
 const ConstructorFileInput = ({
 	onStatusChange,
@@ -51,8 +52,6 @@ const ConstructorFileInput = ({
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
 
-	console.log('files: ', files)
-
 	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
@@ -66,33 +65,6 @@ const ConstructorFileInput = ({
 	}
 
 	const [progress, setProgress] = useState(null)
-
-	useEffect(() => {
-		if (progress >= 100) {
-			const t = setTimeout(() => setProgress(null), 600)
-			return () => clearTimeout(t)
-		}
-	}, [progress])
-
-	const fakeProgressRef = useRef(null)
-
-	const startFakeProgress = () => {
-		if (fakeProgressRef.current) return
-
-		fakeProgressRef.current = setInterval(() => {
-			setProgress(prev => {
-				if (prev >= 99) return prev
-				return prev + 1
-			})
-		}, 1500)
-	}
-
-	const stopFakeProgress = () => {
-		if (fakeProgressRef.current) {
-			clearInterval(fakeProgressRef.current)
-			fakeProgressRef.current = null
-		}
-	}
 
 	const fetchFiles = async () => {
 		try {
@@ -119,37 +91,47 @@ const ConstructorFileInput = ({
 		fetchFiles()
 	}, [])
 
-	const uploadFileToAPI = async fileToUpload => {
+	const uploadFileToAPI = async file => {
 		try {
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}/attachments`,
+			})
 			const formData = new FormData()
-			formData.append('file', fileToUpload)
-
-			setProgress(0)
-
-			startFakeProgress()
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
+			formData.append('file', file)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
+				},
+			})
+			const fileUrl = `${data.url}/${data.fields.key}`
 
 			const response = await api.post(
 				`${API}/courses/${courseId}/attachments`,
-				formData,
+				{
+					file_path: data.fields.key,
+					original_name: file.name,
+					mime_type: file.type,
+					file_size: file.size,
+				},
 				{
 					withCredentials: true,
-					onUploadProgress: e => {
-						const percent = Math.round((e.loaded * 100) / e.total)
-						setProgress(Math.round(percent * 0.75))
-					},
 				},
 			)
 
-			stopFakeProgress()
 			setProgress(100)
-
 			setTimeout(() => {
-				fetchFiles()
-			}, 250)
+				setProgress(null)
+			}, 500)
+			fetchFiles()
 		} catch (error) {
-			stopFakeProgress()
-			setProgress(null)
-			throw error
+			console.error(error.response?.data || error)
 		}
 	}
 
@@ -194,10 +176,7 @@ const ConstructorFileInput = ({
 
 			try {
 				await Promise.all(uploadPromises)
-				console.log('Все файлы успешно загружены')
-			} catch (error) {
-				console.error('Ошибка при загрузке файлов:', error)
-			}
+			} catch (error) {}
 		}
 	}
 
@@ -221,7 +200,7 @@ const ConstructorFileInput = ({
 
 	const removeFile = (id, path) => {
 		try {
-			const response = api.delete(`${API}/files/`, {
+			const response = api.delete(`${API}/courses/${courseId}/attachments`, {
 				data: {
 					file_path: path,
 					id: id,
@@ -507,9 +486,6 @@ const Attachment = () => {
 			selectedLesson !== null && selectedLesson !== undefined
 				? lessonKeys[selectedLesson]
 				: null
-
-		console.log(lessonKey) // "123123"
-		console.log(lessons[lessonKey]) // нужный id
 
 		const params = {
 			...(term && { term }),

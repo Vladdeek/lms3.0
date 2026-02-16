@@ -71,20 +71,33 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 	}
 
-	const downloadAPI = async id => {
-		console.log(
-			JSON.stringify({
-				file_name: files[id]?.name.split('.')[0],
-				file_path: files[id]?.file_path.split(`${FILE_API}`)[1],
-			}),
+	const downloadFile = async id => {
+		const { data } = await api.get(
+			`${API}/files/download-url?key=${files[id]?.file_path?.replace(
+				/^https?:\/\/s3\.ru1\.storage\.beget\.cloud\/[^/]+\//,
+				'',
+			)}`,
 		)
+		window.open(data, '_blank')
+	}
 
+	const downloadAPI = async id => {
+		console.log({
+			file_name: files[id]?.name.split('.')[0],
+			file_path: files[id]?.file_path?.replace(
+				/^https?:\/\/s3\.ru1\.storage\.beget\.cloud\/[^/]+\//,
+				'',
+			),
+		})
 		try {
 			const response = await api.post(
 				`${API}/files/download`,
 				{
 					file_name: files[id]?.name.split('.')[0],
-					file_path: files[id]?.file_path.split(`${FILE_API}`)[1],
+					file_path: files[id]?.file_path?.replace(
+						/^https?:\/\/s3\.ru1\.storage\.beget\.cloud\/[^/]+\//,
+						'',
+					),
 				},
 				{
 					withCredentials: true,
@@ -115,7 +128,6 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 			}
 
 			a.download = filename
-			console.log('Filename from header:', filename)
 
 			document.body.appendChild(a)
 			a.click()
@@ -234,7 +246,7 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 						</div>
 						<Download
 							size={20}
-							onClick={() => downloadAPI(index)}
+							onClick={() => downloadFile(index)}
 							className='text-[var(--black)] hover:bg-[var(--green-status-bg)] hover:text-[var(--green-status-text)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
 						/>
 					</div>

@@ -97,12 +97,8 @@ const Dashboard = () => {
 				},
 			})
 
-			console.log(res.data)
-
 			setUserInfo(res.data)
-		} catch (error) {
-			console.error('Ошибка при получении данных пользователя:', error)
-		}
+		} catch (error) {}
 	}
 
 	useEffect(() => {

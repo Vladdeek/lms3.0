@@ -69,9 +69,6 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
 	useEffect(() => {
-		console.log(
-			JSON.stringify({ question_id: testId, student_answer: selected }),
-		)
 		selected !== null &&
 			onAnswerSelect({
 				question_id: testId,
@@ -101,7 +98,6 @@ const MoreVariantView = ({ onAnswerSelect, correctAnswers = [], testId }) => {
 				})
 
 				const data = res.data
-				console.log('question data:', data)
 
 				setQuestion(data?.title)
 				setAnswers(data?.question_options || [])

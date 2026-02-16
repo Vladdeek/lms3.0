@@ -200,7 +200,6 @@ const LevelsBar = ({
 	activeIndex,
 	setActiveIndex,
 }) => {
-	console.log('questions: ', questions)
 	return (
 		<>
 			<div className='flex flex-wrap gap-3'>
@@ -293,9 +292,7 @@ const ContentView = ({
 			setSession(res.data.is_active)
 			setGradeStatus(res.data.grade_status)
 			setScore(res.data.score)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 	}
 
 	const startSession = async () => {
@@ -315,9 +312,7 @@ const ContentView = ({
 			)
 
 			setSession(res.data.is_active)
-		} catch (error) {
-			console.log(error)
-		}
+		} catch (error) {}
 
 		fetchSession()
 	}
@@ -396,8 +391,6 @@ const ContentView = ({
 		try {
 			const payload = studentWork?.map(f => f.file_path)
 
-			console.log('payload: ', payload)
-
 			const res = await api.post(
 				`${API}/sections/${sectionId}/upload/assignment`,
 				payload,
@@ -408,11 +401,7 @@ const ContentView = ({
 					},
 				},
 			)
-
-			console.log('Отправлено:', res.data)
-		} catch (error) {
-			console.error('Ошибка:', error)
-		}
+		} catch (error) {}
 	}
 
 	// ============================================
@@ -721,7 +710,6 @@ export const CourseOverview = ({ moderationCourseId }) => {
 				})
 
 				const data = res.data
-				console.log('Fetched content data:', data)
 				setSelectedType(data?.type)
 				setSelectedName(data?.title)
 				setSelectedContent(data?.content)

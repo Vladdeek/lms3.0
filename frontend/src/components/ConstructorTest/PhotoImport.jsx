@@ -3,6 +3,8 @@ import { useEffect, useId, useState } from 'react'
 import api, { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
+import { useParams } from 'react-router-dom'
+import { Loading } from '../Loader'
 
 export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 	const inputId = useId()
@@ -21,31 +23,42 @@ export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 		onChange?.(data)
 	}, [photoUrl])
 
-	const uploadFileToAPI = async fileToUpload => {
+	const [progress, setProgress] = useState(null)
+	const { courseId } = useParams()
+
+	const uploadFileToAPI = async file => {
 		try {
-			const formData = new FormData()
-			formData.append('file', fileToUpload)
-
-			const response = await api.post(`${API}/files/`, formData, {
-				withCredentials: true,
-				headers: {},
+			const { data } = await api.post(`${API}/files/upload-url`, {
+				filename: file.name.split('.').slice(0, -1).join('.'),
+				type: file.name.split('.').pop(),
+				content_type: file.type,
+				destination: `courses/${courseId}`,
 			})
+			const formData = new FormData()
+			Object.entries(data.fields).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
+			formData.append('file', file)
+			await axios.post(data.url, formData, {
+				onUploadProgress: e => {
+					const percent = Math.round((e.loaded * 100) / e.total)
+					setProgress(percent)
+				},
+			})
+			const fileUrl = `${data.url}/${data.fields.key}`
 
-			const result = response.data
+			setProgress(100)
+			setTimeout(() => {
+				setProgress(null)
+			}, 500)
 
 			setPhotoUrl(prevUrls => [
 				...prevUrls,
 				{
-					photoUrl: `${FILE_API}${result?.file_path}`,
+					photoUrl: fileUrl,
 				},
 			])
-
-			return result
-		} catch (error) {
-			console.error('Ошибка загрузки файла:', error)
-
-			throw error
-		}
+		} catch (error) {}
 	}
 
 	const removePreview = index => {
@@ -53,7 +66,22 @@ export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 		if (photoUrl?.length === 1) {
 			setInputStatus(false)
 			onStatusChange?.(false)
+			removeFile(photoUrl[index]?.photoUrl)
 		}
+	}
+
+	const removeFile = path => {
+		try {
+			const response = api.delete(`${API}/files/`, {
+				data: {
+					file_path: path.replace(
+						/^https:\/\/s3\.ru1\.storage\.beget\.cloud\/02eb54dfa411-vm-lms\//,
+						'',
+					),
+				},
+				withCredentials: true,
+			})
+		} catch (error) {}
 	}
 
 	const handleDragOver = e => {
@@ -157,16 +185,34 @@ export const PhotoInput = ({ onStatusChange, DelComponent, onChange, url }) => {
 										</p>
 									))}
 								</div>
-								<div className='h-fit'>
-									<button
-										className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
-										onClick={() => document.getElementById(inputId).click()}
-										type='button'
-									>
-										<Upload strokeWidth={3} />
-										Загрузить фото
-									</button>
-								</div>
+								{progress !== null ? (
+									<div className='w-full flex flex-col  rounded-lg h-fit overflow-hidden py-[1px]'>
+										<div
+											className={`flex flex-col items-start justify-between p-3 file  w-full`}
+										>
+											<div className='flex gap-3 justify-center w-full'>
+												<p className='text-[var(--black)]'>{progress}%</p>
+												<Loading />
+											</div>
+
+											<div
+												className='bg-[var(--hero-epta)] rounded-full transition-all ease-linear delay-0 duration-750 h-2'
+												style={{ width: `${progress}%` }}
+											></div>
+										</div>
+									</div>
+								) : (
+									<div className='h-fit'>
+										<button
+											className='bg-[var(--black)] text-[var(--white)] rounded-lg flex gap-3 px-4 py-3 font-bold hover:bg-[var(--hero-epta)] cursor-pointer transition-all'
+											onClick={() => document.getElementById(inputId).click()}
+											type='button'
+										>
+											<Upload strokeWidth={3} />
+											Загрузить фото
+										</button>
+									</div>
+								)}
 							</div>
 
 							<input

@@ -96,8 +96,6 @@ const SettingsButton = ({
 		formData.append('description', description)
 		formData.append('image', img)
 
-		console.log('formData: ', [...formData.entries()])
-
 		try {
 			const res = await api.put(`${API}/courses/${courseId}`, formData, {
 				withCredentials: true,
@@ -234,7 +232,6 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 				},
 			})
 
-			console.log('put locked: ', res.data)
 			fetchIsLocked()
 		} catch (error) {}
 	}
@@ -247,8 +244,6 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 	const validateStart = StartData && StartTime
 	const validateEnd = EndData && EndTime
 	const validateAll = validateEnd && validateStart
-
-	console.log('Locked: ', Locked)
 
 	return (
 		<div className='relative z-10'>
@@ -405,8 +400,6 @@ const ConstructorPage = ({ role }) => {
 					},
 				})
 
-				console.log('get: ', res.data)
-
 				setGlobalError(null)
 				setCourseContent(res.data)
 			} catch (error) {}
@@ -509,6 +502,50 @@ const ConstructorPage = ({ role }) => {
 		return () => clearTimeout(timer)
 	}
 
+	useEffect(() => {
+		if (!blocks) return
+
+		const strictTypes = ['video', 'image', 'files', 'audio']
+
+		const shouldSaveImmediately = blocks.some(block => {
+			if (!strictTypes.includes(block.type)) return false
+
+			// Если content массив и есть элементы → сохраняем сразу
+			if (Array.isArray(block.content)) {
+				return block.content.length > 0
+			}
+
+			// Если content объект (например audio) → не null → сохраняем сразу
+			if (typeof block.content === 'object' && block.content !== null) {
+				return true
+			}
+
+			return false
+		})
+
+		if (shouldSaveImmediately) {
+			// 🔥 Мгновенный автосейв для строгих типов
+			try {
+				api.put(`${API}/sections/${selectedContentId}/content`, blocks, {
+					withCredentials: true,
+					headers: { 'Content-Type': 'application/json' },
+				})
+			} catch (error) {}
+		} else {
+			// ⏱ Остальные блоки сохраняем с таймером 10 сек
+			const timer = setTimeout(() => {
+				try {
+					api.put(`${API}/sections/${selectedContentId}/content`, blocks, {
+						withCredentials: true,
+						headers: { 'Content-Type': 'application/json' },
+					})
+				} catch (error) {}
+			}, 10000)
+
+			return () => clearTimeout(timer)
+		}
+	}, [blocks])
+
 	const handleSubmit = async (e, content, sectionId) => {
 		if (e?.preventDefault) e.preventDefault()
 
@@ -525,10 +562,23 @@ const ConstructorPage = ({ role }) => {
 			)
 
 			setIsEdit(prev => !prev)
-			console.log('save: ', data)
 			showMassageFunc('good')
 		} catch (error) {
 			setIsLoading(false)
+		}
+	}
+
+	const handleBlocksChange = (updatedBlocks, options = {}) => {
+		setBlocks(updatedBlocks)
+
+		// 🔥 если нужно мгновенно сохранить (удалили медиа блок)
+		if (options.forceSave) {
+			try {
+				api.put(`${API}/sections/${selectedContentId}/content`, updatedBlocks, {
+					withCredentials: true,
+					headers: { 'Content-Type': 'application/json' },
+				})
+			} catch (error) {}
 		}
 	}
 
@@ -547,7 +597,6 @@ const ConstructorPage = ({ role }) => {
 				})
 
 				showMassageFunc('public')
-				console.log(data)
 			} catch (error) {}
 		}
 	}
@@ -564,7 +613,6 @@ const ConstructorPage = ({ role }) => {
 	useUnsavedChangesGuard(isEdit)
 
 	const selectedFunc = value => {
-		console.log(value)
 		if (isEdit === false) {
 			setSelected(value)
 		} else {
@@ -707,7 +755,7 @@ const ConstructorPage = ({ role }) => {
 						courseId={courseId}
 						deleteModule={onRemoveModule}
 						deleteSection={onRemoveLesson}
-						onBlocksChange={setBlocks}
+						onBlocksChange={handleBlocksChange}
 						onSelectedContentChange={data => tryChangeContent(data)}
 						isLoading={isLoading}
 						onSectionTypeChange={setSectionType}
