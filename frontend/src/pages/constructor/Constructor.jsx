@@ -812,7 +812,7 @@ const ModuleBlock = ({
 	}
 
 	return (
-		<div className='h-fit overflow-y-scroll hide-scrollbar hide-scrollbar p-2'>
+		<div className='h-fit hide-scrollbar hide-scrollbar p-2'>
 			<div className=' flex flex-col gap-3 rounded-xl'>
 				{ModuleInfo &&
 					ModuleInfo.map((module, index) => {
