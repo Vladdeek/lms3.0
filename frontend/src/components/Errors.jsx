@@ -141,7 +141,8 @@ export const ErrorProvider = ({ children }) => {
 					</div>
 				) : error === '500' ? (
 					<InternalServerError500 />
-				) : error === '403' ? (
+				) : error === '403' ||
+				  error === 'У вас нет доступа для просмотра данного курса' ? (
 					<Forbidden403 />
 				) : (
 					<>
