@@ -80,6 +80,7 @@ import VariantModerationView from '../../components/TestModerationView/VariantsM
 import SortVariantModerationView from '../../components/TestModerationView/SortVariantsModertionView'
 import OpenQuestionModerationView from '../../components/TestModerationView/OpenQuestionModertionView'
 import { isEditor } from 'slate'
+import { se } from 'date-fns/locale'
 
 const CreateModuleButton = ({
 	onAddModule,
@@ -577,6 +578,10 @@ const ModuleContent = ({
 	sectionId,
 	onRemoveLesson,
 	selectedSectionId,
+	moduleId,
+	indexOrder,
+	length,
+	onMoveSection,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
 	const [editModeActive, setEditModeActive] = useState(false)
@@ -622,26 +627,49 @@ const ModuleContent = ({
 		? 'text-[var(--black)]'
 		: 'text-[var(--black)]'
 
+	const moveSection = async direction => {
+		try {
+			const { data } = await api.put(
+				`${API}/sections/${sectionId}/move`,
+				{ module_id: moduleId, direction: direction },
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			)
+
+			data ? onMoveSection?.() : null
+		} catch (error) {}
+	}
+
 	const options = [
 		{
 			title: 'Переместить вверх',
 			icon: <ChevronsUp size={20} />,
-			action: 'up',
+			action: () => indexOrder > 0 && moveSection('up'),
+			disabled: indexOrder <= 0,
 		},
+
 		{
 			title: 'Переместить вниз',
 			icon: <ChevronsDown size={20} />,
-			action: 'down',
+			action: () => indexOrder < length - 1 && moveSection('down'),
+			disabled: indexOrder >= length - 1,
 		},
+
 		{
 			title: 'Редактировать',
 			icon: <Pen size={20} />,
 			action: () => setEditModeActive(true),
+			disabled: false,
 		},
 		{
 			title: 'Удалить',
 			icon: <Trash size={20} />,
 			action: () => setDeleteModalActive(true),
+			disabled: false,
 		},
 	]
 
@@ -801,6 +829,7 @@ const ModuleBlock = ({
 	deleteModule,
 	deleteSection,
 	sectionId,
+	onMoveSection,
 }) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
@@ -838,37 +867,44 @@ const ModuleBlock = ({
 										onToggle={() => toggleModule(index)}
 										onRemoveModule={deleteModule}
 									>
-										{module.module_sections.map((section, sectionIndex) => {
-											return (
-												<motion.div
-													key={section.id}
-													initial={{ scale: 0.8, opacity: 0 }}
-													animate={{ scale: 1, opacity: 1 }}
-													transition={{
-														duration: 0.3,
-														delay: sectionIndex * 0.1,
-														ease: 'easeOut',
-													}}
-												>
-													<ModuleContent
-														title={section.title}
-														type={section.type}
-														sectionId={section.id}
-														onClick={() => onContentSelect(section)}
-														isSelected={selectedContent?.id === section.id}
-														onRemoveLesson={deleteSection}
-														selectedSectionId={sectionId}
-													/>
-												</motion.div>
-											)
-										})}
+										{module.module_contents
+											.slice()
+											.sort((a, b) => a.index_order - b.index_order)
+											.map((section, sectionIndex) => {
+												return (
+													<motion.div
+														key={section.id}
+														initial={{ scale: 0.8, opacity: 0 }}
+														animate={{ scale: 1, opacity: 1 }}
+														transition={{
+															duration: 0.3,
+															delay: sectionIndex * 0.1,
+															ease: 'easeOut',
+														}}
+													>
+														<ModuleContent
+															title={section.title}
+															type={section.type.toLowerCase()}
+															sectionId={section.id}
+															onClick={() => onContentSelect(section)}
+															isSelected={selectedContent?.id === section.id}
+															onRemoveLesson={deleteSection}
+															selectedSectionId={sectionId}
+															moduleId={module.id}
+															indexOrder={section.index_order}
+															length={module.module_contents.length}
+															onMoveSection={onMoveSection}
+														/>
+													</motion.div>
+												)
+											})}
 										<motion.div
-											key={module.module_sections.length + 1}
+											key={module.module_contents.length + 1}
 											initial={{ scale: 0.8, opacity: 0 }}
 											animate={{ scale: 1, opacity: 1 }}
 											transition={{
 												duration: 0.3,
-												delay: module.module_sections.length * 0.1,
+												delay: module.module_contents.length * 0.1,
 												ease: 'easeOut',
 											}}
 										>
@@ -1553,6 +1589,7 @@ const Constructor = ({
 	isLoading,
 	onSectionTypeChange,
 	isEdit,
+	onMoveSection,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
@@ -1657,6 +1694,7 @@ const Constructor = ({
 								deleteModule={deleteModule}
 								deleteSection={deleteSection}
 								sectionId={section?.id}
+								onMoveSection={onMoveSection}
 							/>
 							<div className='h-fit mt-2'>
 								<motion.div
@@ -1688,7 +1726,7 @@ const Constructor = ({
 					<div className='flex flex-col gap-3 rounded-xl p-5'>
 						<ContentView
 							content={selectedContent}
-							SectionType={section?.type}
+							SectionType={section?.type.toLowerCase()}
 							SectionName={section?.title}
 							onBlocksChange={onBlocksChange}
 							isLoading={isLoading}

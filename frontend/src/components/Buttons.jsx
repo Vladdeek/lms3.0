@@ -395,7 +395,10 @@ export const EllipsisButton = ({ options, onOptionClick, bg, active }) => {
 	return (
 		<div className={`relative `} ref={buttonRef}>
 			<button
-				onClick={toggleMenu}
+				onClick={e => {
+					e.stopPropagation()
+					toggleMenu()
+				}}
 				className={`rounded-lg h-full flex gap-4 items-center hover:scale-102 transition-all cursor-pointer $  p-[6px] ${
 					bg
 						? `bg-[var(--white)] shadow-[var(--shadow)] ${active ? 'text-white' : 'text-[var(--black)]'}`
@@ -416,7 +419,7 @@ export const EllipsisButton = ({ options, onOptionClick, bg, active }) => {
 					{options.map((item, index) => (
 						<button
 							key={index}
-							className='w-full px-4 py-3 text-left hover:bg-[var(--light-middle)] flex gap-3 items-center transition-colors first:rounded-t-lg last:rounded-b-lg'
+							className={`w-full px-4 py-3 text-left ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--light-gray)]'}  flex gap-3 items-center transition-colors first:rounded-t-lg last:rounded-b-lg`}
 							onClick={() => handleOptionClick(item)}
 						>
 							{item.icon && (

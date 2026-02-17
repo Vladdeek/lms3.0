@@ -390,21 +390,21 @@ const ConstructorPage = ({ role }) => {
 	const { courseId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
+	const fetchCourses = async () => {
+		try {
+			const res = await api.get(`${API}/courses/${courseId}`, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			})
+
+			setGlobalError(null)
+			setCourseContent(res.data)
+		} catch (error) {}
+	}
+
 	useEffect(() => {
-		const fetchCourses = async () => {
-			try {
-				const res = await api.get(`${API}/courses/${courseId}`, {
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				})
-
-				setGlobalError(null)
-				setCourseContent(res.data)
-			} catch (error) {}
-		}
-
 		if (courseId) fetchCourses()
 	}, [courseId])
 
@@ -760,6 +760,7 @@ const ConstructorPage = ({ role }) => {
 						isLoading={isLoading}
 						onSectionTypeChange={setSectionType}
 						isEdit={isEdit}
+						onMoveSection={() => fetchCourses()}
 					/>
 				) : selected === 1 ? (
 					<AccessManagement onChange={setAccessedGroups} />
