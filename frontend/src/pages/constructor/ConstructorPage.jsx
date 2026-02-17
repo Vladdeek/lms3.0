@@ -722,7 +722,7 @@ const ConstructorPage = ({ role }) => {
 						isLoading={isLoading}
 						onSectionTypeChange={setSectionType}
 						isEdit={isEdit}
-						onMoveSection={() => fetchCourses()}
+						onMove={() => fetchCourses()}
 					/>
 				) : selected === 1 ? (
 					<AccessManagement onChange={setAccessedGroups} />

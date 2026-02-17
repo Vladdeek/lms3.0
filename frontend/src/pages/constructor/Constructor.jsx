@@ -365,6 +365,9 @@ const ModuleTitle = ({
 	moduleId,
 	onRemoveModule,
 	children,
+	onMoveModule,
+	indexOrder,
+	length,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
 	const [editModeActive, setEditModeActive] = useState(false)
@@ -377,17 +380,37 @@ const ModuleTitle = ({
 		}
 	}, [title])
 
+	const moveModule = async direction => {
+		try {
+			const { data } = await api.put(
+				`${API}/modules/${moduleId}/move`,
+				{ direction: direction },
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			)
+
+			data ? onMoveModule?.() : null
+		} catch (error) {}
+	}
+
 	const options = [
-		// {
-		// 	title: 'Переместить вверх',
-		// 	icon: <ChevronsUp size={20} />,
-		// 	action: 'up',
-		// },
-		// {
-		// 	title: 'Переместить вниз',
-		// 	icon: <ChevronsDown size={20} />,
-		// 	action: 'down',
-		// },
+		{
+			title: 'Переместить вверх',
+			icon: <ChevronsUp size={20} />,
+			action: () => indexOrder > 0 && moveModule('up'),
+			disabled: indexOrder <= 0,
+		},
+
+		{
+			title: 'Переместить вниз',
+			icon: <ChevronsDown size={20} />,
+			action: () => indexOrder < length - 1 && moveModule('down'),
+			disabled: indexOrder >= length - 1,
+		},
 		{
 			title: 'Редактировать',
 			icon: <Pen size={20} />,
@@ -829,7 +852,7 @@ const ModuleBlock = ({
 	deleteModule,
 	deleteSection,
 	sectionId,
-	onMoveSection,
+	onMove,
 }) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
@@ -844,82 +867,87 @@ const ModuleBlock = ({
 		<div className='h-fit hide-scrollbar hide-scrollbar p-2'>
 			<div className=' flex flex-col gap-3 rounded-xl'>
 				{ModuleInfo &&
-					ModuleInfo.map((module, index) => {
-						const isExpanded = expandedModules[index] === true
+					ModuleInfo.slice()
+						.sort((a, b) => a.index_order - b.index_order)
+						.map((module, index) => {
+							const isExpanded = expandedModules[index] === true
 
-						return (
-							<motion.div
-								key={index}
-								initial={{ scale: 0.8, opacity: 0 }}
-								animate={{ scale: 1, opacity: 1 }}
-								transition={{
-									duration: 0.3,
-									delay: index * 0.1,
-									ease: 'easeOut',
-								}}
-							>
-								<div key={index} className='flex flex-col gap-3'>
-									<ModuleTitle
-										title={module.name}
-										moduleId={module.id}
-										index={index + 1}
-										isExpanded={isExpanded}
-										onToggle={() => toggleModule(index)}
-										onRemoveModule={deleteModule}
-									>
-										{module.module_contents
-											.slice()
-											.sort((a, b) => a.index_order - b.index_order)
-											.map((section, sectionIndex) => {
-												return (
-													<motion.div
-														key={section.id}
-														initial={{ scale: 0.8, opacity: 0 }}
-														animate={{ scale: 1, opacity: 1 }}
-														transition={{
-															duration: 0.3,
-															delay: sectionIndex * 0.1,
-															ease: 'easeOut',
-														}}
-													>
-														<ModuleContent
-															title={section.title}
-															type={section.type.toLowerCase()}
-															sectionId={section.id}
-															onClick={() => onContentSelect(section)}
-															isSelected={selectedContent?.id === section.id}
-															onRemoveLesson={deleteSection}
-															selectedSectionId={sectionId}
-															moduleId={module.id}
-															indexOrder={section.index_order}
-															length={module.module_contents.length}
-															onMoveSection={onMoveSection}
-														/>
-													</motion.div>
-												)
-											})}
-										<motion.div
-											key={module.module_contents.length + 1}
-											initial={{ scale: 0.8, opacity: 0 }}
-											animate={{ scale: 1, opacity: 1 }}
-											transition={{
-												duration: 0.3,
-												delay: module.module_contents.length * 0.1,
-												ease: 'easeOut',
-											}}
+							return (
+								<motion.div
+									key={module.id}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: index * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<div className='flex flex-col gap-3'>
+										<ModuleTitle
+											title={module.name}
+											moduleId={module.id}
+											index={index + 1}
+											isExpanded={isExpanded}
+											onToggle={() => toggleModule(index)}
+											onRemoveModule={deleteModule}
+											onMoveModule={onMove}
+											indexOrder={module.index_order}
+											length={ModuleInfo.length}
 										>
-											<CreateLessonButton
-												moduleId={module.id}
-												onAddLesson={onAddLesson}
-												onReplaceLesson={onReplaceLesson}
-												onRemoveLesson={onRemoveLesson}
-											/>
-										</motion.div>
-									</ModuleTitle>
-								</div>
-							</motion.div>
-						)
-					})}
+											{module.module_contents
+												.slice()
+												.sort((a, b) => a.index_order - b.index_order)
+												.map((section, sectionIndex) => {
+													return (
+														<motion.div
+															key={section.id}
+															initial={{ scale: 0.8, opacity: 0 }}
+															animate={{ scale: 1, opacity: 1 }}
+															transition={{
+																duration: 0.3,
+																delay: sectionIndex * 0.1,
+																ease: 'easeOut',
+															}}
+														>
+															<ModuleContent
+																title={section.title}
+																type={section.type.toLowerCase()}
+																sectionId={section.id}
+																onClick={() => onContentSelect(section)}
+																isSelected={selectedContent?.id === section.id}
+																onRemoveLesson={deleteSection}
+																selectedSectionId={sectionId}
+																moduleId={module.id}
+																indexOrder={section.index_order}
+																length={module.module_contents.length}
+																onMoveSection={onMove}
+															/>
+														</motion.div>
+													)
+												})}
+											<motion.div
+												key={module.module_contents.length + 1}
+												initial={{ scale: 0.8, opacity: 0 }}
+												animate={{ scale: 1, opacity: 1 }}
+												transition={{
+													duration: 0.3,
+													delay: module.module_contents.length * 0.1,
+													ease: 'easeOut',
+												}}
+											>
+												<CreateLessonButton
+													moduleId={module.id}
+													onAddLesson={onAddLesson}
+													onReplaceLesson={onReplaceLesson}
+													onRemoveLesson={onRemoveLesson}
+												/>
+											</motion.div>
+										</ModuleTitle>
+									</div>
+								</motion.div>
+							)
+						})}
 			</div>
 		</div>
 	)
@@ -1589,7 +1617,7 @@ const Constructor = ({
 	isLoading,
 	onSectionTypeChange,
 	isEdit,
-	onMoveSection,
+	onMove,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
@@ -1694,7 +1722,7 @@ const Constructor = ({
 								deleteModule={deleteModule}
 								deleteSection={deleteSection}
 								sectionId={section?.id}
-								onMoveSection={onMoveSection}
+								onMove={onMove}
 							/>
 							<div className='h-fit mt-2'>
 								<motion.div
