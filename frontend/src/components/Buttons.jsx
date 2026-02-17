@@ -420,7 +420,10 @@ export const EllipsisButton = ({ options, onOptionClick, bg, active }) => {
 						<button
 							key={index}
 							className={`w-full px-4 py-3 text-left ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--light-gray)]'}  flex gap-3 items-center transition-colors first:rounded-t-lg last:rounded-b-lg`}
-							onClick={() => handleOptionClick(item)}
+							onClick={e => {
+								e.stopPropagation()
+								handleOptionClick(item)
+							}}
 						>
 							{item.icon && (
 								<span className='text-[var(--black)]'>{item.icon}</span>

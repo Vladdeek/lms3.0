@@ -437,51 +437,13 @@ const ConstructorPage = ({ role }) => {
 			),
 		}))
 
-	const replaceLesson = (moduleId, tempId, realLesson) =>
-		setCourseContent(prev => ({
-			...prev,
-			modules: prev.modules.map(m =>
-				m.id === moduleId
-					? {
-							...m,
-							module_sections: m.module_sections.map(s =>
-								s.id === tempId ? realLesson : s,
-							),
-						}
-					: m,
-			),
-		}))
+	const replaceLesson = () => fetchCourses()
 
-	const removeLesson = (moduleId, tempId) =>
-		setCourseContent(prev => ({
-			...prev,
-			modules: prev.modules.map(m =>
-				m.id === moduleId
-					? {
-							...m,
-							module_sections: m.module_sections.filter(s => s.id !== tempId),
-						}
-					: m,
-			),
-		}))
+	const removeLesson = () => fetchCourses()
 
-	// удаление с фронта
-	const onRemoveModule = moduleId => {
-		setCourseContent(prev => ({
-			...prev,
-			modules: prev.modules.filter(m => m.id !== moduleId),
-		}))
-	}
+	const onRemoveModule = () => fetchCourses()
 
-	const onRemoveLesson = sectionId => {
-		setCourseContent(prev => ({
-			...prev,
-			modules: prev.modules.map(m => ({
-				...m,
-				module_sections: m.module_sections.filter(s => s.id !== sectionId),
-			})),
-		}))
-	}
+	const onRemoveLesson = () => fetchCourses()
 
 	const [selected, setSelected] = useState(0)
 	const [blocks, setBlocks] = useState()
