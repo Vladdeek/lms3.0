@@ -7,11 +7,13 @@ const QuestionDeleteModal = ({
 	deletedQuestion,
 }) => {
 	const [isLoading, setIsLoading] = useState(false)
-	const deleteQuestion = () => {
+	const deleteQuestion = async () => {
 		if (questionId) {
 			setIsLoading(true)
 			try {
-				const { data } = api.delete(`${API}/questions/${questionId}`, {})
+				const { data } = await api.delete(`${API}/questions/${questionId}`, {
+					withCredentials: true,
+				})
 				setDeleteModalActive(false)
 				setIsLoading(false)
 				deletedQuestion?.()
