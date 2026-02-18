@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import api, { API } from '../../API'
+import { AltLoader } from '../Loader'
 
 const QuestionDeleteModal = ({
 	questionId,
