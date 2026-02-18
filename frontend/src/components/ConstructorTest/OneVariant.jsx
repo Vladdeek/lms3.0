@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Check, X, Plus } from 'lucide-react'
+import { Check, X, Plus, Trash2, Save } from 'lucide-react'
 import { InputDefault } from '../Inputs'
 import { AddMediaButton } from './AddMedia'
 import { ScoreInput1 } from './ScoreInput'
@@ -7,6 +7,8 @@ import api, { API } from '../../API'
 import Loader from '../Loader'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
+import { set } from 'date-fns'
+import QuestionDeleteModal from './QuestionDeleteModal'
 
 const CheckboxCreate = ({
 	checked: checkedProp = false,
@@ -142,6 +144,8 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 	const [questionId, setQuestionId] = useState()
 
 	const [validate, setValidate] = useState(false)
+
+	const [deleteModalActive, setDeleteModalActive] = useState(false)
 
 	useEffect(() => {
 		const isInvalid = () => {
@@ -352,6 +356,7 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		<Loader />
 	) : (
 		<>
+			{deleteModalActive && <QuestionDeleteModal questionId={questionId} />}
 			<div
 				className={`relative h-full w-full flex justify-center items-center transition-all  ${
 					showMassage ? '-top-15 opacity-100' : '-top-40 opacity-0'
@@ -436,17 +441,26 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 					</p>
 				</div>
 			</div>
-			<button
-				onClick={handleSave}
-				disabled={validate}
-				className={`${
-					validate
-						? 'opacity-50 cursor-not-allowed'
-						: 'cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white active:scale-95'
-				} bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2  transition-all `}
-			>
-				{testId ? 'Обновить' : 'Сохранить'}
-			</button>
+			<div className='w-full flex justify-center gap-3'>
+				<button
+					onClick={handleSave}
+					disabled={validate}
+					className={`${
+						validate
+							? 'opacity-50 cursor-not-allowed'
+							: 'cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white active:scale-95'
+					} bg-[var(--black)] flex gap-1 items-center text-[var(--white)] rounded-lg w-fit px-4 py-2  transition-all `}
+				>
+					<p>{testId ? 'Обновить' : 'Сохранить'}</p>
+				</button>
+				<button
+					title='Удалить вопрос'
+					onClick={() => setDeleteModalActive(true)}
+					className={`cursor-pointer hover:bg-red-500 hover:text-white hover:border-red-500 active:scale-95 bg-transparent text-[var(--black)] border-1 border-[var(--black)] font-medium rounded-lg w-fit self-center  p-2 aspect-square  transition-all `}
+				>
+					<Trash2 size={24} strokeWidth={1.5} />
+				</button>
+			</div>
 		</>
 	)
 }

@@ -58,7 +58,7 @@ import OpenQuestion from '../../components/ConstructorTest/OpenQuestion'
 import api, { API } from '../../API'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import Loader, { AltLoader } from '../../components/Loader'
+import Loader, { AltLoader, BlockLoader } from '../../components/Loader'
 import { ButtonView } from '../../components/Viewer/ButtonView'
 import FormulaView from '../../components/Viewer/FormulaView'
 import { CalloutView } from '../../components/Viewer/CalloutView'
@@ -82,27 +82,12 @@ import OpenQuestionModerationView from '../../components/TestModerationView/Open
 import { isEditor } from 'slate'
 import { se } from 'date-fns/locale'
 
-const CreateModuleButton = ({
-	onAddModule,
-	onReplaceModule,
-	onRemoveModule,
-	courseId,
-}) => {
+const CreateModuleButton = ({ onAddModule, courseId }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [title, setTitle] = useState('')
 	const [isNameValid, setIsNameValid] = useState(false)
 
 	const handleAddModule = async () => {
-		const tempId = Date.now().toString()
-		const tempModule = {
-			id: tempId,
-			name: title,
-			module_sections: [],
-			isTemp: true,
-		}
-
-		onAddModule(tempModule)
-
 		try {
 			const { data } = await api.post(
 				`${API}/modules/${courseId}`,
@@ -114,13 +99,8 @@ const CreateModuleButton = ({
 					},
 				},
 			)
-			onReplaceModule(tempId, data)
-			setGlobalError(null) // очищаем ошибку, если всё ок
-		} catch (error) {
-			onRemoveModule(tempId)
-
-			// ловим статус или сетевую ошибку
-		}
+			data && onAddModule(data)
+		} catch (error) {}
 	}
 
 	const handleSave = () => {
@@ -166,12 +146,7 @@ const CreateModuleButton = ({
 	)
 }
 
-const CreateLessonButton = ({
-	moduleId,
-	onAddLesson,
-	onReplaceLesson,
-	onRemoveLesson,
-}) => {
+const CreateLessonButton = ({ moduleId, onAddLesson }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [selected, setSelected] = useState(0)
 	const [step, setStep] = useState(0)
@@ -210,17 +185,6 @@ const CreateLessonButton = ({
 	]
 
 	const handleAddLesson = async lesson => {
-		const tempId = Date.now().toString()
-		const tempLesson = {
-			id: tempId,
-			title: lesson.title,
-			type: lesson.type,
-			content: {},
-			isTemp: true,
-		}
-
-		onAddLesson(moduleId, tempLesson)
-
 		try {
 			const { data } = await api.post(
 				`${API}/sections/modules/${moduleId}`,
@@ -236,11 +200,8 @@ const CreateLessonButton = ({
 					},
 				},
 			)
-			onReplaceLesson(moduleId, tempId, data)
-			setGlobalError(null)
-		} catch (error) {
-			onRemoveLesson(moduleId, tempId)
-		}
+			data && onAddLesson(moduleId, data)
+		} catch (error) {}
 	}
 
 	const Save = () => {
@@ -446,7 +407,6 @@ const ModuleTitle = ({
 			})
 
 			onRemoveModule(id)
-			setGlobalError(null)
 			setDeleteModalActive(false)
 			setIsLoading(false)
 		} catch (error) {}
@@ -847,8 +807,6 @@ const ModuleBlock = ({
 	onContentSelect,
 	selectedContent,
 	onAddLesson,
-	onReplaceLesson,
-	onRemoveLesson,
 	deleteModule,
 	deleteSection,
 	sectionId,
@@ -939,8 +897,6 @@ const ModuleBlock = ({
 												<CreateLessonButton
 													moduleId={module.id}
 													onAddLesson={onAddLesson}
-													onReplaceLesson={onReplaceLesson}
-													onRemoveLesson={onRemoveLesson}
 												/>
 											</motion.div>
 										</ModuleTitle>
@@ -1604,8 +1560,6 @@ const ConstructorMenu = ({ onAdd }) => {
 const Constructor = ({
 	content,
 	onAddModule,
-	onReplaceModule,
-	onRemoveModule,
 	onAddLesson,
 	onReplaceLesson,
 	onRemoveLesson,
@@ -1737,8 +1691,6 @@ const Constructor = ({
 								>
 									<CreateModuleButton
 										onAddModule={onAddModule}
-										onReplaceModule={onReplaceModule}
-										onRemoveModule={onRemoveModule}
 										courseId={courseId}
 									/>
 								</motion.div>

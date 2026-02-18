@@ -408,41 +408,60 @@ const ConstructorPage = ({ role }) => {
 		if (courseId) fetchCourses()
 	}, [courseId])
 
-	const addModule = newModule =>
+	// Добавление модуля и урока
+	const addModule = newModule => {
+		//комментарии для себя чтобы не забыть логику, так как она не совсем тривиальная
+		setCourseContent(prev => {
+			const modules = [...(prev?.modules || []), newModule] // копируем старые модули и добавляем новый в конец массива
+			return {
+				...prev, // ...prev - копируем весь курс
+				modules, // modules - обновляем поле modules новым массивом с добавленным модулем
+			}
+		})
+	}
+
+	const addLesson = (moduleId, newLesson) => {
+		setCourseContent(prev => ({
+			...prev, // копирование старого курса
+			modules: prev.modules.map(
+				(
+					m, // перебираем массив
+				) =>
+					m.id === moduleId // ищем совпадение
+						? {
+								...m, // копируем модуль
+								module_contents: [...(m.module_contents || []), newLesson], // скопированный массив занятий + новое занятие
+							}
+						: m,
+			),
+		}))
+	}
+
+	// Удаление модуля и урока
+	const removeModule = id =>
 		setCourseContent(prev => ({
 			...prev,
-			modules: [...(prev?.modules || []), newModule],
+			modules: prev.modules.filter(m => m.id !== id),
 		}))
 
-	const replaceModule = (tempId, realModule) =>
-		setCourseContent(prev => ({
-			...prev,
-			modules: prev.modules.map(m => (m.id === tempId ? realModule : m)),
-		}))
-
-	const removeModule = tempId =>
-		setCourseContent(prev => ({
-			...prev,
-			modules: prev.modules.filter(m => m.id !== tempId),
-		}))
-
-	// Уроки
-	const addLesson = (moduleId, newLesson) =>
+	const removeLesson = (moduleId, lessonId) => {
 		setCourseContent(prev => ({
 			...prev,
 			modules: prev.modules.map(m =>
 				m.id === moduleId
-					? { ...m, module_sections: [...(m.module_sections || []), newLesson] }
+					? {
+							...m,
+							module_sections: m.module_sections.filter(l => l.id !== lessonId),
+						}
 					: m,
 			),
 		}))
+	}
 
+	const replaceModule = () => fetchCourses()
 	const replaceLesson = () => fetchCourses()
 
-	const removeLesson = () => fetchCourses()
-
 	const onRemoveModule = () => fetchCourses()
-
 	const onRemoveLesson = () => fetchCourses()
 
 	const [selected, setSelected] = useState(0)
@@ -709,9 +728,9 @@ const ConstructorPage = ({ role }) => {
 					<Constructor
 						content={courseContent}
 						onAddModule={addModule}
+						onAddLesson={addLesson}
 						onReplaceModule={replaceModule}
 						onRemoveModule={removeModule}
-						onAddLesson={addLesson}
 						onReplaceLesson={replaceLesson}
 						onRemoveLesson={removeLesson}
 						courseId={courseId}
