@@ -132,7 +132,7 @@ const CheckboxCreate = ({
 	)
 }
 
-const OneVariant = ({ sectionId, testId, onChange }) => {
+const OneVariant = ({ sectionId, testId, onChange, deletedQuestion }) => {
 	const [question, setQuestion] = useState('')
 	const [score, setScore] = useState(1)
 	const [answers, setAnswers] = useState([
@@ -163,8 +163,8 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 	}, [question, score, answers])
 
 	useEffect(() => {
-		testId && setQuestionId(testId)
-	}, [])
+		testId ? setQuestionId(testId) : setQuestionId('')
+	}, [testId])
 
 	const [showMassage, setShowMassage] = useState(false)
 
@@ -356,7 +356,13 @@ const OneVariant = ({ sectionId, testId, onChange }) => {
 		<Loader />
 	) : (
 		<>
-			{deleteModalActive && <QuestionDeleteModal questionId={questionId} />}
+			{deleteModalActive && (
+				<QuestionDeleteModal
+					questionId={questionId}
+					setDeleteModalActive={setDeleteModalActive}
+					deletedQuestion={deletedQuestion}
+				/>
+			)}
 			<div
 				className={`relative h-full w-full flex justify-center items-center transition-all  ${
 					showMassage ? '-top-15 opacity-100' : '-top-40 opacity-0'

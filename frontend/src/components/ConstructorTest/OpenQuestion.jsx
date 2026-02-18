@@ -6,14 +6,22 @@ import Loader from '../Loader'
 import api, { API } from '../../API'
 import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
+import QuestionDeleteModal from './QuestionDeleteModal'
+import { Trash2 } from 'lucide-react'
 
-const OpenQuestion = ({ sectionId, testId, onChange }) => {
+const OpenQuestion = ({ sectionId, testId, onChange, deletedQuestion }) => {
 	const [question, setQuestion] = useState('')
 	const [score, setScore] = useState(1)
 	const [media, setMedia] = useState()
 	const [isLoading, setIsLoading] = useState(false)
+	const [questionId, setQuestionId] = useState('')
+	const [deleteModalActive, setDeleteModalActive] = useState(false)
 
 	const [validate, setValidate] = useState(false)
+
+	useEffect(() => {
+		testId ? setQuestionId(testId) : setQuestionId('')
+	}, [testId])
 
 	useEffect(() => {
 		const isInvalid = () => {
@@ -115,6 +123,13 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 		<Loader />
 	) : (
 		<>
+			{deleteModalActive && (
+				<QuestionDeleteModal
+					questionId={questionId}
+					setDeleteModalActive={setDeleteModalActive}
+					deletedQuestion={deletedQuestion}
+				/>
+			)}
 			<div className='flex'>
 				<div className='flex flex-col justify-center items-end p-4 w-3/4'>
 					<div className='flex flex-col gap-3 2xl:w-2/3 w-full mb-5'>
@@ -137,17 +152,26 @@ const OpenQuestion = ({ sectionId, testId, onChange }) => {
 				</div>
 				<div className=' flex justify-center items-center  w-1/4'></div>
 			</div>
-			<button
-				onClick={handleSave}
-				disabled={validate}
-				className={`${
-					validate
-						? 'opacity-50 cursor-not-allowed'
-						: 'cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white active:scale-95'
-				} bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2  transition-all `}
-			>
-				{testId ? 'Обновить' : 'Сохранить'}
-			</button>
+			<div className='w-full flex justify-center gap-3'>
+				<button
+					onClick={handleSave}
+					disabled={validate}
+					className={`${
+						validate
+							? 'opacity-50 cursor-not-allowed'
+							: 'cursor-pointer hover:bg-[var(--hero-epta)] hover:text-white active:scale-95'
+					} bg-[var(--black)] text-[var(--white)] rounded-lg w-fit self-center px-4 py-2  transition-all `}
+				>
+					{testId ? 'Обновить' : 'Сохранить'}
+				</button>
+				<button
+					title='Удалить вопрос'
+					onClick={() => setDeleteModalActive(true)}
+					className={`cursor-pointer hover:bg-red-500 hover:text-white hover:border-red-500 active:scale-95 bg-transparent text-[var(--black)] border-1 border-[var(--black)] font-medium rounded-lg w-fit self-center  p-2 aspect-square  transition-all `}
+				>
+					<Trash2 size={24} strokeWidth={1.5} />
+				</button>
+			</div>
 		</>
 	)
 }

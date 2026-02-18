@@ -1061,6 +1061,8 @@ const ContentView = ({
 	const [blocks, setBlocks] = useState([])
 	const [removedBlocks, setRemovedBlocks] = useState([])
 
+	console.log(questions)
+
 	const giveId = (index, id) => {
 		setQuestions(prev => {
 			const updated = [...prev]
@@ -1254,6 +1256,12 @@ const ContentView = ({
 												sectionId={sectionId}
 												testId={questions[activeIndex]?.id}
 												onChange={data => giveId(activeIndex, data)}
+												deletedQuestion={() => {
+													setActiveIndex(prev => prev > 0 && prev - 1)
+													setQuestions(prev =>
+														prev.filter((_, i) => i !== activeIndex),
+													)
+												}}
 											/>
 										) : (
 											<VariantModerationView
@@ -1266,6 +1274,12 @@ const ContentView = ({
 												sectionId={sectionId}
 												testId={questions[activeIndex]?.id}
 												onChange={data => giveId(activeIndex, data)}
+												deletedQuestion={() => {
+													setActiveIndex(prev => prev > 0 && prev - 1)
+													setQuestions(prev =>
+														prev.filter((_, i) => i !== activeIndex),
+													)
+												}}
 											/>
 										) : (
 											<VariantModerationView
@@ -1278,6 +1292,12 @@ const ContentView = ({
 												sectionId={sectionId}
 												testId={questions[activeIndex]?.id}
 												onChange={data => giveId(activeIndex, data)}
+												deletedQuestion={() => {
+													setActiveIndex(prev => prev > 0 && prev - 1)
+													setQuestions(prev =>
+														prev.filter((_, i) => i !== activeIndex),
+													)
+												}}
 											/>
 										) : (
 											<SortVariantModerationView
@@ -1290,6 +1310,12 @@ const ContentView = ({
 												sectionId={sectionId}
 												testId={questions[activeIndex]?.id}
 												onChange={data => giveId(activeIndex, data)}
+												deletedQuestion={() => {
+													setActiveIndex(prev => prev > 0 && prev - 1)
+													setQuestions(prev =>
+														prev.filter((_, i) => i !== activeIndex),
+													)
+												}}
 											/>
 										) : (
 											<OpenQuestionModerationView

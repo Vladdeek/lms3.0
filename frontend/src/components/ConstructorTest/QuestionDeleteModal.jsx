@@ -1,20 +1,26 @@
+import { useState } from 'react'
 import api, { API } from '../../API'
 
-const QuestionDeleteModal = ({ questionId, setDeleteModalActive }) => {
+const QuestionDeleteModal = ({
+	questionId,
+	setDeleteModalActive,
+	deletedQuestion,
+}) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const deleteQuestion = () => {
-		if (questionId === undefined) {
-			setDeleteModalActive(false)
-		} else {
+		if (questionId) {
 			setIsLoading(true)
 			try {
-				const { data } = api.delete(`${API}`, {})
-
+				const { data } = api.delete(`${API}/questions/${questionId}`, {})
 				setDeleteModalActive(false)
 				setIsLoading(false)
+				deletedQuestion?.()
 			} catch (error) {
 				setIsLoading(false)
 			}
+		} else {
+			setDeleteModalActive(false)
+			deletedQuestion?.()
 		}
 	}
 	return (
