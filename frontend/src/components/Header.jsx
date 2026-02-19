@@ -698,8 +698,14 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 							{UserInfo ? (
 								<img
-									className='h-9 min-[377px]:h-10 rounded-full aspect-square'
-									src={`${FILE_API}${UserInfo?.photo}`}
+									className='h-9 min-[377px]:h-10 rounded-full object-cover aspect-square'
+									src={
+										UserInfo?.photo
+											? /^https?:\/\//.test(UserInfo.photo) // проверяем, начинается ли с http или https
+												? UserInfo.photo // полный URL — просто оставляем
+												: `${FILE_API}${UserInfo.photo}` // ключ — добавляем FILE_API
+											: ''
+									}
 									alt=''
 								/>
 							) : (
