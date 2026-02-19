@@ -557,7 +557,7 @@ const Attachment = () => {
 	return (
 		<div>
 			<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl w-full md:min-h-[calc(77.5vh-100px)] overflow-hidden flex flex-col p-2'>
-				<p className='text-2xl font-medium my-2 mx-4'>
+				<p className='text-2xl text-[var(--black)] font-medium my-2 mx-4'>
 					Прикрепленные файлы к курсу
 				</p>
 				<ConstructorFileInput />
