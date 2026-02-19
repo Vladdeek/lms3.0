@@ -543,6 +543,7 @@ const ContentView = ({
 										<p className='text-center font-medium text-xl text-[var(--black)]'>
 											Прикрепить файл для проверки
 										</p>
+
 										<ConstructorFileInput
 											onChange={setStudentWork}
 											takeValues={studentWork?.content}

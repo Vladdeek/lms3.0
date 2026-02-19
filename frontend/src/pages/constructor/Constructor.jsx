@@ -81,6 +81,7 @@ import SortVariantModerationView from '../../components/TestModerationView/SortV
 import OpenQuestionModerationView from '../../components/TestModerationView/OpenQuestionModertionView'
 import { isEditor } from 'slate'
 import { se } from 'date-fns/locale'
+import { max, min } from 'date-fns'
 
 const CreateModuleButton = ({ onAddModule, courseId }) => {
 	const [isOpen, setIsOpen] = useState(false)
@@ -328,7 +329,8 @@ const ModuleTitle = ({
 	children,
 	onMoveModule,
 	indexOrder,
-	length,
+	minIndex,
+	maxIndex,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
 	const [editModeActive, setEditModeActive] = useState(false)
@@ -362,15 +364,15 @@ const ModuleTitle = ({
 		{
 			title: 'Переместить вверх',
 			icon: <ChevronsUp size={20} />,
-			action: () => indexOrder > 0 && moveModule('up'),
-			disabled: indexOrder <= 0,
+			action: () => moveModule('up'),
+			disabled: indexOrder === minIndex,
 		},
 
 		{
 			title: 'Переместить вниз',
 			icon: <ChevronsDown size={20} />,
-			action: () => indexOrder < length - 1 && moveModule('down'),
-			disabled: indexOrder >= length - 1,
+			action: () => moveModule('down'),
+			disabled: indexOrder === maxIndex,
 		},
 		{
 			title: 'Редактировать',
@@ -563,7 +565,8 @@ const ModuleContent = ({
 	selectedSectionId,
 	moduleId,
 	indexOrder,
-	length,
+	minIndex,
+	maxIndex,
 	onMoveSection,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
@@ -631,15 +634,15 @@ const ModuleContent = ({
 		{
 			title: 'Переместить вверх',
 			icon: <ChevronsUp size={20} />,
-			action: () => indexOrder > 0 && moveSection('up'),
-			disabled: indexOrder <= 0,
+			action: () => moveSection('up'),
+			disabled: indexOrder === minIndex,
 		},
 
 		{
 			title: 'Переместить вниз',
 			icon: <ChevronsDown size={20} />,
-			action: () => indexOrder < length - 1 && moveSection('down'),
-			disabled: indexOrder >= length - 1,
+			action: () => moveSection('down'),
+			disabled: indexOrder === maxIndex,
 		},
 
 		{
@@ -820,6 +823,14 @@ const ModuleBlock = ({
 			[index]: !prev[index],
 		}))
 	}
+	const minModuleIndex = Math.min(...ModuleInfo.map(m => m.index_order))
+	const maxModuleIndex = Math.max(...ModuleInfo.map(m => m.index_order))
+	const minSectionIndex = Math.min(
+		...ModuleInfo.map(m => m.module_contents.map(s => s.index_order)).flat(),
+	)
+	const maxSectionIndex = Math.max(
+		...ModuleInfo.map(m => m.module_contents.map(s => s.index_order)).flat(),
+	)
 
 	return (
 		<div className='h-fit hide-scrollbar hide-scrollbar p-2'>
@@ -851,7 +862,8 @@ const ModuleBlock = ({
 											onRemoveModule={deleteModule}
 											onMoveModule={onMove}
 											indexOrder={module.index_order}
-											length={ModuleInfo.length}
+											minIndex={minModuleIndex}
+											maxIndex={maxModuleIndex}
 										>
 											{module.module_contents
 												.slice()
@@ -878,7 +890,8 @@ const ModuleBlock = ({
 																selectedSectionId={sectionId}
 																moduleId={module.id}
 																indexOrder={section.index_order}
-																length={module.module_contents.length}
+																minIndex={minSectionIndex}
+																maxIndex={maxSectionIndex}
 																onMoveSection={onMove}
 															/>
 														</motion.div>

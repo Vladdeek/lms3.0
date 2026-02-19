@@ -422,6 +422,9 @@ export const EllipsisButton = ({ options, onOptionClick, bg, active }) => {
 							className={`w-full px-4 py-3 text-left ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--light-gray)]'}  flex gap-3 items-center transition-colors first:rounded-t-lg last:rounded-b-lg`}
 							onClick={e => {
 								e.stopPropagation()
+
+								if (item.disabled) return
+
 								handleOptionClick(item)
 							}}
 						>
