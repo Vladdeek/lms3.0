@@ -331,6 +331,7 @@ const ModuleTitle = ({
 	indexOrder,
 	minIndex,
 	maxIndex,
+	onEditName,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
 	const [editModeActive, setEditModeActive] = useState(false)
@@ -415,7 +416,7 @@ const ModuleTitle = ({
 	}
 	const handleEditName = async id => {
 		try {
-			await api.put(
+			const { data } = await api.put(
 				`${API}/modules/${id}`,
 				{ name: changedValue },
 				{
@@ -426,9 +427,9 @@ const ModuleTitle = ({
 				},
 			)
 
+			onEditName(data.name)
 			setEditModeActive(false)
 			setIsLoading(false)
-			window.location.reload()
 		} catch (error) {}
 	}
 	return (
@@ -494,11 +495,11 @@ const ModuleTitle = ({
             pr-1 pl-2 py-1 rounded-md
             ring-1 ring-[var(--hero-epta)]
             focus-within:ring-3 focus-within:text-[var(--black)]
-            transition-all
-            w-1/3 min-[2100px]:w-1/2 min-[2275px]:w-full
+            transition-all w-full
           '
 							>
 								<input
+									onClick={e => e.stopPropagation()}
 									type='text'
 									value={changedValue}
 									onChange={e => setChangedValue(e.target.value)}
@@ -506,6 +507,7 @@ const ModuleTitle = ({
 								/>
 
 								<button
+									onClick={e => e.stopPropagation()}
 									type='submit'
 									className='
               text-[var(--black)]
@@ -568,6 +570,7 @@ const ModuleContent = ({
 	minIndex,
 	maxIndex,
 	onMoveSection,
+	onEditName,
 }) => {
 	const [deleteModalActive, setDeleteModalActive] = useState(false)
 	const [editModeActive, setEditModeActive] = useState(false)
@@ -678,7 +681,7 @@ const ModuleContent = ({
 
 	const handleEditName = async id => {
 		try {
-			await api.put(
+			const { data } = await api.put(
 				`${API}/sections/${id}`,
 				{ title: changedValue },
 				{
@@ -689,9 +692,9 @@ const ModuleContent = ({
 				},
 			)
 
+			onEditName(data.title)
 			setEditModeActive(false)
 			setIsLoading(false)
-			window.location.reload()
 		} catch (error) {}
 	}
 
@@ -769,9 +772,16 @@ const ModuleContent = ({
 						{editModeActive ? (
 							<form
 								action={() => handleEditName(sectionId)}
-								className='w-full flex bg-[var(--white)] text-[var(--black)] pr-1 pl-2 py-1 rounded-md'
+								className='
+            flex bg-[var(--white)]
+            pr-1 pl-2 py-1 rounded-md
+            ring-1 ring-[var(--hero-epta)]
+            focus-within:ring-2 focus-within:text-[var(--black)]
+            transition-all w-full
+          '
 							>
 								<input
+									onClick={e => e.stopPropagation()}
 									type='text'
 									value={changedValue}
 									onChange={e => setChangedValue(e.target.value)}
@@ -779,6 +789,7 @@ const ModuleContent = ({
 								/>
 
 								<button
+									onClick={e => e.stopPropagation()}
 									type='submit'
 									className='
             text-[var(--black)]
@@ -814,6 +825,7 @@ const ModuleBlock = ({
 	deleteSection,
 	sectionId,
 	onMove,
+	onEditName,
 }) => {
 	const [expandedModules, setExpandedModules] = useState({})
 
@@ -823,14 +835,15 @@ const ModuleBlock = ({
 			[index]: !prev[index],
 		}))
 	}
-	const minModuleIndex = Math.min(...ModuleInfo.map(m => m.index_order))
-	const maxModuleIndex = Math.max(...ModuleInfo.map(m => m.index_order))
-	const minSectionIndex = Math.min(
-		...ModuleInfo.map(m => m.module_contents.map(s => s.index_order)).flat(),
-	)
-	const maxSectionIndex = Math.max(
-		...ModuleInfo.map(m => m.module_contents.map(s => s.index_order)).flat(),
-	)
+	const modules = ModuleInfo ?? []
+
+	const minModuleIndex = modules.length
+		? Math.min(...modules.map(m => m.index_order))
+		: null
+
+	const maxModuleIndex = modules.length
+		? Math.max(...modules.map(m => m.index_order))
+		: null
 
 	return (
 		<div className='h-fit hide-scrollbar hide-scrollbar p-2'>
@@ -840,6 +853,18 @@ const ModuleBlock = ({
 						.sort((a, b) => a.index_order - b.index_order)
 						.map((module, index) => {
 							const isExpanded = expandedModules[index] === true
+
+							const sections = module.module_contents ?? []
+
+							const sectionIndexes = sections.map(s => s.index_order)
+
+							const minSectionIndex = sectionIndexes.length
+								? Math.min(...sectionIndexes)
+								: null
+
+							const maxSectionIndex = sectionIndexes.length
+								? Math.max(...sectionIndexes)
+								: null
 
 							return (
 								<motion.div
@@ -864,6 +889,7 @@ const ModuleBlock = ({
 											indexOrder={module.index_order}
 											minIndex={minModuleIndex}
 											maxIndex={maxModuleIndex}
+											onEditName={onEditName}
 										>
 											{module.module_contents
 												.slice()
@@ -893,6 +919,7 @@ const ModuleBlock = ({
 																minIndex={minSectionIndex}
 																maxIndex={maxSectionIndex}
 																onMoveSection={onMove}
+																onEditName={onEditName}
 															/>
 														</motion.div>
 													)
@@ -1073,8 +1100,6 @@ const ContentView = ({
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [blocks, setBlocks] = useState([])
 	const [removedBlocks, setRemovedBlocks] = useState([])
-
-	console.log(questions)
 
 	const giveId = (index, id) => {
 		setQuestions(prev => {
@@ -1611,6 +1636,7 @@ const Constructor = ({
 	onSectionTypeChange,
 	isEdit,
 	onMove,
+	onEditName,
 }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [section, setSection] = useState(null)
@@ -1716,6 +1742,7 @@ const Constructor = ({
 								deleteSection={deleteSection}
 								sectionId={section?.id}
 								onMove={onMove}
+								onEditName={onEditName}
 							/>
 							<div className='h-fit mt-2'>
 								<motion.div
