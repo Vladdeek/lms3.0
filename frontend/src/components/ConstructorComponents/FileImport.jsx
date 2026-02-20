@@ -37,6 +37,8 @@ export const ConstructorFileInput = ({
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
 
+	console.log(files)
+
 	const [isFileValid, setIsFileValid] = useState(true)
 
 	useEffect(() => {
