@@ -25,6 +25,7 @@ export const ConstructorFileInput = ({
 	DelComponent,
 	onChange,
 	takeValues,
+	destination,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
@@ -57,7 +58,7 @@ export const ConstructorFileInput = ({
 				filename: file.name.split('.').slice(0, -1).join('.'),
 				type: file.name.split('.').pop(),
 				content_type: file.type,
-				destination: `courses/${courseId}`,
+				destination: `${destination}`,
 			})
 			const formData = new FormData()
 			Object.entries(data.fields).forEach(([key, value]) => {

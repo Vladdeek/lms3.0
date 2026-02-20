@@ -27,38 +27,76 @@ api.interceptors.request.use(config => {
 
 	if (csrf) {
 		config.headers['X-CSRF-TOKEN'] = csrf
-		// если вдруг Django будет ныть — поменяешь на:
-		// config.headers['X-CSRFToken'] = csrf
 	}
 
 	return config
 })
 
+let isRefreshing = false
+let refreshSubscribers = []
+
+const subscribeTokenRefresh = cb => refreshSubscribers.push(cb)
+const onRefreshed = token => refreshSubscribers.forEach(cb => cb(token))
+
 api.interceptors.response.use(
 	r => r,
-	error => {
+	async error => {
 		const status = error.response?.status
 		const detail = error.response?.data?.detail
+		const originalRequest = error.config
 
-		// silent refresh (оставляем)
-		if (status === 498) {
-			return api(error.config)
+		console.log(
+			`[INTERCEPTOR] Ошибка, статус: ${status}, url: ${originalRequest.url}`,
+		)
+
+		if (status === 401 && !originalRequest._retry) {
+			console.log('[INTERCEPTOR] 401, проверяем, нужно ли делать refresh')
+
+			if (isRefreshing) {
+				console.log(
+					'[INTERCEPTOR] Refresh уже идёт, добавляем запрос в очередь',
+				)
+				return new Promise(resolve => {
+					subscribeTokenRefresh(() => {
+						console.log(
+							'[INTERCEPTOR] Запрос из очереди повторяется после refresh',
+						)
+						resolve(api(originalRequest))
+					})
+				})
+			}
+
+			originalRequest._retry = true
+			isRefreshing = true
+			console.log('[INTERCEPTOR] Начинаем refresh токена...')
+
+			try {
+				const { status: refreshStatus } = await axios.post(
+					`${API}/auth/jwt/refresh`,
+					{},
+					{ withCredentials: true },
+				)
+				console.log(`[INTERCEPTOR] Refresh успешен, статус: ${refreshStatus}`)
+
+				isRefreshing = false
+				onRefreshed()
+
+				console.log('[INTERCEPTOR] Повторяем оригинальный запрос после refresh')
+				return api(originalRequest)
+			} catch (refreshError) {
+				isRefreshing = false
+				console.log('[INTERCEPTOR] Refresh не прошёл, редирект на /auth')
+				window.location.href = '/auth'
+				return Promise.reject(refreshError)
+			}
 		}
 
-		if (status === 401) {
-			window.location.href = '/auth'
-			return Promise.reject(error)
-		}
-
-		// ЕСЛИ ПРИШЕЛ TEXT ERROR С БЭКА
 		if (detail) {
-			setGlobalError(detail) // <-- отправляем строку
+			setGlobalError(detail)
 			return Promise.reject(error)
 		}
 
-		// стандартные ошибки по статусу
 		setGlobalError(status || '500')
-
 		return Promise.reject(error)
 	},
 )

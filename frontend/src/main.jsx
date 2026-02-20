@@ -92,8 +92,14 @@ function MainApp() {
 					<Route path='/schedule' element={<SchedulePage role={role} />} />
 					{/* <Route path='/score' element={<ScorePage /> } /> */}
 					<Route path='/score' element={<InDevelopment />} />
-					<Route path='/course/:courseId?' element={<CoursePage role={role} />}>
-						<Route path='lesson/:SectionId?' element={<CourseOverview />} />
+					<Route
+						path='/course/:courseId?'
+						element={<CoursePage role={role} userId={teacherProfileId} />}
+					>
+						<Route
+							path='lesson/:SectionId?'
+							element={<CourseOverview userId={teacherProfileId} />}
+						/>
 					</Route>
 
 					<Route path='/dev' element={<InDevelopment />} />

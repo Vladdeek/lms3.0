@@ -1217,6 +1217,8 @@ const ContentView = ({
 		})
 	}
 
+	const { courseId } = useParams()
+
 	if (!content && !SectionType) {
 		return (
 			<div className='flex items-center justify-center h-full'>
@@ -1430,6 +1432,7 @@ const ContentView = ({
 											DelComponent={del}
 											onChange={data => handleBlockChange(i, data)}
 											takeValues={block?.content}
+											destination={`courses/${courseId}`}
 										/>
 									) : (
 										<FileView Files={block?.content} />

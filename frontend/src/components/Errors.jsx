@@ -79,6 +79,7 @@ export const useError = () => {
 export const ErrorProvider = ({ children }) => {
 	const [error, setError] = useState(null)
 	const [showError, setShowError] = useState(false)
+	const [errorCount, setErrorCount] = useState(0)
 
 	console.log('Current error state:', error)
 
@@ -89,18 +90,13 @@ export const ErrorProvider = ({ children }) => {
 			String(error) !== '403' &&
 			String(error) !== '404'
 		) {
-			if (String(error) === '401') {
-				console.log('401 error detected, navigating to /auth')
-				navigate('/auth')
-			} else {
-				setShowError(true)
-				const timer = setTimeout(() => {
-					setShowError(false)
-					setError(null)
-				}, 30000)
+			setShowError(true)
+			const timer = setTimeout(() => {
+				setShowError(false)
+				setError(null)
+			}, 30000)
 
-				return () => clearTimeout(timer)
-			}
+			return () => clearTimeout(timer)
 		}
 	}, [error])
 

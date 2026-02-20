@@ -168,7 +168,7 @@ const QrCodeButton = ({ url }) => {
 				<QrCode size={24} />
 			</button>
 			{!isOpen && (
-				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 right-0'>
+				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-3 p-4 top-14 right-0 z-100'>
 					<div className='w-50 h-50 flex justify-center items-center shadow-[var(--shadow)] rounded-lg overflow-hidden'>
 						{url ? <QRCode size={200} url={url} /> : <QrCode size={32} />}
 					</div>
@@ -647,19 +647,13 @@ const ConstructorPage = ({ role }) => {
 					</div>
 
 					<div className='flex gap-5 max-[1200px]:hidden  max-[1366px]:gap-2  max-[1366px]:order-3 items-center'>
-						{selected === 1 ? (
-							<QrCodeButton
-								url={'https://www.npmjs.com/package/qr-code-styling'}
-							/>
-						) : (
-							<DateButton
-								access={selectedContentId && sectionType !== 'lecture'}
-								locked={isLocked}
-								sectionId={selectedContentId}
-								sectionType={sectionType}
-								selectedContentId={selectedContentId}
-							/>
-						)}
+						<DateButton
+							access={selectedContentId && sectionType !== 'lecture'}
+							locked={isLocked}
+							sectionId={selectedContentId}
+							sectionType={sectionType}
+							selectedContentId={selectedContentId}
+						/>
 
 						<SettingsButton
 							courseId={courseId}

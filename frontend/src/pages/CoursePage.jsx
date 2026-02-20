@@ -241,7 +241,9 @@ const ContentView = ({
 	contentTitle,
 	testId,
 	clearSelection,
+	userId,
 }) => {
+	const { courseId } = useParams()
 	const [answers, setAnswers] = useState({})
 	const [questions, setQuestions] = useState([])
 	const [normalizedContent, setNormalizedContent] = useState([])
@@ -251,7 +253,7 @@ const ContentView = ({
 
 	const [activeIndex, setActiveIndex] = useState(0)
 
-	const [studentWork, setStudentWork] = useState()
+	const [studentWork, setStudentWork] = useState([])
 	const [studentAnswers, setStudentAnswers] = useState([])
 	const [lastQuestion, setLastQuestion] = useState(false)
 
@@ -396,13 +398,31 @@ const ContentView = ({
 	//       PRACTICE
 	// ==========================
 
+	useEffect(() => {
+		const fetchStudentWork = async () => {
+			try {
+				const res = await api.get(
+					`${API}/sections/${sectionId}/uploads/assignment`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+			} catch (error) {}
+		}
+		if (sectionId) {
+			fetchStudentWork()
+		}
+	}, [sectionId])
+
 	const sendResultOfWork = async () => {
 		try {
-			const payload = studentWork?.map(f => f.file_path)
-
+			console.log(studentWork)
 			const res = await api.post(
 				`${API}/sections/${sectionId}/upload/assignment`,
-				payload,
+				studentWork,
 				{
 					withCredentials: true,
 					headers: {
@@ -412,6 +432,10 @@ const ContentView = ({
 			)
 		} catch (error) {}
 	}
+
+	console.log(
+		`courses/${courseId}/sections/${sectionId}/assignments/user/${userId}`,
+	)
 
 	// ============================================
 	//                RENDER
@@ -554,8 +578,9 @@ const ContentView = ({
 										</p>
 
 										<ConstructorFileInput
-											onChange={setStudentWork}
 											takeValues={studentWork?.content}
+											onChange={data => setStudentWork(data)}
+											destination={`courses/${courseId}/sections/${sectionId}/assignments/user/`}
 										/>
 
 										<SubmitButton
@@ -691,7 +716,7 @@ const ContentView = ({
 	)
 }
 
-export const CourseOverview = ({ moderationCourseId }) => {
+export const CourseOverview = ({ moderationCourseId, userId }) => {
 	const { courseId, SectionId } = useParams()
 
 	const [selectedType, setSelectedType] = useState(null)
@@ -816,6 +841,7 @@ export const CourseOverview = ({ moderationCourseId }) => {
 						contentTitle={selectedName}
 						testId={selectedContent?.id}
 						sectionId={SectionId}
+						userId={userId}
 						clearSelection={() => {
 							setSelectedContent(null)
 						}}
@@ -826,7 +852,7 @@ export const CourseOverview = ({ moderationCourseId }) => {
 	)
 }
 
-const CoursePage = ({ moderationCourseId }) => {
+const CoursePage = ({ moderationCourseId, userId }) => {
 	const { courseId, SectionId } = useParams()
 	const [courseContent, setCourseContent] = useState()
 
@@ -867,7 +893,10 @@ const CoursePage = ({ moderationCourseId }) => {
 				{SectionId ? (
 					<Outlet />
 				) : (
-					<CourseOverview moderationCourseId={moderationCourseId} />
+					<CourseOverview
+						moderationCourseId={moderationCourseId}
+						userId={userId}
+					/>
 				)}
 			</div>
 			{Files.length !== 0 && (
