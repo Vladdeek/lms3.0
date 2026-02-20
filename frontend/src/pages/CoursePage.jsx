@@ -100,7 +100,7 @@ const ModuleTitle = ({ title, index, isExpanded, onToggle, children }) => {
 	)
 }
 
-const ModuleContent = ({ type, title, onClick, isLocked, id }) => {
+const ModuleContent = ({ type, title, isLocked, id }) => {
 	const { SectionId } = useParams()
 
 	const isSelected = String(SectionId) === String(id)
@@ -119,7 +119,7 @@ const ModuleContent = ({ type, title, onClick, isLocked, id }) => {
   `
 
 	return (
-		<div onClick={!isLocked ? onClick : undefined} className={wrapperClass}>
+		<div className={wrapperClass}>
 			<div className='flex flex-col gap-1 w-full rounded-xl text-[var(--middle)]'>
 				{/* HEADER */}
 				<div className='flex justify-between pt-0.5 w-full pr-0.5'>
@@ -161,34 +161,43 @@ const ModuleBlock = ({ ModuleInfo, selectedContent }) => {
 	return (
 		<div className='h-fit overflow-y-scroll hide-scrollbar p-2'>
 			<div className='flex flex-col gap-3 rounded-xl'>
-				{ModuleInfo?.map((module, index) => {
-					const isExpanded = expandedModules[index] === true
+				{ModuleInfo?.slice()
+					.sort((a, b) => a.index_order - b.index_order)
+					.map((module, index) => {
+						const isExpanded = expandedModules[index] === true
 
-					return (
-						<ModuleTitle
-							key={module.id}
-							title={module.name}
-							index={index + 1}
-							isExpanded={isExpanded}
-							onToggle={() => toggleModule(index)}
-						>
-							{module.module_sections?.map(lesson => (
-								<NavLink
-									key={lesson.id}
-									to={`/course/${courseId}/lesson/${lesson.id}`}
-									prefetch='intent'
-								>
-									<ModuleContent
-										title={lesson.title}
-										type={lesson.type}
-										isLocked={lesson.locked}
-										id={lesson.id}
-									/>
-								</NavLink>
-							))}
-						</ModuleTitle>
-					)
-				})}
+						return (
+							<ModuleTitle
+								key={module.id}
+								title={module.name}
+								index={index + 1}
+								isExpanded={isExpanded}
+								onToggle={() => toggleModule(index)}
+							>
+								{module.module_contents
+									.slice()
+									.sort((a, b) => a.index_order - b.index_order)
+									.map(lesson => (
+										<NavLink
+											key={lesson.id}
+											to={
+												lesson.locked
+													? undefined
+													: `/course/${courseId}/lesson/${lesson.id}`
+											}
+											prefetch='intent'
+										>
+											<ModuleContent
+												title={lesson.title}
+												type={lesson.type}
+												isLocked={lesson.locked}
+												id={lesson.id}
+											/>
+										</NavLink>
+									))}
+							</ModuleTitle>
+						)
+					})}
 			</div>
 		</div>
 	)
