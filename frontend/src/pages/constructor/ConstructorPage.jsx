@@ -248,7 +248,7 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 	return (
 		<div className='relative z-10'>
 			<button
-				disabled={!access && Locked === null}
+				disabled={!(access && Locked !== null)}
 				onClick={() => putLocked()}
 				className={`rounded-lg h-full flex ga}p-4 aspect-square justify-center items-center  transition-all  ${
 					access && Locked !== null
@@ -268,7 +268,7 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 					<Lock size={24} />
 				)}
 			</button>
-			{!isOpen && (
+			{/* {!isOpen && (
 				<div className='absolute bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col gap-4 p-4 top-14 right-0  min-w-[320px]'>
 					<div className='flex flex-col gap-5'>
 						<div className='flex flex-col'>
@@ -354,7 +354,7 @@ const DateButton = ({ sectionType, selectedContentId, access, sectionId }) => {
 						</button>
 					</div>
 				</div>
-			)}
+			)} */}
 		</div>
 	)
 }
