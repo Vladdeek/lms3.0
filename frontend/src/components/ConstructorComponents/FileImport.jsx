@@ -19,6 +19,7 @@ import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 import { Loading } from '../Loader'
 import { useParams } from 'react-router-dom'
+import { de } from 'date-fns/locale'
 
 export const ConstructorFileInput = ({
 	onStatusChange,
@@ -26,6 +27,7 @@ export const ConstructorFileInput = ({
 	onChange,
 	takeValues,
 	destination,
+	deleteDisabled = false,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
@@ -37,7 +39,7 @@ export const ConstructorFileInput = ({
 	const maxSize = maxFileSizeInMB * 1024 * 1024
 	const maxFiles = 10
 
-	console.log(files)
+	console.log('Files:', files)
 
 	const [isFileValid, setIsFileValid] = useState(true)
 
@@ -313,19 +315,20 @@ export const ConstructorFileInput = ({
 										</p>
 									</div>
 								</div>
-								{DelComponent ? (
-									<X
-										size={20}
-										onClick={() => removeFile(index)}
-										className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-									/>
-								) : (
-									<Trash2
-										size={20}
-										onClick={() => removeFile(index)}
-										className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
-									/>
-								)}
+								{!deleteDisabled &&
+									(DelComponent ? (
+										<X
+											size={20}
+											onClick={() => removeFile(index)}
+											className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+										/>
+									) : (
+										<Trash2
+											size={20}
+											onClick={() => removeFile(index)}
+											className='text-[var(--black)] hover:bg-red-500 hover:text-[var(--white)] cursor-pointer transition-all rounded-lg h-fit w-fit p-1 flex items-center justify-center'
+										/>
+									))}
 							</div>
 						))}
 					</div>

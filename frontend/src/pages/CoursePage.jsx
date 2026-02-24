@@ -398,44 +398,44 @@ const ContentView = ({
 	//       PRACTICE
 	// ==========================
 
-	// TO-DO
-	// useEffect(() => {
-	// 	const fetchStudentWork = async () => {
-	// 		try {
-	// 			const res = await api.get(
-	// 				`${API}/sections/${sectionId}/uploads/assignment`,
-	// 				{
-	// 					withCredentials: true,
-	// 					headers: {
-	// 						'Content-Type': 'application/json',
-	// 					},
-	// 				},
-	// 			)
-	// 			console.log('res:', res.data)
-	// 			setStudentWork(res.data)
-	// 		} catch (error) {}
-	// 	}
-	// 	if (sectionId) {
-	// 		fetchStudentWork()
-	// 	}
-	// }, [sectionId])
+	useEffect(() => {
+		const fetchStudentWork = async () => {
+			try {
+				const res = await api.get(
+					`${API}/sections/${sectionId}/upload/assignment`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+				console.log('res:', res.data)
+				setStudentWork(res.data.content)
+				setGradeStatus(res.data.grade_status)
+			} catch (error) {}
+		}
+		if (sectionId) {
+			fetchStudentWork()
+		}
+	}, [sectionId])
 
-	// console.log('studentWork:', studentWork)
-	// const sendResultOfWork = async () => {
-	// 	try {
-	// 		console.log(studentWork)
-	// 		const res = await api.post(
-	// 			`${API}/sections/${sectionId}/upload/assignment`,
-	// 			studentWork,
-	// 			{
-	// 				withCredentials: true,
-	// 				headers: {
-	// 					'Content-Type': 'application/json',
-	// 				},
-	// 			},
-	// 		)
-	// 	} catch (error) {}
-	// }
+	console.log('studentWork:', studentWork)
+	const sendResultOfWork = async () => {
+		try {
+			console.log(studentWork)
+			const res = await api.post(
+				`${API}/sections/${sectionId}/upload/assignment`,
+				studentWork,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			)
+		} catch (error) {}
+	}
 
 	// ============================================
 	//                RENDER
@@ -562,7 +562,7 @@ const ContentView = ({
 								)
 							})}
 
-							{/* TO-DO {contentType === 'practice' && (
+							{contentType === 'practice' && (
 								<motion.div
 									key={normalizedContent.length}
 									initial={{ scale: 0.8, opacity: 0 }}
@@ -572,24 +572,43 @@ const ContentView = ({
 										delay: normalizedContent.length * 0.1,
 									}}
 								>
-									<div className='hidden w-full flex flex-col justify-center gap-3'>
+									<div className='w-full flex flex-col justify-center gap-3'>
 										<p className='text-center font-medium text-xl text-[var(--black)]'>
 											Прикрепить файл для проверки
 										</p>
-
-										<ConstructorFileInput
-											takeValues={studentWork}
-											onChange={data => setStudentWork(data)}
-											destination={`courses/${courseId}/sections/${sectionId}/assignments/user/`}
-										/>
-
+										{gradeStatus ? (
+											<FileView
+												Files={studentWork?.map(file => ({
+													file_path: file.file_path,
+													name: file.original_name,
+													type: file.mime_type,
+													size: file.file_size,
+												}))}
+											/>
+										) : (
+											<ConstructorFileInput
+												takeValues={studentWork?.map(file => ({
+													file_path: file.file_path,
+													name: file.original_name,
+													type: file.mime_type,
+													size: file.file_size,
+												}))}
+												onChange={data => setStudentWork(data)}
+												destination={`courses/${courseId}/sections/${sectionId}/assignments/user/`}
+											/>
+										)}
 										<SubmitButton
-											title={'Отправить на проверку'}
+											title={
+												gradeStatus
+													? 'Отправлено на проверку'
+													: 'Отправить на проверку'
+											}
 											onClick={sendResultOfWork}
+											disabled={gradeStatus}
 										/>
 									</div>
 								</motion.div>
-							)} */}
+							)}
 						</>
 					) : (
 						<div className='flex w-full h-150 justify-center items-center'>
