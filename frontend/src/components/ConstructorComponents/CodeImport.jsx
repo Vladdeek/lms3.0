@@ -168,8 +168,8 @@ export const CodeFileInput = ({
 							isDragActive
 								? 'bg-[var(--hero-pale)]'
 								: !isFileValid
-								? 'bg-[var(--hard-lvl-bg)]'
-								: 'bg-[var(--light-gray)]'
+									? 'bg-[var(--hard-lvl-bg)]'
+									: 'bg-[var(--light-gray)]'
 						} rounded-xl transition-all w-full`}
 					>
 						<label
@@ -178,8 +178,8 @@ export const CodeFileInput = ({
 								isDragActive
 									? 'border-[var(--hero-epta)]'
 									: !isFileValid
-									? 'border-[var(--hard-lvl-text)]'
-									: 'border-[var(--middle)]'
+										? 'border-[var(--hard-lvl-text)]'
+										: 'border-[var(--middle)]'
 							}`}
 							onDragOver={handleDragOver}
 							onDragLeave={handleDragLeave}
@@ -193,8 +193,8 @@ export const CodeFileInput = ({
 										isDragActive
 											? 'text-[var(--hero-epta)]'
 											: !isFileValid
-											? 'text-[var(--hard-lvl-text)]'
-											: 'text-[var(--middle)]'
+												? 'text-[var(--hard-lvl-text)]'
+												: 'text-[var(--middle)]'
 									}`}
 								/>
 
@@ -203,8 +203,8 @@ export const CodeFileInput = ({
 										isDragActive
 											? 'bg-[var(--hero-epta)] text-[var(--white)]'
 											: !isFileValid
-											? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
-											: 'bg-[var(--light-middle)] text-[var(--black)]'
+												? 'bg-[var(--red-status-bg)] text-[var(--hard-lvl-text)]'
+												: 'bg-[var(--light-middle)] text-[var(--black)]'
 									} `}
 								>
 									до {maxFileSizeInMB} МБ, только файлы кода
