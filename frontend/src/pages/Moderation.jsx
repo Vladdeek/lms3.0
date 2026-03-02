@@ -336,8 +336,8 @@ const Moderation = ({ role }) => {
 										}
 										img={item?.image_url}
 										user_img={item?.teacher_profile_personal_data?.photo}
-										onClick={() => setActive(index)}
-										active={active === index}
+										onClick={() => setActive(item?.id)}
+										active={active === item?.id}
 									/>
 								</motion.div>
 							))
@@ -371,16 +371,18 @@ const Moderation = ({ role }) => {
 								>
 									<ArrowLeft />
 								</button>
+
 								<button
 									onClick={() => setModalOpen(true)}
-									className='font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2 hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer transition-all active:scale-97'
+									disabled={selected !== 0}
+									className={`${selected !== 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer active:scale-97'} font-medium rounded-lg bg-[var(--black)] text-[var(--white)] w-fit px-5 py-2  transition-all `}
 								>
 									Рецензировать
 								</button>
 							</div>
 
 							<div className='mt-1 flex-1 mb-4'>
-								<ModerationComponent moderationCourseId={courses[active]?.id} />
+								<ModerationComponent moderationCourseId={active} />
 							</div>
 						</div>
 					)}
