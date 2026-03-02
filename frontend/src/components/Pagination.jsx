@@ -1,24 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Pagination from '@mui/material/Pagination'
 import Stack from '@mui/material/Stack'
 
-const BasicPagination = ({ count, onPageChange }) => {
-	const [page, setPage] = useState(1)
-
-	const handleChange = (event, value) => {
-		setPage(value)
-		onPageChange?.(value)
-	}
-
+const BasicPagination = ({ count, onPageChange, page, siblingCount }) => {
 	return (
 		<div className='flex justify-center w-full'>
 			<Stack spacing={1}>
 				<Pagination
 					count={count}
 					page={page}
-					onChange={handleChange}
+					onChange={(e, value) => onPageChange?.(value)}
 					shape='rounded'
 					size='medium'
+					siblingCount={siblingCount}
 					sx={{
 						'& .MuiPaginationItem-root': {
 							color: 'var(--black)',

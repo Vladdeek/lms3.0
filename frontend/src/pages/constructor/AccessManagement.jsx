@@ -177,11 +177,11 @@ const AccessBlock = ({
 	onChangeChapter,
 	onChangePage,
 	pagecounts,
+	page,
 }) => {
 	const [dragged, setDragged] = useState(null)
 	const [selected, setSelected] = useState(0)
 	const [selectedChapter, setSelectedChapter] = useState(0)
-	const [page, setPage] = useState(1)
 
 	const entityType =
 		title ?? (selected === 0 ? ENTITY.STUDENTS : ENTITY.TEACHERS)
@@ -190,8 +190,7 @@ const AccessBlock = ({
 	useEffect(() => {
 		onChange?.(selected)
 		onChangeChapter?.(selectedChapter)
-		onChangePage?.(page)
-	}, [selected, selectedChapter, page])
+	}, [selected, selectedChapter])
 
 	const headers = {
 		students: ['Номер группы', 'Уровень обр.', 'Курс', 'Кол-во студентов', ''],
@@ -322,7 +321,11 @@ const AccessBlock = ({
 					{mass?.map(renderItem)}
 				</div>
 			)}
-			<BasicPagination count={pagecounts} onPageChange={setPage} />
+			<BasicPagination
+				count={pagecounts}
+				onPageChange={onChangePage}
+				page={page}
+			/>
 		</div>
 	)
 }
@@ -365,12 +368,15 @@ const AccessManagement = ({ onChange }) => {
 		const timer = setTimeout(() => {
 			fetchData(selectedEntity, 'linked', searchLinked)
 			fetchData(selectedEntity, 'unlinked', searchUnlinked)
-			setLinkedPage(1)
-			setUnlinkedPage(1)
 		}, 500) // ← задержка, например 500 мс
 
 		return () => clearTimeout(timer)
-	}, [selectedEntity, searchLinked, searchUnlinked])
+	}, [selectedEntity, searchLinked, searchUnlinked, unlinkedPage, linkedPage])
+
+	useEffect(() => {
+		setLinkedPage(1)
+		setUnlinkedPage(1)
+	}, [selectedEntity])
 
 	const handleAdd = id =>
 		api
@@ -414,6 +420,7 @@ const AccessManagement = ({ onChange }) => {
 					}
 					onChangePage={setUnlinkedPage}
 					pagecounts={unlinked?.pages}
+					page={unlinkedPage}
 				/>
 
 				<AccessBlock
@@ -426,6 +433,7 @@ const AccessManagement = ({ onChange }) => {
 					loading={loading === 1}
 					onChangePage={setLinkedPage}
 					pagecounts={linked?.pages}
+					page={linkedPage}
 				/>
 			</div>
 			<div className='min-lg:hidden'>
@@ -442,6 +450,7 @@ const AccessManagement = ({ onChange }) => {
 						onChangeChapter={setSelectedChapter}
 						onChangePage={setUnlinkedPage}
 						pagecounts={unlinked?.pages}
+						page={unlinkedPage}
 					/>
 				) : (
 					<AccessBlock
@@ -455,6 +464,7 @@ const AccessManagement = ({ onChange }) => {
 						onChangeChapter={setSelectedChapter}
 						onChangePage={setLinkedPage}
 						pagecounts={linked?.pages}
+						page={linkedPage}
 					/>
 				)}
 			</div>

@@ -15,6 +15,8 @@ import Loader, { AltLoader } from '../components/Loader'
 import { InputDefault, SearchInput, TextArea } from '../components/Inputs'
 import ModerationComponent from './ModerationView'
 import { getCookie, token } from '../TOKEN'
+import { RadioButton } from '../components/Buttons'
+import BasicPagination from '../components/Pagination'
 
 const ModerationCourseCard = ({
 	img,
@@ -199,6 +201,13 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 }
 
 const Moderation = ({ role }) => {
+	const options = [
+		{ value: 0, title: 'На рассмотрении' },
+		{ value: 1, title: 'Все' },
+	]
+	const [selected, setSelected] = useState(0)
+	const [page, setPage] = useState(1)
+
 	const [courses, setCourses] = useState([])
 	const [coursesIsLoading, setCoursesIsLoading] = useState(false)
 
@@ -207,15 +216,18 @@ const Moderation = ({ role }) => {
 
 	const [status, setStatus] = useState(null)
 
-	const fetchAllCourses = async () => {
+	const fetchAllCourses = async (term = '') => {
 		setCoursesIsLoading(true)
 		try {
-			const res = await api.get(`${API}/courses/all/pending`, {
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
+			const res = await api.get(
+				`${API}/courses/${selected === 0 ? 'all/pending' : ''}?size=${25}&page=${page}${term.length > 0 ? `&term=${term}` : ''}`,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
 				},
-			})
+			)
 
 			setGlobalError(null)
 
@@ -230,8 +242,21 @@ const Moderation = ({ role }) => {
 	}
 
 	useEffect(() => {
+		const timer = setTimeout(() => {
+			fetchAllCourses(searchValue)
+		}, 500) // ← задержка, например 500 мс
+
+		return () => clearTimeout(timer)
+	}, [searchValue])
+
+	useEffect(() => {
+		setPage(1)
 		fetchAllCourses()
-	}, []) //при загрузке страницы
+	}, [selected])
+
+	useEffect(() => {
+		fetchAllCourses()
+	}, [page])
 
 	useEffect(() => {
 		status !== null && fetchAllCourses()
@@ -249,7 +274,7 @@ const Moderation = ({ role }) => {
 				onClose={() => setModalOpen(false)}
 				onChange={() => setStatus()}
 			/>
-			<div className='w-full h-[85vh] mt-10 xl:grid xl:grid-cols-[1fr_4fr] gap-5 '>
+			<div className='w-full relative h-[85vh] mt-10 xl:grid xl:grid-cols-[1fr_4fr] gap-5 '>
 				<div
 					className={`
     w-full h-full bg-[var(--white)] rounded-2xl
@@ -265,8 +290,26 @@ const Moderation = ({ role }) => {
 						value={searchValue}
 						loading={searchIsLoading}
 					/>
-					<p className='font-medium text-xl text-[var(--black)]'>Новые курсы</p>
-					<div className='flex flex-col gap-3 w-full items-center'>
+					<div className='w-full flex gap-1'>
+						{options?.map((item, index) => {
+							return (
+								<RadioButton
+									key={item?.value}
+									name='example'
+									value={item?.value}
+									title={item?.title}
+									icon={item?.icon}
+									checked={selected === item?.value}
+									onChange={() => setSelected(item?.value)}
+									fill={true}
+									wfull={true}
+									className={'whitespace-nowrap'}
+								/>
+							)
+						})}
+					</div>
+
+					<div className=' flex flex-col gap-3 w-full items-center'>
 						{coursesIsLoading ? (
 							<div className='w-full h-20 flex items-center justify-center'>
 								<AltLoader />
@@ -274,7 +317,7 @@ const Moderation = ({ role }) => {
 						) : courses?.length === 0 ? (
 							<p className='text-[var(--middle)]'>Нет новых курсов</p>
 						) : (
-							courses?.map((item, index) => (
+							courses?.items?.map((item, index) => (
 								<motion.div
 									key={index}
 									initial={{ scale: 0.8, opacity: 0 }}
@@ -299,6 +342,14 @@ const Moderation = ({ role }) => {
 								</motion.div>
 							))
 						)}
+					</div>
+					<div className='absolute bottom-2 bg-[var(--white)] flex w-75 rounded-lg shadow-[var(--shadow)] justify-center p-1'>
+						<BasicPagination
+							count={courses.pages}
+							page={page}
+							onPageChange={setPage}
+							siblingCount={0}
+						/>
 					</div>
 				</div>
 				<div
