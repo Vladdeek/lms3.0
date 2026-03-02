@@ -75,7 +75,6 @@ export const CodeFileInput = ({
 			cpp: 'cpp',
 			c: 'c',
 			cs: 'csharp',
-			php: 'php',
 			rb: 'ruby',
 			go: 'go',
 			rs: 'rust',
