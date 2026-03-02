@@ -152,7 +152,7 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 		if (!selectedContent) return
 
 		ModuleInfo?.forEach((module, moduleIndex) => {
-			const hasSelectedLesson = module.module_sections?.some(
+			const hasSelectedLesson = module.module_contents?.some(
 				lesson => lesson.id === selectedContent.id,
 			)
 
@@ -164,6 +164,8 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 			}
 		})
 	}, [selectedContent, ModuleInfo])
+
+	console.log(ModuleInfo)
 
 	const [selectedContentId, setSelectedContentId] = useState(null)
 
@@ -181,16 +183,16 @@ const ModuleBlock = ({ ModuleInfo, onContentSelect, selectedContent }) => {
 							isExpanded={isExpanded}
 							onToggle={() => toggleModule(index)}
 						>
-							{module.module_sections?.map((lesson, idx) => (
+							{module.module_contents?.map((lesson, idx) => (
 								<ModuleContent
 									key={lesson.id}
 									title={lesson.title}
 									type={lesson.type}
 									isLocked={lesson.locked}
-									isSelected={selectedContentId === idx}
+									isSelected={selectedContentId === lesson.id}
 									onClick={() => {
 										onContentSelect(lesson.id, lesson.type, lesson.title)
-										setSelectedContentId(idx)
+										setSelectedContentId(lesson.id)
 									}}
 								/>
 							))}

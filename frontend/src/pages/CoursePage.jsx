@@ -415,10 +415,11 @@ const ContentView = ({
 				setGradeStatus(res.data.grade_status)
 			} catch (error) {}
 		}
-		if (sectionId) {
+
+		if (contentType === 'practice') {
 			fetchStudentWork()
 		}
-	}, [sectionId])
+	}, [contentType])
 
 	console.log('studentWork:', studentWork)
 	const sendResultOfWork = async () => {

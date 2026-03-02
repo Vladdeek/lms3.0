@@ -11,8 +11,8 @@ import api, { API, FILE_API } from '../API'
 import { setGlobalError } from '../components/Errors'
 import CoursePage from './CoursePage'
 import { motion } from 'framer-motion'
-import Loader from '../components/Loader'
-import { InputDefault, TextArea } from '../components/Inputs'
+import Loader, { AltLoader } from '../components/Loader'
+import { InputDefault, SearchInput, TextArea } from '../components/Inputs'
 import ModerationComponent from './ModerationView'
 import { getCookie, token } from '../TOKEN'
 
@@ -200,10 +200,15 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 
 const Moderation = ({ role }) => {
 	const [courses, setCourses] = useState([])
+	const [coursesIsLoading, setCoursesIsLoading] = useState(false)
+
+	const [searchValue, setSearchValue] = useState('')
+	const [searchIsLoading, setSearchIsLoading] = useState(false)
 
 	const [status, setStatus] = useState(null)
 
 	const fetchAllCourses = async () => {
+		setCoursesIsLoading(true)
 		try {
 			const res = await api.get(`${API}/courses/all/pending`, {
 				withCredentials: true,
@@ -217,7 +222,11 @@ const Moderation = ({ role }) => {
 			setCourses(res.data)
 
 			setActive(null)
-		} catch (error) {}
+		} catch (error) {
+			setGlobalError(error)
+		} finally {
+			setCoursesIsLoading(false)
+		}
 	}
 
 	useEffect(() => {
@@ -249,30 +258,47 @@ const Moderation = ({ role }) => {
     ${active !== null ? 'hidden xl:flex' : 'flex'}
   `}
 				>
+					<SearchInput
+						width='100%'
+						height={48}
+						onChange={e => setSearchValue(e.target.value)}
+						value={searchValue}
+						loading={searchIsLoading}
+					/>
 					<p className='font-medium text-xl text-[var(--black)]'>Новые курсы</p>
-					<div className='flex flex-col-reverse gap-3 w-full items-center'>
-						{courses?.map((item, index) => (
-							<motion.div
-								key={index}
-								initial={{ scale: 0.8, opacity: 0 }}
-								animate={{ scale: 1, opacity: 1 }}
-								transition={{
-									duration: 0.3,
-									delay: index * 0.1,
-									ease: 'easeOut',
-								}}
-								className='w-full'
-							>
-								<ModerationCourseCard
-									title={item?.name}
-									fullname={item?.teacher_profile_personal_data?.personal_data}
-									img={item?.image_url}
-									user_img={item?.teacher_profile_personal_data?.photo}
-									onClick={() => setActive(index)}
-									active={active === index}
-								/>
-							</motion.div>
-						))}
+					<div className='flex flex-col gap-3 w-full items-center'>
+						{coursesIsLoading ? (
+							<div className='w-full h-20 flex items-center justify-center'>
+								<AltLoader />
+							</div>
+						) : courses?.length === 0 ? (
+							<p className='text-[var(--middle)]'>Нет новых курсов</p>
+						) : (
+							courses?.map((item, index) => (
+								<motion.div
+									key={index}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: index * 0.1,
+										ease: 'easeOut',
+									}}
+									className='w-full'
+								>
+									<ModerationCourseCard
+										title={item?.name}
+										fullname={
+											item?.teacher_profile_personal_data?.personal_data
+										}
+										img={item?.image_url}
+										user_img={item?.teacher_profile_personal_data?.photo}
+										onClick={() => setActive(index)}
+										active={active === index}
+									/>
+								</motion.div>
+							))
+						)}
 					</div>
 				</div>
 				<div
