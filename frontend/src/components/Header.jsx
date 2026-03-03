@@ -436,6 +436,18 @@ export const Header = ({ links = [], UserInfo = null }) => {
 
 	const [isOpen, setIsOpen] = useState(false)
 
+	useEffect(() => {
+		if (showSelectRoleModal) {
+			document.body.style.overflow = 'hidden'
+		} else {
+			document.body.style.overflow = ''
+		}
+
+		return () => {
+			document.body.style.overflow = ''
+		}
+	}, [showSelectRoleModal])
+
 	return (
 		<div className='relative'>
 			{showMessage && (
@@ -464,9 +476,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 				</div>
 			)}
 			{showSelectRoleModal && (
-				<div
-					className={`absolute z-1000 h-screen w-screen md:-left-10 flex items-center backdrop-blur-xs justify-center transition-all`}
-				>
+				<div className='fixed inset-0 z-[1000] flex items-center justify-center backdrop-blur-sm bg-black/40'>
 					<div className='relative p-4 h-fit w-full mx-5 lg:w-2/4 rounded-xl flex flex-col gap-5 items-center justify-center bg-[var(--white)] shadow-[var(--shadow)]'>
 						<X
 							onClick={() => setShowSelectRoleModal(false)}
