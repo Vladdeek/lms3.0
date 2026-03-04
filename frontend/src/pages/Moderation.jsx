@@ -118,9 +118,11 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 	// 	}
 	// }
 	const handleSubmit = async () => {
+		console.log(courseId)
 		if (!courseId) return
 
 		try {
+			console.log('2')
 			const res = await api.post(
 				`${API}/courses/${courseId}/revise`,
 				{
@@ -135,6 +137,7 @@ const AnswerModal = ({ isOpen, onClose, courseId, onChange }) => {
 					},
 				},
 			)
+			console.log('3')
 
 			const data = res.data
 
@@ -265,11 +268,10 @@ const Moderation = ({ role }) => {
 
 	const [active, setActive] = useState(null)
 	const [ModalOpen, setModalOpen] = useState(false)
-
 	return (
 		<>
 			<AnswerModal
-				courseId={courses[active]?.id}
+				courseId={active}
 				isOpen={ModalOpen}
 				onClose={() => setModalOpen(false)}
 				onChange={() => setStatus()}
