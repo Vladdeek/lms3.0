@@ -331,9 +331,7 @@ const Moderation = ({ role }) => {
 								>
 									<ModerationCourseCard
 										title={item?.name}
-										fullname={
-											item?.teacher_profile_personal_data?.personal_data
-										}
+										fullname={item?.teacher_profile_personal_data}
 										img={item?.image_url}
 										user_img={item?.teacher_profile_personal_data?.photo}
 										onClick={() => setActive(item?.id)}
