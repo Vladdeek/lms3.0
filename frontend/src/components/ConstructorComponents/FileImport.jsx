@@ -334,7 +334,8 @@ export const ConstructorFileInput = ({
 					</div>
 				)}
 
-				{files?.length < maxFiles && (
+				{formatFileSize(files.reduce((total, file) => total + file.size, 0)) <
+					formatFileSize(maxSize) && (
 					<div
 						className={`p-2 ${
 							isDragActive
