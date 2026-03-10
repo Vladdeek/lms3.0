@@ -369,8 +369,8 @@ const ContentView = ({
 	const PUT = async () => {
 		try {
 			await api.put(
-				`${API}/tests/student-answers/update/${SectionId}`,
-				answers,
+				`${API}/tests/student-answers/update/${testId}`,
+				studentAnswers,
 				{
 					withCredentials: true,
 					headers: {
@@ -452,6 +452,8 @@ const ContentView = ({
 			)
 		} catch (error) {}
 	}
+
+	console.log(studentAnswers)
 
 	// ============================================
 	//                RENDER
@@ -712,6 +714,12 @@ const ContentView = ({
 																<OpenQuestionView
 																	testId={q?.id}
 																	onChange={setAnswers}
+																	readOnly={questions[activeIndex]?.filled}
+																	studentAnswer={
+																		studentAnswers?.find(
+																			a => q?.id === a.question_id,
+																		)?.answers_data?.student_answer
+																	}
 																/>
 															)
 														}

@@ -13,12 +13,6 @@ export default defineConfig({
 	server: {
 		host: true,
 		https: true,
-		allowedHosts: [
-			'.tuna.am',
-			'.ngrok-free.app',
-			'.ngrok.io',
-			'.trycloudflare.com',
-			'localhost',
-		],
+		allowedHosts: ['il405p-188-137-159-42.ru.tuna.am'],
 	},
 })

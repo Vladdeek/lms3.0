@@ -25,13 +25,26 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	)
 }
 
-const OpenQuestionView = ({ value, testId, onChange }) => {
+const OpenQuestionView = ({
+	value,
+	testId,
+	onChange,
+	readOnly,
+	studentAnswer,
+}) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [question, setQuestion] = useState('')
 	const [media, setMedia] = useState()
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
 	const [answer, setAnswer] = useState('')
+
+	useEffect(() => {
+		console.log(studentAnswer)
+		if (studentAnswer?.length !== 0) {
+			setAnswer(studentAnswer)
+		}
+	}, [studentAnswer])
 
 	useEffect(() => {
 		onChange?.({
@@ -53,7 +66,13 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 
 				const data = res.data
 				setQuestion(data?.title)
-				data?.student_answer !== null && setAnswer(data?.student_answer)
+				setAnswer(
+					data?.student_answer?.length
+						? data.student_answer
+						: studentAnswer?.length
+							? studentAnswer
+							: '',
+				)
 				setMedia(data?.media)
 			} catch (error) {
 				console.error('Ошибка при загрузке теста:', error)
@@ -113,7 +132,7 @@ const OpenQuestionView = ({ value, testId, onChange }) => {
 						className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition mt-3 w-full'
 						placeholder={'Введите свой вариант ответа...'}
 						value={answer || value}
-						readOnly={answer || value}
+						readOnly={readOnly}
 						onChange={e => setAnswer(e.target.value)}
 					/>
 					{value && (
