@@ -340,6 +340,25 @@ const ContentView = ({
 		fetchSession()
 	}
 
+	const PUT = async () => {
+		try {
+			await api.put(
+				`${API}/tests/student-answers/update/${SectionId}`,
+				answers,
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			)
+		} catch (error) {
+			console.error('Ошибка:', error)
+		}
+
+		setAnswers(null)
+	}
+
 	const handleStudentAnswer = () => {
 		if (activeIndex + 1 !== questions.length) {
 			setActiveIndex(prev => prev + 1)
@@ -364,32 +383,9 @@ const ContentView = ({
 		setQuestions(prev =>
 			prev.map(item => (item.id === q?.id ? { ...item, filled: true } : item)),
 		)
+
+		PUT()
 	}
-
-	const PUT = async () => {
-		try {
-			await api.put(
-				`${API}/tests/student-answers/update/${testId}`,
-				studentAnswers,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			)
-		} catch (error) {
-			console.error('Ошибка:', error)
-		}
-
-		setAnswers(null)
-	}
-
-	useEffect(() => {
-		if (studentAnswers?.length && testId) {
-			PUT()
-		}
-	}, [studentAnswers, testId])
 
 	const testEnd = async () => {
 		try {
@@ -656,9 +652,9 @@ const ContentView = ({
 									</p>
 								</div>
 							) : gradeStatus === 'pending' ? (
-								<div className='w-full h-full flex justify-center gap-3 items-center'>
-									<p className='font-normal text-[var(--black)] text-xl'>
-										На рассмотрении
+								<div className='w-full h-full flex flex-col-reverse justify-center gap-3 items-center'>
+									<p className='font-light text-[var(--middle)] text-md'>
+										(На рассмотрении)
 									</p>
 									<p className='px-4 py-2 font-medium rounded-lg bg-[var(--hero-epta)] text-white text-xl'>
 										? / 5
@@ -686,6 +682,8 @@ const ContentView = ({
 												<div className='w-full flex justify-center'>
 													{(() => {
 														const q = questions[activeIndex]
+
+														console.log(q)
 
 														if (q?.type === 'multiple') {
 															return (
@@ -729,10 +727,17 @@ const ContentView = ({
 												</div>
 
 												<div className='flex justify-center gap-3'>
-													{!lastQuestion ? (
+													{questions?.every(q => q.filled) ? (
+														<button
+															onClick={() => testEnd()}
+															className='px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white'
+														>
+															Завершить тест
+														</button>
+													) : (
 														<div className='flex flex-col gap-3 items-center'>
 															<button
-																onClick={handleStudentAnswer}
+																onClick={() => handleStudentAnswer()}
 																disabled={questions[activeIndex]?.filled}
 																className={`w-fit px-3 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium flex ${
 																	questions[activeIndex]?.filled
@@ -748,13 +753,6 @@ const ContentView = ({
 																ответ.
 															</p>
 														</div>
-													) : (
-														<button
-															onClick={() => testEnd()}
-															className='px-4 py-2 bg-[var(--black)] text-[var(--white)] rounded-lg font-medium hover:bg-[var(--hero-epta)] hover:text-white'
-														>
-															Завершить тест
-														</button>
 													)}
 												</div>
 											</>

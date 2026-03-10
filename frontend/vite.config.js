@@ -5,14 +5,8 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vite.dev/config/
 export default defineConfig({
-	plugins: [
-		tailwindcss(),
-		react(),
-		basicSsl(), // <-- включает https
-	],
+	plugins: [tailwindcss(), react()],
 	server: {
-		host: true,
-		https: true,
-		allowedHosts: ['il405p-188-137-159-42.ru.tuna.am'],
+		allowedHosts: ['wbz6fa-188-190-18-199.ru.tuna.am'],
 	},
 })
