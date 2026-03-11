@@ -1,5 +1,5 @@
 import { act, useEffect, useState } from 'react'
-import { OptionInput } from '../components/Inputs'
+import { OptionInput, OptionInput2 } from '../components/Inputs'
 
 import {
 	ArrowBigDownDash,
@@ -262,56 +262,54 @@ const PracticeView = ({ content }) => {
 
 const LevelsBar = ({
 	questions,
-	setQuestions,
 	activeIndex,
 	setActiveIndex,
 	studentAnswers,
 }) => {
-	return (
-		<>
-			<div className='flex gap-3'>
-				{questions.map((q, idx) => {
-					const answerStatus = studentAnswers[idx]?.correctness_status
+	const styles = {
+		correct: {
+			border:
+				'border-b-[3px] border-[var(--correct-lvl)] shadow-[var(--correct-glow)]',
+			active: 'bg-[var(--correct-lvl)] text-white',
+			inactive:
+				'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--correct-lvl)] hover:text-white',
+		},
+		incorrect: {
+			border:
+				'border-b-[3px] border-[var(--not-correct-lvl)] shadow-[var(--not-correct-glow)]',
+			active: 'bg-[var(--not-correct-lvl)] text-white',
+			inactive:
+				'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--not-correct-lvl)] hover:text-white',
+		},
+		default: {
+			border: 'border-b-[3px] border-[var(--middle)] shadow-[var(--shadow)]',
+			active: 'bg-[var(--middle)] text-white',
+			inactive:
+				'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle)] hover:text-white',
+		},
+	}
 
-					return (
-						<div
-							key={q.id}
-							onClick={() => setActiveIndex(idx)}
-							className={`w-10 h-10 flex flex-wrap justify-center items-center rounded-md cursor-pointer transition-all 
-                ${
-									answerStatus === 'correct'
-										? 'border-b-[3px] border-[var(--correct-lvl)] shadow-[var(--correct-glow)]'
-										: answerStatus === 'partial'
-											? 'border-b-[3px] border-[var(--middle-correct-lvl)] shadow-[var(--middle-correct-glow)]'
-											: answerStatus === 'not-correct'
-												? 'border-b-[3px] border-[var(--not-correct-lvl)] shadow-[var(--not-correct-glow)]'
-												: 'border-b-[3px] border-[var(--middle)]'
-								}
-                ${
-									activeIndex === idx
-										? answerStatus === 'correct'
-											? 'bg-[var(--correct-lvl)] text-white'
-											: answerStatus === 'partial'
-												? 'bg-[var(--middle-correct-lvl)] text-white'
-												: answerStatus === 'not-correct'
-													? 'bg-[var(--not-correct-lvl)] text-white'
-													: 'bg-[var(--middle)] text-[var(--white)]'
-										: answerStatus === 'correct'
-											? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--correct-lvl)] hover:text-[var(--white)]'
-											: answerStatus === 'partial'
-												? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle-correct-lvl)] hover:text-[var(--white)]'
-												: answerStatus === 'not-correct'
-													? 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--not-correct-lvl)] hover:text-[var(--white)]'
-													: 'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle)] hover:text-[var(--white)]'
-								}
-                active:scale-90`}
-						>
-							{idx + 1}
-						</div>
-					)
-				})}
-			</div>
-		</>
+	return (
+		<div className='flex gap-3'>
+			{questions.map((q, idx) => {
+				const status = studentAnswers[idx]?.correctness_status
+				const style = styles[status] || styles.default
+				const stateClass = activeIndex === idx ? style.active : style.inactive
+
+				return (
+					<div
+						key={q.id}
+						onClick={() => setActiveIndex(idx)}
+						className={`w-10 h-10 flex justify-center items-center rounded-md cursor-pointer transition-all
+						${style.border}
+						${stateClass}
+						active:scale-90`}
+					>
+						{idx + 1}
+					</div>
+				)
+			})}
+		</div>
 	)
 }
 
@@ -378,99 +376,70 @@ const StudentsAndGroups = () => {
 	const Score = [1, 2, 3, 4, 5]
 
 	const [courses, setCourses] = useState([])
+
 	const [groups, setGroups] = useState([])
 	const [students, setStudents] = useState([])
 	const [tasks, setTasks] = useState([])
-	const [lessons, setLessons] = useState([])
-	const [selectedCourse, setSelectedCourse] = useState(0)
-	const [selectedGroupe, setSelectedGroupe] = useState(0)
-	const [selectedStudent, setSelectedStudent] = useState(0)
-	const [selectedTask, setSelectedTask] = useState(null)
+	const [lessons, setLessons] = useState(null)
+
+	const [courseId, setCourseId] = useState(null)
+	const [groupId, setGroupId] = useState(null)
+	const [studentId, setStudentId] = useState(null)
+	const [assignmentId, setAssignmentId] = useState(null)
 
 	const fetchCourses = async () => {
-		try {
-			const res = await api.get(`${API}/courses/`, {
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			})
+		const res = await api.get(`${API}/courses/`)
 
-			setCourses(res.data)
-			setGlobalError(null)
-		} catch (error) {}
+		setCourses(res.data)
 	}
 
-	const fetchGroups = async () => {
-		const id = courses[selectedCourse]?.id
-		try {
-			const res = await api.get(
-				`${API}/courses/student-group/linked/?course_id=${id}`,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			)
+	const fetchGroups = async id => {
+		if (!id) {
+			setGroups([])
+			return
+		}
 
-			setGlobalError(null)
-			setGroups(res.data)
-		} catch (error) {}
+		const res = await api.get(
+			`${API}/courses/student-group/linked/?course_id=${id}`,
+		)
+
+		setGroups(res.data.items || [])
 	}
 
-	const fetchStudents = async () => {
-		const id = groups[selectedGroupe].id
-		try {
-			const res = await api.get(`${API}/student-group/${id}/students`, {
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			})
+	const fetchStudents = async groupId => {
+		if (!groupId) {
+			setStudents([])
+			return
+		}
 
-			setGlobalError(null)
-			setStudents(res.data)
-		} catch (error) {}
+		const res = await api.get(`${API}/student-group/${groupId}/students`)
+		setStudents(res.data)
 	}
 
-	const fetchStudentLessons = async () => {
-		const studentId = students[selectedStudent]?.id
-		const courseId = courses[selectedCourse]?.id
-		try {
-			const res = await api.get(
-				`${API}/student-profile/${studentId}/assignments/?course_id=${courseId}`,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			)
+	const fetchTasks = async (studentId, courseId) => {
+		if (!studentId || !courseId) {
+			setTasks([])
+			return
+		}
 
-			setGlobalError(null)
-			setTasks(res.data)
-		} catch (error) {}
+		const res = await api.get(
+			`${API}/student-profile/${studentId}/assignments/?course_id=${courseId}`,
+		)
+
+		setTasks(res.data)
 	}
 
-	const fetchLesson = async () => {
-		const studentId = students[selectedStudent]?.id
-		const assignmentId = tasks[selectedTask]?.assignment_id
+	const fetchLesson = async (studentId, assignmentId) => {
+		if (!studentId || !assignmentId) {
+			setLessons(null)
+			return
+		}
 
-		try {
-			const res = await api.get(
-				`${API}/student-profile/${studentId}/assignment/result?assignment_id=${assignmentId}`,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			)
+		const res = await api.get(
+			`${API}/student-profile/${studentId}/assignment/result?assignment_id=${assignmentId}`,
+		)
 
-			setGlobalError(null)
-			setLessons(res.data)
-		} catch (error) {}
+		setLessons(res.data)
 	}
 
 	useEffect(() => {
@@ -478,24 +447,32 @@ const StudentsAndGroups = () => {
 	}, [])
 
 	useEffect(() => {
-		courses?.length !== 0 ? fetchGroups() : setGroups([])
-	}, [courses, selectedCourse])
+		fetchGroups(courseId)
+		setGroupId(null)
+		setStudentId(null)
+		setTasks([])
+		setLessons(null)
+	}, [courseId])
 
 	useEffect(() => {
-		groups?.length !== 0 ? fetchStudents() : setStudents([])
-	}, [groups, selectedGroupe])
+		fetchStudents(groupId)
+		setStudentId(null)
+		setTasks([])
+		setLessons(null)
+	}, [groupId])
 
 	useEffect(() => {
-		students?.length !== 0 ? fetchStudentLessons() : setTasks([])
-	}, [students, selectedStudent])
+		fetchTasks(studentId, courseId)
+		setLessons(null)
+	}, [studentId, courseId])
 
 	useEffect(() => {
-		tasks?.length !== 0 ? fetchLesson() : setLessons([])
-	}, [selectedTask])
+		fetchLesson(studentId, assignmentId)
+	}, [assignmentId])
 
-	if (!courses) {
+	if (!courses.length) {
 		return (
-			<div className=' flex items-center justify-center h-full'>
+			<div className='flex items-center justify-center h-full'>
 				<Loader />
 			</div>
 		)
@@ -505,26 +482,25 @@ const StudentsAndGroups = () => {
 			<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-5 xl:mt-15 mb-40 select-none md:min-h-[calc(70vh-100px)]'>
 				<div className='col-span-2 flex flex-col gap-5 h-full'>
 					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
-						<p className='text-[var(--middle)] text-sm'>Выберите курс</p>
+						<p className='text-[var(--middle)] text-sm ml-2'>Курс</p>
 						<OptionInput
 							Options={courses}
 							labelKey='name'
-							onChange={setSelectedCourse}
+							onChange={data => setCourseId(courses[data]?.id)}
+							placeholder='Выберите курс'
 						/>
-					</div>
-					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
-						<p className='text-[var(--middle)] text-sm'>
-							Выберите группу студентов
-						</p>
+						<p className='text-[var(--middle)] text-sm ml-2'>Группа</p>
 						<OptionInput
-							Options={groups?.items}
+							Options={groups}
 							labelKey='name'
-							onChange={setSelectedGroupe}
+							onChange={data => setGroupId(groups[data]?.id)}
+							placeholder='Выберите группу'
 						/>
 					</div>
+
 					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar h-[50vh]'>
 						<div className='flex flex-col gap-3 p-5'>
-							{students.length === 0 ? (
+							{students?.length === 0 ? (
 								<p className='text-center font-light text-[var(--middle)]'>
 									Пусто
 								</p>
@@ -541,9 +517,9 @@ const StudentsAndGroups = () => {
 										}}
 									>
 										<StudentCard
-											key={item.id || index}
-											onClick={() => setSelectedStudent(index)}
-											active={selectedStudent === index}
+											key={item.id}
+											onClick={() => setStudentId(item.id)}
+											active={studentId === item.id}
 											PersonalData={item?.personal_data}
 											img_path={item?.image_path}
 										/>
@@ -580,8 +556,8 @@ const StudentsAndGroups = () => {
 										<TaskCard
 											title={item?.assignment_name}
 											type={item?.assignment_type}
-											onClick={() => setSelectedTask(index)}
-											isActive={selectedTask === index}
+											onClick={() => setAssignmentId(item?.assignment_id)}
+											isActive={assignmentId === item?.assignment_id}
 										/>
 									</motion.div>
 								)

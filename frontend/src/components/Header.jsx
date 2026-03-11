@@ -240,19 +240,25 @@ const ToggleTheme = () => {
 	)
 }
 
-const HeaderLink = ({ title, icon: Icon, to }) => {
+const HeaderLink = ({ title, icon: Icon, to, not_clickable = false }) => {
 	const clearError = () => {
 		setGlobalError(null)
 	}
 
 	return (
 		<NavLink
-			to={to}
-			onClick={clearError}
+			to={!not_clickable && to}
+			onClick={!not_clickable && clearError}
 			className={({ isActive }) =>
 				`inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 cursor-pointer shadow-[var(--shadow)] text-[var(--black)] transition-all select-none ${
-					!isActive ? 'bg-[var(--white)]' : 'bg-[var(--hero-epta)] text-white'
-				}`
+					not_clickable
+						? 'bg-[var(--light-middle)] text-[var(--middle)] opacity-75'
+						: `${
+								!isActive
+									? 'bg-[var(--white)]'
+									: 'bg-[var(--hero-epta)] text-white'
+							}`
+				} `
 			}
 		>
 			{({ isActive }) => (
@@ -260,8 +266,10 @@ const HeaderLink = ({ title, icon: Icon, to }) => {
 					<Icon size={24} />
 					<p
 						className={`font-medium text-base whitespace-nowrap transition-all ${
-							isActive ? 'text-white' : 'hover:text-[var(--black)]'
-						}`}
+							not_clickable
+								? 'text-[var(--middle)]'
+								: ` ${isActive ? 'text-white' : 'hover:text-[var(--black)]'}`
+						} `}
 					>
 						{title}
 					</p>
@@ -555,6 +563,7 @@ export const Header = ({ links = [], UserInfo = null }) => {
 									title={item.title}
 									icon={item.icon}
 									to={item.to}
+									not_clickable={item.not_clickable}
 								/>
 							))}
 						</>

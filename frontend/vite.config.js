@@ -7,6 +7,6 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 export default defineConfig({
 	plugins: [tailwindcss(), react()],
 	server: {
-		allowedHosts: ['wbz6fa-188-190-18-199.ru.tuna.am'],
+		allowedHosts: ['wznxh7-195-110-20-172.ru.tuna.am'],
 	},
 })

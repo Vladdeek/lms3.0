@@ -48,11 +48,13 @@ export default function DashboardLayout({ onChange }) {
 					title: 'Задания',
 					icon: CopyCheck,
 					to: '/students',
+					not_clickable: false,
 				},
 				{
 					title: 'Журнал',
 					icon: CopyCheck,
 					to: '/score',
+					not_clickable: true,
 				},
 			],
 			student: [
@@ -71,6 +73,7 @@ export default function DashboardLayout({ onChange }) {
 					title: 'Оценки',
 					icon: CopyCheck,
 					to: '/score',
+					not_clickable: true,
 				},
 			],
 			moderator: [

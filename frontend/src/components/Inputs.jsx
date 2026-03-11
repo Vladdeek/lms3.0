@@ -665,12 +665,12 @@ export const OptionInput = ({
 	onChange,
 	labelKey = 'name', // 👈 добавили ключ, по которому будем доставать текст
 }) => {
-	const [Selected, setSelected] = useState(0)
+	const [Selected, setSelected] = useState(null)
 	const [isOpen, setIsOpen] = useState(false)
 
 	useEffect(() => {
 		onChange?.(Selected)
-	}, [Selected])
+	}, [Selected, onChange])
 
 	return (
 		<div className='relative select-none'>
@@ -682,17 +682,13 @@ export const OptionInput = ({
 						: 'bg-[var(--black)] text-[var(--white)]'
 				} flex justify-between rounded-lg shadow-[var(--shadow)] cursor-pointer px-4 py-2 font-medium w-full`}
 			>
-				{placeholder.length === 0 ? (
-					<span>
-						{Options[Selected]
-							? typeof Options[Selected] === 'object'
-								? Options[Selected][labelKey] // 👈 если объект — берем нужное поле
-								: Options[Selected]
-							: '—'}
-					</span>
-				) : (
-					<p className='whitespace-nowrap'>{placeholder}</p>
-				)}
+				<span>
+					{Selected !== null && Options[Selected]
+						? typeof Options[Selected] === 'object'
+							? Options[Selected][labelKey]
+							: Options[Selected]
+						: placeholder || '—'}
+				</span>
 				<ChevronDown
 					className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
 				/>

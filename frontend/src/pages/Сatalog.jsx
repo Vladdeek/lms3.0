@@ -1336,6 +1336,8 @@ const Catalog = ({ role, teacher_profile_id }) => {
 		{ value: 5, title: '5-й' },
 		{ value: 6, title: '6-й' },
 	]
+
+	console.log(courses_option)
 	const [selectedCoursesOpt, setSelectedCourseOpt] = useState(null)
 
 	const [activeFilterModal, setActiveFilterModal] = useState(false)
