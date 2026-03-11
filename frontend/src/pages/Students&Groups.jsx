@@ -313,23 +313,24 @@ const LevelsBar = ({
 	)
 }
 
-const TestView = ({ content }) => {
-	const [activeIndex, setActiveIndex] = useState(0)
+const TestView = ({ id, studentId }) => {
+	const [activeIndex, setActiveIndex] = useState(null)
+	const [questions, setQuestions] = useState([])
+
+	useEffect(() => {
+		const res = api.get(`${API}/${studentId}/assignment/test/preview/${id}`)
+		setQuestions(res)
+	}, [id, studentId])
 
 	return (
 		<div className='w-full flex flex-col  gap-3'>
-			<TaskCard
-				title={content?.assignment_name}
-				type={content?.assignment_type}
-				isActive={false}
-			/>
-			<LevelsBar
+			{/* <LevelsBar
 				questions={content?.questions}
 				activeIndex={activeIndex}
 				setActiveIndex={setActiveIndex}
 				studentAnswers={content?.student_answer}
-			/>
-			<div className='flex justify-center'>
+			/> */}
+			{/* <div className='flex justify-center'>
 				{(() => {
 					const q = content?.questions
 
@@ -364,7 +365,7 @@ const TestView = ({ content }) => {
 
 					return null
 				})()}
-			</div>
+			</div> */}
 		</div>
 	)
 }
@@ -385,7 +386,7 @@ const StudentsAndGroups = () => {
 	const [courseId, setCourseId] = useState(null)
 	const [groupId, setGroupId] = useState(null)
 	const [studentId, setStudentId] = useState(null)
-	const [assignmentId, setAssignmentId] = useState(null)
+	const [selectedAssignment, setSelectedAssignment] = useState(null)
 
 	const fetchCourses = async () => {
 		const res = await api.get(`${API}/courses/`)
@@ -429,19 +430,6 @@ const StudentsAndGroups = () => {
 		setTasks(res.data)
 	}
 
-	const fetchLesson = async (studentId, assignmentId) => {
-		if (!studentId || !assignmentId) {
-			setLessons(null)
-			return
-		}
-
-		const res = await api.get(
-			`${API}/student-profile/${studentId}/assignment/result?assignment_id=${assignmentId}`,
-		)
-
-		setLessons(res.data)
-	}
-
 	useEffect(() => {
 		fetchCourses()
 	}, [])
@@ -465,10 +453,6 @@ const StudentsAndGroups = () => {
 		fetchTasks(studentId, courseId)
 		setLessons(null)
 	}, [studentId, courseId])
-
-	useEffect(() => {
-		fetchLesson(studentId, assignmentId)
-	}, [assignmentId])
 
 	if (!courses.length) {
 		return (
@@ -556,8 +540,13 @@ const StudentsAndGroups = () => {
 										<TaskCard
 											title={item?.assignment_name}
 											type={item?.assignment_type}
-											onClick={() => setAssignmentId(item?.assignment_id)}
-											isActive={assignmentId === item?.assignment_id}
+											onClick={() =>
+												setSelectedAssignment({
+													id: item?.assignment_id,
+													type: item?.assignment_type,
+												})
+											}
+											isActive={selectedAssignment?.id === item?.assignment_id}
 										/>
 									</motion.div>
 								)
@@ -567,11 +556,13 @@ const StudentsAndGroups = () => {
 				</div>
 				<div className='min-[1440px]:col-span-7 max-[1440px]:hidden bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-full'>
 					{(() => {
-						switch (lessons?.assignment_type) {
+						switch (selectedAssignment?.type) {
 							case 'practice':
-								return <PracticeView content={lessons} />
+								return <PracticeView id={selectedAssignment?.id} />
 							case 'test':
-								return <TestView content={lessons} />
+								return (
+									<TestView id={selectedAssignment?.id} studentId={studentId} />
+								)
 							default:
 								return (
 									<div className='w-full h-full flex justify-center items-center font-normal text-center text-[var(--middle)] text-xl'>
