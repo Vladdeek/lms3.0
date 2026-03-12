@@ -45,22 +45,10 @@ api.interceptors.response.use(
 		const detail = error.response?.data?.detail
 		const originalRequest = error.config
 
-		console.log(
-			`[INTERCEPTOR] Ошибка, статус: ${status}, url: ${originalRequest.url}`,
-		)
-
 		if (status === 401 && !originalRequest._retry) {
-			console.log('[INTERCEPTOR] 401, проверяем, нужно ли делать refresh')
-
 			if (isRefreshing) {
-				console.log(
-					'[INTERCEPTOR] Refresh уже идёт, добавляем запрос в очередь',
-				)
 				return new Promise(resolve => {
 					subscribeTokenRefresh(() => {
-						console.log(
-							'[INTERCEPTOR] Запрос из очереди повторяется после refresh',
-						)
 						resolve(api(originalRequest))
 					})
 				})
@@ -68,7 +56,6 @@ api.interceptors.response.use(
 
 			originalRequest._retry = true
 			isRefreshing = true
-			console.log('[INTERCEPTOR] Начинаем refresh токена...')
 
 			try {
 				const { status: refreshStatus } = await axios.post(
@@ -76,16 +63,12 @@ api.interceptors.response.use(
 					{},
 					{ withCredentials: true },
 				)
-				console.log(`[INTERCEPTOR] Refresh успешен, статус: ${refreshStatus}`)
 
 				isRefreshing = false
 				onRefreshed()
-
-				console.log('[INTERCEPTOR] Повторяем оригинальный запрос после refresh')
 				return api(originalRequest)
 			} catch (refreshError) {
 				isRefreshing = false
-				console.log('[INTERCEPTOR] Refresh не прошёл, редирект на /auth')
 				window.location.href = '/auth'
 				return Promise.reject(refreshError)
 			}

@@ -663,14 +663,22 @@ export const OptionInput = ({
 	color = 'white',
 	placeholder = '',
 	onChange,
-	labelKey = 'name', // 👈 добавили ключ, по которому будем доставать текст
+	labelKey = 'name',
+	value = undefined, // 👈 добавили
 }) => {
 	const [Selected, setSelected] = useState(null)
 	const [isOpen, setIsOpen] = useState(false)
 
+	// синхронизация внешнего value
+	useEffect(() => {
+		if (value !== undefined && value !== Selected) {
+			setSelected(value)
+		}
+	}, [value])
+
 	useEffect(() => {
 		onChange?.(Selected)
-	}, [Selected, onChange])
+	}, [Selected])
 
 	return (
 		<div className='relative select-none'>
@@ -689,6 +697,7 @@ export const OptionInput = ({
 							: Options[Selected]
 						: placeholder || '—'}
 				</span>
+
 				<ChevronDown
 					className={`transition-all rotate-0 ${isOpen && 'rotate-180'}`}
 				/>
@@ -697,7 +706,7 @@ export const OptionInput = ({
 			{isOpen && (
 				<div
 					className='absolute bg-[var(--white)] flex flex-col rounded-lg shadow-[var(--shadow)]
-					max-h-50 overflow-y-scroll hide-scrollbar hide-scrollbar w-full top-14 z-10 text-[var(--black)]'
+					max-h-50 overflow-y-scroll hide-scrollbar w-full top-14 z-10 text-[var(--black)]'
 				>
 					{Options.map((item, index) => (
 						<p

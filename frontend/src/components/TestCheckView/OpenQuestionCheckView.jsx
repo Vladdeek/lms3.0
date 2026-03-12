@@ -24,12 +24,31 @@ const FullScreen = ({ url, prevImg, nextImg, close }) => {
 	)
 }
 
-const OpenQuestionCheckView = ({ value, question, media }) => {
+const OpenQuestionCheckView = ({
+	value,
+	question,
+	media,
+	info,
+	reloadFetch,
+}) => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
 
 	if (isLoading) return <Loader />
+
+	const checkQuestion = async status => {
+		try {
+			await api.put(
+				`${API}/student-profile/${info.studentId}/assignment/test/question/grade?question_id=${info.questionId}`,
+				{ answer_status: status, score: info.score },
+			)
+
+			await reloadFetch()
+		} catch (e) {
+			console.error(e)
+		}
+	}
 
 	return (
 		<>
@@ -75,18 +94,24 @@ const OpenQuestionCheckView = ({ value, question, media }) => {
 				<div className='flex flex-col items-center gap-3 w-full'>
 					<input
 						type='text'
-						className='rounded-xl p-[12px] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition mt-3 w-full text-[var(--black)] placeholder:text-[var(--middle)]'
+						className={`rounded-xl p-[12px] ${info?.correctness_status === 'correct' ? 'text-white bg-[var(--correct-lvl)]' : info?.correctness_status === 'incorrect' ? 'text-white bg-[var(--not-correct-lvl)]' : info?.correctness_status === null && 'bg-[var(--white)] text-[var(--black)]'} shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] transition mt-3 w-full  placeholder:text-[var(--middle)]`}
 						placeholder={'Введите свой вариант ответа...'}
 						value={value}
 						readOnly={value}
 						onChange={e => setAnswer(e.target.value)}
 					/>
-					{value && (
+					{info?.correctness_status === null && (
 						<div className='flex justify-center gap-5 w-full'>
-							<button className='bg-[var(--black)] text-[var(--white)] w-full hover:bg-[var(--correct-lvl)] hover:text-white py-3 px-4  rounded-lg cursor-pointer transition-all hover:shadow-[var(--correct-glow)]'>
+							<button
+								onClick={() => checkQuestion('correct')}
+								className='bg-[var(--black)] text-[var(--white)] w-full hover:bg-[var(--correct-lvl)] hover:text-white py-3 px-4  rounded-lg cursor-pointer transition-all hover:shadow-[var(--correct-glow)]'
+							>
 								Правильно
 							</button>
-							<button className='bg-[var(--black)] text-[var(--white)] w-full hover:bg-[var(--not-correct-lvl)] hover:text-white py-3 px-4 rounded-lg cursor-pointer transition-all hover:shadow-[var(--not-correct-glow)]'>
+							<button
+								onClick={() => checkQuestion('incorrect')}
+								className='bg-[var(--black)] text-[var(--white)] w-full hover:bg-[var(--not-correct-lvl)] hover:text-white py-3 px-4 rounded-lg cursor-pointer transition-all hover:shadow-[var(--not-correct-glow)]'
+							>
 								Не правильно
 							</button>
 						</div>

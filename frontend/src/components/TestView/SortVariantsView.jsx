@@ -131,12 +131,15 @@ const SortVariantView = ({ testId, onAnswerSelect, Answered }) => {
 				setMedia(data?.media)
 				setScore(data?.score)
 				setLeft_option(
-					data?.student_answer === null
+					Array.isArray(data?.student_answer) &&
+						data.student_answer.length === 0
 						? data?.answer_data?.left_options
 						: data?.student_answer?.left_options || [],
 				)
+
 				setRight_option(
-					data?.student_answer === null
+					Array.isArray(data?.student_answer) &&
+						data.student_answer.length === 0
 						? data?.answer_data?.right_options
 						: data?.student_answer?.right_options || [],
 				)

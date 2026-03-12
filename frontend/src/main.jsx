@@ -6,6 +6,7 @@ import {
 	Route,
 	Navigate,
 	useNavigate,
+	BrowserRouter,
 } from 'react-router-dom'
 import {
 	StrictMode,
@@ -110,7 +111,7 @@ function MainApp() {
 }
 
 createRoot(document.getElementById('root')).render(
-	<Router>
+	<BrowserRouter>
 		<ErrorProvider>
 			<div className='relative'>
 				{/* <Snowfall
@@ -125,5 +126,5 @@ createRoot(document.getElementById('root')).render(
 				<MainApp />
 			</div>
 		</ErrorProvider>
-	</Router>,
+	</BrowserRouter>,
 )

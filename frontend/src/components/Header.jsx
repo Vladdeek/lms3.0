@@ -158,7 +158,7 @@ const Notification = () => {
 				)}
 			</button>
 			{isOpen && (
-				<div className='max-md:hidden absolute bg-[var(--white)] top-14 -right-5 shadow-[var(--shadow)] rounded-2xl p-4 h-fit max-h-150  w-125 z-100'>
+				<div className='max-md:hidden absolute bg-[var(--white)] top-14 -right-5 shadow-[var(--shadow)] rounded-2xl p-4 h-fit max-h-150  w-125 z-100 overflow-y-scroll hide-scrollbar'>
 					<div className='flex flex-col gap-3'>
 						{notifications?.map((item, idx) => (
 							<NotificationCard
@@ -178,7 +178,7 @@ const Notification = () => {
 			)}
 
 			<div
-				className={`min-md:hidden fixed bg-[var(--white)]  shadow-[var(--shadow)] rounded-b-2xl p-4 h-0 opacity-0  ${isOpen && 'h-[75vh] opacity-100 top-0 '} left-0 -top-100 w-full z-100 transition-all`}
+				className={`min-md:hidden fixed bg-[var(--white)]  shadow-[var(--shadow)] rounded-b-2xl p-4 h-0 opacity-0  ${isOpen && 'h-[75vh] opacity-100 top-0 '} left-0 -top-100 w-full z-100 transition-all overflow-y-scroll hide-scrollbar`}
 			>
 				<div className='flex flex-col gap-3 relative'>
 					<p className='text-center text-2xl font-medium'>Уведомления</p>
@@ -201,11 +201,6 @@ const Notification = () => {
 						</p>
 					)}
 				</div>
-				<div
-					size={32}
-					className='absolute bg-[var(--light-middle)] h-2 w-20 rounded-full bottom-4 left-1/2 -translate-x-1/2'
-					onClick={() => setIsOpen(false)}
-				/>
 			</div>
 		</div>
 	)

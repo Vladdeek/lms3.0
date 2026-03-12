@@ -9,7 +9,7 @@ import {
 	LaptopMinimalCheck,
 	NotebookPen,
 } from 'lucide-react'
-import { FilterButton } from '../components/Buttons'
+import { Button, FilterButton, SubmitButton } from '../components/Buttons'
 import MoreVariantView from '../components/TestView/MoreVariantsView'
 import OneVariantView from '../components/TestView/OneVariantView'
 import SortVariantView from '../components/TestView/SortVariantsView'
@@ -25,6 +25,8 @@ import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
 import { getCookie, token } from '../TOKEN'
 import { motion } from 'framer-motion'
+import { useSearchParams } from 'react-router-dom'
+import SortVariantCheckView from '../components/TestCheckView/SortVariantsCheckView'
 
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 	return (
@@ -215,11 +217,11 @@ const StudentCard4Table = ({ num, FullName, scores }) => {
 	)
 }
 
-const TaskCard = ({ title, type, isActive, onClick }) => {
+const TaskCard = ({ title, type, isActive, onClick, grade }) => {
 	return (
 		<div
 			onClick={onClick}
-			className={`bg-[var(--white)]  rounded-lg p-4 items-center flex gap-5 ${
+			className={`bg-[var(--white)] rounded-xl p-2 items-center flex justify-between ${
 				isActive
 					? 'ring-1 ring-[var(--hero-epta)] shadow-[var(--hero-shadow)]'
 					: 'shadow-[var(--shadow)]'
@@ -237,9 +239,28 @@ const TaskCard = ({ title, type, isActive, onClick }) => {
 						<p className='font-medium '>Тест</p>
 					</>
 				)}
+				<p className='font-medium text-[var(--middle)]'>/</p>
+				<p className='text-[var(--middle)]'>{title}</p>
 			</div>
-			<p className='font-medium text-[var(--middle)]'>/</p>
-			<p className='text-[var(--middle)]'>{title}</p>
+			{grade.grade_status === 'assessed' ? (
+				<div
+					className={`text-white ${
+						grade.score > 3
+							? 'bg-[var(--correct-lvl)]'
+							: grade.score > 2
+								? 'bg-[var(--middle-correct-lvl)]'
+								: grade.score > 0
+									? 'bg-[var(--not-correct-lvl)]'
+									: ''
+					}  aspect-square flex justify-center items-center h-8 w-auto rounded-md`}
+				>
+					<p className='pt-1'>{grade.score}</p>
+				</div>
+			) : (
+				<div className=' bg-[var(--white)] aspect-square flex justify-center items-center h-8 w-auto rounded-md'>
+					<p className='pt-1'></p>
+				</div>
+			)}
 		</div>
 	)
 }
@@ -260,12 +281,7 @@ const PracticeView = ({ content }) => {
 	)
 }
 
-const LevelsBar = ({
-	questions,
-	activeIndex,
-	setActiveIndex,
-	studentAnswers,
-}) => {
+const LevelsBar = ({ questions, activeIndex, setActiveIndex }) => {
 	const styles = {
 		correct: {
 			border:
@@ -273,6 +289,13 @@ const LevelsBar = ({
 			active: 'bg-[var(--correct-lvl)] text-white',
 			inactive:
 				'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--correct-lvl)] hover:text-white',
+		},
+		partially_correct: {
+			border:
+				'border-b-[3px] border-[var(--middle-correct-lvl)] shadow-[var(--middle-correct-glow)]',
+			active: 'bg-[var(--middle-correct-lvl)] text-white',
+			inactive:
+				'bg-[var(--white)] text-[var(--black)] hover:bg-[var(--middle-correct-lvl)] hover:text-white shadow-[var(--shadow)]',
 		},
 		incorrect: {
 			border:
@@ -290,9 +313,9 @@ const LevelsBar = ({
 	}
 
 	return (
-		<div className='flex gap-3'>
-			{questions.map((q, idx) => {
-				const status = studentAnswers[idx]?.correctness_status
+		<div className='flex gap-3 flex-wrap'>
+			{questions?.map((q, idx) => {
+				const status = q?.correctness_status
 				const style = styles[status] || styles.default
 				const stateClass = activeIndex === idx ? style.active : style.inactive
 
@@ -300,7 +323,7 @@ const LevelsBar = ({
 					<div
 						key={q.id}
 						onClick={() => setActiveIndex(idx)}
-						className={`w-10 h-10 flex justify-center items-center rounded-md cursor-pointer transition-all
+						className={`w-10 h-10 pt-1 flex justify-center items-center rounded-md cursor-pointer transition-all
 						${style.border}
 						${stateClass}
 						active:scale-90`}
@@ -316,82 +339,167 @@ const LevelsBar = ({
 const TestView = ({ id, studentId }) => {
 	const [activeIndex, setActiveIndex] = useState(null)
 	const [questions, setQuestions] = useState([])
+	const [question, setQuestion] = useState([])
+	const [loading, setLoading] = useState(false)
+	const [grade, setGrade] = useState(null)
+
+	const fetchQuestions = async () => {
+		try {
+			const res = await api.get(
+				`${API}/student-profile/${studentId}/assignment/test/preview?test_id=${id}`,
+			)
+			setQuestions(res.data.questions)
+			setGrade({ score: res.data.score, grade_status: res.data.grade_status })
+		} catch (e) {}
+	}
+
+	const finishCheck = async () => {
+		try {
+			const res = await api.put(
+				`${API}/student-profile/${studentId}/assignment/test/grade?test_id=${id}`,
+			)
+		} catch (e) {}
+	}
 
 	useEffect(() => {
-		const res = api.get(`${API}/${studentId}/assignment/test/preview/${id}`)
-		setQuestions(res)
+		fetchQuestions()
 	}, [id, studentId])
+
+	useEffect(() => {
+		const fetchQuestion = async () => {
+			setLoading(true)
+			try {
+				const res = await api.get(
+					`${API}/student-profile/${studentId}/assignment/test/question/answer?test_id=${id}&question_id=${questions[activeIndex]?.question_id}`,
+				)
+				setQuestion(res.data)
+				setLoading(false)
+			} catch (e) {}
+		}
+		activeIndex !== null && fetchQuestion()
+	}, [activeIndex])
 
 	return (
 		<div className='w-full flex flex-col  gap-3'>
-			{/* <LevelsBar
-				questions={content?.questions}
-				activeIndex={activeIndex}
-				setActiveIndex={setActiveIndex}
-				studentAnswers={content?.student_answer}
-			/> */}
-			{/* <div className='flex justify-center'>
-				{(() => {
-					const q = content?.questions
+			<div className='w-full flex justify-between'>
+				<LevelsBar
+					questions={questions}
+					activeIndex={activeIndex}
+					setActiveIndex={setActiveIndex}
+				/>
+				{grade !== null &&
+					(grade.grade_status === 'assessed' ? (
+						<div
+							className={`text-white ${
+								grade.score > 3
+									? 'bg-[var(--correct-lvl)]'
+									: grade.score > 2
+										? 'bg-[var(--middle-correct-lvl)]'
+										: grade.score > 0
+											? 'bg-[var(--not-correct-lvl)]'
+											: ''
+							}  aspect-square flex justify-center items-center h-full w-auto rounded-md`}
+						>
+							<p className='pt-1'>{grade.score}</p>
+						</div>
+					) : (
+						<Button
+							style='black'
+							onClick={finishCheck}
+							textSize={16}
+							title={'Завершить оценивание'}
+						/>
+					))}
+			</div>
 
-					if (
-						q[activeIndex]?.question_type === 'multiple' ||
-						q[activeIndex]?.question_type === 'single'
-					) {
-						return (
-							<VariantCheckView
-								answers={q[activeIndex]?.student_answer_options[0]?.answers}
-								media={q[activeIndex]?.media}
-								question={q[activeIndex]?.title}
-								type={q[activeIndex]?.question_type}
-							/>
-						)
-					} else if (q[activeIndex]?.question_type === 'sort') {
-						return (
-							<SortVariantView
-								question={q[activeIndex]?.student_answer}
-								initialPairs={q?.answers}
-							/>
-						)
-					} else if (q[activeIndex]?.question_type === 'open') {
-						return (
-							<OpenQuestionCheckView
-								value={q[activeIndex]?.student_answer_options[0]?.answers}
-								media={q[activeIndex]?.media}
-								question={q[activeIndex]?.title}
-							/>
-						)
-					}
+			<div className='flex justify-center'>
+				{loading ? (
+					<Loader />
+				) : (
+					(() => {
+						if (question?.type === 'multiple' || question?.type === 'single') {
+							return (
+								<VariantCheckView
+									answers={question?.answers}
+									media={question?.media}
+									question={question?.question}
+									type={question?.type}
+								/>
+							)
+						} else if (question?.type === 'matching') {
+							return (
+								<SortVariantCheckView
+									testId={questions[activeIndex]?.question_id}
+								/>
+							)
+						} else if (question?.type === 'open') {
+							return (
+								<OpenQuestionCheckView
+									value={question?.answers}
+									media={question?.media}
+									question={question?.question}
+									info={{
+										studentId: studentId,
+										questionId: questions[activeIndex]?.question_id,
+										score: question?.score,
+										correctness_status: question?.correctness_status,
+									}}
+									reloadFetch={() => fetchQuestions()}
+								/>
+							)
+						}
 
-					return null
-				})()}
-			</div> */}
+						return null
+					})()
+				)}
+			</div>
 		</div>
 	)
 }
 
 const StudentsAndGroups = () => {
-	const [ActiveTask, setActiveTask] = useState(0)
-	const [ActiveType, setActiveType] = useState(0)
-	const Type = ['Оценка', 'Комментарий']
-	const Score = [1, 2, 3, 4, 5]
+	const [searchParams, setSearchParams] = useSearchParams()
+
+	const courseId = searchParams.get('course')
+	const groupId = searchParams.get('group')
+	const studentId = searchParams.get('student')
+	const assignmentId = searchParams.get('assignment')
+	const assignmentType = searchParams.get('type')
 
 	const [courses, setCourses] = useState([])
-
 	const [groups, setGroups] = useState([])
 	const [students, setStudents] = useState([])
 	const [tasks, setTasks] = useState([])
-	const [lessons, setLessons] = useState(null)
 
-	const [courseId, setCourseId] = useState(null)
-	const [groupId, setGroupId] = useState(null)
-	const [studentId, setStudentId] = useState(null)
-	const [selectedAssignment, setSelectedAssignment] = useState(null)
+	const selectedCourseIndex = courses.findIndex(c => c.id == courseId)
+	const selectedGroupIndex = groups.findIndex(g => g.id == groupId)
+
+	const selectedAssignment =
+		assignmentId && assignmentType
+			? { id: assignmentId, type: assignmentType }
+			: null
+
+	const updateQuery = params => {
+		const newParams = new URLSearchParams(searchParams.toString())
+
+		Object.entries(params).forEach(([key, value]) => {
+			if (value === null || value === undefined) {
+				newParams.delete(key)
+			} else {
+				newParams.set(key, value)
+			}
+		})
+
+		setSearchParams(newParams)
+	}
 
 	const fetchCourses = async () => {
-		const res = await api.get(`${API}/courses/`)
-
-		setCourses(res.data)
+		try {
+			const res = await api.get(`${API}/courses/`)
+			setCourses(res.data)
+		} catch (e) {
+			console.error(e)
+		}
 	}
 
 	const fetchGroups = async id => {
@@ -400,34 +508,46 @@ const StudentsAndGroups = () => {
 			return
 		}
 
-		const res = await api.get(
-			`${API}/courses/student-group/linked/?course_id=${id}`,
-		)
+		try {
+			const res = await api.get(
+				`${API}/courses/student-group/linked/?course_id=${id}`,
+			)
 
-		setGroups(res.data.items || [])
+			setGroups(res.data.items || [])
+		} catch (e) {
+			console.error(e)
+		}
 	}
 
-	const fetchStudents = async groupId => {
-		if (!groupId) {
+	const fetchStudents = async id => {
+		if (!id) {
 			setStudents([])
 			return
 		}
 
-		const res = await api.get(`${API}/student-group/${groupId}/students`)
-		setStudents(res.data)
+		try {
+			const res = await api.get(`${API}/student-group/${id}/students`)
+			setStudents(res.data)
+		} catch (e) {
+			console.error(e)
+		}
 	}
 
-	const fetchTasks = async (studentId, courseId) => {
-		if (!studentId || !courseId) {
+	const fetchTasks = async (student, course) => {
+		if (!student || !course) {
 			setTasks([])
 			return
 		}
 
-		const res = await api.get(
-			`${API}/student-profile/${studentId}/assignments/?course_id=${courseId}`,
-		)
+		try {
+			const res = await api.get(
+				`${API}/student-profile/${student}/assignments/?course_id=${course}`,
+			)
 
-		setTasks(res.data)
+			setTasks(res.data)
+		} catch (e) {
+			console.error(e)
+		}
 	}
 
 	useEffect(() => {
@@ -435,23 +555,30 @@ const StudentsAndGroups = () => {
 	}, [])
 
 	useEffect(() => {
+		updateQuery({
+			group: null,
+			student: null,
+			assignment: null,
+			type: null,
+		})
 		fetchGroups(courseId)
-		setGroupId(null)
-		setStudentId(null)
-		setTasks([])
-		setLessons(null)
 	}, [courseId])
 
 	useEffect(() => {
+		updateQuery({
+			student: null,
+			assignment: null,
+			type: null,
+		})
 		fetchStudents(groupId)
-		setStudentId(null)
-		setTasks([])
-		setLessons(null)
 	}, [groupId])
 
 	useEffect(() => {
+		updateQuery({
+			assignment: null,
+			type: null,
+		})
 		fetchTasks(studentId, courseId)
-		setLessons(null)
 	}, [studentId, courseId])
 
 	if (!courses.length) {
@@ -461,119 +588,139 @@ const StudentsAndGroups = () => {
 			</div>
 		)
 	}
-	return (
-		<>
-			<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-5 xl:mt-15 mb-40 select-none md:min-h-[calc(70vh-100px)]'>
-				<div className='col-span-2 flex flex-col gap-5 h-full'>
-					<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
-						<p className='text-[var(--middle)] text-sm ml-2'>Курс</p>
-						<OptionInput
-							Options={courses}
-							labelKey='name'
-							onChange={data => setCourseId(courses[data]?.id)}
-							placeholder='Выберите курс'
-						/>
-						<p className='text-[var(--middle)] text-sm ml-2'>Группа</p>
-						<OptionInput
-							Options={groups}
-							labelKey='name'
-							onChange={data => setGroupId(groups[data]?.id)}
-							placeholder='Выберите группу'
-						/>
-					</div>
 
-					<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar h-[50vh]'>
-						<div className='flex flex-col gap-3 p-5'>
-							{students?.length === 0 ? (
-								<p className='text-center font-light text-[var(--middle)]'>
-									Пусто
-								</p>
-							) : (
-								students?.map((item, index) => (
-									<motion.div
-										key={index}
-										initial={{ scale: 0.8, opacity: 0 }}
-										animate={{ scale: 1, opacity: 1 }}
-										transition={{
-											duration: 0.3,
-											delay: index * 0.1,
-											ease: 'easeOut',
-										}}
-									>
-										<StudentCard
-											key={item.id}
-											onClick={() => setStudentId(item.id)}
-											active={studentId === item.id}
-											PersonalData={item?.personal_data}
-											img_path={item?.image_path}
-										/>
-									</motion.div>
-								))
-							)}
-						</div>
-					</div>
-				</div>
-				<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5 h-full'>
-					<div className='flex flex-col gap-4'>
-						<p className='font-medium text-[var(--black)] text-xl'>
-							Выберите занятие для просмотра
-						</p>
-						{tasks?.length === 0 ? (
-							<div className='h-135 w-full flex justify-center items-center'>
-								<p className='font-normal text-center text-[var(--middle)] text-xl'>
-									пусто
-								</p>
-							</div>
-						) : (
-							tasks?.map((item, index) => {
-								return (
-									<motion.div
-										key={index}
-										initial={{ scale: 0.8, opacity: 0 }}
-										animate={{ scale: 1, opacity: 1 }}
-										transition={{
-											duration: 0.3,
-											delay: index * 0.1,
-											ease: 'easeOut',
-										}}
-									>
-										<TaskCard
-											title={item?.assignment_name}
-											type={item?.assignment_type}
-											onClick={() =>
-												setSelectedAssignment({
-													id: item?.assignment_id,
-													type: item?.assignment_type,
-												})
-											}
-											isActive={selectedAssignment?.id === item?.assignment_id}
-										/>
-									</motion.div>
-								)
+	return (
+		<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-5 xl:mt-15 mb-40 select-none md:min-h-[calc(70vh-100px)]'>
+			<div className='col-span-2 flex flex-col gap-5 h-full'>
+				<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
+					<p className='text-[var(--middle)] text-sm ml-2'>Курс</p>
+
+					<OptionInput
+						Options={courses}
+						labelKey='name'
+						value={selectedCourseIndex === -1 ? null : selectedCourseIndex}
+						onChange={i =>
+							updateQuery({
+								course: courses[i]?.id,
 							})
+						}
+						placeholder='Выберите курс'
+					/>
+
+					<p className='text-[var(--middle)] text-sm ml-2'>Группа</p>
+
+					<OptionInput
+						Options={groups}
+						labelKey='name'
+						value={selectedGroupIndex === -1 ? null : selectedGroupIndex}
+						onChange={i =>
+							updateQuery({
+								group: groups[i]?.id,
+							})
+						}
+						placeholder='Выберите группу'
+					/>
+				</div>
+
+				<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar h-[50vh]'>
+					<div className='flex flex-col gap-3 p-5'>
+						{students.length === 0 ? (
+							<p className='text-center font-light text-[var(--middle)]'>
+								Пусто
+							</p>
+						) : (
+							students.map((item, index) => (
+								<motion.div
+									key={item.id}
+									initial={{ scale: 0.8, opacity: 0 }}
+									animate={{ scale: 1, opacity: 1 }}
+									transition={{
+										duration: 0.3,
+										delay: index * 0.1,
+										ease: 'easeOut',
+									}}
+								>
+									<StudentCard
+										onClick={() =>
+											updateQuery({
+												student: item.id,
+											})
+										}
+										active={studentId === item.id}
+										PersonalData={item?.personal_data}
+										img_path={item?.image_path}
+									/>
+								</motion.div>
+							))
 						)}
 					</div>
 				</div>
-				<div className='min-[1440px]:col-span-7 max-[1440px]:hidden bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-full'>
-					{(() => {
-						switch (selectedAssignment?.type) {
-							case 'practice':
-								return <PracticeView id={selectedAssignment?.id} />
-							case 'test':
-								return (
-									<TestView id={selectedAssignment?.id} studentId={studentId} />
-								)
-							default:
-								return (
-									<div className='w-full h-full flex justify-center items-center font-normal text-center text-[var(--middle)] text-xl'>
-										<p>Выберите занятие</p>
-									</div>
-								)
-						}
-					})()}
+			</div>
+
+			<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5 h-full'>
+				<div className='flex flex-col gap-4'>
+					<p className='font-medium text-[var(--black)] text-xl'>
+						Выберите занятие для просмотра
+					</p>
+
+					{tasks.length === 0 ? (
+						<div className='h-135 w-full flex justify-center items-center'>
+							<p className='font-normal text-center text-[var(--middle)] text-xl'>
+								пусто
+							</p>
+						</div>
+					) : (
+						tasks.map((item, index) => (
+							<motion.div
+								key={item.assignment_id}
+								initial={{ scale: 0.8, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{
+									duration: 0.3,
+									delay: index * 0.1,
+									ease: 'easeOut',
+								}}
+							>
+								<TaskCard
+									title={item.assignment_name}
+									type={item.assignment_type}
+									onClick={() =>
+										updateQuery({
+											assignment: item.assignment_id,
+											type: item.assignment_type,
+										})
+									}
+									isActive={assignmentId === item.assignment_id}
+									grade={{ grade_status: item.grade_status, score: item.score }}
+								/>
+							</motion.div>
+						))
+					)}
 				</div>
 			</div>
-		</>
+
+			<div className='min-[1440px]:col-span-7 max-[1440px]:hidden bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-full'>
+				{(() => {
+					switch (selectedAssignment?.type) {
+						case 'practice':
+							return <PracticeView id={selectedAssignment.id} />
+
+						case 'test':
+							return (
+								<TestView id={selectedAssignment.id} studentId={studentId} />
+							)
+
+						default:
+							return (
+								<div className='w-full h-full flex justify-center items-center font-normal text-center text-[var(--middle)] text-xl'>
+									<p>Выберите занятие</p>
+								</div>
+							)
+					}
+				})()}
+			</div>
+		</div>
 	)
 }
+
 export default StudentsAndGroups
