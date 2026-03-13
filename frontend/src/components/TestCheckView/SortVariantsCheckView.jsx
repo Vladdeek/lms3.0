@@ -94,53 +94,11 @@ const PairItem = forwardRef(
 	},
 )
 
-const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
+const SortVariantCheckView = ({ question, answers, media }) => {
 	const [heights, setHeights] = useState([])
 	const rightRefs = useRef([])
 	const [isLoading, setIsLoading] = useState(false)
-	const [left_option, setLeft_option] = useState([])
-	const [right_option, setRight_option] = useState([])
-	const [score, setScore] = useState(1)
-	const [media, setMedia] = useState()
-	const [question, setQuestion] = useState('')
 	const [fullScreenPhoto, setFullScreenPhoto] = useState(null)
-
-	useEffect(() => {
-		onAnswerSelect?.({
-			question_id: testId,
-			student_answer: {
-				left_options: left_option,
-				right_options: right_option,
-			},
-		})
-	}, [right_option, left_option])
-
-	useEffect(() => {
-		const fetchTest = async id => {
-			setIsLoading(true)
-			try {
-				const res = await api.get(`${API}/questions/${id}`, {
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				})
-
-				const data = res.data
-				setQuestion(data?.title)
-				setMedia(data?.media)
-				setScore(data?.score)
-				setLeft_option(data?.answer_data?.left_options || [])
-				setRight_option(data?.answer_data?.right_options || [])
-			} catch (error) {
-				console.error('Ошибка при загрузке теста:', error)
-			} finally {
-				setIsLoading(false)
-			}
-		}
-
-		if (testId) fetchTest(testId)
-	}, [testId])
 
 	// высоты правой колонки
 	useEffect(() => {
@@ -148,43 +106,7 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 			ref ? ref.getBoundingClientRect().height : 0,
 		)
 		setHeights(newHeights)
-	}, [right_option])
-
-	const moveUp = index => {
-		if (index === 0) return
-		setRight_option(prev => {
-			const newArr = [...prev]
-			;[newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]]
-			return newArr
-		})
-	}
-
-	const moveDown = index => {
-		if (index === right_option.length - 1) return
-		setRight_option(prev => {
-			const newArr = [...prev]
-			;[newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]]
-			return newArr
-		})
-	}
-
-	const handleDragStart = (e, index) => {
-		e.dataTransfer.setData('dragIndex', index)
-	}
-
-	const handleDrop = (e, dropIndex) => {
-		const dragIndex = parseInt(e.dataTransfer.getData('dragIndex'))
-		if (isNaN(dragIndex)) return
-
-		setRight_option(prev => {
-			const newArr = [...prev]
-			const [dragged] = newArr.splice(dragIndex, 1)
-			newArr.splice(dropIndex, 0, dragged)
-			return newArr
-		})
-	}
-
-	if (isLoading) return <Loader />
+	}, [])
 
 	return (
 		<>
@@ -229,46 +151,41 @@ const SortVariantCheckView = ({ testId, onAnswerSelect }) => {
 				</div>
 
 				<div className='flex justify-between gap-3 w-full'>
-					<div className='flex flex-col gap-3'>
-						{left_option.map((pair, idx) => (
-							<div
-								key={idx}
-								className='grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg bg-white select-none'
-								style={{
-									height: heights[idx] ? `${heights[idx]}px` : undefined,
-								}}
-							>
-								<span className='col-span-4 flex items-center w-full'>
-									{pair}
-								</span>
-							</div>
-						))}
-					</div>
+					<div className='flex flex-col gap-3 w-full'>
+						{answers.map((pair, idx) => {
+							const [left, , right] = pair.name.split(' ')
 
-					<div className='flex flex-col gap-3'>
-						{left_option.map((_, idx) => (
-							<div key={idx} className='w-full h-full flex items-center'>
-								<div className='h-0 w-5 border-b-2 border-[var(--black)]'></div>
-							</div>
-						))}
-					</div>
+							const statusClass =
+								pair.correct === 'correct'
+									? 'text-white bg-[var(--correct-lvl)]'
+									: pair.correct === 'incorrect'
+										? 'text-white bg-[var(--not-correct-lvl)]'
+										: 'bg-[var(--white)] text-[var(--black)]'
 
-					<div className='flex flex-col gap-3'>
-						{right_option.map((pair, index) => (
-							<PairItem
-								key={pair.id || index}
-								pair={pair}
-								index={index}
-								side='right'
-								moveUp={moveUp}
-								moveDown={moveDown}
-								onDragStart={handleDragStart}
-								onDrop={handleDrop}
-								ref={el => (rightRefs.current[index] = el)}
-								height={heights[index]}
-								length={right_option.length}
-							/>
-						))}
+							return (
+								<div key={idx} className='flex items-center gap-3 w-full'>
+									<div
+										className={`grid grid-cols-7 min-w-50 px-3 py-2 shadow-[var(--shadow)] rounded-lg select-none ${statusClass}`}
+									>
+										<span className='col-span-4 flex items-center w-full'>
+											{left}
+										</span>
+									</div>
+
+									<div className='flex-1 flex items-center'>
+										<div className='h-0 w-5 border-b-2 rounded-full border-[var(--black)]'></div>
+									</div>
+
+									<div
+										className={`grid grid-cols-7 w-full px-3 py-2 shadow-[var(--shadow)] rounded-lg select-none ${statusClass}`}
+									>
+										<span className='col-span-4 flex items-center w-full'>
+											{right}
+										</span>
+									</div>
+								</div>
+							)
+						})}
 					</div>
 				</div>
 			</div>

@@ -429,7 +429,9 @@ const TestView = ({ id, studentId }) => {
 						} else if (question?.type === 'matching') {
 							return (
 								<SortVariantCheckView
-									testId={questions[activeIndex]?.question_id}
+									question={question?.question}
+									media={question?.media}
+									answers={question?.answers}
 								/>
 							)
 						} else if (question?.type === 'open') {

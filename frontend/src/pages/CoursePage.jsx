@@ -449,7 +449,8 @@ const ContentView = ({
 		} catch (error) {}
 	}
 
-	console.log(studentAnswers)
+	console.log('answers: ', answers)
+	console.log('studentAnswers: ', studentAnswers)
 
 	// ============================================
 	//                RENDER
