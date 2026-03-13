@@ -19,7 +19,7 @@ import { se } from 'date-fns/locale'
 import { setGlobalError } from '../components/Errors'
 import axios from 'axios'
 import api, { API, FILE_API } from '../API'
-import Loader from '../components/Loader'
+import Loader, { AltLoader } from '../components/Loader'
 import MoreVariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import VariantCheckView from '../components/TestCheckView/VariantsCheckView'
 import OpenQuestionCheckView from '../components/TestCheckView/OpenQuestionCheckView'
@@ -27,6 +27,8 @@ import { getCookie, token } from '../TOKEN'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
 import SortVariantCheckView from '../components/TestCheckView/SortVariantsCheckView'
+import { FileView } from '../components/Viewer/FileView'
+import { ScoreMoodBlock } from '../components/MoodBlock'
 
 const StudentCard = ({ PersonalData, img_path, onClick, active }) => {
 	return (
@@ -265,18 +267,77 @@ const TaskCard = ({ title, type, isActive, onClick, grade }) => {
 	)
 }
 
-const PracticeView = ({ content }) => {
+const PracticeView = ({ id, studentId }) => {
+	const [files, setFiles] = useState([])
+	const [selectScore, setSelectScore] = useState(null)
+	const [fullInfo, setFullInfo] = useState([])
+	const [loading, setLoading] = useState(false)
+
+	useEffect(() => {
+		setLoading(true)
+		const normalizeAnswers = (answers = []) => {
+			return answers.map(item => ({
+				name: item.original_name,
+				size: item.file_size,
+				type: item.mime_type,
+				file_path: item.file_path,
+			}))
+		}
+		const fetchStudentsWork = async () => {
+			try {
+				const res = await api.get(
+					`${API}/student-profile/${studentId}/assignment/practice/answer?practice_id=${id}`,
+				)
+				setFiles(normalizeAnswers(res.data.answers))
+				setFullInfo(res.data)
+				setLoading(false)
+			} catch (e) {
+				console.error(e)
+			}
+		}
+		fetchStudentsWork()
+	}, [id, studentId])
+
+	const finishCheck = async () => {
+		try {
+			const res = await api.put(
+				`${API}/student-profile/${studentId}/assignment/practice/grade?practice_id=${id}`,
+				{
+					score: selectScore,
+				},
+			)
+		} catch (e) {}
+	}
+
 	return (
 		<div className='flex flex-col w-full gap-3'>
-			<TaskCard title={content?.title} type={content?.type} isActive={false} />
-			<p className='font-medium'>Предоставлены материалы для оценки</p>
-			{content?.material.map(item => {
-				return <MaterialCard title={item} />
-			})}
-			<div className='flex flex-col gap-3 w-1/4'>
-				<p className='text-[var(--middle)]'>Введите балл</p>
-				<OptionInput Options={[1, 2, 3, 4, 5]} />
+			<div className='flex justify-between items-center'>
+				<p className='font-medium'>Оценивание</p>
+				{fullInfo?.score === null ? (
+					<Button
+						style='black'
+						onClick={finishCheck}
+						textSize={16}
+						width={'w-full'}
+						title={'Завершить оценивание'}
+					/>
+				) : (
+					<p className='px-5 py-2 w-56 font-medium flex justify-center text-md bg-[var(--light-middle)] text-[var(--middle)] rounded-md'>
+						Оценено
+					</p>
+				)}
 			</div>
+			<ScoreMoodBlock onChange={setSelectScore} value={fullInfo?.score} />
+			<p className='font-medium'>Предоставлены материалы для оценки</p>
+			{loading ? (
+				<div className='flex justify-center items-center w-full h-25'>
+					<AltLoader />
+				</div>
+			) : (
+				<FileView Files={files} pinedFiles={true} />
+			)}
+
+			<div className='flex flex-col items-center justify-center gap-3 w-full'></div>
 		</div>
 	)
 }
@@ -594,7 +655,7 @@ const StudentsAndGroups = () => {
 	return (
 		<div className='grid min-[1440px]:grid-cols-12 grid-cols-5 gap-5 mt-5 xl:mt-15 mb-40 select-none md:min-h-[calc(70vh-100px)]'>
 			<div className='col-span-2 flex flex-col gap-5 h-full'>
-				<div className='bg-[var(--white)] flex flex-col gap-3 rounded-lg shadow-[var(--shadow)] p-5'>
+				<div className='bg-[var(--white)] flex flex-col gap-3 rounded-xl shadow-[var(--shadow)] p-5'>
 					<p className='text-[var(--middle)] text-sm ml-2'>Курс</p>
 
 					<OptionInput
@@ -624,7 +685,7 @@ const StudentsAndGroups = () => {
 					/>
 				</div>
 
-				<div className='bg-[var(--white)] rounded-lg shadow-[var(--shadow)] overflow-y-auto hide-scrollbar h-[50vh]'>
+				<div className='bg-[var(--white)] rounded-xl shadow-[var(--shadow)] overflow-y-auto hide-scrollbar h-[50vh]'>
 					<div className='flex flex-col gap-3 p-5'>
 						{students.length === 0 ? (
 							<p className='text-center font-light text-[var(--middle)]'>
@@ -659,7 +720,7 @@ const StudentsAndGroups = () => {
 				</div>
 			</div>
 
-			<div className='col-span-3 bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex flex-col justify-between p-5 h-full'>
+			<div className='col-span-3 bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex flex-col justify-between p-5 h-full'>
 				<div className='flex flex-col gap-4'>
 					<p className='font-medium text-[var(--black)] text-xl'>
 						Выберите занятие для просмотра
@@ -701,11 +762,16 @@ const StudentsAndGroups = () => {
 				</div>
 			</div>
 
-			<div className='min-[1440px]:col-span-7 max-[1440px]:hidden bg-[var(--white)] rounded-lg shadow-[var(--shadow)] flex p-4 h-full'>
+			<div className='min-[1440px]:col-span-7 max-[1440px]:hidden bg-[var(--white)] rounded-xl shadow-[var(--shadow)] flex p-4 h-full'>
 				{(() => {
 					switch (selectedAssignment?.type) {
 						case 'practice':
-							return <PracticeView id={selectedAssignment.id} />
+							return (
+								<PracticeView
+									id={selectedAssignment.id}
+									studentId={studentId}
+								/>
+							)
 
 						case 'test':
 							return (

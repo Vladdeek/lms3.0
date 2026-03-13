@@ -48,7 +48,7 @@ export default function DashboardLayout({ onChange }) {
 					title: 'Задания',
 					icon: CopyCheck,
 					to: '/students',
-					not_clickable: true,
+					not_clickable: false,
 				},
 				{
 					title: 'Журнал',
