@@ -273,16 +273,18 @@ const PracticeView = ({ id, studentId }) => {
 	const [fullInfo, setFullInfo] = useState([])
 	const [loading, setLoading] = useState(false)
 
+	const normalizeAnswers = (answers = []) => {
+		return answers.map(item => ({
+			name: item.original_name,
+			size: item.file_size,
+			type: item.mime_type,
+			file_path: item.file_path,
+		}))
+	}
+
 	useEffect(() => {
 		setLoading(true)
-		const normalizeAnswers = (answers = []) => {
-			return answers.map(item => ({
-				name: item.original_name,
-				size: item.file_size,
-				type: item.mime_type,
-				file_path: item.file_path,
-			}))
-		}
+
 		const fetchStudentsWork = async () => {
 			try {
 				const res = await api.get(
@@ -308,6 +310,8 @@ const PracticeView = ({ id, studentId }) => {
 			)
 		} catch (e) {}
 	}
+
+	console.log(files)
 
 	return (
 		<div className='flex flex-col w-full gap-3'>

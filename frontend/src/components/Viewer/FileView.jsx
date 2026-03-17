@@ -137,7 +137,7 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 	}
 
 	const getFileIcon = file => {
-		const lowerType = haveType ? file : file.split('.').pop().toLowerCase()
+		const lowerType = haveType ? file : file?.split('.').pop().toLowerCase()
 		const formatMap = {
 			image: {
 				formats: [

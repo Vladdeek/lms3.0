@@ -120,6 +120,8 @@ export const ScoreMoodBlock = ({ onChange, value }) => {
 	useEffect(() => {
 		if (value !== null) {
 			setMood(value - 1)
+		} else {
+			setMood(0)
 		}
 	}, [value])
 
