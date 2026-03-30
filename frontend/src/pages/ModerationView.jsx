@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
 	ArrowRightFromLine,
@@ -42,7 +42,7 @@ import SortVariantView from '../components/TestView/SortVariantsView'
 import OpenQuestionView from '../components/TestView/OpenQuestionView'
 import { TextViewer } from '../components/Viewer/TextViewer'
 import { useParams } from 'react-router-dom'
-import api, { API } from '../API'
+import api, { API, FILE_API } from '../API'
 
 import { ConstructorFileInput } from '../components/ConstructorComponents/FileImport'
 import { motion } from 'framer-motion'
@@ -421,15 +421,102 @@ const CourseOverview = ({ content }) => {
 		fetchContent()
 	}, [sectionId])
 
+	const [showFullInfo, setShowFullInfo] = useState(false)
+
+	const infoRef = useRef(null)
+
+	useEffect(() => {
+		function handleClickOutside(e) {
+			if (infoRef.current && !infoRef.current.contains(e.target)) {
+				setShowFullInfo(false)
+			}
+		}
+
+		function handleScroll() {
+			setShowFullInfo(false)
+		}
+
+		if (showFullInfo) {
+			document.addEventListener('mousedown', handleClickOutside)
+			window.addEventListener('scroll', handleScroll)
+		}
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+			window.removeEventListener('scroll', handleScroll)
+		}
+	}, [showFullInfo])
+
 	return (
 		<>
 			<div className='grid grid-cols-[320px_1fr] gap-3 h-full min-h-0'>
 				<div className='flex flex-col gap-3 '>
-					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
-						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
+					<div className='flex bg-[var(--white)] justify-center items-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<p className='font-medium text-2xl text-[var(--black)]'>
 							{content?.name}
 						</p>
+						<div className='relative'>
+							<Info
+								onClick={() => setShowFullInfo(prev => !prev)}
+								className='text-blue-700 cursor-pointer'
+							/>
+
+							<div
+								ref={infoRef}
+								className={`w-100 h-fit flex flex-col gap-2 absolute bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-4 px-4 pt-2 transition-all ${
+									showFullInfo
+										? 'opacity-100 pointer-events-auto translate-y-0'
+										: 'opacity-0 pointer-events-none -translate-y-2'
+								}`}
+							>
+								<p className='text-center text-lg'>Полная информация о курсе</p>
+								<img
+									src={`${FILE_API}${content?.image_path}`}
+									alt=''
+									className='rounded-md'
+								/>
+								<p className='text-[var(--black)] font-light'>
+									<span className='font-medium'>Название: </span>
+									{content?.name === null ? 'Не указано' : content?.name}
+								</p>
+								<p className='text-[var(--black)] font-light'>
+									<span className='font-medium'>Описание: </span>
+									{content?.description === null
+										? 'Не указано'
+										: content?.description}
+								</p>
+								<p className='text-[var(--black)] font-light'>
+									<span className='font-medium'>Уровень образования: </span>
+									{content?.study_level === null
+										? 'Не указано'
+										: content?.study_level}
+								</p>
+								<p className='text-[var(--black)] font-light'>
+									<span className='font-medium'>Курс: </span>
+									{content?.course === null
+										? 'Не указано'
+										: `${content?.course}-й курс`}
+								</p>
+								<p className='text-[var(--black)] font-light'>
+									<span className='font-medium'>Семестр: </span>
+									{content?.semester === null
+										? 'Не указано'
+										: `${content?.semester}-й семестр`}
+								</p>
+								<p className='text-[var(--black)] font-light'>
+									<span className='font-medium'>Учебный год: </span>
+									{content?.study_year === null
+										? 'Не указано'
+										: content?.study_year}
+								</p>
+								<p className='text-[var(--black)] font-light'>
+									<span className='font-medium'>Учебный план: </span>
+									{content?.study_plan === null
+										? 'Не указано'
+										: content?.study_plan}
+								</p>
+							</div>
+						</div>
 					</div>
 					<div className='bg-[var(--white)] shadow-[var(--shadow)] rounded-xl pb-5 px-3 pt-5 flex flex-col justify-between h-full'>
 						<div className='flex flex-col gap-3 overflow-y-scroll h-[65.5vh]'>
@@ -440,10 +527,10 @@ const CourseOverview = ({ content }) => {
 									</p>
 									<Button icon={ArrowRightFromLine} style='white' size={32} />
 								</div>
-								<div className='flex gap-[10px]'>
+								{/* <div className='flex gap-[10px]'>
 									<SearchInput width={'100%'} />
 									<Button icon={ListRestart} style='white' size={40} />
-								</div>
+								</div> */}
 							</div>
 
 							<div className='flex flex-col gap-3 rounded-xl p-2'>
