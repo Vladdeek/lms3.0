@@ -276,7 +276,7 @@ const Moderation = ({ role }) => {
 				onClose={() => setModalOpen(false)}
 				onChange={() => setStatus()}
 			/>
-			<div className='w-full relative h-[85vh] mt-10 xl:grid xl:grid-cols-[1fr_4fr] gap-5 '>
+			<div className='w-full relative h-[85vh] mt-10 xl:grid xl:grid-cols-[318px_auto] gap-3 '>
 				<div
 					className={`
     w-full h-full bg-[var(--white)] rounded-2xl

@@ -25,6 +25,7 @@ export const InputDefault = ({
 	value, // Добавляем проп value
 	onChange, // Добавляем проп onChange
 	blackText = false,
+	disabled = false,
 }) => {
 	const [inputStatus, setInputStatus] = useState(false)
 	const [internalValue, setInternalValue] = useState(value || '')
@@ -49,7 +50,9 @@ export const InputDefault = ({
 	}
 
 	return (
-		<div className='w-full inline-flex flex-col group'>
+		<div
+			className={`w-full inline-flex flex-col group ${disabled && 'opacity-50'}`}
+		>
 			{title && (
 				<div className='inline-flex items-center gap-[10px]'>
 					<p
@@ -74,6 +77,7 @@ export const InputDefault = ({
 				onChange={handleInputChange}
 				className='rounded-xl p-[12px] bg-[var(--white)] shadow-[var(--shadow)] outline-0 focus:ring-1 focus:ring-[var(--hero-epta)] focus:shadow-[var(--hero-shadow)] placeholder:text-[var(--middle)] text-[var(--black)] transition mt-3'
 				placeholder={placeholder}
+				readOnly={disabled}
 			/>
 		</div>
 	)

@@ -37,6 +37,7 @@ import { setGlobalError } from '../components/Errors'
 import { se } from 'date-fns/locale'
 import { LinkBTN } from '../components/Links'
 import { AltLoader } from '../components/Loader'
+import BasicPagination from '../components/Pagination'
 
 const CreateBtn = ({ onClick, title, width = 'w-2/3', height = 'h-129' }) => {
 	return (
@@ -572,14 +573,16 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 	const [linkedGroupIds, setLinkedGroupIds] = useState('')
 	const [unlinkedGroups, setUnlinkedGroups] = useState([])
 
+	const [page, setPage] = useState(1)
+
 	useEffect(() => {
 		setLinkedGroupIds(linkedGroups?.map(({ id }) => id).join(','))
 	}, [linkedGroups])
 
 	const fetchUnlinkedGroups = async (term = '') => {
 		try {
-			const url = `${API}/webinar/student-group/unlinked/${
-				term ? `?term=${term}` : ''
+			const url = `${API}/webinar/student-group/unlinked?page=${page}&size=${25}&webinar_id=${takeinfo.id}${
+				term ? `&term=${term}` : ''
 			}`
 
 			const res = await api.get(url, { withCredentials: true })
@@ -635,6 +638,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 
 		img !== null && formData.append('image', img)
 
+		console.log('formdata: ', formData)
+
 		try {
 			const res = await api.post(`${API}/webinar`, formData, {
 				withCredentials: true,
@@ -653,6 +658,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 			setLinkedGroups([])
 			setLinkedGroupIds('')
 			setImg(null)
+
+			console.log('data: ', data)
 		} catch (error) {
 			console.error('Ошибка сервера:', error)
 		}
@@ -727,8 +734,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 	}
 
 	useEffect(() => {
-		// setTitle(takeinfo?.name)
-		// setUrl(takeinfo?.link_url)
+		setTitle(takeinfo?.name)
+		setUrl(takeinfo?.link_url)
 		// const start = new Date(takeinfo.start_date)
 		// const end = new Date(takeinfo.end_date)
 		// const date = start.toISOString().split('T')[0]
@@ -777,64 +784,68 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 					className='absolute top-1 right-1 text-[var(--middle)]'
 				/>
 				<h2 className='text-2xl font-medium text-[var(--black)] mb-5 text-center'>
-					{editMode ? 'Управление доступом' : 'Создание видео-конференции'}
+					{editMode
+						? 'Редактирование видео-конференции'
+						: 'Создание видео-конференции'}
 				</h2>
 
 				<div className=' flex gap-2 items-center justify-center mb-3'>
-					{!editMode && (
-						<>
-							<p
-								onClick={() => setStep(1)}
-								className={`${
-									step === 1
-										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-										: isFormValid
-											? 'bg-[var(--hero-epta)] text-white'
-											: 'text-[var(--middle)] bg-[var(--light-middle)]'
-								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
-							>
-								1
-							</p>
-							<div
-								className={`h-1 ${
-									isFormValid
-										? 'bg-[var(--hero-epta)]'
-										: 'bg-[var(--light-middle)]'
-								} w-10 rounded-full`}
-							></div>
-							<p
-								onClick={() => setStep(2)}
-								className={`${
-									step === 2
-										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-										: isStartDTValid
-											? 'bg-[var(--hero-epta)] text-white'
-											: 'text-[var(--middle)] bg-[var(--light-middle)]'
-								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
-							>
-								2
-							</p>
-							<div
-								className={`h-1 ${
-									isStartDTValid
-										? 'bg-[var(--hero-epta)]'
-										: 'bg-[var(--light-middle)]'
-								} w-10 rounded-full`}
-							></div>
-							<p
-								onClick={() => setStep(3)}
-								className={`${
-									step === 3
-										? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
-										: linkedGroups?.length !== 0
-											? 'bg-[var(--hero-epta)] text-white'
-											: 'text-[var(--middle)] bg-[var(--light-middle)]'
-								}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
-							>
-								3
-							</p>
-						</>
-					)}
+					<>
+						<p
+							onClick={() => setStep(1)}
+							className={`${
+								step === 1
+									? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+									: isFormValid
+										? 'bg-[var(--hero-epta)] text-white'
+										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+							}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+						>
+							1
+						</p>
+						{!editMode && (
+							<>
+								<div
+									className={`h-1 ${
+										isFormValid
+											? 'bg-[var(--hero-epta)]'
+											: 'bg-[var(--light-middle)]'
+									} w-10 rounded-full`}
+								></div>
+								<p
+									onClick={() => setStep(2)}
+									className={`${
+										step === 2
+											? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+											: isStartDTValid
+												? 'bg-[var(--hero-epta)] text-white'
+												: 'text-[var(--middle)] bg-[var(--light-middle)]'
+									}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+								>
+									2
+								</p>
+							</>
+						)}
+						<div
+							className={`h-1 ${
+								isStartDTValid
+									? 'bg-[var(--hero-epta)]'
+									: 'bg-[var(--light-middle)]'
+							} w-10 rounded-full`}
+						></div>
+						<p
+							onClick={() => setStep(3)}
+							className={`${
+								step === 3
+									? 'bg-[var(--white)] ring-[var(--hero-epta)] shadow-[var(--hero-shadow)] text-[var(--hero-epta)] ring-2'
+									: linkedGroups?.length !== 0
+										? 'bg-[var(--hero-epta)] text-white'
+										: 'text-[var(--middle)] bg-[var(--light-middle)]'
+							}  h-10 w-10 p-1.75 text-xl font-semibold text-center rounded-full`}
+						>
+							{!editMode ? '3' : '2'}
+						</p>
+					</>
 				</div>
 
 				<form onSubmit={editMode ? handleEditAccess : handleSubmit}>
@@ -844,52 +855,63 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 								<InputDefault
 									type='text'
 									placeholder='Название видео-конференции'
-									title='Введите название видео-конференции'
+									title={
+										editMode
+											? 'Название видео-конференции'
+											: 'Введите название видео-конференции'
+									}
 									required={true}
 									InputStatus={false}
 									onStatusChange={setIsNameValid}
 									value={title}
 									onChange={e => setTitle(e.target.value)}
+									disabled={editMode}
 								/>
 								<InputDefault
 									type='text'
 									placeholder='https://example.ru/...'
-									title='Введите ссылку на видео-конференции'
+									title={
+										editMode
+											? 'Редактирование ссылки видео-конференции'
+											: 'Введите ссылку на видео-конференцию'
+									}
 									required={true}
 									InputStatus={false}
 									onStatusChange={setIsUrlValid}
 									value={url}
 									onChange={e => setUrl(e.target.value)}
 								/>
-								<div className='flex flex-col gap-3'>
-									<div className='inline-flex items-center gap-[10px]'>
-										<p className={`text-[18px] text-[var(--middle)]`}>
-											Загрузите превью
-										</p>
-										<div className='relative'>
-											<CircleQuestionMark
-												onClick={() =>
-													setHintOpen(prev => (prev === null ? 1 : null))
-												}
-												className='text-blue-500 ml-1 cursor-pointer'
-												size={16}
-											/>
-											<div
-												className={`${
-													hintOpen === 1
-														? 'opacity-100 scale-100'
-														: 'opacity-0 scale-0 -translate-x-1/2'
-												} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 text-[var(--black)] rounded-lg`}
-											>
-												<p>
-													При отсутствии загруженного изображения система
-													автоматически сгенерирует превью.
-												</p>
+								{!editMode && (
+									<div className='flex flex-col gap-3'>
+										<div className='inline-flex items-center gap-[10px]'>
+											<p className={`text-[18px] text-[var(--middle)]`}>
+												Загрузите превью
+											</p>
+											<div className='relative'>
+												<CircleQuestionMark
+													onClick={() =>
+														setHintOpen(prev => (prev === null ? 1 : null))
+													}
+													className='text-blue-500 ml-1 cursor-pointer'
+													size={16}
+												/>
+												<div
+													className={`${
+														hintOpen === 1
+															? 'opacity-100 scale-100'
+															: 'opacity-0 scale-0 -translate-x-1/2'
+													} transition-all select-none cursor-default bg-[var(--white)] shadow-[var(--shadow)] absolute -top-12.5 left-7 h-auto w-75 px-3 py-2 text-[var(--black)] rounded-lg`}
+												>
+													<p>
+														При отсутствии загруженного изображения система
+														автоматически сгенерирует превью.
+													</p>
+												</div>
 											</div>
 										</div>
+										<FileInput onFileChange={file => setImg(file)} />
 									</div>
-									<FileInput onFileChange={file => setImg(file)} />
-								</div>
+								)}
 
 								<input
 									className={`px-[51px] py-[14.5px] font-medium text-xl rounded-lg w-fit  transition ${
@@ -900,7 +922,7 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 									type='button'
 									value='Далее'
 									disabled={!isFormValid}
-									onClick={() => setStep(prev => prev + 1)}
+									onClick={() => setStep(editMode ? 3 : 2)}
 								/>
 							</div>
 						</>
@@ -1004,9 +1026,38 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 									)
 								})}
 							</div>
+							{linkedGroups && (
+								<div className='grid grid-cols-3 gap-3'>
+									<p className='col-span-3 text-center font-medium'>
+										Привязанные группы к видео-конференции
+									</p>
+									{linkedGroups?.map((item, i) => (
+										<motion.div
+											key={i}
+											initial={{ scale: 0.8, opacity: 0 }}
+											animate={{ scale: 1, opacity: 1 }}
+											transition={{
+												duration: 0.3,
+												delay: i * 0.1,
+												ease: 'easeOut',
+											}}
+										>
+											<div
+												key={i}
+												onClick={() => handleRemove(item?.id)}
+												className={`bg-[var(--hero-epta)] rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 transition-all flex justify-between`}
+											>
+												<p className={`font-medium text-white `}>
+													{item?.name}
+												</p>
+											</div>
+										</motion.div>
+									))}
+								</div>
+							)}
 
 							<div
-								className={` bg-[var(--light-middle)] rounded-lg shadow-inner p-2 pr-2.75 overflow-y-scroll flex flex-col gap-2 w-full h-[39.5vh] transition-all ${
+								className={`relative bg-[var(--light-middle)] rounded-lg shadow-inner p-2 pr-2.75 overflow-y-scroll flex flex-col gap-2 w-full h-[39.5vh] transition-all ${
 									selectedAccess === 1 ? 'opacity-50 pointer-events-none' : ''
 								}`}
 							>
@@ -1016,28 +1067,8 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 									onChange={e => setSearchGroups(e.target.value)}
 									value={searchGroups}
 								/>
-								{linkedGroups?.map((item, i) => (
-									<motion.div
-										key={i}
-										initial={{ scale: 0.8, opacity: 0 }}
-										animate={{ scale: 1, opacity: 1 }}
-										transition={{
-											duration: 0.3,
-											delay: i * 0.1,
-											ease: 'easeOut',
-										}}
-									>
-										<div
-											key={i}
-											onClick={() => handleRemove(item?.id)}
-											className={`bg-[var(--hero-epta)] rounded-md shadow-[var(--shadow)] px-4 py-2  cursor-pointer hover:scale-101 transition-all flex justify-between`}
-										>
-											<p className={`font-medium text-white `}>{item?.name}</p>
-											<Check className='text-white' />
-										</div>
-									</motion.div>
-								))}
-								{unlinkedGroups?.map((item, i) => (
+
+								{unlinkedGroups?.items?.map((item, i) => (
 									<motion.div
 										key={i}
 										initial={{ scale: 0.8, opacity: 0 }}
@@ -1059,6 +1090,14 @@ const CreateWebinar = ({ isOpen, onClose, onCreate, takeinfo, editmode }) => {
 										</div>
 									</motion.div>
 								))}
+								<div className='absolute bottom-2 bg-[var(--white)] flex w-[96%] rounded-lg shadow-[var(--shadow)] justify-center p-1'>
+									<BasicPagination
+										count={unlinkedGroups?.pages}
+										page={page}
+										onPageChange={setPage}
+										siblingCount={2}
+									/>
+								</div>
 							</div>
 
 							<input

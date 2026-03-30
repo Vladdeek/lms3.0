@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { isAfter, isBefore } from 'date-fns'
 import { useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
-import { Trash } from 'lucide-react'
+import { Pen, Trash } from 'lucide-react'
 import api, { API } from '../API'
 import { getCookie } from '../TOKEN'
 
@@ -196,7 +196,7 @@ export const WebinarCard = ({
 					{title}
 				</p>
 				<p className='text-[var(--middle)] text-sm font-normal mb-[10px]'>
-					Начало вэбинара: <br />
+					Начало видео-конференции: <br />
 					Дата -{' '}
 					<span className='font-medium'>
 						{start
@@ -215,7 +215,7 @@ export const WebinarCard = ({
 					</span>
 				</p>
 				<p className='text-[var(--middle)] text-sm font-normal mb-[10px]'>
-					Окончание вэбинара: <br />
+					Окончание видео-конференции: <br />
 					Дата -{' '}
 					<span className='font-medium'>
 						{end
@@ -238,10 +238,11 @@ export const WebinarCard = ({
 			{location.pathname === '/catalogt/webinars' ? (
 				<div className='w-full flex gap-1'>
 					<button
-						className={` flex justify-center items-center p-2 w-full rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer `}
+						className={` flex justify-center items-center gap-1 p-2 w-full rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-[var(--hero-epta)] hover:text-white cursor-pointer `}
 						onClick={edit}
 					>
-						Управление доступом
+						<Pen className='p-0.5' />
+						<p className='pt-1'>Редактировать</p>
 					</button>
 					<button
 						className={` flex justify-center items-center p-2 rounded-lg transition-all bg-[var(--black)] text-[var(--white)] hover:bg-red-600 hover:text-white cursor-pointer `}

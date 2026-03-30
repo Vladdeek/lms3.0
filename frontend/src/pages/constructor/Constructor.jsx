@@ -163,19 +163,19 @@ const CreateLessonButton = ({ moduleId, onAddLesson }) => {
 				'Теоретический материал с поддержкой текста, изображений, видео и аудио. Можно прикреплять дополнительные файлы для изучения.',
 		},
 		{
-			label: 'Практика',
+			label: 'Практическое занятие',
 			apiType: 'practice',
 			icon: <NotebookPen size={24} />,
 			description:
 				'Задания для самостоятельного выполнения. Включает текстовые инструкции, примеры и возможность загрузки решений.',
 		},
-		// {
-		// 	label: 'Лаба',
-		// 	apiType: 'lab',
-		// 	icon: <FlaskConical size={24} />,
-		// 	description:
-		// 		'Задания для самостоятельного выполнения. Включает текстовые инструкции, примеры и возможность загрузки решений.',
-		// },
+		{
+			label: 'Лабаторная работа',
+			apiType: 'labs',
+			icon: <FlaskConical size={24} />,
+			description:
+				'Задания для самостоятельного выполнения. Включает текстовые инструкции, примеры и возможность загрузки решений.',
+		},
 		{
 			label: 'Тест',
 			apiType: 'test',
@@ -215,7 +215,7 @@ const CreateLessonButton = ({ moduleId, onAddLesson }) => {
 
 	const steps = [
 		<>
-			<div className='grid grid-cols-3 gap-2'>
+			<div className='grid grid-cols-2 gap-2'>
 				{lessonTypes.map((item, index) => (
 					<button
 						key={index}

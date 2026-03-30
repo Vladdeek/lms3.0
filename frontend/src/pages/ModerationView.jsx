@@ -423,7 +423,7 @@ const CourseOverview = ({ content }) => {
 
 	return (
 		<>
-			<div className='grid grid-cols-[320px_1fr] gap-5 h-full min-h-0'>
+			<div className='grid grid-cols-[320px_1fr] gap-3 h-full min-h-0'>
 				<div className='flex flex-col gap-3 '>
 					<div className='flex bg-[var(--white)] justify-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
 						<Gem size={32} color='var(--hero-epta)' strokeWidth={1.5} />
