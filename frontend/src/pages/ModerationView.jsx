@@ -387,7 +387,7 @@ const ContentView = ({ content, contentType, contentTitle }) => {
 	)
 }
 
-const CourseOverview = ({ content }) => {
+const CourseOverview = ({ content, courseId }) => {
 	const [selectedContent, setSelectedContent] = useState(null)
 	const [selectedType, setSelectedType] = useState(null)
 	const [selectedName, setSelectedName] = useState(null)
@@ -446,6 +446,33 @@ const CourseOverview = ({ content }) => {
 			window.removeEventListener('scroll', handleScroll)
 		}
 	}, [showFullInfo])
+
+	const [Files, setFiles] = useState([])
+
+	const fetchFiles = async () => {
+		try {
+			const res = await api.get(`${API}/courses/${courseId}/attachments`, {
+				withCredentials: true,
+				headers: {},
+			})
+
+			const result = res.data || []
+
+			const mapped = result.map(file => ({
+				file_path: `${file.file_path}`,
+				name: file.original_name,
+				size: file.file_size,
+				type: file.file_extension,
+				id: file.id,
+			}))
+
+			setFiles(mapped)
+		} catch (e) {}
+	}
+
+	useEffect(() => {
+		courseId && fetchFiles()
+	}, [courseId])
 
 	return (
 		<>
@@ -515,6 +542,14 @@ const CourseOverview = ({ content }) => {
 										? 'Не указано'
 										: content?.study_plan}
 								</p>
+								{Files?.length !== 0 && (
+									<>
+										<p className='text-[var(--black)] text-center text-xl font-medium mb-3'>
+											Прикрепленный материал
+										</p>
+										<FileView Files={Files} haveType={true} pinedFiles={true} />
+									</>
+								)}
 							</div>
 						</div>
 					</div>
@@ -599,7 +634,7 @@ const ModerationComponent = ({ moderationCourseId }) => {
 			<div className='flex flex-col gap-5 h-full min-h-0'>
 				<div className='flex justify-between items-center mt-10'></div>
 
-				<CourseOverview content={courseContent} />
+				<CourseOverview content={courseContent} courseId={moderationCourseId} />
 			</div>
 		</>
 	)
