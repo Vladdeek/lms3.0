@@ -396,7 +396,7 @@ const ConstructorPage = ({ role }) => {
 		{ value: 0, title: 'Конструктор', icon: BrickWall },
 		{ value: 1, title: 'Управление доступом', icon: UsersRound },
 		{ value: 2, title: 'Активность студентов', icon: Timer },
-		{ value: 3, title: 'Приложения к курсу', icon: Paperclip },
+		{ value: 3, title: 'РПД', icon: Paperclip },
 	]
 	const [sectionType, setSectionType] = useState('text')
 

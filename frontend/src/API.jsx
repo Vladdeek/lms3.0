@@ -21,7 +21,7 @@ import { getCookie } from './TOKEN'
 const api = axios.create({
 	withCredentials: true,
 })
-/* 🔥 ДОБАВЛЯЕМ CSRF В КАЖДЫЙ ЗАПРОС */
+
 api.interceptors.request.use(config => {
 	const csrf = getCookie('csrftoken')
 
