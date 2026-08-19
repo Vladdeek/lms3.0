@@ -9,6 +9,8 @@ import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
 import QuestionDeleteModal from './QuestionDeleteModal'
 
+const MIN_COUNT_ANSWERS = 4
+
 // Компонент для пары сопоставления
 const MatchPair = ({
 	id,
@@ -60,8 +62,8 @@ const MatchPair = ({
 
 const SortVariants = ({ sectionId, testId, onChange, deletedQuestion }) => {
 	const [pairs, setPairs] = useState([])
-	const [left_option, setLeft_option] = useState(['', ''])
-	const [right_option, setRight_option] = useState(['', ''])
+	const [left_option, setLeft_option] = useState(['', '', '', ''])
+	const [right_option, setRight_option] = useState(['', '', '', ''])
 	const [score, setScore] = useState(1)
 	const [media, setMedia] = useState()
 	const [isLoading, setIsLoading] = useState(false)
@@ -116,7 +118,7 @@ const SortVariants = ({ sectionId, testId, onChange, deletedQuestion }) => {
 	}
 
 	const handleDeletePair = index => {
-		if (left_option.length <= 2) return
+		if (left_option.length <= MIN_COUNT_ANSWERS) return
 		setLeft_option(prev => prev.filter((_, i) => i !== index))
 		setRight_option(prev => prev.filter((_, i) => i !== index))
 	}
@@ -141,8 +143,8 @@ const SortVariants = ({ sectionId, testId, onChange, deletedQuestion }) => {
 				setQuestion(data?.title)
 				setScore(data?.score)
 				setMedia(data?.media)
-				setLeft_option(data?.answer_data?.left_options || ['', ''])
-				setRight_option(data?.answer_data?.right_options || ['', ''])
+				setLeft_option(data?.answer_data?.left_options || ['', '', '', ''])
+				setRight_option(data?.answer_data?.right_options || ['', '', '', ''])
 			}
 		} catch (error) {
 			console.error('Ошибка при загрузке теста:', error)
@@ -213,8 +215,8 @@ const SortVariants = ({ sectionId, testId, onChange, deletedQuestion }) => {
 		} else {
 			setQuestion('')
 			setMedia({})
-			setLeft_option(['', ''])
-			setRight_option(['', ''])
+			setLeft_option(['', '', '', ''])
+			setRight_option(['', '', '', ''])
 			setIsLoading(false)
 		}
 	}, [testId])
@@ -272,7 +274,7 @@ const SortVariants = ({ sectionId, testId, onChange, deletedQuestion }) => {
 											handleRightChange(index, value)
 										}
 										onDelete={() => handleDeletePair(index)}
-										canDelete={pairs.length > 2}
+										canDelete={pairs.length > MIN_COUNT_ANSWERS}
 										label={`Пара ${index + 1}`}
 									/>
 								))}

@@ -10,6 +10,8 @@ import { getCookie, token } from '../../TOKEN'
 import axios from 'axios'
 import QuestionDeleteModal from './QuestionDeleteModal'
 
+const MIN_COUNT_ANSWERS = 4
+
 // Компонент для нескольких правильных ответов
 const CheckboxCreateMultiple = ({
 	id,
@@ -120,6 +122,8 @@ const MoreVariant = ({
 	const [answers, setAnswers] = useState([
 		{ option_code: '1', name: '', correct: false },
 		{ option_code: '2', name: '', correct: false },
+		{ option_code: '3', name: '', correct: false },
+		{ option_code: '4', name: '', correct: false },
 	])
 
 	const [validate, setValidate] = useState(false)
@@ -196,7 +200,7 @@ const MoreVariant = ({
 	}
 
 	const handleDeleteAnswer = id => {
-		if (answers.length <= 2) return
+		if (answers.length <= MIN_COUNT_ANSWERS) return
 		setAnswers(prev => prev.filter(answer => answer.option_code !== id))
 	}
 
@@ -317,6 +321,8 @@ const MoreVariant = ({
 			setAnswers([
 				{ option_code: '1', name: '', correct: false },
 				{ option_code: '2', name: '', correct: false },
+				{ option_code: '3', name: '', correct: false },
+				{ option_code: '4', name: '', correct: false },
 			])
 			setIsLoading(false)
 		}
@@ -391,7 +397,7 @@ const MoreVariant = ({
 									}
 									onDelete={handleDeleteAnswer}
 									label={`Вариант ${index + 1}`}
-									canDelete={answers.length > 2}
+									canDelete={answers.length > MIN_COUNT_ANSWERS}
 								/>
 							))}
 						</div>

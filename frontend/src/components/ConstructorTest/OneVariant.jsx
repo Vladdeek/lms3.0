@@ -10,6 +10,8 @@ import axios from 'axios'
 import { set } from 'date-fns'
 import QuestionDeleteModal from './QuestionDeleteModal'
 
+const MIN_COUNT_ANSWERS = 4
+
 const CheckboxCreate = ({
 	checked: checkedProp = false,
 	onChange,
@@ -138,6 +140,8 @@ const OneVariant = ({ sectionId, testId, onChange, deletedQuestion }) => {
 	const [answers, setAnswers] = useState([
 		{ option_code: '1', name: '', correct: false },
 		{ option_code: '2', name: '', correct: false },
+		{ option_code: '3', name: '', correct: false },
+		{ option_code: '4', name: '', correct: false },
 	])
 	const [media, setMedia] = useState([])
 
@@ -225,7 +229,7 @@ const OneVariant = ({ sectionId, testId, onChange, deletedQuestion }) => {
 	}
 
 	const handleDeleteAnswer = id => {
-		if (answers.length <= 2) return
+		if (answers.length <= MIN_COUNT_ANSWERS) return
 		setAnswers(prev => prev.filter(answer => answer.option_code !== id))
 	}
 
@@ -343,6 +347,8 @@ const OneVariant = ({ sectionId, testId, onChange, deletedQuestion }) => {
 			setAnswers([
 				{ option_code: '1', name: '', correct: false },
 				{ option_code: '2', name: '', correct: false },
+				{ option_code: '3', name: '', correct: false },
+				{ option_code: '4', name: '', correct: false },
 			])
 			setIsLoading(false)
 		}
@@ -421,7 +427,7 @@ const OneVariant = ({ sectionId, testId, onChange, deletedQuestion }) => {
 										}
 										onDelete={handleDeleteAnswer}
 										label={`Вариант ${index + 1}`}
-										canDelete={answers.length > 2}
+										canDelete={answers.length > MIN_COUNT_ANSWERS}
 									/>
 								))}
 						</div>
