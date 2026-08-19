@@ -417,13 +417,35 @@ const MoreVariant = ({
 					</div>
 				</div>
 				<div className=' flex justify-center items-center  w-1/4'>
-					<p className='border-3 border-dashed p-5 rounded-xl border-[var(--light-middle)] font-light text-[var(--middle)]'>
+					<p className='border-3 border-dashed flex flex-col p-5 rounded-xl border-[var(--light-middle)] font-light text-[var(--middle)]'>
 						<span className='text-center w-full flex justify-center'>
 							Как создать вопрос:
 						</span>
-						<br /> 1. Заголовок: Четко сформулируйте задание. <br />
-						2. Варианты ответов: Внесите все возможные варианты. <br /> 3. Выбор
-						правильных ответов: Отметьте галочкой несколько пунктов.
+						<span>
+							1. <span className='font-medium'>Заголовок:</span> чётко
+							сформулируйте задание;{' '}
+						</span>
+						<span>
+							2. <span className='font-medium'>Варианты ответов:</span> внесите
+							искомый вариант ответа и дистракторы;
+						</span>
+						<span>
+							3.{' '}
+							<span className='font-medium'>
+								Выбор правильного варианта ответа:
+							</span>{' '}
+							отметьте галочкой несколько пунктов;
+						</span>
+						<span>
+							4. Между вариантами ответа по завершению задания знаки препинания
+							не ставятся. Воздержитесь от точек с запятой между вариантами
+							ответов;
+						</span>
+						<span>
+							5. В вариантах ответа не допускается использование нумерации,
+							введённой вручную в текстовое поле, в связи с автоматическим
+							перемешиванием вопросов.
+						</span>
 					</p>
 				</div>
 			</div>
