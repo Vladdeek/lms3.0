@@ -750,11 +750,13 @@ const ModuleContent = ({
 							{type === 'lecture' && <BookMarked size={20} />}
 							{type === 'practice' && <NotebookPen size={20} />}
 							{type === 'test' && <LaptopMinimalCheck size={20} />}
+							{type === 'labs' && <FlaskConical size={20} />}
 
 							<p className='font-medium pt-1 text-base whitespace-nowrap truncate min-w-0'>
 								{type === 'lecture' && 'Лекция'}
 								{type === 'practice' && 'Практика'}
 								{type === 'test' && 'Тест'}
+								{type === 'labs' && 'Лабораторная работа'}
 							</p>
 						</div>
 
@@ -1262,11 +1264,13 @@ const ContentView = ({
 							{SectionType === 'lecture' && <BookMarked size={20} />}
 							{SectionType === 'practice' && <NotebookPen size={20} />}
 							{SectionType === 'test' && <LaptopMinimalCheck size={20} />}
+							{SectionType === 'labs' && <FlaskConical size={20} />}
 
 							<p className='font-medium pt-1 text-base whitespace-nowrap truncate min-w-0'>
 								{SectionType === 'lecture' && 'Лекция'}
 								{SectionType === 'practice' && 'Практика'}
 								{SectionType === 'test' && 'Тест'}
+								{SectionType === 'labs' && 'Лабораторная работа'}
 							</p>
 						</div>
 						<p className='text-[var(--middle)] text-xl'>/</p>

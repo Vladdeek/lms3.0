@@ -17,7 +17,13 @@ import api, { API, FILE_API } from '../../API'
 import { getCookie } from '../../TOKEN'
 import axios from 'axios'
 
-export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
+export const FileView = ({
+	onStatusChange,
+	Files,
+	haveType,
+	pinedFiles,
+	withoutBg = false,
+}) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
 	const [files, setFiles] = useState(null)
@@ -224,14 +230,20 @@ export const FileView = ({ onStatusChange, Files, haveType, pinedFiles }) => {
 	return (
 		<div className='flex gap-2 justify-center w-full'>
 			<div
-				className={`${pinedFiles ? 'w-full' : 'w-4/5 lg:w-2/3'}  flex flex-col border-1 border-[var(--light-middle)] rounded-lg h-fit overflow-hidden shadow-[var(--shadow)]`}
+				className={`${pinedFiles ? 'w-full' : 'w-4/5 lg:w-2/3'}  flex flex-col  rounded-lg h-fit overflow-hidden ${!withoutBg && 'shadow-[var(--shadow)] border-1 border-[var(--light-middle)]'} `}
 			>
 				{files?.map((file, index) => (
 					<div
 						key={index}
 						className={`flex items-center justify-between  p-3 file ${
-							index % 2 === 0 ? 'bg-[var(--white)]' : 'bg-[var(--light-gray)]'
-						} w-full`}
+							withoutBg
+								? 'bg-transparent'
+								: `${
+										index % 2 === 0
+											? 'bg-[var(--white)]'
+											: 'bg-[var(--light-gray)]'
+									}`
+						}  w-full`}
 					>
 						<div className='flex items-center gap-2'>
 							{getFileIcon(haveType ? file.type : file.name)}

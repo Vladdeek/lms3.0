@@ -207,6 +207,7 @@ const Moderation = ({ role }) => {
 	const options = [
 		{ value: 0, title: 'На рассмотрении' },
 		{ value: 1, title: 'Все' },
+		// { value: 2, title: 'Рецензировано' },
 	]
 	const [selected, setSelected] = useState(0)
 	const [page, setPage] = useState(1)

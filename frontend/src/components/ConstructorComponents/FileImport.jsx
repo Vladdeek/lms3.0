@@ -28,6 +28,7 @@ export const ConstructorFileInput = ({
 	takeValues,
 	destination,
 	deleteDisabled = false,
+	max_files = 10,
 }) => {
 	const inputId = useId()
 	const [inputStatus, setInputStatus] = useState(false)
@@ -37,7 +38,7 @@ export const ConstructorFileInput = ({
 	const [isDragActive, setIsDragActive] = useState(false)
 	const maxFileSizeInMB = maxFilesSizeInMB
 	const maxSize = maxFileSizeInMB * 1024 * 1024
-	const maxFiles = 10
+	const maxFiles = max_files
 
 	console.log('Files:', files)
 

@@ -19,6 +19,7 @@ import {
 	Package,
 	Plus,
 	Trash,
+	X,
 } from 'lucide-react'
 import {
 	Button,
@@ -55,6 +56,94 @@ import { getCookie, token } from '../TOKEN'
 import SortVariantModerationView from '../components/TestModerationView/SortVariantsModertionView'
 import OpenQuestionModerationView from '../components/TestModerationView/OpenQuestionModertionView'
 import { setGlobalError } from '../components/Errors'
+import { GroupComponent } from './constructor/AccessManagement'
+
+const GroupInfoComponent = ({ name, course_lvl, students_count }) => {
+	return (
+		<>
+			<div className='bg-[var(--white)] shadow-[var(--shadow)] flex justify-between rounded-lg py-4 px-6 text-[var(--black)]'>
+				<p className='col-span-1 text-center'>Группа: {name}</p>
+				<p className='col-span-1 text-center'>{course_lvl}-й курс</p>
+				<p className='col-span-1 text-center'>
+					Количество студентов - {students_count}
+				</p>
+			</div>
+		</>
+	)
+}
+
+const GroupsModal = ({ isOpen, onClose, courseId = '' }) => {
+	if (!isOpen) return null
+
+	const [loading, setLoading] = useState(true)
+
+	const [linkedGroups, setLinkedGroups] = useState([])
+
+	const fetchData = async () => {
+		const url = `${API}/courses/student-group/linked/all/?course_id=${courseId}`
+		setLoading(true)
+		try {
+			const res = await api.get(url, { withCredentials: true })
+			setLinkedGroups(res.data)
+		} catch (e) {
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	useEffect(() => {
+		fetchData()
+	}, [courseId])
+
+	return (
+		<>
+			{isOpen && (
+				<div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-1000'>
+					<div className='bg-[var(--white)] relative p-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.125)] h-[50vh] overflow-y-scroll hide-scrollbar  z-1001'>
+						<X
+							onClick={onClose}
+							className='absolute top-1 right-1 text-[var(--middle)] cursor-pointer hover:text-white  hover:bg-red-500 hover:rounded-full hover:p-0.5  transition-all'
+						/>
+						<p className='flex items-center justify-center text-2xl text-[var(--black)] font-semibold'>
+							Список привязанных групп
+						</p>
+
+						<div className='flex flex-col gap-3 w-[50vw] h-full'>
+							{!loading ? (
+								<>
+									{linkedGroups?.length === 0 ? (
+										<p className='flex items-center justify-center text-2xl text-[var(--middle)] h-full'>
+											Пусто
+										</p>
+									) : (
+										<>
+											{linkedGroups?.map((item, index) => (
+												<motion.div
+													key={item.id}
+													initial={{ scale: 0.8, opacity: 0 }}
+													animate={{ scale: 1, opacity: 1 }}
+													transition={{ duration: 0.3, delay: index * 0.05 }}
+												>
+													<GroupInfoComponent
+														name={item.name}
+														students_count={item.count_students}
+														course_lvl={item.course_level}
+													/>
+												</motion.div>
+											))}
+										</>
+									)}
+								</>
+							) : (
+								<Loader />
+							)}
+						</div>
+					</div>
+				</div>
+			)}
+		</>
+	)
+}
 
 const ModuleTitle = ({ title, index, isExpanded, onToggle, children }) => {
 	return (
@@ -393,6 +482,8 @@ const CourseOverview = ({ content, courseId }) => {
 	const [selectedName, setSelectedName] = useState(null)
 	const [sectionId, setSectionId] = useState(null)
 
+	const [isModalOpen, setIsModalOpen] = useState(false)
+
 	const handleContentSelect = (SectionId, SectionType, SectionName) => {
 		setSectionId(SectionId)
 		setSelectedType(SectionType)
@@ -476,6 +567,11 @@ const CourseOverview = ({ content, courseId }) => {
 
 	return (
 		<>
+			<GroupsModal
+				isOpen={isModalOpen}
+				courseId={courseId}
+				onClose={() => setIsModalOpen(false)}
+			/>
 			<div className='grid grid-cols-[320px_1fr] gap-3 h-full min-h-0'>
 				<div className='flex flex-col gap-3 '>
 					<div className='flex bg-[var(--white)] justify-center items-center rounded-xl shadow-[var(--shadow)] px-4 py-3 gap-3'>
@@ -506,6 +602,17 @@ const CourseOverview = ({ content, courseId }) => {
 									<span className='font-medium'>Название: </span>
 									{content?.name === null ? 'Не указано' : content?.name}
 								</p>
+								{Files?.length !== 0 && (
+									<div className='flex gap-1 items-center'>
+										<p className='text-[var(--black)] font-medium'>РПД: </p>
+										<FileView
+											withoutBg={true}
+											Files={Files}
+											haveType={true}
+											pinedFiles={true}
+										/>
+									</div>
+								)}
 								<p className='text-[var(--black)] font-light'>
 									<span className='font-medium'>Описание: </span>
 									{content?.description === null
@@ -542,14 +649,10 @@ const CourseOverview = ({ content, courseId }) => {
 										? 'Не указано'
 										: content?.study_plan}
 								</p>
-								{Files?.length !== 0 && (
-									<>
-										<p className='text-[var(--black)] text-center text-xl font-medium mb-3'>
-											Прикрепленный материал
-										</p>
-										<FileView Files={Files} haveType={true} pinedFiles={true} />
-									</>
-								)}
+								<Button
+									onClick={() => setIsModalOpen(true)}
+									title={'Показать список групп'}
+								/>
 							</div>
 						</div>
 					</div>

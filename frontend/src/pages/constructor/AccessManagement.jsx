@@ -21,7 +21,7 @@ const ENTITY = {
 	TEACHERS: 'teachers',
 }
 
-const GroupComponent = ({
+export const GroupComponent = ({
 	id,
 	number,
 	lvl,

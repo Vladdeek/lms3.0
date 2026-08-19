@@ -561,7 +561,7 @@ const Attachment = () => {
 				<p className='text-2xl text-[var(--black)] font-medium my-2 mx-4'>
 					Прикрепленные файлы к курсу
 				</p>
-				<ConstructorFileInput />
+				<ConstructorFileInput maxFiles={1} />
 			</div>
 		</div>
 	)

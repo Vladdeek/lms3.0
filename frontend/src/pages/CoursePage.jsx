@@ -11,6 +11,7 @@ import {
 	ChevronsUp,
 	ChevronUp,
 	Copy,
+	FlaskConical,
 	Frown,
 	Gem,
 	Info,
@@ -127,11 +128,13 @@ const ModuleContent = ({ type, title, isLocked, id }) => {
 						{type === 'lecture' && <BookMarked size={20} />}
 						{type === 'practice' && <NotebookPen size={20} />}
 						{type === 'test' && <LaptopMinimalCheck size={20} />}
+						{type === 'labs' && <FlaskConical size={20} />}
 
-						<p className='font-medium pt-1 text-base whitespace-nowrap'>
+						<p className='font-medium pt-1 text-base whitespace-nowrap truncate min-w-0'>
 							{type === 'lecture' && 'Лекция'}
 							{type === 'practice' && 'Практика'}
 							{type === 'test' && 'Тест'}
+							{type === 'labs' && 'Лабораторная работа'}
 						</p>
 					</div>
 				</div>
